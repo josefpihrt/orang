@@ -1,0 +1,51 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Version>1.0.0.0</Version>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>Orang</AssemblyName>
+    <RootNamespace>Orang.CommandLine</RootNamespace>
+    <CodeAnalysisRuleSet>..\global.ruleset</CodeAnalysisRuleSet>
+    <LangVersion>latest</LangVersion>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\Orang.snk</AssemblyOriginatorKeyFile>
+    <Copyright>Copyright (c) 2017-2019 Josef Pihrt</Copyright>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>orang</ToolCommandName>
+    <PackageId>Orang.DotNet.Cli</PackageId>
+    <PackageVersion>1.0.0-beta</PackageVersion>
+    <Authors>Josef Pihrt</Authors>
+    <Description>Search, replace, rename and delete directories, files and its content using the power or .NET regular expressions.</Description>
+    <PackageProjectUrl>https://github.com/JosefPihrt/Orang</PackageProjectUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageTags>RegularExpressions;Regex;CLI</PackageTags>
+    <RepositoryUrl>https://github.com/JosefPihrt/Orang.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommandLineParser" Version="2.6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Core.csproj" />
+    <ProjectReference Include="..\CommandLine.Core\CommandLine.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\images\icon.png" Pack="true" PackagePath="\" Visible="false" />
+    <None Update="Resources\RegexSyntax.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,133 @@
+﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+
+namespace Orang.CommandLine
+{
+    internal class LineMatchWriter : MatchWriter
+    {
+        private int _lastEndIndex;
+        protected int _solIndex;
+        protected int _eolIndex;
+        protected int _lineNumber;
+        private ValueWriter _valueWriter;
+
+        public LineMatchWriter(
+            string input,
+            MatchWriterOptions options = null,
+            List<string> values = null) : base(input, options)
+        {
+            Values = values;
+            MatchingLineCount = 0;
+        }
+
+        public List<string> Values { get; }
+
+        protected override ValueWriter ValueWriter
+        {
+            get
+            {
+                return _valueWriter ?? (_valueWriter = (Options.IncludeLineNumber)
+                    ? new LineNumberValueWriter(Options.Indent, includeEndingIndent: false)
+                    : new ValueWriter(Options.Indent, includeEndingIndent: false));
+            }
+        }
+
+        protected override void WriteStartMatches()
+        {
+            MatchCount = 0;
+            _lastEndIndex = -1;
+            _solIndex = 0;
+            _eolIndex = -1;
+            _lineNumber = 1;
+        }
+
+        protected override void WriteStartMatch(Capture capture)
+        {
+            Values?.Add(capture.Value);
+
+            int index = capture.Index;
+
+            if (Options.IncludeLineNumber)
+            {
+                _lineNumber += TextHelpers.CountLines(Input, _solIndex, index - _solIndex);
+                ((LineNumberValueWriter)ValueWriter).LineNumber = _lineNumber;
+            }
+
+            bool isSameLine = index < _eolIndex;
+
+            if (isSameLine)
+            {
+                int endIndex = index;
+
+                if (endIndex > _lastEndIndex)
+                {
+                    if (Input[endIndex - 1] == '\r')
+                        endIndex--;
+
+                    Write(Input, _lastEndIndex, endIndex - _lastEndIndex);
+                }
+            }
+            else
+            {
+                if (_lastEndIndex >= 0)
+                    WriteEndOfLine();
+
+                Write(Options.Indent);
+
+                if (Options.IncludeLineNumber)
+                    WriteLineNumber(_lineNumber);
+
+                MatchingLineCount++;
+            }
+
+            int length = capture.Length;
+
+            if (length > 0)
+            {
+                if (Input[index + length - 1] == '\n')
+                    length--;
+
+                MatchingLineCount += TextHelpers.CountLines(Input, index, length);
+            }
+
+            _solIndex = TextHelpers.FindStartOfLine(Input, index);
+            _eolIndex = TextHelpers.FindEndOfLine(Input, index + capture.Length);
+
+            if (!isSameLine)
+                WriteStartLine(_solIndex, index);
+        }
+
+        protected override void WriteEndMatch(Capture capture)
+        {
+            _lastEndIndex = capture.Index + capture.Length;
+        }
+
+        protected override void WriteMatchSeparator()
+        {
+        }
+
+        protected override void WriteStartReplacement(Match match, string result)
+        {
+        }
+
+        protected override void WriteEndReplacement(Match match, string result)
+        {
+        }
+
+        protected override void WriteEndMatches()
+        {
+            WriteEndOfLine();
+        }
+
+        public override void Dispose()
+        {
+        }
+
+        private void WriteEndOfLine()
+        {
+            WriteEndLine(_lastEndIndex, _eolIndex);
+        }
+    }
+}

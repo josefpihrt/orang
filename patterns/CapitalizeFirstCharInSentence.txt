@@ -1,0 +1,8 @@
+(?x)      # set multiline option
+(?<=      # is preceded with
+  (\A|\.) # beginning of text or a dot
+  \s*     # zero or more white-space characters
+)
+\p{Ll}    # lowercase letter
+\w+       # one or more word characters
+\b        # word boundary (between word and non-word character)

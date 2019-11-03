@@ -1,13 +1,11 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-
 namespace Orang.CommandLine
 {
-    [Flags]
-    internal enum MiscellaneousDisplayOptions
+    internal enum PathDisplayStyle
     {
-        None = 0,
-        IncludeFullPath = 1,
+        Full = 0,
+        Relative = 1,
+        Omit = 2
     }
 }

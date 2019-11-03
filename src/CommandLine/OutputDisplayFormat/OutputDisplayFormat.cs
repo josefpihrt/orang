@@ -10,30 +10,28 @@ namespace Orang.CommandLine
 
         public OutputDisplayFormat(
             ContentDisplayStyle contentDisplayStyle,
+            PathDisplayStyle pathDisplayStyle = PathDisplayStyle.Relative,
             LineDisplayOptions lineOptions = LineDisplayOptions.None,
-            MiscellaneousDisplayOptions miscellaneousOptions = MiscellaneousDisplayOptions.None,
             string indent = null,
             string separator = null)
         {
             ContentDisplayStyle = contentDisplayStyle;
+            PathDisplayStyle = pathDisplayStyle;
             LineOptions = lineOptions;
-            MiscellaneousOptions = miscellaneousOptions;
             Indent = indent ?? DefaultIndent;
             Separator = separator ?? Environment.NewLine;
         }
 
         public ContentDisplayStyle ContentDisplayStyle { get; }
 
-        public LineDisplayOptions LineOptions { get; }
+        public PathDisplayStyle PathDisplayStyle { get; }
 
-        public MiscellaneousDisplayOptions MiscellaneousOptions { get; }
+        public LineDisplayOptions LineOptions { get; }
 
         public string Indent { get; }
 
         public string Separator { get; }
 
         public bool Includes(LineDisplayOptions options) => (LineOptions & options) == options;
-
-        public bool Includes(MiscellaneousDisplayOptions options) => (MiscellaneousOptions & options) == options;
     }
 }

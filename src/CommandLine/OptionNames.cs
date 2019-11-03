@@ -14,8 +14,8 @@ namespace Orang.CommandLine
         public const string Attributes = "attributes";
         public const string AttributesToSkip = "attributes-to-skip";
         public const string Content = "content";
-        public const string ContentDisplay = "content-display";
         public const string ContentOnly = "content-only";
+        public const string Display = "display";
         public const string DryRun = "dry-run";
         public const string Encoding = "encoding";
         public const string Evaluator = "evaluator";

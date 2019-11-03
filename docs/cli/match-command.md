@@ -6,14 +6,14 @@ Searches the input string for occurrences of the regular expression\.
 
 ```
 orang match [<PATH>]
- -c|--content          <REGEX>
-[-y|--content-display] <CONTENT_DISPLAY>
-[-h|--highlight]       <HIGHLIGHT>
-[   --input]           <INPUT>
-[   --max-count]       <NUMBER>
-[-o|--output]          <PATH>
-[-v|--verbosity]       <VERBOSITY>
-[   --file-log]        <FILE_LOG>
+ -c|--content    <REGEX>
+[-y|--display]   <DISPLAY_OPTIONS>
+[-h|--highlight] <HIGHLIGHT>
+[   --input]     <INPUT>
+[   --max-count] <NUMBER>
+[-o|--output]    <PATH>
+[-v|--verbosity] <VERBOSITY>
+[   --file-log]  <FILE_LOG>
 ```
 
 ## Arguments
@@ -28,9 +28,9 @@ Path to a file that should be analyzed\.
 
 Regular expression for the input string\. Syntax is \<PATTERN> \[\<PATTERN\_OPTIONS>\]\. Allowed values are compiled, \[c\]ulture\-\[i\]nvariant, \[e\]cma\-\[s\]cript, \[n\] explicit\-capture, \[f\]rom\-file, \[g\]roup=\<GROUP\_NAME>, \[i\]gnore\-case, \[x\] ignore\-pattern\-whitespace, \[li\]st, \[li\]st\-\[s\]eparator, \[l\]iteral, \[m\]ultiline, \[r\]ight\-to\-left, \[s\]ingleline, timeout=\<NUM>, \[w\]hole\-\[i\]nput, \[w\]hole\-\[l\]ine and \[w\]hole\-word\.
 
-**`[-y|--content-display] <CONTENT_DISPLAY>`**
+**`[-y|--display] <DISPLAY_OPTIONS>`**
 
-Display of the content\. Allowed values are \[v\]alue, value\-\[d\]etail and \[a\]ll\-lines\.
+Display of the results\. Allowed values are \[c\]ontent=\<CONTENT\_DISPLAY> and \[p\]ath=\<PATH\_DISPLAY>\.
 
 **`[-h|--highlight] <HIGHLIGHT>`**
 

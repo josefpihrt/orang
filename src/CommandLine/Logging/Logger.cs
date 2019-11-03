@@ -123,6 +123,12 @@ namespace Orang
             Out?.WriteLineIf(condition);
         }
 
+        public static void WriteLineIf(bool condition, Verbosity verbosity)
+        {
+            ConsoleOut.WriteLineIf(condition, verbosity);
+            Out?.WriteLineIf(condition, verbosity);
+        }
+
         public static void WriteLine(char value)
         {
             ConsoleOut.WriteLine(value);

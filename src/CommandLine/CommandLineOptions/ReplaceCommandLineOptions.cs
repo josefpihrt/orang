@@ -25,11 +25,6 @@ namespace Orang.CommandLine
         [OptionValueProvider(OptionValueProviderNames.PatternOptionsWithoutGroupAndPartAndNegative)]
         public IEnumerable<string> Content { get; set; }
 
-        [Option(shortName: OptionShortNames.ContentDisplay, longName: OptionNames.ContentDisplay,
-            HelpText = "Display of the content.",
-            MetaValue = MetaValues.ContentDisplay)]
-        public string ContentDisplay { get; set; }
-
         [Option(shortName: OptionShortNames.DryRun, longName: OptionNames.DryRun,
             HelpText = "Display which files should be updated but do not actually update any file.")]
         public bool DryRun { get; set; }
@@ -92,10 +87,47 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            if (!TryParseContentDisplay(ContentDisplay, askMode, out ContentDisplayStyle contentDisplayStyle))
-                return false;
+            ContentDisplayStyle contentDisplayStyle;
+            PathDisplayStyle pathDisplayStyle;
 
-            options.Format = new OutputDisplayFormat(contentDisplayStyle: contentDisplayStyle, lineOptions: LineDisplayOptions);
+            if (!TryParseDisplay(
+                values: Display,
+                optionName: OptionNames.Display,
+                contentDisplayStyle: out ContentDisplayStyle? contentDisplayStyle2,
+                pathDisplayStyle: out PathDisplayStyle? pathDisplayStyle2,
+                contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider_WithoutLineAndUnmatchedLines,
+                pathDisplayStyleProvider: OptionValueProviders.PathDisplayStyleProvider))
+            {
+                return false;
+            }
+
+            if (contentDisplayStyle2 != null)
+            {
+                if (askMode == AskMode.Value
+                    && contentDisplayStyle2 == ContentDisplayStyle.AllLines)
+                {
+                    WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Format)}' cannot have value '{OptionValueProviders.ContentDisplayStyleProvider.GetValue(nameof(ContentDisplayStyle.AllLines)).HelpValue}' when option '{OptionNames.GetHelpText(OptionNames.Ask)}' has value '{OptionValueProviders.AskModeProvider.GetValue(nameof(AskMode.Value)).HelpValue}'.");
+                    return false;
+                }
+
+                contentDisplayStyle = contentDisplayStyle2.Value;
+            }
+            else if (Input != null)
+            {
+                contentDisplayStyle = ContentDisplayStyle.AllLines;
+            }
+            else if (askMode == AskMode.Value)
+            {
+                contentDisplayStyle = ContentDisplayStyle.Value;
+            }
+            else
+            {
+                contentDisplayStyle = ContentDisplayStyle.Line;
+            }
+
+            pathDisplayStyle = pathDisplayStyle2 ?? PathDisplayStyle.Relative;
+
+            options.Format = new OutputDisplayFormat(contentDisplayStyle: contentDisplayStyle, pathDisplayStyle: pathDisplayStyle, lineOptions: LineDisplayOptions);
             options.HighlightOptions = highlightOptions;
             options.ContentFilter = contentFilter;
             options.Replacement = replacement ?? "";
@@ -118,36 +150,6 @@ namespace Orang.CommandLine
             else
             {
                 options.SaveMode = SaveMode.NoAsk;
-            }
-
-            return true;
-        }
-
-        private bool TryParseContentDisplay(string ContentDisplay, AskMode askMode, out ContentDisplayStyle contentDisplayStyle)
-        {
-            if (ContentDisplay != null)
-            {
-                if (!TryParseAsEnum(ContentDisplay, OptionNames.ContentDisplay, out contentDisplayStyle, provider: OptionValueProviders.ContentDisplayStyleProvider_WithoutUnmatchedLines))
-                    return false;
-
-                if (askMode == AskMode.Value
-                    && contentDisplayStyle == ContentDisplayStyle.AllLines)
-                {
-                    WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Format)}' cannot have value '{OptionValueProviders.ContentDisplayStyleProvider.GetValue(nameof(ContentDisplayStyle.AllLines)).HelpValue}' when option '{OptionNames.GetHelpText(OptionNames.Ask)}' has value '{OptionValueProviders.AskModeProvider.GetValue(nameof(AskMode.Value)).HelpValue}'.");
-                    return false;
-                }
-            }
-            else if (Input != null)
-            {
-                contentDisplayStyle = ContentDisplayStyle.AllLines;
-            }
-            else if (askMode == AskMode.Value)
-            {
-                contentDisplayStyle = ContentDisplayStyle.Value;
-            }
-            else
-            {
-                contentDisplayStyle = ContentDisplayStyle.Line;
             }
 
             return true;

@@ -21,7 +21,8 @@ namespace Orang.CommandLine
         protected override void ExecuteDirectory(string directoryPath, SearchContext context, FileSystemFinderProgressReporter progress)
         {
             SearchTelemetry telemetry = context.Telemetry;
-            string basePath = (Options.Format.Includes(MiscellaneousDisplayOptions.IncludeFullPath)) ? null : directoryPath;
+            string basePath = (Options.PathDisplayStyle == PathDisplayStyle.Full) ? null : directoryPath;
+            string indent = (Options.PathDisplayStyle == PathDisplayStyle.Relative) ? Options.Indent : "";
 
             foreach (FileSystemFinderResult result in FileSystemHelpers.Find(directoryPath, Options, progress, notifyDirectoryChanged: this, canEnumerate: Options.DryRun, context.CancellationToken))
             {
@@ -35,7 +36,7 @@ namespace Orang.CommandLine
                 {
                     if (Options.ContentFilter != null)
                     {
-                        string input = ReadFile(result.Path, path, Options.DefaultEncoding, progress, Options.Indent);
+                        string input = ReadFile(result.Path, path, Options.DefaultEncoding, progress, indent);
 
                         if (input == null)
                             continue;
@@ -53,7 +54,7 @@ namespace Orang.CommandLine
 
                 EndProgress(progress);
 
-                WritePath(result, basePath, colors: Colors.Matched_Path, matchColors: (Options.HighlightMatch) ? Colors.Match : default, indent: Options.Indent);
+                WritePath(result, basePath, colors: Colors.Matched_Path, matchColors: (Options.HighlightMatch) ? Colors.Match : default, indent: indent);
                 WriteLine();
 
                 Match match = Options.NameFilter.Regex.Match(path.Substring(part.Index, part.Length));
@@ -71,7 +72,7 @@ namespace Orang.CommandLine
 
                 int indentCount = fileNameIndex;
 
-                if (!Options.Format.Includes(MiscellaneousDisplayOptions.IncludeFullPath)
+                if (Options.PathDisplayStyle == PathDisplayStyle.Relative
                     && path.StartsWith(directoryPath, StringComparison.OrdinalIgnoreCase))
                 {
                     indentCount -= directoryPath.Length;
@@ -83,7 +84,7 @@ namespace Orang.CommandLine
                     }
                 }
 
-                Write(' ', indentCount + Options.Indent.Length);
+                Write(' ', indentCount + indent.Length);
                 Write(path, fileNameIndex, index - fileNameIndex);
                 Write(replacement, (Options.HighlightReplacement) ? Colors.Replacement : default);
                 Write(path, endIndex, path.Length - endIndex);
@@ -99,7 +100,7 @@ namespace Orang.CommandLine
                 bool success = false;
 
                 if (!Options.DryRun
-                    && ConsoleHelpers.QuestionIf(Options.Ask, "Rename?", Options.Indent))
+                    && ConsoleHelpers.QuestionIf(Options.Ask, "Rename?", indent))
                 {
                     try
                     {
@@ -126,7 +127,7 @@ namespace Orang.CommandLine
                     catch (Exception ex) when (ex is IOException
                         || ex is UnauthorizedAccessException)
                     {
-                        WriteFileError(ex, indent: Options.Indent);
+                        WriteFileError(ex, indent: indent);
                     }
                 }
 

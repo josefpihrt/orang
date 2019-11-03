@@ -15,6 +15,89 @@ namespace Orang.CommandLine
 {
     internal static class ParseHelpers
     {
+        public static bool TryParseDisplay(
+            IEnumerable<string> values,
+            string optionName,
+            out ContentDisplayStyle contentDisplayStyle,
+            out PathDisplayStyle pathDisplayStyle,
+            ContentDisplayStyle defaultContentDisplayStyle,
+            PathDisplayStyle defaultPathDisplayStyle,
+            OptionValueProvider contentDisplayStyleProvider = null,
+            OptionValueProvider pathDisplayStyleProvider = null)
+        {
+            if (!TryParseDisplay(
+                values: values,
+                optionName: optionName,
+                contentDisplayStyle: out ContentDisplayStyle? contentDisplayStyle2,
+                pathDisplayStyle: out PathDisplayStyle? pathDisplayStyle2,
+                contentDisplayStyleProvider: contentDisplayStyleProvider,
+                pathDisplayStyleProvider: pathDisplayStyleProvider))
+            {
+                contentDisplayStyle = 0;
+                pathDisplayStyle = 0;
+                return false;
+            }
+
+            contentDisplayStyle = contentDisplayStyle2 ?? defaultContentDisplayStyle;
+            pathDisplayStyle = pathDisplayStyle2 ?? defaultPathDisplayStyle;
+            return true;
+        }
+
+        public static bool TryParseDisplay(
+            IEnumerable<string> values,
+            string optionName,
+            out ContentDisplayStyle? contentDisplayStyle,
+            out PathDisplayStyle? pathDisplayStyle,
+            OptionValueProvider contentDisplayStyleProvider = null,
+            OptionValueProvider pathDisplayStyleProvider = null)
+        {
+            contentDisplayStyle = null;
+            pathDisplayStyle = null;
+
+            foreach (string value in values)
+            {
+                int index = value.IndexOf('=');
+
+                if (index >= 0)
+                {
+                    string key = value.Substring(0, index);
+                    string value2 = value.Substring(index + 1);
+
+                    if (OptionValues.Content.IsKeyOrShortKey(key))
+                    {
+                        if (!TryParseAsEnum(value2, optionName, out ContentDisplayStyle contentDisplayStyle2, provider: contentDisplayStyleProvider))
+                            return false;
+
+                        contentDisplayStyle = contentDisplayStyle2;
+                    }
+                    else if (OptionValues.Path.IsKeyOrShortKey(key))
+                    {
+                        if (!TryParseAsEnum(value2, optionName, out PathDisplayStyle pathDisplayStyle2, provider: pathDisplayStyleProvider))
+                            return false;
+
+                        pathDisplayStyle = pathDisplayStyle2;
+                    }
+                    else
+                    {
+                        ThrowException(value);
+                    }
+                }
+                else
+                {
+                    ThrowException(value);
+                }
+            }
+
+            return true;
+
+            void ThrowException(string value)
+            {
+                string helpText = (OptionValueProviders.DisplayProvider ?? OptionValueProviders.PatternOptionsProvider).GetHelpText();
+
+                throw new ArgumentException($"Option '{OptionNames.GetHelpText(optionName)}' has invalid value '{value}'. Allowed values: {helpText}.", nameof(values));
+            }
+        }
+
         public static bool TryParseFileLogOptions(
             IEnumerable<string> values,
             string optionName,

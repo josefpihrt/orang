@@ -72,7 +72,20 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            options.Format = new OutputDisplayFormat(ContentDisplayStyle.None);
+            if (!TryParseDisplay(
+                values: Display,
+                optionName: OptionNames.Display,
+                contentDisplayStyle: out ContentDisplayStyle _,
+                pathDisplayStyle: out PathDisplayStyle pathDisplayStyle,
+                defaultContentDisplayStyle: 0,
+                defaultPathDisplayStyle: PathDisplayStyle.Relative,
+                contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider,
+                pathDisplayStyleProvider: OptionValueProviders.PathDisplayStyleProvider_WithoutOmit))
+            {
+                return false;
+            }
+
+            options.Format = new OutputDisplayFormat(ContentDisplayStyle.None, pathDisplayStyle);
             options.Ask = Ask;
             options.DryRun = DryRun;
             options.HighlightOptions = highlightOptions;

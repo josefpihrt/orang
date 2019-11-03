@@ -46,6 +46,10 @@ namespace Orang.CommandLine
 
         public ContentDisplayStyle ContentDisplayStyle => Format.ContentDisplayStyle;
 
+        public PathDisplayStyle PathDisplayStyle => Format.PathDisplayStyle;
+
+        public bool OmitPath => PathDisplayStyle == PathDisplayStyle.Omit;
+
         public string Indent => Format.Indent;
 
         internal string DoubleIndent => _doubleIndent ?? (_doubleIndent = Indent + Indent);

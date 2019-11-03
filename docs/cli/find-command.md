@@ -10,7 +10,7 @@ orang find [<PATH>]
 [-a|--attributes]         <ATTRIBUTES>
 [   --attributes-to-skip] <ATTRIBUTES>
 [-c|--content]            <REGEX>
-[-y|--content-display]    <CONTENT_DISPLAY>
+[-y|--display]            <DISPLAY_OPTIONS>
 [   --encoding]           <ENCODING>
 [-e|--extension]          <EXTENSION_FILTER>
 [-h|--highlight]          <HIGHLIGHT>
@@ -48,9 +48,9 @@ File attributes that should be skipped\. Allowed values are archive, compressed,
 
 Regular expression for files' content\. Syntax is \<PATTERN> \[\<PATTERN\_OPTIONS>\]\. Allowed values are compiled, \[c\]ulture\-\[i\]nvariant, \[e\]cma\-\[s\]cript, \[n\] explicit\-capture, \[f\]rom\-file, \[g\]roup=\<GROUP\_NAME>, \[i\]gnore\-case, \[x\] ignore\-pattern\-whitespace, \[li\]st, \[li\]st\-\[s\]eparator, \[l\]iteral, \[m\]ultiline, \[neg\]ative, \[r\]ight\-to\-left, \[s\]ingleline, timeout=\<NUM>, \[w\]hole\-\[i\]nput, \[w\]hole\-\[l\]ine and \[w\]hole\-word\.
 
-**`[-y|--content-display] <CONTENT_DISPLAY>`**
+**`[-y|--display] <DISPLAY_OPTIONS>`**
 
-Display of the content\. Allowed values are \[v\]alue, value\-\[d\]etail, \[l\]ine, \[u\]nmatched\-lines and \[a\]ll\-lines\.
+Display of the results\. Allowed values are \[c\]ontent=\<CONTENT\_DISPLAY> and \[p\]ath=\<PATH\_DISPLAY>\.
 
 **`[--encoding] <ENCODING>`**
 

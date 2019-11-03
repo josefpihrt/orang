@@ -32,6 +32,11 @@ namespace Orang.CommandLine
         [OptionValueProvider(OptionValueProviderNames.FileSystemAttributesToSkip)]
         public IEnumerable<string> AttributesToSkip { get; set; }
 
+        [Option(shortName: OptionShortNames.Display, longName: OptionNames.Display,
+            HelpText = "Display of the results.",
+            MetaValue = MetaValues.DisplayOptions)]
+        public IEnumerable<string> Display { get; set; }
+
         [Option(longName: OptionNames.Encoding,
             HelpText = "Encoding to use when a file does not contain byte order mark. Default encoding is UTF-8.",
             MetaValue = "<ENCODING>")]

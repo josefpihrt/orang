@@ -20,8 +20,8 @@ namespace Orang.CommandLine
         protected override void ExecuteDirectory(string directoryPath, SearchContext context, FileSystemFinderProgressReporter progress)
         {
             SearchTelemetry telemetry = context.Telemetry;
-
-            string basePath = (Options.Format.Includes(MiscellaneousDisplayOptions.IncludeFullPath)) ? null : directoryPath;
+            string basePath = (Options.PathDisplayStyle == PathDisplayStyle.Full) ? null : directoryPath;
+            string indent = (Options.PathDisplayStyle == PathDisplayStyle.Relative) ? Options.Indent : "";
 
             foreach (FileSystemFinderResult result in FileSystemHelpers.Find(directoryPath, Options, progress, notifyDirectoryChanged: this, canEnumerate: true, context.CancellationToken))
             {
@@ -37,7 +37,7 @@ namespace Orang.CommandLine
                 {
                     if (Options.ContentFilter != null)
                     {
-                        string input = ReadFile(result.Path, path, Options.DefaultEncoding, progress, Options.Indent);
+                        string input = ReadFile(result.Path, path, Options.DefaultEncoding, progress, indent);
 
                         if (input == null)
                             continue;
@@ -51,7 +51,7 @@ namespace Orang.CommandLine
 
                 EndProgress(progress);
 
-                WritePath(result, basePath, colors: Colors.Matched_Path, matchColors: (Options.HighlightMatch) ? Colors.Match : default, Options.Indent);
+                WritePath(result, basePath, colors: Colors.Matched_Path, matchColors: (Options.HighlightMatch) ? Colors.Match : default, indent);
                 WriteLine();
 
                 bool isCanceled = false;
@@ -60,7 +60,7 @@ namespace Orang.CommandLine
                 {
                     string question = (Options.ContentOnly) ? "Delete content?" : "Delete?";
 
-                    if (!ConsoleHelpers.QuestionIf(Options.Ask, question, Options.Indent))
+                    if (!ConsoleHelpers.QuestionIf(Options.Ask, question, indent))
                     {
                         isCanceled = true;
                     }
@@ -87,7 +87,7 @@ namespace Orang.CommandLine
                         catch (Exception ex) when (ex is IOException
                             || ex is UnauthorizedAccessException)
                         {
-                            WriteFileError(ex, indent: Options.Indent);
+                            WriteFileError(ex, indent: indent);
                         }
                     }
                 }

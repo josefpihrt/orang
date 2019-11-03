@@ -81,6 +81,11 @@ namespace Orang
                 WriteLine();
         }
 
+        public void WriteLineIf(bool condition, Verbosity verbosity)
+        {
+            WriteLineIf(condition && verbosity <= Verbosity);
+        }
+
         public void WriteLineIf(bool condition, string value)
         {
             if (condition)

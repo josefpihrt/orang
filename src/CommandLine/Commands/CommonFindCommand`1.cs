@@ -93,7 +93,8 @@ namespace Orang.CommandLine
             {
                 var progress = new FileSystemFinderProgressReporter(path, mode: ReporterMode, Options);
 
-                WriteLine($"Searching in {path}", Colors.Path_Progress, Verbosity.Minimal);
+                if (Options.PathDisplayStyle == PathDisplayStyle.Relative)
+                    WriteLine($"Searching in {path}", Colors.Path_Progress, Verbosity.Minimal);
 
                 try
                 {
@@ -110,7 +111,8 @@ namespace Orang.CommandLine
                     progress.ProgressReported = false;
                 }
 
-                WriteLine($"Done searching in {path}", Colors.Path_Progress, Verbosity.Minimal);
+                if (Options.PathDisplayStyle == PathDisplayStyle.Relative)
+                    WriteLine($"Done searching in {path}", Colors.Path_Progress, Verbosity.Minimal);
             }
             else if (CanExecuteFile
                 && File.Exists(path))

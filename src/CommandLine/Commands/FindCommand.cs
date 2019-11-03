@@ -28,16 +28,16 @@ namespace Orang.CommandLine
         protected override void ExecuteDirectory(string directoryPath, SearchContext context, FileSystemFinderProgressReporter progress)
         {
             SearchTelemetry telemetry = context.Telemetry;
-
-            string basePath = (Options.Format.Includes(MiscellaneousDisplayOptions.IncludeFullPath)) ? null : directoryPath;
+            string basePath = (Options.PathDisplayStyle == PathDisplayStyle.Full) ? null : directoryPath;
+            string indent = (Options.PathDisplayStyle == PathDisplayStyle.Relative) ? Options.Indent : "";
 
             foreach (FileSystemFinderResult result in FileSystemHelpers.Find(directoryPath, Options, progress, context.CancellationToken))
             {
                 EndProgress(progress);
-                WritePath(result, basePath, colors: Colors.Matched_Path, matchColors: (Options.HighlightMatch) ? Colors.Match : default, indent: Options.Indent, Verbosity.Minimal);
+                WritePath(result, basePath, colors: Colors.Matched_Path, matchColors: (Options.HighlightMatch) ? Colors.Match : default, indent: indent, Verbosity.Minimal);
                 WriteLine(Verbosity.Minimal);
 
-                if (ConsoleHelpers.QuestionIf(_ask, "Continue without asking?", Options.Indent))
+                if (ConsoleHelpers.QuestionIf(_ask, "Continue without asking?", indent))
                     _ask = false;
 
                 if (result.IsDirectory)

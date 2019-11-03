@@ -7,6 +7,8 @@ namespace Orang.CommandLine
         public const string AskMode = "<ASK_MODE>";
         public const string Attributes = "<ATTRIBUTES>";
         public const string ContentDisplay = "<CONTENT_DISPLAY>";
+        public const string DisplayOptions = "<DISPLAY_OPTIONS>";
+        public const string PathDisplay = "<PATH_DISPLAY>";
         public const string Number = "<NUMBER>";
         public const string Evaluator = "<EVALUATOR>";
         public const string ExtensionFilter = "<EXTENSION_FILTER>";

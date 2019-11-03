@@ -16,8 +16,6 @@ namespace Orang.CommandLine
     {
         private OutputSymbols _symbols;
         private MatchEvaluator _matchEvaluator;
-        private MatchWriterOptions _fileWriterOptions;
-        private MatchWriterOptions _directoryWriterOptions;
 
         public ReplaceCommand(ReplaceCommandOptions options) : base(options)
         {
@@ -28,10 +26,6 @@ namespace Orang.CommandLine
         private OutputSymbols Symbols => _symbols ?? (_symbols = OutputSymbols.Create(Options.HighlightOptions));
 
         private MatchEvaluator MatchEvaluator => _matchEvaluator ?? (_matchEvaluator = Options.MatchEvaluator ?? new MatchEvaluator(f => f.Result(Options.Replacement)));
-
-        private MatchWriterOptions FileWriterOptions => _fileWriterOptions ?? (_fileWriterOptions = CreateMatchWriteOptions(Options.Indent));
-
-        private MatchWriterOptions DirectoryWriterOptions => _directoryWriterOptions ?? (_directoryWriterOptions = CreateMatchWriteOptions(Options.DoubleIndent));
 
         protected override void ExecuteCore(SearchContext context)
         {
@@ -85,7 +79,8 @@ namespace Orang.CommandLine
 
                 if (match.Success)
                 {
-                    WritePath(filePath, colors: Colors.Matched_Path, verbosity: Verbosity.Minimal);
+                    if (!Options.OmitPath)
+                        WritePath(filePath, colors: Colors.Matched_Path, verbosity: Verbosity.Minimal);
 
                     ReplaceMatches(filePath, encoding, input, match, "", FileWriterOptions, context);
 
@@ -98,14 +93,14 @@ namespace Orang.CommandLine
         protected override void ExecuteDirectory(string directoryPath, SearchContext context, FileSystemFinderProgressReporter progress)
         {
             Regex regex = Options.ContentFilter.Regex;
-
-            string basePath = (Options.Format.Includes(MiscellaneousDisplayOptions.IncludeFullPath)) ? null : directoryPath;
+            string basePath = (Options.PathDisplayStyle == PathDisplayStyle.Full) ? null : directoryPath;
+            string indent = (Options.PathDisplayStyle == PathDisplayStyle.Relative) ? Options.Indent : "";
 
             foreach (FileSystemFinderResult result in FileSystemHelpers.Find(directoryPath, Options, progress, context.CancellationToken))
             {
                 Encoding encoding = Options.DefaultEncoding;
 
-                string input = ReadFile(result.Path, directoryPath, ref encoding, progress);
+                string input = ReadFile(result.Path, directoryPath, ref encoding, progress, indent);
 
                 if (input == null)
                     continue;
@@ -115,9 +110,11 @@ namespace Orang.CommandLine
                 if (match.Success)
                 {
                     EndProgress(progress);
-                    WritePath(result, basePath, colors: Colors.Matched_Path, matchColors: (Options.HighlightMatch) ? Colors.Match_Path : default, indent: Options.Indent, verbosity: Verbosity.Minimal);
 
-                    ReplaceMatches(result.Path, encoding, input, match, Options.Indent, DirectoryWriterOptions, context);
+                    if (!Options.OmitPath)
+                        WritePath(result, basePath, colors: Colors.Matched_Path, matchColors: (Options.HighlightMatch) ? Colors.Match_Path : default, indent: indent, verbosity: Verbosity.Minimal);
+
+                    ReplaceMatches(result.Path, encoding, input, match, indent, DirectoryWriterOptions, context);
 
                     if (Options.MaxMatchingFiles == context.Telemetry.MatchingFileCount)
                         context.State = SearchState.MaxReached;
@@ -132,7 +129,7 @@ namespace Orang.CommandLine
             context.Telemetry.FileCount = progress.FileCount;
         }
 
-        private string ReadFile(string filePath, string basePath, ref Encoding encoding, FileSystemFinderProgressReporter progress = null)
+        private string ReadFile(string filePath, string basePath, ref Encoding encoding, FileSystemFinderProgressReporter progress = null, string indent = null)
         {
             try
             {
@@ -156,7 +153,7 @@ namespace Orang.CommandLine
             {
                 EndProgress(progress);
 
-                WriteFileError(ex, filePath, basePath, indent: Options.Indent);
+                WriteFileError(ex, filePath, basePath, indent: indent);
                 return null;
             }
         }
@@ -176,8 +173,8 @@ namespace Orang.CommandLine
             MatchWriter matchWriter = null;
             TextWriter textWriter = null;
 
-            bool consoleNewlineWritten = false;
-            bool logNewLineWritten = false;
+            bool consoleNewlineWritten = Options.OmitPath;
+            bool logNewLineWritten = Options.OmitPath;
 
             try
             {
@@ -207,21 +204,24 @@ namespace Orang.CommandLine
                 }
                 else
                 {
-                    if (Options.SaveMode == SaveMode.ValueByValue)
+                    if (!Options.OmitPath)
                     {
-                        ConsoleOut.WriteLine();
-                        consoleNewlineWritten = true;
-                    }
-                    else if (ConsoleOut.Verbosity >= Verbosity.Normal)
-                    {
-                        ConsoleOut.WriteLine(Verbosity.Normal);
-                        consoleNewlineWritten = true;
-                    }
+                        if (Options.SaveMode == SaveMode.ValueByValue)
+                        {
+                            ConsoleOut.WriteLine();
+                            consoleNewlineWritten = true;
+                        }
+                        else if (ConsoleOut.Verbosity >= Verbosity.Normal)
+                        {
+                            ConsoleOut.WriteLine(Verbosity.Normal);
+                            consoleNewlineWritten = true;
+                        }
 
-                    if (Out?.Verbosity >= Verbosity.Normal)
-                    {
-                        Out.WriteLine(Verbosity.Normal);
-                        logNewLineWritten = true;
+                        if (Out?.Verbosity >= Verbosity.Normal)
+                        {
+                            Out.WriteLine(Verbosity.Normal);
+                            logNewLineWritten = true;
+                        }
                     }
 
                     matchWriter = CreateWriter();
@@ -254,7 +254,8 @@ namespace Orang.CommandLine
                     }
                 }
 
-                if (Options.SaveMode != SaveMode.ValueByValue)
+                if (Options.SaveMode != SaveMode.ValueByValue
+                    && !Options.OmitPath)
                 {
                     if (ConsoleOut.Verbosity == Verbosity.Minimal)
                     {
@@ -295,11 +296,8 @@ namespace Orang.CommandLine
             }
             catch (Exception ex)
             {
-                if (!consoleNewlineWritten)
-                    ConsoleOut.WriteLine();
-
-                if (!logNewLineWritten)
-                    Out?.WriteLine();
+                ConsoleOut.WriteLineIf(!consoleNewlineWritten);
+                Out?.WriteLineIf(!logNewLineWritten);
 
                 if (ex is IOException
                     || ex is UnauthorizedAccessException)
@@ -377,7 +375,7 @@ namespace Orang.CommandLine
             WriteLine(Verbosity.Minimal);
         }
 
-        private MatchWriterOptions CreateMatchWriteOptions(string indent)
+        protected override MatchWriterOptions CreateMatchWriteOptions(string indent)
         {
             return new MatchWriterOptions(
                 format: Options.Format,

@@ -276,6 +276,21 @@ namespace Orang.CommandLine
             OptionValues.MaxMatchingFiles
         );
 
+        public static OptionValueProvider PathDisplayStyleProvider { get; } = new OptionValueProvider(MetaValues.PathDisplay,
+            SimpleOptionValue.Create(PathDisplayStyle.Full, description: "Display full path."),
+            SimpleOptionValue.Create(PathDisplayStyle.Relative, description: "Display path relatively to the base directory."),
+            SimpleOptionValue.Create(PathDisplayStyle.Omit, description: "Do not display path.")
+        );
+
+        public static OptionValueProvider PathDisplayStyleProvider_WithoutOmit { get; } = new OptionValueProvider(OptionValueProviderNames.PathDisplayStyle_WithoutOmit,
+            PathDisplayStyleProvider.Values.Where(f => f.Name != nameof(PathDisplayStyle.Omit))
+        );
+
+        public static OptionValueProvider DisplayProvider { get; } = new OptionValueProvider(MetaValues.DisplayOptions,
+            OptionValues.Content,
+            OptionValues.Path
+        );
+
         public static ImmutableDictionary<string, OptionValueProvider> ProvidersByName
         {
             get

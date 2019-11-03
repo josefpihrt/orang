@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using CommandLine;
 using static Orang.CommandLine.ParseHelpers;
@@ -15,11 +16,10 @@ namespace Orang.CommandLine
             MetaName = ArgumentMetaNames.Path)]
         public string Path { get; set; }
 
-        [Option(shortName: OptionShortNames.ContentDisplay, longName: OptionNames.ContentDisplay,
-            HelpText = "Display of the content.",
-            MetaValue = MetaValues.ContentDisplay)]
-        [OptionValueProvider(OptionValueProviderNames.ContentDisplayStyle_WithoutLineAndUnmatchedLines)]
-        public string ContentDisplay { get; set; }
+        [Option(shortName: OptionShortNames.Display, longName: OptionNames.Display,
+            HelpText = "Display of the results.",
+            MetaValue = MetaValues.DisplayOptions)]
+        public IEnumerable<string> Display { get; set; }
 
         [Option(longName: OptionNames.Input,
             HelpText = "Text to search.",
@@ -76,8 +76,18 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            if (!TryParseAsEnum(ContentDisplay, OptionNames.ContentDisplay, out ContentDisplayStyle contentDisplayStyle, ContentDisplayStyle.Value, provider: OptionValueProviders.ContentDisplayStyleProvider_WithoutLineAndUnmatchedLines))
+            if (!TryParseDisplay(
+                values: Display,
+                optionName: OptionNames.Display,
+                contentDisplayStyle: out ContentDisplayStyle contentDisplayStyle,
+                pathDisplayStyle: out PathDisplayStyle _,
+                defaultContentDisplayStyle: ContentDisplayStyle.Value,
+                defaultPathDisplayStyle: 0,
+                contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider_WithoutLineAndUnmatchedLines,
+                pathDisplayStyleProvider: OptionValueProviders.PathDisplayStyleProvider))
+            {
                 return false;
+            }
 
             options.Format = new OutputDisplayFormat(contentDisplayStyle: contentDisplayStyle);
             options.Input = input;

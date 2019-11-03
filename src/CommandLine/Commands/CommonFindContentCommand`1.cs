@@ -9,9 +9,59 @@ namespace Orang.CommandLine
 {
     internal abstract class CommonFindContentCommand<TOptions> : CommonFindCommand<TOptions> where TOptions : CommonFindContentCommandOptions
     {
+        private MatchWriterOptions _fileWriterOptions;
+        private MatchWriterOptions _directoryWriterOptions;
+
         protected CommonFindContentCommand(TOptions options) : base(options)
         {
         }
+
+        protected MatchWriterOptions FileWriterOptions
+        {
+            get
+            {
+                if (_fileWriterOptions == null)
+                {
+                    string indent = (Options.OmitPath) ? "" : Options.Indent;
+
+                    _fileWriterOptions = CreateMatchWriteOptions(indent);
+                }
+
+                return _fileWriterOptions;
+            }
+        }
+
+        protected MatchWriterOptions DirectoryWriterOptions
+        {
+            get
+            {
+                if (_directoryWriterOptions == null)
+                {
+                    string indent = GetIndent();
+
+                    _directoryWriterOptions = CreateMatchWriteOptions(indent);
+                }
+
+                return _directoryWriterOptions;
+
+                string GetIndent()
+                {
+                    switch (Options.PathDisplayStyle)
+                    {
+                        case PathDisplayStyle.Full:
+                            return Options.Indent;
+                        case PathDisplayStyle.Relative:
+                            return Options.DoubleIndent;
+                        case PathDisplayStyle.Omit:
+                            return "";
+                        default:
+                            throw new InvalidOperationException();
+                    }
+                }
+            }
+        }
+
+        protected abstract MatchWriterOptions CreateMatchWriteOptions(string indent);
 
         public void WriteMatches(MatchWriter writer, Match match, SearchContext context)
         {

@@ -11,8 +11,6 @@ namespace Orang.CommandLine
     {
         private AskMode _askMode;
         private OutputSymbols _symbols;
-        private MatchWriterOptions _fileWriterOptions;
-        private MatchWriterOptions _directoryWriterOptions;
 
         public FindContentCommand(FindCommandOptions options) : base(options)
         {
@@ -21,10 +19,6 @@ namespace Orang.CommandLine
         protected override bool CanExecuteFile => true;
 
         private OutputSymbols Symbols => _symbols ?? (_symbols = OutputSymbols.Create(Options.HighlightOptions));
-
-        private MatchWriterOptions FileWriterOptions => _fileWriterOptions ?? (_fileWriterOptions = CreateMatchWriteOptions(Options.Indent));
-
-        private MatchWriterOptions DirectoryWriterOptions => _directoryWriterOptions ?? (_directoryWriterOptions = CreateMatchWriteOptions(Options.DoubleIndent));
 
         protected override void ExecuteCore(SearchContext context)
         {
@@ -48,7 +42,9 @@ namespace Orang.CommandLine
 
                 if (Options.ContentFilter.IsMatch(match))
                 {
-                    WritePath(filePath, colors: Colors.Matched_Path, verbosity: Verbosity.Minimal);
+                    if (!Options.OmitPath)
+                        WritePath(filePath, colors: Colors.Matched_Path, verbosity: Verbosity.Minimal);
+
                     WriteMatches(input, match, FileWriterOptions, context);
 
                     if (Options.MaxMatchingFiles == context.Telemetry.MatchingFileCount)
@@ -60,12 +56,12 @@ namespace Orang.CommandLine
         protected override void ExecuteDirectory(string directoryPath, SearchContext context, FileSystemFinderProgressReporter progress)
         {
             Regex regex = Options.ContentFilter.Regex;
-
-            string basePath = (Options.Format.Includes(MiscellaneousDisplayOptions.IncludeFullPath)) ? null : directoryPath;
+            string basePath = (Options.PathDisplayStyle == PathDisplayStyle.Full) ? null : directoryPath;
+            string indent = (Options.PathDisplayStyle == PathDisplayStyle.Relative) ? Options.Indent : "";
 
             foreach (FileSystemFinderResult result in FileSystemHelpers.Find(directoryPath, Options, progress, context.CancellationToken))
             {
-                string input = ReadFile(result.Path, directoryPath, Options.DefaultEncoding, progress, Options.Indent);
+                string input = ReadFile(result.Path, directoryPath, Options.DefaultEncoding, progress, indent);
 
                 if (input == null)
                     continue;
@@ -75,11 +71,13 @@ namespace Orang.CommandLine
                 if (Options.ContentFilter.IsMatch(match))
                 {
                     EndProgress(progress);
-                    WritePath(result, basePath, colors: Colors.Matched_Path, matchColors: (Options.HighlightMatch) ? Colors.Match_Path : default, indent: Options.Indent, verbosity: Verbosity.Minimal);
+
+                    if (!Options.OmitPath)
+                        WritePath(result, basePath, colors: Colors.Matched_Path, matchColors: (Options.HighlightMatch) ? Colors.Match_Path : default, indent: indent, verbosity: Verbosity.Minimal);
 
                     if (Options.ContentFilter.IsNegative)
                     {
-                        WriteLine(Verbosity.Minimal);
+                        WriteLineIf(!Options.OmitPath, Verbosity.Minimal);
                     }
                     else
                     {
@@ -93,7 +91,7 @@ namespace Orang.CommandLine
                         break;
 
                     if (_askMode == AskMode.File
-                        && ConsoleHelpers.Question("Continue without asking?", Options.Indent))
+                        && ConsoleHelpers.Question("Continue without asking?", indent))
                     {
                         _askMode = AskMode.None;
                     }
@@ -117,7 +115,7 @@ namespace Orang.CommandLine
 
             if (ShouldLog(Verbosity.Normal))
             {
-                WriteLine(Verbosity.Minimal);
+                WriteLineIf(!Options.OmitPath, Verbosity.Minimal);
 
                 MatchOutputInfo outputInfo = Options.CreateOutputInfo(input, match);
 
@@ -153,9 +151,12 @@ namespace Orang.CommandLine
             {
                 int fileMatchCount = EnumerateValues();
 
-                Write(" ", Colors.Message_OK, Verbosity.Minimal);
-                WriteCount("", fileMatchCount, Colors.Message_OK, Verbosity.Minimal);
-                WriteLine(Verbosity.Minimal);
+                if (!Options.OmitPath)
+                {
+                    Write(" ", Colors.Message_OK, Verbosity.Minimal);
+                    WriteCount("", fileMatchCount, Colors.Message_OK, Verbosity.Minimal);
+                    WriteLine(Verbosity.Minimal);
+                }
 
                 telemetry.MatchCount += fileMatchCount;
             }
@@ -205,7 +206,7 @@ namespace Orang.CommandLine
             WriteLine(Verbosity.Minimal);
         }
 
-        private MatchWriterOptions CreateMatchWriteOptions(string indent)
+        protected override MatchWriterOptions CreateMatchWriteOptions(string indent)
         {
             int groupNumber = Options.ContentFilter.GroupNumber;
 

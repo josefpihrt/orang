@@ -6,7 +6,7 @@ namespace Orang.CommandLine
     {
         public const char Attributes = 'a';
         public const char Content = 'c';
-        public const char ContentDisplay = 'y';
+        public const char Display = 'y';
         public const char DryRun = 'd';
         public const char Extension = 'e';
         public const char Filter = 'f';

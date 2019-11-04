@@ -18,6 +18,7 @@ namespace Orang.CommandLine
         public const string LogOptions = "<LOG_OPTIONS>";
         public const string MaxOptions = "<MAX_OPTIONS>";
         public const string NamePart = "<NAME_PART>";
+        public const string Path = "<PATH>";
         public const string PatternOptions = "<PATTERN_OPTIONS>";
         public const string Regex = "<REGEX>";
         public const string RegexOptions = "<REGEX_OPTIONS>";

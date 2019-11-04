@@ -1,6 +1,5 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace Orang.CommandLine
@@ -12,14 +11,14 @@ namespace Orang.CommandLine
         public ValueMatchWriter(
             string input,
             MatchWriterOptions options = null,
-            List<string> values = null,
+            IResultStorage storage = null,
             MatchOutputInfo outputInfo = null) : base(input, options)
         {
-            Values = values;
+            ResultStorage = storage;
             OutputInfo = outputInfo;
         }
 
-        public List<string> Values { get; }
+        public IResultStorage ResultStorage { get; }
 
         public MatchOutputInfo OutputInfo { get; }
 
@@ -45,7 +44,7 @@ namespace Orang.CommandLine
 
         protected override void WriteStartMatch(Capture capture)
         {
-            Values?.Add(capture.Value);
+            ResultStorage?.Add(capture.Value);
 
             if (MatchCount == 0
                 || Options.Separator == "\n"

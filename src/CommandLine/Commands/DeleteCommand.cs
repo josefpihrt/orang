@@ -92,10 +92,12 @@ namespace Orang.CommandLine
                     }
                 }
 
-                if (result.IsDirectory
-                    && !isCanceled)
+                if (!isCanceled)
                 {
-                    OnDirectoryChanged(new DirectoryChangedEventArgs(path, null));
+                    context.Output?.WriteLine(path);
+
+                    if (result.IsDirectory)
+                        OnDirectoryChanged(new DirectoryChangedEventArgs(path, null));
                 }
 
                 if (Options.MaxMatchingFiles == telemetry.MatchingFileCount + telemetry.MatchingDirectoryCount)

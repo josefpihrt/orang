@@ -70,7 +70,7 @@ namespace Orang.CommandLine
 
             string outputPath = null;
 
-            if (outputPath != null
+            if (Output != null
                 && !TryEnsureFullPath(Output, out outputPath))
             {
                 return false;

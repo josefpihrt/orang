@@ -4,28 +4,24 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 
 namespace Orang.CommandLine
 {
     internal class OutputWriter
     {
-        public OutputWriter(HighlightOptions highlightOptions, StringWriter writer = null)
+        public OutputWriter(HighlightOptions highlightOptions)
         {
             HighlightOptions = highlightOptions;
-            Writer = writer;
         }
 
         public HighlightOptions HighlightOptions { get; }
-
-        public StringWriter Writer { get; }
 
         public bool HighlightSplit => (HighlightOptions & HighlightOptions.Split) != 0;
 
         public bool HighlightBoundary => (HighlightOptions & HighlightOptions.Boundary) != 0;
 
-        public int WriteMatches(MatchData matchData, MatchCommandOptions options, in CancellationToken cancellationToken = default)
+        public int WriteMatches(MatchData matchData, MatchCommandOptions options, TextWriter output = null, in CancellationToken cancellationToken = default)
         {
             string input = options.Input;
 
@@ -47,7 +43,7 @@ namespace Orang.CommandLine
 
                 string indent = (addDetails) ? new string(' ', outputInfo.Width) : null;
 
-                var valueWriter = new OutputValueWriter(indent, HighlightOptions, Writer);
+                var valueWriter = new OutputValueWriter(indent, HighlightOptions);
                 bool addSeparator = false;
                 int captureCount = 0;
 
@@ -80,6 +76,8 @@ namespace Orang.CommandLine
                                     j + 1,
                                     omitMatchInfo,
                                     omitGroupInfo));
+
+                                output?.WriteLine(captureItem.Value);
                             }
 
                             valueWriter.WriteMatch(captureItem.Value, symbols);
@@ -100,7 +98,7 @@ namespace Orang.CommandLine
 
                 MatchOutputInfo outputInfo = (addDetails) ? MatchOutputInfo.Create(matchData, groupNumber) : null;
 
-                var valueWriter = new OutputValueWriter(null, HighlightOptions, Writer);
+                var valueWriter = new OutputValueWriter(null, HighlightOptions);
 
                 int captureCount = 0;
                 int lastPos = 0;
@@ -129,7 +127,7 @@ namespace Orang.CommandLine
             }
         }
 
-        public int WriteSplits(SplitData splitData, SplitCommandOptions options, in CancellationToken cancellationToken = default)
+        public int WriteSplits(SplitData splitData, SplitCommandOptions options, TextWriter output, in CancellationToken cancellationToken = default)
         {
             OutputSymbols symbols = OutputSymbols.Create(HighlightOptions);
             ConsoleColors splitColors = (HighlightSplit) ? Colors.Split : default;
@@ -148,7 +146,7 @@ namespace Orang.CommandLine
                 {
                     if (en.MoveNext())
                     {
-                        var valueWriter = new OutputValueWriter(indent, HighlightOptions, Writer);
+                        var valueWriter = new OutputValueWriter(indent, HighlightOptions);
 
                         while (true)
                         {
@@ -160,6 +158,8 @@ namespace Orang.CommandLine
                                 Write(outputInfo.GetText(item));
 
                             valueWriter.WriteSplit(item.Value, symbols, splitColors, boundaryColors);
+
+                            output?.WriteLine(item.Value);
 
                             if (en.MoveNext())
                             {
@@ -175,7 +175,7 @@ namespace Orang.CommandLine
             }
             else if (options.ContentDisplayStyle == ContentDisplayStyle.AllLines)
             {
-                var valueWriter = new OutputValueWriter(null, HighlightOptions, Writer);
+                var valueWriter = new OutputValueWriter(null, HighlightOptions);
 
                 string input = splitData.Input;
 
@@ -205,37 +205,16 @@ namespace Orang.CommandLine
         private void Write(string value)
         {
             Logger.Write(value);
-            Writer?.Write(value);
-        }
-
-        public void WriteTo(string path)
-        {
-            Encoding encoding = Encoding.UTF8;
-
-            try
-            {
-                Logger.WriteLine($"Saving '{path}'", Verbosity.Diagnostic);
-
-                File.WriteAllText(path, Writer.ToString(), encoding);
-            }
-            catch (Exception ex) when (ex is IOException
-                || ex is UnauthorizedAccessException)
-            {
-                Logger.WriteWarning(ex);
-            }
         }
 
         private class OutputValueWriter : ValueWriter
         {
-            public OutputValueWriter(string indent, HighlightOptions highlightOptions, TextWriter writer) : base(indent, includeEndingIndent: false, Verbosity.Quiet)
+            public OutputValueWriter(string indent, HighlightOptions highlightOptions) : base(indent, includeEndingIndent: false, Verbosity.Quiet)
             {
                 HighlightOptions = highlightOptions;
-                Writer = writer;
             }
 
             public HighlightOptions HighlightOptions { get; }
-
-            public TextWriter Writer { get; }
 
             public void WriteMatch(string value, OutputSymbols symbols)
             {
@@ -280,30 +259,6 @@ namespace Orang.CommandLine
                 {
                     WriteNewLine(value, index);
                 }
-            }
-
-            protected override bool ShouldWrite()
-            {
-                return Writer != null
-                    || base.ShouldWrite();
-            }
-
-            protected override void Write(string value)
-            {
-                base.Write(value);
-                Writer?.Write(value);
-            }
-
-            protected override void Write(string value, in ConsoleColors colors)
-            {
-                base.Write(value, colors);
-                Writer?.Write(value);
-            }
-
-            protected override void Write(string value, int startIndex, int length, in ConsoleColors colors)
-            {
-                base.Write(value, startIndex, length, colors);
-                Writer?.Write(value.AsSpan(startIndex, length));
             }
         }
     }

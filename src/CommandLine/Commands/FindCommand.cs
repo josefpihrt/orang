@@ -49,6 +49,8 @@ namespace Orang.CommandLine
                     telemetry.MatchingFileCount++;
                 }
 
+                context.Output?.WriteLine(result.Path);
+
                 if (Options.MaxMatchingFiles == telemetry.MatchingFileCount + telemetry.MatchingDirectoryCount)
                 {
                     context.State = SearchState.MaxReached;

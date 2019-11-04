@@ -10,6 +10,7 @@ namespace Orang.CommandLine
     internal class FindContentCommand : CommonFindContentCommand<FindCommandOptions>
     {
         private AskMode _askMode;
+        private IResultStorage _storage;
         private OutputSymbols _symbols;
 
         public FindContentCommand(FindCommandOptions options) : base(options)
@@ -26,6 +27,9 @@ namespace Orang.CommandLine
 
             if (ConsoleOut.Verbosity >= Verbosity.Minimal)
                 _askMode = Options.AskMode;
+
+            if (Options.OutputPath != null)
+                _storage = new TextWriterResultStorage(context.Output);
 
             base.ExecuteCore(context);
         }
@@ -113,13 +117,14 @@ namespace Orang.CommandLine
 
             telemetry.MatchingFileCount++;
 
-            if (ShouldLog(Verbosity.Normal))
+            if (ShouldLog(Verbosity.Normal)
+                || _storage != null)
             {
                 WriteLineIf(!Options.OmitPath, Verbosity.Minimal);
 
                 MatchOutputInfo outputInfo = Options.CreateOutputInfo(input, match);
 
-                using (MatchWriter matchWriter = MatchWriter.CreateFind(Options.ContentDisplayStyle, input, writerOptions, values: null, outputInfo, ask: _askMode == AskMode.Value))
+                using (MatchWriter matchWriter = MatchWriter.CreateFind(Options.ContentDisplayStyle, input, writerOptions, _storage, outputInfo, ask: _askMode == AskMode.Value))
                 {
                     WriteMatches(matchWriter, match, context);
                     telemetry.MatchCount += matchWriter.MatchCount;

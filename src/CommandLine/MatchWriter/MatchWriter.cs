@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -43,7 +42,7 @@ namespace Orang.CommandLine
             ContentDisplayStyle contentDisplayStyle,
             string input,
             MatchWriterOptions options,
-            List<string> values,
+            IResultStorage storage,
             MatchOutputInfo outputInfo,
             bool ask = false)
         {
@@ -53,9 +52,9 @@ namespace Orang.CommandLine
                 {
                     case ContentDisplayStyle.Value:
                     case ContentDisplayStyle.ValueDetail:
-                        return new AskValueMatchWriter(input, options, values, outputInfo);
+                        return new AskValueMatchWriter(input, options, storage, outputInfo);
                     case ContentDisplayStyle.Line:
-                        return new AskLineMatchWriter(input, options, values);
+                        return new AskLineMatchWriter(input, options, storage);
                     case ContentDisplayStyle.UnmatchedLines:
                     case ContentDisplayStyle.AllLines:
                         throw new InvalidOperationException();
@@ -69,13 +68,13 @@ namespace Orang.CommandLine
                 {
                     case ContentDisplayStyle.Value:
                     case ContentDisplayStyle.ValueDetail:
-                        return new ValueMatchWriter(input, options, values, outputInfo);
+                        return new ValueMatchWriter(input, options, storage, outputInfo);
                     case ContentDisplayStyle.Line:
-                        return new LineMatchWriter(input, options, values);
+                        return new LineMatchWriter(input, options, storage);
                     case ContentDisplayStyle.UnmatchedLines:
-                        return new UnmatchedLineWriter(input, options, values);
+                        return new UnmatchedLineWriter(input, options, storage);
                     case ContentDisplayStyle.AllLines:
-                        return new AllLinesMatchWriter(input, options, values);
+                        return new AllLinesMatchWriter(input, options, storage);
                     default:
                         throw new InvalidOperationException($"Unknown enum value '{contentDisplayStyle}'.");
                 }

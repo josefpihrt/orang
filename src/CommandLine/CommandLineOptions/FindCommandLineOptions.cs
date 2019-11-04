@@ -28,6 +28,11 @@ namespace Orang.CommandLine
         [OptionValueProvider(OptionValueProviderNames.FindHighlightOptions)]
         public IEnumerable<string> Highlight { get; set; }
 
+        [Option(shortName: OptionShortNames.Output, longName: OptionNames.Output,
+            HelpText = "Path to a file that should store results.",
+            MetaValue = MetaValues.Path)]
+        public string Output { get; set; }
+
         public bool TryParse(ref FindCommandOptions options)
         {
             var baseOptions = (CommonFindContentCommandOptions)options;
@@ -78,12 +83,19 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            options.Format = new OutputDisplayFormat(contentDisplayStyle: contentDisplayStyle, pathDisplayStyle: pathDisplayStyle, lineOptions: LineDisplayOptions);
+            string outputPath = null;
+            if (Output != null
+                && !TryEnsureFullPath(Output, out outputPath))
+            {
+                return false;
+            }
 
+            options.Format = new OutputDisplayFormat(contentDisplayStyle: contentDisplayStyle, pathDisplayStyle: pathDisplayStyle, lineOptions: LineDisplayOptions);
             options.AskMode = askMode;
             options.HighlightOptions = highlightOptions;
             options.SearchTarget = GetSearchTarget();
             options.ContentFilter = contentFilter;
+            options.OutputPath = outputPath;
 
             return true;
         }

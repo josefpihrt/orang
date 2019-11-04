@@ -51,11 +51,35 @@ namespace Orang.CommandLine
 
         protected sealed override CommandResult ExecuteCore(CancellationToken cancellationToken = default)
         {
-            var context = new SearchContext(cancellationToken: cancellationToken);
+            SearchContext context = null;
+            StreamWriter writer = null;
 
-            ExecuteCore(context);
+            try
+            {
+                string path = Options.OutputPath;
 
-            return (context.Telemetry.MatchingFileCount > 0) ? CommandResult.Success : CommandResult.NoSuccess;
+                if (path != null)
+                {
+                    WriteLine($"Opening '{path}'", Verbosity.Diagnostic);
+
+                    writer = new StreamWriter(path, false, Encoding.UTF8);
+                }
+
+                context = new SearchContext(output: writer, cancellationToken: cancellationToken);
+
+                ExecuteCore(context);
+            }
+            catch (Exception ex) when (ex is IOException
+                || ex is UnauthorizedAccessException)
+            {
+                WriteWarning(ex);
+            }
+            finally
+            {
+                writer?.Dispose();
+            }
+
+            return (context?.Telemetry.MatchingFileCount > 0) ? CommandResult.Success : CommandResult.NoSuccess;
         }
 
         protected virtual void ExecuteCore(SearchContext context)

@@ -7,16 +7,13 @@ using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
-    internal class SplitCommand : AbstractCommand
+    internal class SplitCommand : RegexCommand<SplitCommandOptions>
     {
-        public SplitCommand(SplitCommandOptions options)
+        public SplitCommand(SplitCommandOptions options) : base(options)
         {
-            Options = options;
         }
 
-        public SplitCommandOptions Options { get; }
-
-        protected override CommandResult ExecuteCore(CancellationToken cancellationToken = default)
+        protected override CommandResult ExecuteCore(TextWriter output, CancellationToken cancellationToken = default)
         {
             SplitData splitData = SplitData.Create(
                 Options.Filter.Regex,
@@ -25,29 +22,12 @@ namespace Orang.CommandLine
                 omitGroups: Options.OmitGroups,
                 cancellationToken);
 
-            StringWriter writer = null;
-            int count = 0;
+            var outputWriter = new OutputWriter(Options.HighlightOptions);
 
-            try
-            {
-                if (!string.IsNullOrEmpty(Options.OutputPath))
-                    writer = new StringWriter();
-
-                var outputWriter = new OutputWriter(Options.HighlightOptions, writer);
-
-                count = outputWriter.WriteSplits(splitData, Options, cancellationToken);
-
-                if (writer != null)
-                    outputWriter.WriteTo(Options.OutputPath);
-            }
-            finally
-            {
-                writer?.Dispose();
-            }
+            int count = outputWriter.WriteSplits(splitData, Options, output, cancellationToken);
 
             WriteLine();
             WriteGroups(splitData.GroupDefinitions);
-
             WriteLine(Verbosity.Minimal);
 
             WriteCount(

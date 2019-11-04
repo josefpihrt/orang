@@ -7,16 +7,13 @@ using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
-    internal class MatchCommand : AbstractCommand
+    internal class MatchCommand : RegexCommand<MatchCommandOptions>
     {
-        public MatchCommand(MatchCommandOptions options)
+        public MatchCommand(MatchCommandOptions options) : base(options)
         {
-            Options = options;
         }
 
-        public MatchCommandOptions Options { get; }
-
-        protected override CommandResult ExecuteCore(CancellationToken cancellationToken = default)
+        protected override CommandResult ExecuteCore(TextWriter output, CancellationToken cancellationToken = default)
         {
             MatchData matchData = MatchData.Create(
                 Options.Input,
@@ -24,26 +21,9 @@ namespace Orang.CommandLine
                 Options.MaxCount,
                 cancellationToken);
 
-            OutputWriter outputWriter = null;
-            StringWriter writer = null;
-            int count = 0;
+            var outputWriter = new OutputWriter(Options.HighlightOptions);
 
-            try
-            {
-                if (!string.IsNullOrEmpty(Options.OutputPath))
-                    writer = new StringWriter();
-
-                outputWriter = new OutputWriter(Options.HighlightOptions, writer);
-
-                count = outputWriter.WriteMatches(matchData, Options, cancellationToken);
-
-                if (writer != null)
-                    outputWriter.WriteTo(Options.OutputPath);
-            }
-            finally
-            {
-                writer?.Dispose();
-            }
+            int count = outputWriter.WriteMatches(matchData, Options, output, cancellationToken);
 
             if (count > 0)
                 WriteLine();

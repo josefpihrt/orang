@@ -49,6 +49,11 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.Regex)]
         public IEnumerable<string> Name { get; set; }
 
+        [Option(shortName: OptionShortNames.Output, longName: OptionNames.Output,
+            HelpText = "Path to a file that should store results.",
+            MetaValue = MetaValues.Path)]
+        public string Output { get; set; }
+
         public bool TryParse(ref DeleteCommandOptions options)
         {
             var baseOptions = (CommonFindCommandOptions)options;
@@ -68,6 +73,14 @@ namespace Orang.CommandLine
 
             if (Content.Any()
                 && !TryParseFilter(Content, OptionNames.Content, out contentFilter))
+            {
+                return false;
+            }
+
+            string outputPath = null;
+
+            if (Output != null
+                && !TryEnsureFullPath(Output, out outputPath))
             {
                 return false;
             }
@@ -95,6 +108,7 @@ namespace Orang.CommandLine
             options.ContentOnly = ContentOnly;
             options.IncludingBom = IncludingBom;
             options.MaxMatchingFiles = MaxCount;
+            options.OutputPath = outputPath;
 
             return true;
         }

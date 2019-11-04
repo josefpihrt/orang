@@ -19,6 +19,7 @@ orang find [<PATH>]
 [   --max-count]          <MAX_OPTIONS>
 [-n|--name]               <REGEX>
 [   --no-recurse]
+[-o|--output]             <PATH>
 [   --progress]
 [-v|--verbosity]          <VERBOSITY>
 [   --file-log]           <FILE_LOG>
@@ -83,6 +84,10 @@ Regular expression for file or directory name\. Syntax is \<PATTERN> \[\<PATTERN
 **`[--no-recurse]`**
 
 Do not search subdirectories\.
+
+**`[-o|--output] <PATH>`**
+
+Path to a file that should store results\.
 
 **`[--progress]`**
 

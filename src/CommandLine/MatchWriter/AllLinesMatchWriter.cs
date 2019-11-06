@@ -41,7 +41,6 @@ namespace Orang.CommandLine
 
         protected override void WriteStartMatches()
         {
-            MatchCount = 0;
             _lastPos = 0;
 
             Write(Options.Indent);

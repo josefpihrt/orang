@@ -22,7 +22,7 @@ namespace Orang.CommandLine
 
         public MatchWriterOptions Options { get; }
 
-        public int MatchCount { get; protected set; }
+        public int MatchCount { get; private set; }
 
         public int MatchingLineCount { get; protected set; }
 
@@ -189,6 +189,8 @@ namespace Orang.CommandLine
 
         public virtual WriteResult WriteMatches(Match match, int count = 0, in CancellationToken cancellationToken = default)
         {
+            MatchCount = 0;
+
             WriteStartMatches();
 
             WriteResult result = WriteMatchesImpl(match, count, cancellationToken);

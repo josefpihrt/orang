@@ -29,7 +29,6 @@ namespace Orang.CommandLine
 
         protected override void WriteStartMatches()
         {
-            MatchCount = 0;
             _lastEndIndex = 0;
             _lineNumber = 1;
         }

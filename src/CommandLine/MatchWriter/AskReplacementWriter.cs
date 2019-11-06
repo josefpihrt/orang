@@ -51,7 +51,6 @@ namespace Orang.CommandLine
 
         protected override void WriteStartMatches()
         {
-            MatchCount = 0;
             ReplacementCount = 0;
             _writerIndex = 0;
         }
@@ -186,10 +185,10 @@ namespace Orang.CommandLine
 
             protected override void WriteStartMatches()
             {
-                base.WriteStartMatches();
-
                 _solIndex = 0;
                 _lineNumber = 1;
+
+                base.WriteStartMatches();
             }
 
             protected override void WriteStartMatch(Capture capture)

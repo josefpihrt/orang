@@ -39,7 +39,6 @@ namespace Orang.CommandLine
 
         protected override void WriteStartMatches()
         {
-            MatchCount = 0;
         }
 
         protected override void WriteStartMatch(Capture capture)

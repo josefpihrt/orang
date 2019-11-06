@@ -17,11 +17,6 @@ namespace Orang.CommandLine
 
         public bool Ask { get; set; }
 
-        protected override void WriteStartMatches()
-        {
-            MatchCount = 0;
-        }
-
         protected override void WriteStartMatch(Capture capture)
         {
             ResultStorage?.Add(capture.Value);

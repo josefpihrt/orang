@@ -36,7 +36,6 @@ namespace Orang.CommandLine
 
         protected override void WriteStartMatches()
         {
-            MatchCount = 0;
             _lastEndIndex = -1;
             _solIndex = 0;
             _eolIndex = -1;

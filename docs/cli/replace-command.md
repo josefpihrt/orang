@@ -19,7 +19,7 @@ orang replace [<PATH>]
 [-i|--include-directory]  <REGEX>
 [   --input]              <INPUT>
 [-l|--line-number]
-[   --max-count]          <MAX_OPTIONS>
+[-m|--max-count]          <MAX_OPTIONS>
 [-n|--name]               <REGEX>
 [   --no-recurse]
 [   --progress]
@@ -88,7 +88,7 @@ Text to search\.
 
 Include line number\.
 
-**`[--max-count] <MAX_OPTIONS>`**
+**`[-m|--max-count] <MAX_OPTIONS>`**
 
 Stop searching after specified number is reached\. Allowed values are \[m\]atches=\<NUM>, \[m\]atches\-\[i\]n\-\[f\]ile and \[m\]atching\-\[f\]iles\.
 

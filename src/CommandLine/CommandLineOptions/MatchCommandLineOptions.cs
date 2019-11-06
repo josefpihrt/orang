@@ -22,7 +22,7 @@ namespace Orang.CommandLine
         [OptionValueProvider(OptionValueProviderNames.MatchHighlightOptions)]
         public IEnumerable<string> Highlight { get; set; }
 
-        [Option(longName: OptionNames.MaxCount,
+        [Option(shortName: OptionShortNames.MaxCount, longName: OptionNames.MaxCount,
             Default = -1,
             HelpText = "Maximum number of matches returned.",
             MetaValue = MetaValues.Number)]

@@ -17,7 +17,7 @@ orang rename [<PATH>]
 [-e|--extension]          <EXTENSION_FILTER>
 [-h|--highlight]          <HIGHLIGHT>
 [-i|--include-directory]  <REGEX>
-[   --max-count]          <NUMBER>
+[-m|--max-count]          <NUMBER>
  -n|--name                <REGEX>
 [   --no-recurse]
 [-o|--output]             <PATH>
@@ -79,7 +79,7 @@ Parts of the output to highlight\. Allowed values are \[n\]one, \[m\]atch, \[r\]
 
 Regular expression for a directory name\. Syntax is \<PATTERN> \[\<PATTERN\_OPTIONS>\]\. Allowed values are compiled, \[c\]ulture\-\[i\]nvariant, \[e\]cma\-\[s\]cript, \[n\] explicit\-capture, \[f\]rom\-file, \[g\]roup=\<GROUP\_NAME>, \[i\]gnore\-case, \[x\] ignore\-pattern\-whitespace, \[li\]st, \[li\]st\-\[s\]eparator, \[l\]iteral, \[m\]ultiline, \[neg\]ative, \[p\]art=\<NAME\_PART>, \[r\]ight\-to\-left, \[s\]ingleline, timeout=\<NUM>, \[w\]hole\-\[i\]nput, \[w\]hole\-\[l\]ine and \[w\]hole\-word\.
 
-**`[--max-count] <NUMBER>`**
+**`[-m|--max-count] <NUMBER>`**
 
 Stop deleting after specified number is reached\.
 

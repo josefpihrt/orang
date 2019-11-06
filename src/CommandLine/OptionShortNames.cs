@@ -14,6 +14,7 @@ namespace Orang.CommandLine
         public const char IncludeDirectory = 'i';
         public const char Input = 'i';
         public const char LineNumber = 'l';
+        public const char MaxCount = 'm';
         public const char Name = 'n';
         public const char Output = 'o';
         public const char Replacement = 'r';

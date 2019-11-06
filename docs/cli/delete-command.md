@@ -18,7 +18,7 @@ orang delete [<PATH>]
 [-h|--highlight]          <HIGHLIGHT>
 [-i|--include-directory]  <REGEX>
 [   --including-bom]
-[   --max-count]          <NUMBER>
+[-m|--max-count]          <NUMBER>
  -n|--name                <REGEX>
 [   --no-recurse]
 [-o|--output]             <PATH>
@@ -83,7 +83,7 @@ Regular expression for a directory name\. Syntax is \<PATTERN> \[\<PATTERN\_OPTI
 
 Delete byte order mark \(BOM\) when deleting file's content\.
 
-**`[--max-count] <NUMBER>`**
+**`[-m|--max-count] <NUMBER>`**
 
 Stop renaming after specified number is reached\.
 

@@ -99,6 +99,12 @@ namespace Orang
             Out?.WriteIf(condition, value);
         }
 
+        public static void WriteIf(bool condition, string value, in ConsoleColors colors, Verbosity verbosity)
+        {
+            ConsoleOut.WriteIf(condition, value, colors, verbosity);
+            Out?.WriteIf(condition, value, verbosity);
+        }
+
         public static void Write(object value)
         {
             ConsoleOut.Write(value);

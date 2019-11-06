@@ -22,7 +22,7 @@ namespace Orang.CommandLine
         [OptionValueProvider(OptionValueProviderNames.SplitHighlightOptions)]
         public IEnumerable<string> Highlight { get; set; }
 
-        [Option(longName: OptionNames.MaxCount,
+        [Option(shortName: OptionShortNames.MaxCount, longName: OptionNames.MaxCount,
             Default = 0,
             HelpText = "Maximum number of times the split can occur.",
             MetaValue = MetaValues.Number)]

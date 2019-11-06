@@ -117,6 +117,8 @@ namespace Orang.CommandLine
 
             telemetry.MatchingFileCount++;
 
+            var maxReason = MaxReason.None;
+
             if (ShouldLog(Verbosity.Normal)
                 || _storage != null)
             {
@@ -126,7 +128,7 @@ namespace Orang.CommandLine
 
                 using (MatchWriter matchWriter = MatchWriter.CreateFind(Options.ContentDisplayStyle, input, writerOptions, _storage, outputInfo, ask: _askMode == AskMode.Value))
                 {
-                    WriteMatches(matchWriter, match, context);
+                    maxReason = WriteMatches(matchWriter, match, context);
                     telemetry.MatchCount += matchWriter.MatchCount;
 
                     if (matchWriter.MatchingLineCount >= 0)
@@ -160,6 +162,7 @@ namespace Orang.CommandLine
                 {
                     Write(" ", Colors.Message_OK, Verbosity.Minimal);
                     WriteCount("", fileMatchCount, Colors.Message_OK, Verbosity.Minimal);
+                    WriteIf(maxReason == MaxReason.CountExceedsMax, "+", Colors.Message_OK, Verbosity.Minimal);
                     WriteLine(Verbosity.Minimal);
                 }
 
@@ -170,7 +173,7 @@ namespace Orang.CommandLine
             {
                 using (var matchWriter = new EmptyMatchWriter(null, writerOptions))
                 {
-                    WriteMatches(matchWriter, match, context);
+                    maxReason = WriteMatches(matchWriter, match, context);
 
                     if (matchWriter.MatchingLineCount >= 0)
                     {

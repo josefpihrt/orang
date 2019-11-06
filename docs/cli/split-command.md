@@ -10,7 +10,7 @@ orang split [<PATH>]
 [-y|--display]   <DISPLAY_OPTIONS>
 [-h|--highlight] <HIGHLIGHT>
 [   --input]     <INPUT>
-[   --max-count] <NUMBER>
+[-m|--max-count] <NUMBER>
 [   --no-groups]
 [-o|--output]    <PATH>
 [-v|--verbosity] <VERBOSITY>
@@ -41,7 +41,7 @@ Parts of the output to highlight\. Allowed values are \[n\]one, \[s\]plit, \[e\]
 
 Text to search\.
 
-**`[--max-count] <NUMBER>`**
+**`[-m|--max-count] <NUMBER>`**
 
 Maximum number of times the split can occur\.
 

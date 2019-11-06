@@ -2,9 +2,10 @@
 
 namespace Orang.CommandLine
 {
-    internal enum WriteResult
+    internal enum MaxReason
     {
-        None,
-        MaxReached,
+        None = 0,
+        CountEqualsMax = 1,
+        CountExceedsMax = 2,
     }
 }

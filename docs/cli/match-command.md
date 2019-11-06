@@ -10,7 +10,7 @@ orang match [<PATH>]
 [-y|--display]   <DISPLAY_OPTIONS>
 [-h|--highlight] <HIGHLIGHT>
 [   --input]     <INPUT>
-[   --max-count] <NUMBER>
+[-m|--max-count] <NUMBER>
 [-o|--output]    <PATH>
 [-v|--verbosity] <VERBOSITY>
 [   --file-log]  <FILE_LOG>
@@ -40,7 +40,7 @@ Parts of the output to highlight\. Allowed values are \[n\]one, \[m\]atch, \[e\]
 
 Text to search\.
 
-**`[--max-count] <NUMBER>`**
+**`[-m|--max-count] <NUMBER>`**
 
 Maximum number of matches returned\.
 

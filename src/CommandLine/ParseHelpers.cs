@@ -584,17 +584,17 @@ namespace Orang.CommandLine
 
                     if (OptionValues.MaxMatches.IsKeyOrShortKey(key))
                     {
-                        if (!TryParseCount(value, value2, out maxMatches))
+                        if (!TryParseCount(value2, out maxMatches, value))
                             return false;
                     }
                     else if (OptionValues.MaxMatchesInFile.IsKeyOrShortKey(key))
                     {
-                        if (!TryParseCount(value, value2, out maxMatchesInFile))
+                        if (!TryParseCount(value2, out maxMatchesInFile, value))
                             return false;
                     }
                     else if (OptionValues.MaxMatchingFiles.IsKeyOrShortKey(key))
                     {
-                        if (!TryParseCount(value, value2, out maxMatchingFiles))
+                        if (!TryParseCount(value2, out maxMatchingFiles, value))
                             return false;
                     }
                     else
@@ -604,22 +604,20 @@ namespace Orang.CommandLine
                         return false;
                     }
                 }
-                else
+                else if (!TryParseCount(value, out maxMatches))
                 {
-                    string helpText = OptionValueProviders.MaxOptionsProvider.GetHelpText();
-                    WriteError($"Option '{OptionNames.GetHelpText(OptionNames.MaxCount)}' has invalid value '{value}'. Allowed values: {helpText}.");
                     return false;
                 }
             }
 
             return true;
 
-            bool TryParseCount(string keyValue, string value, out int count)
+            bool TryParseCount(string value, out int count, string value2 = null)
             {
                 if (int.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out count))
                     return true;
 
-                WriteError($"Option '{OptionNames.GetHelpText(OptionNames.MaxCount)}' has invalid value '{keyValue}'.");
+                WriteError($"Option '{OptionNames.GetHelpText(OptionNames.MaxCount)}' has invalid value '{value2 ?? value}'.");
                 return false;
             }
         }

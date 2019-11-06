@@ -16,7 +16,7 @@ orang find [<PATH>]
 [-h|--highlight]          <HIGHLIGHT>
 [-i|--include-directory]  <REGEX>
 [-l|--line-number]
-[   --max-count]          <MAX_OPTIONS>
+[-m|--max-count]          <MAX_OPTIONS>
 [-n|--name]               <REGEX>
 [   --no-recurse]
 [-o|--output]             <PATH>
@@ -73,7 +73,7 @@ Regular expression for a directory name\. Syntax is \<PATTERN> \[\<PATTERN\_OPTI
 
 Include line number\.
 
-**`[--max-count] <MAX_OPTIONS>`**
+**`[-m|--max-count] <MAX_OPTIONS>`**
 
 Stop searching after specified number is reached\. Allowed values are \[m\]atches=\<NUM>, \[m\]atches\-\[i\]n\-\[f\]ile and \[m\]atching\-\[f\]iles\.
 

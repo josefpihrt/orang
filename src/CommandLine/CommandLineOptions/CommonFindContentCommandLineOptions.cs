@@ -13,7 +13,7 @@ namespace Orang.CommandLine
             HelpText = "Include line number.")]
         public bool LineNumber { get; set; }
 
-        [Option(longName: OptionNames.MaxCount,
+        [Option(shortName: OptionShortNames.MaxCount, longName: OptionNames.MaxCount,
             HelpText = "Stop searching after specified number is reached.",
             MetaValue = MetaValues.MaxOptions)]
         public IEnumerable<string> MaxCount { get; set; }

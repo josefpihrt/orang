@@ -93,6 +93,12 @@ namespace Orang
                 Write(value, colors);
         }
 
+        public void WriteIf(bool condition, string value, in ConsoleColors colors, Verbosity verbosity)
+        {
+            if (condition)
+                Write(value, colors, verbosity);
+        }
+
         public void WriteLine(string value, in ConsoleColors colors)
         {
             if (!colors.IsDefault)

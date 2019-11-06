@@ -63,7 +63,7 @@ namespace Orang.CommandLine
 
         protected abstract MatchWriterOptions CreateMatchWriteOptions(string indent);
 
-        public void WriteMatches(MatchWriter writer, Match match, SearchContext context)
+        public MaxReason WriteMatches(MatchWriter writer, Match match, SearchContext context)
         {
             int maxMatchesInFile = Options.MaxMatchesInFile;
             int maxMatches = Options.MaxMatches;
@@ -90,14 +90,16 @@ namespace Orang.CommandLine
 
             Debug.Assert(count >= 0, count.ToString());
 
-            WriteResult result = writer.WriteMatches(match, count, context.CancellationToken);
+            MaxReason maxReason = writer.WriteMatches(match, count, context.CancellationToken);
 
-            if (result == WriteResult.MaxReached
+            if ((maxReason == MaxReason.CountEqualsMax || maxReason == MaxReason.CountExceedsMax)
                 && maxMatches > 0
                 && (maxMatchesInFile == 0 || maxMatches <= maxMatchesInFile))
             {
                 context.State = SearchState.MaxReached;
             }
+
+            return maxReason;
         }
     }
 }

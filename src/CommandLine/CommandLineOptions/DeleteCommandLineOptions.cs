@@ -38,7 +38,7 @@ namespace Orang.CommandLine
             HelpText = "Delete byte order mark (BOM) when deleting file's content.")]
         public bool IncludingBom { get; set; }
 
-        [Option(longName: OptionNames.MaxCount,
+        [Option(shortName: OptionShortNames.MaxCount, longName: OptionNames.MaxCount,
             HelpText = "Stop renaming after specified number is reached.",
             MetaValue = MetaValues.Number)]
         public int MaxCount { get; set; }

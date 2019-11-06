@@ -38,7 +38,7 @@ namespace Orang.CommandLine
         [OptionValueProvider(OptionValueProviderNames.RenameHighlightOptions)]
         public IEnumerable<string> Highlight { get; set; }
 
-        [Option(longName: OptionNames.MaxCount,
+        [Option(shortName: OptionShortNames.MaxCount, longName: OptionNames.MaxCount,
             HelpText = "Stop deleting after specified number is reached.",
             MetaValue = MetaValues.Number)]
         public int MaxCount { get; set; }

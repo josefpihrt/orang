@@ -187,20 +187,20 @@ namespace Orang.CommandLine
             Logger.WriteLine(Verbosity.Normal);
         }
 
-        public virtual WriteResult WriteMatches(Match match, int count = 0, in CancellationToken cancellationToken = default)
+        public virtual MaxReason WriteMatches(Match match, int count = 0, in CancellationToken cancellationToken = default)
         {
             MatchCount = 0;
 
             WriteStartMatches();
 
-            WriteResult result = WriteMatchesImpl(match, count, cancellationToken);
+            MaxReason maxReason = WriteMatchesImpl(match, count, cancellationToken);
 
             WriteEndMatches();
 
-            return result;
+            return maxReason;
         }
 
-        private WriteResult WriteMatchesImpl(Match match, int count, in CancellationToken cancellationToken)
+        private MaxReason WriteMatchesImpl(Match match, int count, in CancellationToken cancellationToken)
         {
             int groupNumber = Options.GroupNumber;
 
@@ -213,10 +213,14 @@ namespace Orang.CommandLine
                     WriteMatch(match);
                     MatchCount++;
 
-                    if (MatchCount == count)
-                        return WriteResult.MaxReached;
-
                     match = match.NextMatch();
+
+                    if (MatchCount == count)
+                    {
+                        return (match.Success)
+                            ? MaxReason.CountExceedsMax
+                            : MaxReason.CountEqualsMax;
+                    }
 
                     if (match.Success)
                     {
@@ -241,10 +245,14 @@ namespace Orang.CommandLine
                         WriteMatch(group);
                         MatchCount++;
 
-                        if (MatchCount == count)
-                            return WriteResult.MaxReached;
-
                         group = NextGroup();
+
+                        if (MatchCount == count)
+                        {
+                            return (group != null)
+                                ? MaxReason.CountExceedsMax
+                                : MaxReason.CountEqualsMax;
+                        }
 
                         if (group != null)
                         {
@@ -258,7 +266,7 @@ namespace Orang.CommandLine
                 }
             }
 
-            return WriteResult.None;
+            return MaxReason.None;
 
             Group NextGroup()
             {

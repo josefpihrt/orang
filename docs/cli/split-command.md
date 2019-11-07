@@ -8,7 +8,8 @@ Splits the input string into an list of substrings at the positions defined by a
 orang split [<PATH>]
  -c|--content    <REGEX>
 [-y|--display]   <DISPLAY_OPTIONS>
-[-h|--highlight] <HIGHLIGHT>
+[-h|--help]
+[-t|--highlight] <HIGHLIGHT>
 [   --input]     <INPUT>
 [-m|--max-count] <NUMBER>
 [   --no-groups]
@@ -33,7 +34,11 @@ Regular expression for the input string\. Syntax is \<PATTERN> \[\<PATTERN\_OPTI
 
 Display of the results\. Allowed values are \[c\]ontent=\<CONTENT\_DISPLAY> and \[p\]ath=\<PATH\_DISPLAY>\.
 
-**`[-h|--highlight] <HIGHLIGHT>`**
+**`[-h|--help]`**
+
+Show command line help\.
+
+**`[-t|--highlight] <HIGHLIGHT>`**
 
 Parts of the output to highlight\. Allowed values are \[n\]one, \[s\]plit, \[e\]mpty\-\[s\]plit, \[e\]mpty, \[b\]oundary, \[t\]ab, \[c\]arriage\-\[r\]eturn, \[l\]ine\[f\]eed, \[n\]ew\-\[l\]ine and space\.
 

@@ -15,7 +15,8 @@ orang delete [<PATH>]
 [-d|--dry-run]
 [   --encoding]           <ENCODING>
 [-e|--extension]          <EXTENSION_FILTER>
-[-h|--highlight]          <HIGHLIGHT>
+[-h|--help]
+[-t|--highlight]          <HIGHLIGHT>
 [-i|--include-directory]  <REGEX>
 [   --including-bom]
 [-m|--max-count]          <NUMBER>
@@ -71,7 +72,11 @@ Encoding to use when a file does not contain byte order mark\. Default encoding 
 
 A filter for file extensions\. Syntax is EXT1\[,EXT2,\.\.\.\] \[\<EXTENSION\_OPTIONS>\]\. Allowed values are \[c\]ulture\-\[i\]nvariant, \[f\]rom\-file, \[i\]gnore\-case, \[li\]st\-\[s\]eparator, \[l\]iteral, \[neg\]ative and timeout=\<NUM>\.
 
-**`[-h|--highlight] <HIGHLIGHT>`**
+**`[-h|--help]`**
+
+Show command line help\.
+
+**`[-t|--highlight] <HIGHLIGHT>`**
 
 Parts of the output to highlight\. Allowed values are \[n\]one, \[m\]atch, \[e\]mpty\-\[s\]plit and \[e\]mpty\.
 

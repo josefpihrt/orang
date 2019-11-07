@@ -3,8 +3,10 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Text;
 using CommandLine;
+using CommandLine.Text;
 using static Orang.CommandLine.ParseHelpers;
 using static Orang.Logger;
 
@@ -18,6 +20,42 @@ namespace Orang.CommandLine
             //WriteLine("Copyright (c) Josef Pihrt. All rights reserved.");
             //WriteLine();
 
+            if (args != null)
+            {
+                if (args.Length == 1)
+                {
+                    if (IsHelpOption(args[0]))
+                    {
+                        Console.Write(HelpProvider.GetHelpText());
+#if DEBUG
+                        if (Debugger.IsAttached)
+                            Console.ReadKey();
+#endif
+                        return 0;
+                    }
+
+                }
+                else if (args.Length == 2)
+                {
+                    if (args?.Length == 2
+                        && IsHelpOption(args[1]))
+                    {
+                        Command command = CommandLoader.LoadCommand(typeof(HelpCommand).Assembly, args[0]);
+
+                        if (command != null)
+                        {
+                            Console.Write(HelpProvider.GetHelpText(command));
+#if DEBUG
+                            if (Debugger.IsAttached)
+                                Console.ReadKey();
+#endif
+                            return 0;
+                        }
+                    }
+                }
+            }
+
+
             try
             {
                 ParserSettings defaultSettings = Parser.Default.Settings;
@@ -29,7 +67,7 @@ namespace Orang.CommandLine
                     settings.CaseInsensitiveEnumValues = defaultSettings.CaseInsensitiveEnumValues;
                     settings.CaseSensitive = defaultSettings.CaseSensitive;
                     settings.EnableDashDash = true;
-                    settings.HelpWriter = defaultSettings.HelpWriter;
+                    settings.HelpWriter = null;
                     settings.IgnoreUnknownArguments = defaultSettings.IgnoreUnknownArguments;
                     settings.MaximumDisplayWidth = defaultSettings.MaximumDisplayWidth;
                     settings.ParsingCulture = defaultSettings.ParsingCulture;
@@ -47,10 +85,39 @@ namespace Orang.CommandLine
                     SplitCommandLineOptions
                     >(args);
 
+                bool help = false;
                 bool success = true;
+
+                parserResult.WithNotParsed(_ =>
+                {
+                    var helpText = new HelpText(SentenceBuilder.Create(), HelpProvider.GetHeadingText());
+
+                    helpText = HelpText.DefaultParsingErrorsHandler(parserResult, helpText);
+
+                    VerbAttribute verbAttribute = parserResult.TypeInfo.Current.GetCustomAttribute<VerbAttribute>();
+
+                    if (verbAttribute != null)
+                    {
+                        helpText.AddPreOptionsText(Environment.NewLine + HelpProvider.GetFooterText(verbAttribute.Name));
+                    }
+
+                    Console.Error.WriteLine(helpText);
+
+                    success = false;
+                });
 
                 parserResult.WithParsed<AbstractCommandLineOptions>(options =>
                 {
+                    if (options.Help)
+                    {
+                        string commandName = typeof(AbstractCommandLineOptions).GetCustomAttribute<VerbAttribute>().Name;
+
+                        Console.WriteLine(HelpProvider.GetHelpText(commandName));
+
+                        help = true;
+                        return;
+                    }
+
                     success = false;
 
                     var defaultVerbosity = Verbosity.Normal;
@@ -82,6 +149,9 @@ namespace Orang.CommandLine
                     }
                 });
 
+                if (help)
+                    return 0;
+
                 if (!success)
                     return 1;
 
@@ -112,6 +182,16 @@ namespace Orang.CommandLine
             }
 
             return 1;
+
+            bool IsHelpOption(string value)
+            {
+                if (value.StartsWith("--"))
+                    return string.Compare(value, 2, OptionNames.Help, 0, OptionNames.Help.Length, StringComparison.Ordinal) == 0;
+
+                return value.Length == 2
+                    && value[0] == '-'
+                    && value[1] == OptionShortNames.Help;
+            }
         }
 
         private static int Delete(DeleteCommandLineOptions commandLineOptions)

@@ -32,7 +32,7 @@ orang replace ^
  -e csproj,vbproj ^
  -c "pattern.txt" f ^
  -r "1.2.3.0" ^
- -h m r
+ -t m r
 ```
 
 ### Sample
@@ -69,7 +69,7 @@ orang replace ^
  -e cs ^
  -c "pattern.txt" ^
  -i ".git" wi neg ^
- -h m
+ -t m
 
 ```
 

@@ -15,7 +15,8 @@ orang replace [<PATH>]
 [   --encoding]           <ENCODING>
 [   --evaluator]          <EVALUATOR>
 [-e|--extension]          <EXTENSION_FILTER>
-[-h|--highlight]          <HIGHLIGHT>
+[-h|--help]
+[-t|--highlight]          <HIGHLIGHT>
 [-i|--include-directory]  <REGEX>
 [   --input]              <INPUT>
 [-l|--line-number]
@@ -72,7 +73,11 @@ Path to the evaluator method to compute replacements\. The format is "LibraryPat
 
 A filter for file extensions\. Syntax is EXT1\[,EXT2,\.\.\.\] \[\<EXTENSION\_OPTIONS>\]\. Allowed values are \[c\]ulture\-\[i\]nvariant, \[f\]rom\-file, \[i\]gnore\-case, \[li\]st\-\[s\]eparator, \[l\]iteral, \[neg\]ative and timeout=\<NUM>\.
 
-**`[-h|--highlight] <HIGHLIGHT>`**
+**`[-h|--help]`**
+
+Show command line help\.
+
+**`[-t|--highlight] <HIGHLIGHT>`**
 
 Parts of the output to highlight\. Allowed values are \[n\]one, \[m\]atch, \[r\]eplacement, \[e\]mpty\-\[m\]atch, \[e\]mpty\-\[r\]eplacement, \[e\]mpty\-\[s\]plit, \[e\]mpty, \[b\]oundary, \[t\]ab, \[c\]arriage\-\[r\]eturn, \[l\]ine\[f\]eed, \[n\]ew\-\[l\]ine and space\.
 
@@ -152,7 +157,7 @@ orang replace ^
  -e csproj,vbproj ^
  -c "pattern.txt" f ^
  -r "1.2.3.0" ^
- -h m r
+ -t m r
 ```
 
 ### Sample
@@ -189,7 +194,7 @@ orang replace ^
  -e cs ^
  -c "pattern.txt" ^
  -i ".git" wi neg ^
- -h m
+ -t m
 
 ```
 

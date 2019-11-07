@@ -270,9 +270,8 @@ namespace Orang
                         }
                     }) + 1;
 
-                    do
+                    while (true)
                     {
-                        WriteLine();
                         WriteLine(en.Current.Name);
 
                         foreach (OptionValue optionValue in en.Current
@@ -300,7 +299,15 @@ namespace Orang
                             WriteLine();
                         }
 
-                    } while (en.MoveNext());
+                        if (en.MoveNext())
+                        {
+                            WriteLine();
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
 
                     WriteEndValues();
                 }

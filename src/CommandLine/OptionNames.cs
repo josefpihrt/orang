@@ -23,6 +23,7 @@ namespace Orang.CommandLine
         public const string FileLog = "file-log";
         public const string Filter = "filter";
         public const string Format = "format";
+        public const string Help = "help";
         public const string Highlight = "highlight";
         public const string CharGroup = "char-group";
         public const string IncludeDirectory = "include-directory";

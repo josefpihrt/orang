@@ -116,10 +116,6 @@ namespace Orang.CommandLine
             {
                 contentDisplayStyle = ContentDisplayStyle.AllLines;
             }
-            else if (askMode == AskMode.Value)
-            {
-                contentDisplayStyle = ContentDisplayStyle.Value;
-            }
             else
             {
                 contentDisplayStyle = ContentDisplayStyle.Line;

@@ -12,6 +12,10 @@ namespace Orang.CommandLine
             MetaValue = "<FILE_LOG>")]
         public IEnumerable<string> FileLog { get; set; }
 
+        [Option(shortName: OptionShortNames.Help, longName: OptionNames.Help,
+            HelpText = "Show command line help.")]
+        public bool Help { get; set; }
+
         [Option(shortName: OptionShortNames.Verbosity, longName: OptionNames.Verbosity,
             HelpText = "The amount of information to display in the log.",
             MetaValue = MetaValues.Verbosity)]

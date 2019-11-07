@@ -66,7 +66,7 @@ The option `-d, --dry-run` gives you opportunity to see the results before you a
 
 ### Match and Replacement Side-by-Side
 
-The option `-h, --highlight` with values `[m]atch [r]eplacement` gives you opportunity to see the match and the replacement side-by-side in the output.
+The option `-t, --highlight` with values `[m]atch [r]eplacement` gives you opportunity to see the match and the replacement side-by-side in the output.
 
 ### Evaluator
 
@@ -136,7 +136,7 @@ orang replace ^
 ```
 or
 ```
-orang replace -e txt -c "pattern.txt" f --evaluator "C:/Lib/Evaluator.dll,N.C.M" -h m r -d
+orang replace -e txt -c "pattern.txt" f --evaluator "C:/Lib/Evaluator.dll,N.C.M" -t m r -d
 ```
 
 ![Capitalize first character in a sentence](/images/CapitalizeFirstCharInSentence.png)

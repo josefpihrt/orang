@@ -95,7 +95,7 @@ namespace Orang.CommandLine
                 optionName: OptionNames.Display,
                 contentDisplayStyle: out ContentDisplayStyle? contentDisplayStyle2,
                 pathDisplayStyle: out PathDisplayStyle? pathDisplayStyle2,
-                contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider_WithoutLineAndUnmatchedLines,
+                contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider_WithoutUnmatchedLines,
                 pathDisplayStyleProvider: OptionValueProviders.PathDisplayStyleProvider))
             {
                 return false;

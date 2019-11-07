@@ -52,7 +52,7 @@ namespace Orang.CommandLine
 
         [Option(shortName: OptionShortNames.Output, longName: OptionNames.Output,
             HelpText = "Path to a file that should store results.",
-            MetaValue = MetaValues.Path)]
+            MetaValue = MetaValues.FilePath)]
         public string Output { get; set; }
 
         [Option(shortName: OptionShortNames.Replacement, longName: OptionNames.Replacement,

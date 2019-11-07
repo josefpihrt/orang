@@ -23,6 +23,7 @@ orang replace [<PATH>]
 [-m|--max-count]          <MAX_OPTIONS>
 [-n|--name]               <REGEX>
 [   --no-recurse]
+[   --paths-from]         <FILE_PATH>
 [   --progress]
 [-r|--replacement]        <REPLACEMENT>
 [-v|--verbosity]          <VERBOSITY>
@@ -104,6 +105,10 @@ Regular expression for file or directory name\. Syntax is \<PATTERN> \[\<PATTERN
 **`[--no-recurse]`**
 
 Do not search subdirectories\.
+
+**`[--paths-from] <FILE_PATH>`**
+
+Read the list of paths to search from a file\. Paths should be separated by newlines\.
 
 **`[--progress]`**
 

@@ -56,6 +56,11 @@ namespace Orang.CommandLine
             HelpText = "Do not search subdirectories.")]
         public bool NoRecurse { get; set; }
 
+        [Option(longName: OptionNames.PathsFrom,
+            HelpText = "Read the list of paths to search from a file. Paths should be separated by newlines.",
+            MetaValue = MetaValues.FilePath)]
+        public string PathsFrom { get; set; }
+
         [Option(longName: OptionNames.Progress,
             HelpText = "Display dot (.) for every tenth searched directory.")]
         public bool Progress { get; set; }
@@ -134,10 +139,32 @@ namespace Orang.CommandLine
 
         protected virtual bool TryParsePaths(out ImmutableArray<string> paths)
         {
-            if (Path.Any())
-                return TryEnsureFullPath(Path, out paths);
+            paths = ImmutableArray<string>.Empty;
 
-            paths = ImmutableArray.Create(Environment.CurrentDirectory);
+            if (Path.Any()
+                && !TryEnsureFullPath(Path, out paths))
+            {
+                return false;
+            }
+
+            ImmutableArray<string> pathsFromFile = ImmutableArray<string>.Empty;
+
+            if (PathsFrom != null)
+            {
+                if (!FileSystemHelpers.TryReadAllText(PathsFrom, out string content))
+                    return false;
+
+                IEnumerable<string> lines = TextHelpers.ReadLines(content).Where(f => !string.IsNullOrWhiteSpace(f));
+
+                if (!TryEnsureFullPath(lines, out pathsFromFile))
+                    return false;
+
+                paths = paths.AddRange(pathsFromFile);
+            }
+
+            if (paths.IsEmpty)
+                paths = ImmutableArray.Create(Environment.CurrentDirectory);
+
             return true;
         }
 

@@ -21,7 +21,8 @@ orang rename [<PATH>]
 [-m|--max-count]          <NUMBER>
  -n|--name                <REGEX>
 [   --no-recurse]
-[-o|--output]             <PATH>
+[-o|--output]             <FILE_PATH>
+[   --paths-from]         <FILE_PATH>
 [   --progress]
 [-r|--replacement]        <REPLACEMENT>
 [-v|--verbosity]          <VERBOSITY>
@@ -96,9 +97,13 @@ Regular expression for file or directory name\. Syntax is \<PATTERN> \[\<PATTERN
 
 Do not search subdirectories\.
 
-**`[-o|--output] <PATH>`**
+**`[-o|--output] <FILE_PATH>`**
 
 Path to a file that should store results\.
+
+**`[--paths-from] <FILE_PATH>`**
+
+Read the list of paths to search from a file\. Paths should be separated by newlines\.
 
 **`[--progress]`**
 

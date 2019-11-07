@@ -44,11 +44,11 @@ Ask for a permission to update each file or value\. Allowed values are \[f\]ile 
 
 **`[-a|--attributes] <ATTRIBUTES>`**
 
-File attributes that are required\. Allowed values are archive, compressed, \[d\]irectory, \[e\]mpty, encrypted, \[f\]ile, \[h\]idden, normal, offline, \[r\]ead\-only, \[s\]ystem and temporary\.
+File attributes that are required\. Allowed values are archive, compressed, \[d\]irectory, \[e\]mpty, encrypted, \[f\]ile, \[h\]idden, normal, offline, \[r\]ead\-only, \[r\]eparse\-\[p\]oint, \[s\]ystem and temporary\.
 
 **`[--attributes-to-skip] <ATTRIBUTES>`**
 
-File attributes that should be skipped\. Allowed values are archive, compressed, \[e\]mpty, encrypted, \[h\]idden, normal, offline, \[r\]ead\-only, \[s\]ystem and temporary\.
+File attributes that should be skipped\. Allowed values are archive, compressed, \[e\]mpty, encrypted, \[h\]idden, normal, offline, \[r\]ead\-only, \[r\]eparse\-\[p\]oint, \[s\]ystem and temporary\.
 
 **`-c|--content <REGEX>`**
 

@@ -102,7 +102,7 @@ namespace Orang.CommandLine
             SimpleOptionValue.Create(FileSystemAttributes.NotContentIndexed, shortValue: "", hidden: true),
             SimpleOptionValue.Create(FileSystemAttributes.Offline, shortValue: ""),
             SimpleOptionValue.Create(FileSystemAttributes.ReadOnly),
-            SimpleOptionValue.Create(FileSystemAttributes.ReparsePoint, shortValue: "", hidden: true),
+            SimpleOptionValue.Create(FileSystemAttributes.ReparsePoint, shortValue: "rp", helpValue: "[r]eparse-[p]oint"),
             SimpleOptionValue.Create(FileSystemAttributes.SparseFile, shortValue: "", hidden: true),
             SimpleOptionValue.Create(FileSystemAttributes.System),
             SimpleOptionValue.Create(FileSystemAttributes.Temporary, shortValue: "")

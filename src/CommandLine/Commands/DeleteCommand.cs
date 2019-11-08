@@ -54,51 +54,52 @@ namespace Orang.CommandLine
                 WritePath(result, basePath, colors: Colors.Matched_Path, matchColors: (Options.HighlightMatch) ? Colors.Match : default, indent);
                 WriteLine();
 
-                bool isCanceled = false;
+                bool success = false;
 
-                if (!Options.DryRun)
+                if (!Options.DryRun
+                    && ShouldDelete())
                 {
-                    string question = (Options.ContentOnly) ? "Delete content?" : "Delete?";
-
-                    if (!ConsoleHelpers.QuestionIf(Options.Ask, question, indent))
+                    try
                     {
-                        isCanceled = true;
+                        FileSystemHelpers.Delete(
+                            result,
+                            contentOnly: Options.ContentOnly,
+                            includingBom: Options.IncludingBom,
+                            filesOnly: Options.FilesOnly,
+                            directoriesOnly: Options.DirectoriesOnly);
+
+                        if (result.IsDirectory)
+                        {
+                            telemetry.ProcessedDirectoryCount++;
+                        }
+                        else
+                        {
+                            telemetry.ProcessedFileCount++;
+                        }
+
+                        success = true;
                     }
-                    else
+                    catch (Exception ex) when (ex is IOException
+                        || ex is UnauthorizedAccessException)
                     {
-                        try
-                        {
-                            FileSystemHelpers.Delete(
-                                result,
-                                contentOnly: Options.ContentOnly,
-                                includingBom: Options.IncludingBom,
-                                filesOnly: Options.FilesOnly,
-                                directoriesOnly: Options.DirectoriesOnly);
-
-                            if (result.IsDirectory)
-                            {
-                                telemetry.ProcessedDirectoryCount++;
-                            }
-                            else
-                            {
-                                telemetry.ProcessedFileCount++;
-                            }
-                        }
-                        catch (Exception ex) when (ex is IOException
-                            || ex is UnauthorizedAccessException)
-                        {
-                            WriteFileError(ex, indent: indent);
-                        }
+                        WriteFileError(ex, indent: indent);
                     }
                 }
 
-                if (!isCanceled)
+                if (Options.DryRun
+                    || success)
                 {
                     context.Output?.WriteLine(path);
-
-                    if (result.IsDirectory)
-                        OnDirectoryChanged(new DirectoryChangedEventArgs(path, null));
                 }
+
+                if (result.IsDirectory
+                    && success)
+                {
+                    OnDirectoryChanged(new DirectoryChangedEventArgs(path, null));
+                }
+
+                if (context.State == SearchState.Canceled)
+                    break;
 
                 if (Options.MaxMatchingFiles == telemetry.MatchingFileCount + telemetry.MatchingDirectoryCount)
                 {
@@ -110,6 +111,22 @@ namespace Orang.CommandLine
             telemetry.SearchedDirectoryCount = progress.SearchedDirectoryCount;
             telemetry.FileCount = progress.FileCount;
             telemetry.DirectoryCount = progress.DirectoryCount;
+
+            bool ShouldDelete()
+            {
+                try
+                {
+                    return ConsoleHelpers.QuestionIf(
+                        Options.Ask,
+                        (Options.ContentOnly) ? "Delete content?" : "Delete?",
+                        indent);
+                }
+                catch (OperationCanceledException)
+                {
+                    context.State = SearchState.Canceled;
+                    return false;
+                }
+            }
         }
 
         protected virtual void OnDirectoryChanged(DirectoryChangedEventArgs e)

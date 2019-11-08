@@ -100,7 +100,7 @@ namespace Orang.CommandLine
                 bool success = false;
 
                 if (!Options.DryRun
-                    && ConsoleHelpers.QuestionIf(Options.Ask, "Rename?", indent))
+                    && ShouldRename())
                 {
                     try
                     {
@@ -143,6 +143,9 @@ namespace Orang.CommandLine
                     OnDirectoryChanged(new DirectoryChangedEventArgs(path, newPath));
                 }
 
+                if (context.State == SearchState.Canceled)
+                    break;
+
                 if (Options.MaxMatchingFiles == telemetry.MatchingFileCount + telemetry.MatchingDirectoryCount)
                 {
                     context.State = SearchState.MaxReached;
@@ -153,6 +156,19 @@ namespace Orang.CommandLine
             telemetry.SearchedDirectoryCount = progress.SearchedDirectoryCount;
             telemetry.FileCount = progress.FileCount;
             telemetry.DirectoryCount = progress.DirectoryCount;
+
+            bool ShouldRename()
+            {
+                try
+                {
+                    return ConsoleHelpers.QuestionIf(Options.Ask, "Rename?", indent);
+                }
+                catch (OperationCanceledException)
+                {
+                    context.State = SearchState.Canceled;
+                    return false;
+                }
+            }
         }
 
         protected virtual void OnDirectoryChanged(DirectoryChangedEventArgs e)

@@ -123,6 +123,9 @@ namespace Orang.CommandLine
 
                     ReplaceMatches(result.Path, encoding, input, match, indent, DirectoryWriterOptions, context);
 
+                    if (context.State == SearchState.Canceled)
+                        break;
+
                     if (Options.MaxMatchingFiles == context.Telemetry.MatchingFileCount)
                         context.State = SearchState.MaxReached;
 
@@ -299,20 +302,35 @@ namespace Orang.CommandLine
 
                 if (Options.AskMode == AskMode.File)
                 {
-                    consoleNewlineWritten = true;
-
-                    if (Options.DryRun)
+                    if (context.State == SearchState.Canceled)
                     {
-                        if (ConsoleHelpers.Question("Continue without asking?", indent))
-                            Options.AskMode = AskMode.None;
-                    }
-                    else if (ConsoleHelpers.Question("Replace content?", indent))
-                    {
-                        File.WriteAllText(filePath, textWriter.ToString(), encoding);
+                        fileReplacementCount = 0;
                     }
                     else
                     {
-                        fileReplacementCount = 0;
+                        consoleNewlineWritten = true;
+
+                        try
+                        {
+                            if (Options.DryRun)
+                            {
+                                if (ConsoleHelpers.Question("Continue without asking?", indent))
+                                    Options.AskMode = AskMode.None;
+                            }
+                            else if (ConsoleHelpers.Question("Replace content?", indent))
+                            {
+                                File.WriteAllText(filePath, textWriter.ToString(), encoding);
+                            }
+                            else
+                            {
+                                fileReplacementCount = 0;
+                            }
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            context.State = SearchState.Canceled;
+                            fileReplacementCount = 0;
+                        }
                     }
                 }
                 else if (Options.AskMode == AskMode.Value)

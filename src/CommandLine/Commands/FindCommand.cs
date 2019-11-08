@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Orang.FileSystem;
 using static Orang.CommandLine.LogHelpers;
 using static Orang.Logger;
@@ -37,8 +38,19 @@ namespace Orang.CommandLine
                 WritePath(result, basePath, colors: Colors.Matched_Path, matchColors: (Options.HighlightMatch) ? Colors.Match : default, indent: indent, Verbosity.Minimal);
                 WriteLine(Verbosity.Minimal);
 
-                if (ConsoleHelpers.QuestionIf(_ask, "Continue without asking?", indent))
-                    _ask = false;
+                if (_ask)
+                {
+                    try
+                    {
+                        if (ConsoleHelpers.Question("Continue without asking?", indent))
+                            _ask = false;
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        context.State = SearchState.Canceled;
+                        break;
+                    }
+                }
 
                 if (result.IsDirectory)
                 {

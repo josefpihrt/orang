@@ -193,9 +193,20 @@ namespace Orang.CommandLine
 
             WriteStartMatches();
 
-            MaxReason maxReason = WriteMatchesImpl(match, count, cancellationToken);
+            MaxReason maxReason;
 
-            WriteEndMatches();
+            try
+            {
+                maxReason = WriteMatchesImpl(match, count, cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            finally
+            {
+                WriteEndMatches();
+            }
 
             return maxReason;
         }

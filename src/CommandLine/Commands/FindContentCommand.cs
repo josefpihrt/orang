@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Text.RegularExpressions;
 using Orang.FileSystem;
 using static Orang.CommandLine.LogHelpers;
@@ -81,11 +82,16 @@ namespace Orang.CommandLine
 
                     if (Options.ContentFilter.IsNegative)
                     {
+                        context.Telemetry.MatchingFileCount++;
+
                         WriteLineIf(!Options.OmitPath, Verbosity.Minimal);
                     }
                     else
                     {
                         WriteMatches(input, match, DirectoryWriterOptions, context);
+
+                        if (context.State == SearchState.Canceled)
+                            break;
                     }
 
                     if (Options.MaxMatchingFiles == context.Telemetry.MatchingFileCount)
@@ -94,10 +100,18 @@ namespace Orang.CommandLine
                     if (context.State == SearchState.MaxReached)
                         break;
 
-                    if (_askMode == AskMode.File
-                        && ConsoleHelpers.Question("Continue without asking?", indent))
+                    if (_askMode == AskMode.File)
                     {
-                        _askMode = AskMode.None;
+                        try
+                        {
+                            if (ConsoleHelpers.Question("Continue without asking?", indent))
+                                _askMode = AskMode.None;
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            context.State = SearchState.Canceled;
+                            break;
+                        }
                     }
                 }
             }
@@ -197,19 +211,16 @@ namespace Orang.CommandLine
 
             WriteLine(Verbosity.Minimal);
             WriteCount("Matches", telemetry.MatchCount, Colors.Message_OK, Verbosity.Minimal);
+            Write("  ", Colors.Message_OK, Verbosity.Minimal);
 
-            if (telemetry.MatchCount > 0)
+            if (telemetry.MatchingLineCount > 0)
             {
+                WriteCount("Matching lines", telemetry.MatchingLineCount, Colors.Message_OK, Verbosity.Minimal);
                 Write("  ", Colors.Message_OK, Verbosity.Minimal);
-
-                if (telemetry.MatchingLineCount > 0)
-                {
-                    WriteCount("Matching lines", telemetry.MatchingLineCount, Colors.Message_OK, Verbosity.Minimal);
-                    Write("  ", Colors.Message_OK, Verbosity.Minimal);
-                }
-
-                WriteCount("Matching files", telemetry.MatchingFileCount, Colors.Message_OK, Verbosity.Minimal);
             }
+
+            if (telemetry.MatchingFileCount > 0)
+                WriteCount("Matching files", telemetry.MatchingFileCount, Colors.Message_OK, Verbosity.Minimal);
 
             WriteLine(Verbosity.Minimal);
         }

@@ -90,13 +90,22 @@ namespace Orang.CommandLine
 
             Debug.Assert(count >= 0, count.ToString());
 
-            MaxReason maxReason = writer.WriteMatches(match, count, context.CancellationToken);
+            var maxReason = MaxReason.None;
 
-            if ((maxReason == MaxReason.CountEqualsMax || maxReason == MaxReason.CountExceedsMax)
-                && maxMatches > 0
-                && (maxMatchesInFile == 0 || maxMatches <= maxMatchesInFile))
+            try
             {
-                context.State = SearchState.MaxReached;
+                maxReason = writer.WriteMatches(match, count, context.CancellationToken);
+
+                if ((maxReason == MaxReason.CountEqualsMax || maxReason == MaxReason.CountExceedsMax)
+                    && maxMatches > 0
+                    && (maxMatchesInFile == 0 || maxMatches <= maxMatchesInFile))
+                {
+                    context.State = SearchState.MaxReached;
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                context.State = SearchState.Canceled;
             }
 
             return maxReason;

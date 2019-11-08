@@ -2,17 +2,9 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <AssemblyName>Orang.CommandLine.Tests</AssemblyName>
     <RootNamespace>Orang.CommandLine.Tests</RootNamespace>
-    <CodeAnalysisRuleSet>..\Tests.ruleset</CodeAnalysisRuleSet>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\..\Orang.snk</AssemblyOriginatorKeyFile>
-    <LangVersion>latest</LangVersion>
     <IsPackable>false</IsPackable>
-    <Copyright>Copyright (c) 2017-2019 Josef Pihrt</Copyright>
   </PropertyGroup>
 
   <ItemGroup>

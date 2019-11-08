@@ -128,25 +128,9 @@ namespace Orang.CommandLine
             options.ContentFilter = contentFilter;
             options.Replacement = replacement ?? "";
             options.MatchEvaluator = matchEvaluator;
-
             options.Input = Input;
-
-            if (DryRun)
-            {
-                options.SaveMode = SaveMode.DryRun;
-            }
-            else if (askMode == AskMode.Value)
-            {
-                options.SaveMode = SaveMode.ValueByValue;
-            }
-            else if (askMode == AskMode.File)
-            {
-                options.SaveMode = SaveMode.FileByFile;
-            }
-            else
-            {
-                options.SaveMode = SaveMode.NoAsk;
-            }
+            options.DryRun = DryRun;
+            options.AskMode = askMode;
 
             return true;
         }

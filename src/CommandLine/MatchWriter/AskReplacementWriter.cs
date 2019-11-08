@@ -16,7 +16,7 @@ namespace Orang.CommandLine
             string input,
             MatchEvaluator matchEvaluator,
             Lazy<TextWriter> lazyWriter,
-            MatchWriterOptions options = null) : base(input, options)
+            MatchWriterOptions options) : base(input, options)
         {
             MatchEvaluator = matchEvaluator;
             _lazyWriter = lazyWriter;
@@ -24,7 +24,9 @@ namespace Orang.CommandLine
 
         public MatchEvaluator MatchEvaluator { get; }
 
-        public int ReplacementCount { get; protected set; }
+        public int ReplacementCount { get; private set; }
+
+        public bool ContinueWithoutAsking { get; private set; }
 
         public static AskReplacementWriter Create(
             ContentDisplayStyle contentDisplayStyle,
@@ -46,6 +48,27 @@ namespace Orang.CommandLine
                     throw new InvalidOperationException();
                 default:
                     throw new InvalidOperationException($"Unknown enum value '{contentDisplayStyle}'.");
+            }
+        }
+
+        protected override void WriteEndReplacement(Match match, string result)
+        {
+            if (_lazyWriter != null)
+            {
+                if (ConsoleHelpers.Question("Replace?", Options.Indent))
+                {
+                    _lazyWriter.Value.Write(Input.AsSpan(_writerIndex, match.Index - _writerIndex));
+                    _lazyWriter.Value.Write(result);
+
+                    _writerIndex = match.Index + match.Length;
+
+                    ReplacementCount++;
+                }
+            }
+            else if (!ContinueWithoutAsking
+                && ConsoleHelpers.Question("Continue without asking?", Options.Indent))
+            {
+                ContinueWithoutAsking = true;
             }
         }
 
@@ -84,12 +107,11 @@ namespace Orang.CommandLine
 
         public override void Dispose()
         {
-            if (!_lazyWriter.IsValueCreated)
-                return;
-
-            _lazyWriter.Value.Write(Input.AsSpan(_writerIndex, Input.Length - _writerIndex));
-
-            _lazyWriter.Value.Dispose();
+            if (_lazyWriter?.IsValueCreated == true)
+            {
+                _lazyWriter.Value.Write(Input.AsSpan(_writerIndex, Input.Length - _writerIndex));
+                _lazyWriter.Value.Dispose();
+            }
         }
 
         private class AskValueReplacementWriter : AskReplacementWriter
@@ -98,8 +120,8 @@ namespace Orang.CommandLine
                 string input,
                 MatchEvaluator matchEvaluator,
                 Lazy<TextWriter> lazyWriter,
-                MatchWriterOptions options = null,
-                MatchOutputInfo outputInfo = null) : base(input, matchEvaluator, lazyWriter, options)
+                MatchWriterOptions options,
+                MatchOutputInfo outputInfo) : base(input, matchEvaluator, lazyWriter, options)
             {
                 OutputInfo = outputInfo;
             }
@@ -133,15 +155,7 @@ namespace Orang.CommandLine
             {
                 WriteLine();
 
-                if (ConsoleHelpers.Question("Replace?", Options.Indent))
-                {
-                    _lazyWriter.Value.Write(Input.AsSpan(_writerIndex, match.Index - _writerIndex));
-                    _lazyWriter.Value.Write(result);
-
-                    _writerIndex = match.Index + match.Length;
-
-                    ReplacementCount++;
-                }
+                base.WriteEndReplacement(match, result);
             }
         }
 
@@ -156,7 +170,7 @@ namespace Orang.CommandLine
                 string input,
                 MatchEvaluator matchEvaluator,
                 Lazy<TextWriter> lazyWriter,
-                MatchWriterOptions options = null) : base(input, matchEvaluator, lazyWriter, options)
+                MatchWriterOptions options) : base(input, matchEvaluator, lazyWriter, options)
             {
                 MatchingLineCount = 0;
             }
@@ -237,15 +251,7 @@ namespace Orang.CommandLine
 
                 WriteEndLine(endIndex, eolIndex);
 
-                if (ConsoleHelpers.Question("Replace?", Options.Indent))
-                {
-                    _lazyWriter.Value.Write(Input.AsSpan(_writerIndex, match.Index - _writerIndex));
-                    _lazyWriter.Value.Write(result);
-
-                    _writerIndex = match.Index + match.Length;
-
-                    ReplacementCount++;
-                }
+                base.WriteEndReplacement(match, result);
             }
         }
     }

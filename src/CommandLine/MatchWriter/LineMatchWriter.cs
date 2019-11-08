@@ -1,6 +1,5 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Text.RegularExpressions;
 
 namespace Orang.CommandLine
@@ -89,8 +88,8 @@ namespace Orang.CommandLine
                 MatchingLineCount += TextHelpers.CountLines(Input, index, length);
             }
 
-            _solIndex = TextHelpers.FindStartOfLine(Input, index);
-            _eolIndex = TextHelpers.FindEndOfLine(Input, index + capture.Length);
+            _solIndex = FindStartOfLine(index);
+            _eolIndex = FindEndOfLine(capture);
 
             if (!isSameLine)
             {

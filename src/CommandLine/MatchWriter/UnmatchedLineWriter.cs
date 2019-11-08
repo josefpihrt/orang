@@ -39,7 +39,7 @@ namespace Orang.CommandLine
 
             if (index >= _lastEndIndex)
             {
-                int solIndex = TextHelpers.FindStartOfLine(Input, index);
+                int solIndex = FindStartOfLine(index);
 
                 if (solIndex > _lastEndIndex)
                 {

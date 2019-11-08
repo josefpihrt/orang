@@ -218,8 +218,8 @@ namespace Orang.CommandLine
                     }
                 }
 
-                _solIndex = TextHelpers.FindStartOfLine(Input, capture.Index);
-                _eolIndex = TextHelpers.FindEndOfLine(Input, capture.Index + capture.Length);
+                _solIndex = FindStartOfLine(capture);
+                _eolIndex = FindEndOfLine(capture);
 
                 WriteStartLine(_solIndex, capture.Index);
             }
@@ -233,7 +233,7 @@ namespace Orang.CommandLine
             {
                 int endIndex = match.Index + match.Length;
 
-                int eolIndex = TextHelpers.FindEndOfLine(Input, endIndex);
+                int eolIndex = FindEndOfLine(match);
 
                 WriteEndLine(endIndex, eolIndex);
 

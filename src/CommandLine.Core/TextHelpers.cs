@@ -61,36 +61,6 @@ namespace Orang
             }
         }
 
-        public static int FindStartOfLine(string text, int index)
-        {
-            while (index > 0
-                && text[index - 1] != '\n')
-            {
-                index--;
-            }
-
-            return index;
-        }
-
-        public static int FindEndOfLine(string text, int index)
-        {
-            while (index > 0
-                && text[index - 1] == '\n')
-            {
-                return index;
-            }
-
-            while (index < text.Length)
-            {
-                if (text[index] == '\n')
-                    return ++index;
-
-                index++;
-            }
-
-            return index;
-        }
-
         public static int CountLines(string text, int startIndex, int length)
         {
             Debug.Assert(length >= 0, length.ToString());

@@ -33,7 +33,6 @@ namespace Orang.CommandLine
 #endif
                         return 0;
                     }
-
                 }
                 else if (args.Length == 2)
                 {
@@ -54,7 +53,6 @@ namespace Orang.CommandLine
                     }
                 }
             }
-
 
             try
             {

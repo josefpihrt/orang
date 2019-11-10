@@ -131,19 +131,34 @@ namespace Orang.CommandLine
 
             telemetry.MatchingFileCount++;
 
+            int fileMatchCount = 0;
             var maxReason = MaxReason.None;
 
-            if (ShouldLog(Verbosity.Normal)
-                || _storage != null)
+            if (_storage != null
+                || Options.AskMode == AskMode.Value
+                || ShouldLog(Verbosity.Normal))
             {
-                WriteLineIf(!Options.OmitPath, Verbosity.Minimal);
+                if (!Options.OmitPath)
+                {
+                    if (Options.AskMode == AskMode.Value)
+                    {
+                        ConsoleOut.WriteLine();
+                    }
+                    else if (ConsoleOut.Verbosity >= Verbosity.Normal)
+                    {
+                        ConsoleOut.WriteLine(Verbosity.Normal);
+                    }
+
+                    if (Out?.Verbosity >= Verbosity.Normal)
+                        Out.WriteLine(Verbosity.Normal);
+                }
 
                 MatchOutputInfo outputInfo = Options.CreateOutputInfo(input, match);
 
                 using (MatchWriter matchWriter = MatchWriter.CreateFind(Options.ContentDisplayStyle, input, writerOptions, _storage, outputInfo, ask: _askMode == AskMode.Value))
                 {
                     maxReason = WriteMatches(matchWriter, match, context);
-                    telemetry.MatchCount += matchWriter.MatchCount;
+                    fileMatchCount += matchWriter.MatchCount;
 
                     if (matchWriter.MatchingLineCount >= 0)
                     {
@@ -170,18 +185,28 @@ namespace Orang.CommandLine
             }
             else
             {
-                int fileMatchCount = EnumerateValues();
+                fileMatchCount = EnumerateValues();
+            }
 
-                if (!Options.OmitPath)
+            if (Options.AskMode != AskMode.Value
+                && !Options.OmitPath)
+            {
+                if (ConsoleOut.Verbosity == Verbosity.Minimal)
                 {
-                    Write(" ", Colors.Message_OK, Verbosity.Minimal);
-                    WriteCount("", fileMatchCount, Colors.Message_OK, Verbosity.Minimal);
-                    WriteIf(maxReason == MaxReason.CountExceedsMax, "+", Colors.Message_OK, Verbosity.Minimal);
-                    WriteLine(Verbosity.Minimal);
+                    ConsoleOut.Write($" {fileMatchCount.ToString("n0")}", Colors.Message_OK);
+                    ConsoleOut.WriteIf(maxReason == MaxReason.CountExceedsMax, "+", Colors.Message_OK);
+                    ConsoleOut.WriteLine();
                 }
 
-                telemetry.MatchCount += fileMatchCount;
+                if (Out?.Verbosity == Verbosity.Minimal)
+                {
+                    Out.Write($" {fileMatchCount.ToString("n0")}");
+                    Out.WriteIf(maxReason == MaxReason.CountExceedsMax, "+");
+                    Out.WriteLine();
+                }
             }
+
+            telemetry.MatchCount += fileMatchCount;
 
             int EnumerateValues()
             {

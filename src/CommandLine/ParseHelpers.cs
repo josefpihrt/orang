@@ -662,11 +662,6 @@ namespace Orang.CommandLine
                         if (!TryParseCount(value2, out maxMatches, value))
                             return false;
                     }
-                    else if (OptionValues.MaxMatchesInFile.IsKeyOrShortKey(key))
-                    {
-                        if (!TryParseCount(value2, out maxMatchesInFile, value))
-                            return false;
-                    }
                     else if (OptionValues.MaxMatchingFiles.IsKeyOrShortKey(key))
                     {
                         if (!TryParseCount(value2, out maxMatchingFiles, value))
@@ -679,7 +674,7 @@ namespace Orang.CommandLine
                         return false;
                     }
                 }
-                else if (!TryParseCount(value, out maxMatches))
+                else if (!TryParseCount(value, out maxMatchesInFile))
                 {
                     return false;
                 }

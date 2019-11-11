@@ -96,7 +96,7 @@ Include line number\.
 
 **`[-m|--max-count] <MAX_OPTIONS>`**
 
-Stop searching after specified number is reached\. Allowed values are \[m\]atches=\<NUM>, \[m\]atches\-\[i\]n\-\[f\]ile and \[m\]atching\-\[f\]iles\.
+Stop searching after specified number is reached\. Allowed values are \<NUM>, \[m\]atches=\<NUM> and \[m\]atching\-\[f\]iles\.
 
 **`[-n|--name] <REGEX>`**
 

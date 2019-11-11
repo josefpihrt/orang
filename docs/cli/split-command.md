@@ -13,7 +13,7 @@ orang split [<PATH>]
 [   --input]     <INPUT>
 [-m|--max-count] <NUMBER>
 [   --no-groups]
-[-o|--output]    <PATH>
+[-o|--output]    <OUTPUT_OPTIONS>
 [-v|--verbosity] <VERBOSITY>
 [   --file-log]  <FILE_LOG>
 ```
@@ -54,9 +54,9 @@ Maximum number of times the split can occur\.
 
 Do not include groups in the results\.
 
-**`[-o|--output] <PATH>`**
+**`[-o|--output] <OUTPUT_OPTIONS>`**
 
-Path to a file that should store results\.
+Path to a file that should store results\. Syntax is \<PATH> \[\<OUTPUT\_OPTIONS>\]\. Allowed values are \[c\]ontent, \[p\]ath and \[e\]ncoding=\<ENCODING>\.
 
 **`[-v|--verbosity] <VERBOSITY>`**
 

@@ -20,7 +20,7 @@ orang find [<PATH>]
 [-m|--max-count]          <MAX_OPTIONS>
 [-n|--name]               <REGEX>
 [   --no-recurse]
-[-o|--output]             <FILE_PATH>
+[-o|--output]             <OUTPUT_OPTIONS>
 [   --paths-from]         <FILE_PATH>
 [   --progress]
 [-v|--verbosity]          <VERBOSITY>
@@ -91,9 +91,9 @@ Regular expression for file or directory name\. Syntax is \<PATTERN> \[\<PATTERN
 
 Do not search subdirectories\.
 
-**`[-o|--output] <FILE_PATH>`**
+**`[-o|--output] <OUTPUT_OPTIONS>`**
 
-Path to a file that should store results\.
+Path to a file that should store results\. Syntax is \<PATH> \[\<OUTPUT\_OPTIONS>\]\. Allowed values are \[c\]ontent, \[p\]ath and \[e\]ncoding=\<ENCODING>\.
 
 **`[--paths-from] <FILE_PATH>`**
 

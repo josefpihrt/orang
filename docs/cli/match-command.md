@@ -12,7 +12,7 @@ orang match [<PATH>]
 [-t|--highlight] <HIGHLIGHT>
 [   --input]     <INPUT>
 [-m|--max-count] <NUMBER>
-[-o|--output]    <PATH>
+[-o|--output]    <OUTPUT_OPTIONS>
 [-v|--verbosity] <VERBOSITY>
 [   --file-log]  <FILE_LOG>
 ```
@@ -49,9 +49,9 @@ Text to search\.
 
 Maximum number of matches returned\.
 
-**`[-o|--output] <PATH>`**
+**`[-o|--output] <OUTPUT_OPTIONS>`**
 
-Path to a file that should store results\.
+Path to a file that should store results\. Syntax is \<PATH> \[\<OUTPUT\_OPTIONS>\]\. Allowed values are \[c\]ontent, \[p\]ath and \[e\]ncoding=\<ENCODING>\.
 
 **`[-v|--verbosity] <VERBOSITY>`**
 

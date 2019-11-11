@@ -50,9 +50,9 @@ namespace Orang.CommandLine
         public IEnumerable<string> Name { get; set; }
 
         [Option(shortName: OptionShortNames.Output, longName: OptionNames.Output,
-            HelpText = "Path to a file that should store results.",
-            MetaValue = MetaValues.FilePath)]
-        public string Output { get; set; }
+            HelpText = "Path to a file that should store results. Syntax is <PATH> [<OUTPUT_OPTIONS>].",
+            MetaValue = MetaValues.OutputOptions)]
+        public IEnumerable<string> Output { get; set; }
 
         public bool TryParse(ref DeleteCommandOptions options)
         {
@@ -77,13 +77,8 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            string outputPath = null;
-
-            if (Output != null
-                && !TryEnsureFullPath(Output, out outputPath))
-            {
+            if (!TryParseOutputOptions(Output, OptionNames.Output, out OutputOptions outputOptions))
                 return false;
-            }
 
             if (!TryParseDisplay(
                 values: Display,
@@ -108,7 +103,7 @@ namespace Orang.CommandLine
             options.ContentOnly = ContentOnly;
             options.IncludingBom = IncludingBom;
             options.MaxMatchingFiles = MaxCount;
-            options.OutputPath = outputPath;
+            options.Output = outputOptions;
 
             return true;
         }

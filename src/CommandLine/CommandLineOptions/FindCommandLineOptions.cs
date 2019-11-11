@@ -29,9 +29,9 @@ namespace Orang.CommandLine
         public IEnumerable<string> Highlight { get; set; }
 
         [Option(shortName: OptionShortNames.Output, longName: OptionNames.Output,
-            HelpText = "Path to a file that should store results.",
-            MetaValue = MetaValues.FilePath)]
-        public string Output { get; set; }
+            HelpText = "Path to a file that should store results. Syntax is <PATH> [<OUTPUT_OPTIONS>].",
+            MetaValue = MetaValues.OutputOptions)]
+        public IEnumerable<string> Output { get; set; }
 
         public bool TryParse(ref FindCommandOptions options)
         {
@@ -83,19 +83,15 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            string outputPath = null;
-            if (Output != null
-                && !TryEnsureFullPath(Output, out outputPath))
-            {
+            if (!TryParseOutputOptions(Output, OptionNames.Output, out OutputOptions outputOptions))
                 return false;
-            }
 
             options.Format = new OutputDisplayFormat(contentDisplayStyle: contentDisplayStyle, pathDisplayStyle: pathDisplayStyle, lineOptions: LineDisplayOptions);
             options.AskMode = askMode;
             options.HighlightOptions = highlightOptions;
             options.SearchTarget = GetSearchTarget();
             options.ContentFilter = contentFilter;
-            options.OutputPath = outputPath;
+            options.Output = outputOptions;
 
             return true;
         }

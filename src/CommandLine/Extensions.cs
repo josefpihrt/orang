@@ -2,12 +2,19 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.RegularExpressions;
 
 namespace Orang
 {
     internal static class Extensions
     {
+        public static void WriteLineIf(this TextWriter writer, bool condition, string value)
+        {
+            if (condition)
+                writer.WriteLine(value);
+        }
+
         public static IEnumerable<RegexOptions> GetFlags(this RegexOptions options)
         {
             return GetFlags();

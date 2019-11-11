@@ -15,6 +15,74 @@ namespace Orang.CommandLine
 {
     internal static class ParseHelpers
     {
+        public static bool TryParseOutputOptions(
+            IEnumerable<string> values,
+            string optionName,
+            out OutputOptions outputOptions)
+        {
+            outputOptions = null;
+            Encoding encoding = null;
+            bool includeContent = false;
+            bool includePath = false;
+
+            if (!values.Any())
+                return true;
+
+            if (!TryEnsureFullPath(values.First(), out string path))
+                return false;
+
+            foreach (string value in values.Skip(1))
+            {
+                int index = value.IndexOf('=');
+
+                if (index >= 0)
+                {
+                    string key = value.Substring(0, index);
+                    string value2 = value.Substring(index + 1);
+
+                    if (OptionValues.Encoding.IsKeyOrShortKey(key))
+                    {
+                        if (!TryParseEncoding(value2, out encoding, Encoding.UTF8))
+                            return false;
+                    }
+                    else
+                    {
+                        OnError(value);
+                        return false;
+                    }
+                }
+                else if (OptionValues.OutputOptions_Content.IsValueOrShortValue(value))
+                {
+                    includeContent = true;
+                }
+                else if (OptionValues.OutputOptions_Path.IsValueOrShortValue(value))
+                {
+                    includePath = true;
+                }
+                else
+                {
+                    OnError(value);
+                    return false;
+                }
+            }
+
+            if (!includePath
+                && !includeContent)
+            {
+                includePath = true;
+            }
+
+            outputOptions = new OutputOptions(path, encoding ?? Encoding.UTF8, includeContent: includeContent, includePath: includePath);
+            return true;
+
+            void OnError(string value)
+            {
+                string helpText = OptionValueProviders.OutputOptionsProvider.GetHelpText();
+
+                WriteError($"Option '{OptionNames.GetHelpText(optionName)}' has invalid value '{value}'. Allowed values: {helpText}.");
+            }
+        }
+
         public static bool TryParseDisplay(
             IEnumerable<string> values,
             string optionName,
@@ -63,14 +131,14 @@ namespace Orang.CommandLine
                     string key = value.Substring(0, index);
                     string value2 = value.Substring(index + 1);
 
-                    if (OptionValues.Content.IsKeyOrShortKey(key))
+                    if (OptionValues.Display_Content.IsKeyOrShortKey(key))
                     {
                         if (!TryParseAsEnum(value2, optionName, out ContentDisplayStyle contentDisplayStyle2, provider: contentDisplayStyleProvider))
                             return false;
 
                         contentDisplayStyle = contentDisplayStyle2;
                     }
-                    else if (OptionValues.Path.IsKeyOrShortKey(key))
+                    else if (OptionValues.Display_Path.IsKeyOrShortKey(key))
                     {
                         if (!TryParseAsEnum(value2, optionName, out PathDisplayStyle pathDisplayStyle2, provider: pathDisplayStyleProvider))
                             return false;
@@ -545,9 +613,16 @@ namespace Orang.CommandLine
             return TryParseAsEnum(value, OptionNames.Verbosity, out verbosity, provider: OptionValueProviders.VerbosityProvider);
         }
 
-        public static bool TryParseEncoding(string name, out Encoding encoding)
+        // https://docs.microsoft.com/en-us/dotnet/api/system.text.encoding#remarks
+        public static bool TryParseEncoding(string name, out Encoding encoding, Encoding defaultEncoding)
         {
             if (name == null)
+            {
+                encoding = defaultEncoding;
+                return true;
+            }
+
+            if (name == "utf-8-no-bom")
             {
                 encoding = EncodingHelpers.UTF8NoBom;
                 return true;

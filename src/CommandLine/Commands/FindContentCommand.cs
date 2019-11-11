@@ -29,8 +29,11 @@ namespace Orang.CommandLine
             if (ConsoleOut.Verbosity >= Verbosity.Minimal)
                 _askMode = Options.AskMode;
 
-            if (Options.OutputPath != null)
+            if (Options.OutputPath != null
+                && Options.Output.IncludeContent)
+            {
                 _storage = new TextWriterResultStorage(context.Output);
+            }
 
             base.ExecuteCore(context);
         }
@@ -54,6 +57,8 @@ namespace Orang.CommandLine
 
                     if (Options.MaxMatchingFiles == context.Telemetry.MatchingFileCount)
                         context.State = SearchState.MaxReached;
+
+                    context.Output?.WriteLineIf(Options.Output.IncludePath, filePath);
                 }
             }
         }
@@ -79,6 +84,8 @@ namespace Orang.CommandLine
 
                     if (!Options.OmitPath)
                         WritePath(result, basePath, colors: Colors.Matched_Path, matchColors: (Options.HighlightMatch) ? Colors.Match_Path : default, indent: indent, verbosity: Verbosity.Minimal);
+
+                    context.Output?.WriteLineIf(Options.Output.IncludePath, result.Path);
 
                     if (Options.ContentFilter.IsNegative)
                     {

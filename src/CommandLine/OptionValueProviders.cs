@@ -287,8 +287,14 @@ namespace Orang.CommandLine
         );
 
         public static OptionValueProvider DisplayProvider { get; } = new OptionValueProvider(MetaValues.DisplayOptions,
-            OptionValues.Content,
-            OptionValues.Path
+            OptionValues.Display_Content,
+            OptionValues.Display_Path
+        );
+
+        public static OptionValueProvider OutputOptionsProvider { get; } = new OptionValueProvider(MetaValues.OutputOptions,
+            OptionValues.OutputOptions_Content,
+            OptionValues.OutputOptions_Path,
+            OptionValues.Encoding
         );
 
         public static ImmutableDictionary<string, OptionValueProvider> ProvidersByName

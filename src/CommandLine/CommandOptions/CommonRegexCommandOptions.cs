@@ -8,7 +8,9 @@ namespace Orang.CommandLine
         {
         }
 
-        public string OutputPath { get; internal set; }
+        public OutputOptions Output { get; internal set; }
+
+        public string OutputPath => Output?.Path;
 
         public HighlightOptions HighlightOptions { get; internal set; }
 

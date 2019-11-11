@@ -29,7 +29,7 @@ namespace Orang.CommandLine
                 {
                     WriteLine($"Opening '{path}'", Verbosity.Diagnostic);
 
-                    writer = new StreamWriter(path, false, Encoding.UTF8);
+                    writer = new StreamWriter(path, false, Options.Output.Encoding);
                 }
 
                 return ExecuteCore(writer, cancellationToken);

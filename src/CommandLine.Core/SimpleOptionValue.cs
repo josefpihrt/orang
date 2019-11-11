@@ -23,6 +23,11 @@ namespace Orang
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private string DebuggerDisplay => $"{Kind}  {Name}  {HelpValue}";
 
+        public bool IsValueOrShortValue(string value)
+        {
+            return value == Value || (ShortValue != null && value == ShortValue);
+        }
+
         public static SimpleOptionValue Create<TEnum>(
             TEnum enumValue,
             string value = null,

@@ -8,6 +8,7 @@ namespace Orang.CommandLine
         public const string Attributes = "<ATTRIBUTES>";
         public const string ContentDisplay = "<CONTENT_DISPLAY>";
         public const string DisplayOptions = "<DISPLAY_OPTIONS>";
+        public const string Encoding = "<ENCODING>";
         public const string Evaluator = "<EVALUATOR>";
         public const string ExtensionFilter = "<EXTENSION_FILTER>";
         public const string ExtensionOptions = "<EXTENSION_OPTIONS>";
@@ -18,6 +19,7 @@ namespace Orang.CommandLine
         public const string MaxOptions = "<MAX_OPTIONS>";
         public const string NamePart = "<NAME_PART>";
         public const string Number = "<NUMBER>";
+        public const string OutputOptions = "<OUTPUT_OPTIONS>";
         public const string PathDisplay = "<PATH_DISPLAY>";
         public const string PatternOptions = "<PATTERN_OPTIONS>";
         public const string Regex = "<REGEX>";

@@ -39,7 +39,7 @@ namespace Orang.CommandLine
 
         [Option(longName: OptionNames.Encoding,
             HelpText = "Encoding to use when a file does not contain byte order mark. Default encoding is UTF-8.",
-            MetaValue = "<ENCODING>")]
+            MetaValue = MetaValues.Encoding)]
         public string Encoding { get; set; }
 
         [Option(shortName: OptionShortNames.Extension, longName: OptionNames.Extension,
@@ -83,7 +83,7 @@ namespace Orang.CommandLine
             if (!TryParseAsEnumFlags(AttributesToSkip, OptionNames.AttributesToSkip, out FileSystemAttributes attributesToSkip, provider: OptionValueProviders.FileSystemAttributesToSkipProvider))
                 return false;
 
-            if (!TryParseEncoding(Encoding, out Encoding defaultEncoding))
+            if (!TryParseEncoding(Encoding, out Encoding defaultEncoding, EncodingHelpers.UTF8NoBom))
                 return false;
 
             Filter directoryFilter = null;

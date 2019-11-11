@@ -36,7 +36,7 @@ namespace Orang.FileSystem
             }
         }
 
-        private static void DeleteDirectory(string directoryPath, bool contentOnly, bool filesOnly, bool directoriesOnly)
+        public static void DeleteDirectory(string directoryPath, bool contentOnly, bool filesOnly, bool directoriesOnly)
         {
             if (contentOnly)
             {
@@ -58,7 +58,7 @@ namespace Orang.FileSystem
             }
         }
 
-        private static void DeleteFile(string filePath, bool contentOnly, bool includingBom)
+        public static void DeleteFile(string filePath, bool contentOnly, bool includingBom)
         {
             if (contentOnly)
             {
@@ -100,42 +100,6 @@ namespace Orang.FileSystem
                 content = null;
                 return false;
             }
-        }
-
-        public static IEnumerable<FileSystemFinderResult> Find(
-            string directoryPath,
-            CommonFindCommandOptions options,
-            FileSystemFinderProgressReporter progress,
-            in CancellationToken cancellationToken = default)
-        {
-            return Find(directoryPath, options, progress, default(INotifyDirectoryChanged), canEnumerate: true, cancellationToken);
-        }
-
-        public static IEnumerable<FileSystemFinderResult> Find(
-            string directoryPath,
-            CommonFindCommandOptions options,
-            FileSystemFinderProgressReporter progress,
-            INotifyDirectoryChanged notifyDirectoryChanged,
-            bool canEnumerate = true,
-            in CancellationToken cancellationToken = default)
-        {
-            var finderOptions = new FileSystemFinderOptions(
-                searchTarget: options.SearchTarget,
-                recurseSubdirectories: options.RecurseSubdirectories,
-                attributes: options.Attributes,
-                attributesToSkip: options.AttributesToSkip,
-                empty: options.Empty,
-                canEnumerate: canEnumerate);
-
-            return FileSystemFinder.Find(
-                directoryPath: directoryPath,
-                nameFilter: options.NameFilter,
-                extensionFilter: options.ExtensionFilter,
-                directoryFilter: options.DirectoryFilter,
-                options: finderOptions,
-                progress: progress,
-                notifyDirectoryChanged: notifyDirectoryChanged,
-                cancellationToken: cancellationToken);
         }
 
         public static bool IsEmptyFile(string path)

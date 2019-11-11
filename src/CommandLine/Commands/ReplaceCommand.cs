@@ -21,8 +21,6 @@ namespace Orang.CommandLine
         {
         }
 
-        protected override bool CanExecuteFile => true;
-
         private OutputSymbols Symbols => _symbols ?? (_symbols = OutputSymbols.Create(Options.HighlightOptions));
 
         private MatchEvaluator MatchEvaluator => _matchEvaluator ?? (_matchEvaluator = Options.MatchEvaluator ?? new MatchEvaluator(f => f.Result(Options.Replacement)));
@@ -103,7 +101,7 @@ namespace Orang.CommandLine
             string basePath = (Options.PathDisplayStyle == PathDisplayStyle.Full) ? null : directoryPath;
             string indent = (Options.PathDisplayStyle == PathDisplayStyle.Relative) ? Options.Indent : "";
 
-            foreach (FileSystemFinderResult result in FileSystemHelpers.Find(directoryPath, Options, progress, context.CancellationToken))
+            foreach (FileSystemFinderResult result in Find(directoryPath, progress, context.CancellationToken))
             {
                 Encoding encoding = Options.DefaultEncoding;
 

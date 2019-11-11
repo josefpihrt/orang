@@ -74,32 +74,12 @@ namespace Orang.FileSystem
                         {
                             while (fi.MoveNext())
                             {
-                                string path = fi.Current;
+                                FileSystemFinderResult? result = MatchFile(fi.Current, nameFilter, extensionFilter, options, progress, namePart);
 
-                                if (options.Attributes == 0
-                                    || (File.GetAttributes(path) & options.Attributes) == options.Attributes)
-                                {
-                                    progress?.Report(new FileSystemFinderProgress(path, ProgressKind.File));
+                                if (result != null)
+                                    yield return result.Value;
 
-                                    if (extensionFilter?.IsMatch(NamePart.FromFile(path, extensionFilter.NamePart)) != false)
-                                    {
-                                        NamePart part = NamePart.FromFile(path, namePart);
-
-                                        Match match = nameFilter?.Regex.Match(path, part.Index, part.Length);
-
-                                        if (match == null
-                                            || nameFilter.IsMatch(match))
-                                        {
-                                            if (options.Empty == null
-                                                || CheckEmptyFile(path, options.Empty.Value))
-                                            {
-                                                yield return new FileSystemFinderResult(part, match);
-                                            }
-                                        }
-
-                                        cancellationToken.ThrowIfCancellationRequested();
-                                    }
-                                }
+                                cancellationToken.ThrowIfCancellationRequested();
                             }
                         }
                     }
@@ -128,32 +108,13 @@ namespace Orang.FileSystem
 
                             if (directoryFilter?.IsMatch(NamePart.FromDirectory(currentDirectory, directoryNamePart)) != false)
                             {
-                                if (options.SearchTarget != SearchTarget.Files)
+                                if (options.SearchTarget != SearchTarget.Files
+                                    && namePart != NamePartKind.Extension)
                                 {
-                                    if (options.Attributes == 0
-                                        || (options.Attributes & File.GetAttributes(currentDirectory)) != 0)
-                                    {
-                                        progress?.Report(new FileSystemFinderProgress(currentDirectory, ProgressKind.Directory));
+                                    FileSystemFinderResult? result = MatchDirectory(currentDirectory, nameFilter, options, progress);
 
-                                        NamePart part = NamePart.FromDirectory(currentDirectory, namePart);
-
-                                        if (part.Path == null)
-                                            continue;
-
-                                        Match match = nameFilter?.Regex.Match(currentDirectory, part.Index, part.Length);
-
-                                        if (match == null
-                                            || nameFilter.IsMatch(match))
-                                        {
-                                            if (options.Empty == null
-                                                || CheckEmptyDirectory(currentDirectory, options.Empty.Value))
-                                            {
-                                                yield return new FileSystemFinderResult(part, match, isDirectory: true);
-                                            }
-                                        }
-                                    }
-
-                                    cancellationToken.ThrowIfCancellationRequested();
+                                    if (result != null)
+                                        yield return result.Value;
                                 }
 
                                 if (currentDirectory != null
@@ -183,8 +144,62 @@ namespace Orang.FileSystem
                     break;
                 }
             }
+        }
 
-            bool CheckEmptyFile(string path, bool empty)
+        public static FileSystemFinderResult? MatchFile(
+            string path,
+            Filter nameFilter = null,
+            Filter extensionFilter = null,
+            FileSystemFinderOptions options = null,
+            IProgress<FileSystemFinderProgress> progress = null)
+        {
+            return MatchFile(
+                path: path,
+                nameFilter: nameFilter,
+                extensionFilter: extensionFilter,
+                options: options ?? FileSystemFinderOptions.Default,
+                progress: progress,
+                namePartKind: nameFilter?.NamePart ?? NamePartKind.Name);
+        }
+
+        internal static FileSystemFinderResult? MatchFile(
+            string path,
+            Filter nameFilter,
+            Filter extensionFilter,
+            FileSystemFinderOptions options,
+            IProgress<FileSystemFinderProgress> progress,
+            NamePartKind namePartKind)
+        {
+            if (options.Attributes != 0
+                && (File.GetAttributes(path) & options.Attributes) != options.Attributes)
+            {
+                return null;
+            }
+
+            progress?.Report(new FileSystemFinderProgress(path, ProgressKind.File));
+
+            if (extensionFilter?.IsMatch(NamePart.FromFile(path, extensionFilter.NamePart)) == false)
+                return null;
+
+            NamePart namePart = NamePart.FromFile(path, namePartKind);
+
+            Match match = nameFilter?.Regex.Match(path, namePart.Index, namePart.Length);
+
+            if (match != null
+                && !nameFilter.IsMatch(match))
+            {
+                return null;
+            }
+
+            if (options.Empty != null
+                && !CheckEmptyFile(options.Empty.Value))
+            {
+                return null;
+            }
+
+            return new FileSystemFinderResult(namePart, match);
+
+            bool CheckEmptyFile(bool empty)
             {
                 try
                 {
@@ -197,8 +212,56 @@ namespace Orang.FileSystem
                     return false;
                 }
             }
+        }
 
-            bool CheckEmptyDirectory(string path, bool empty)
+        public static FileSystemFinderResult? MatchDirectory(
+            string path,
+            Filter nameFilter = null,
+            FileSystemFinderOptions options = null,
+            IProgress<FileSystemFinderProgress> progress = null)
+        {
+            return MatchDirectory(
+                path: path,
+                nameFilter: nameFilter,
+                options: options ?? FileSystemFinderOptions.Default,
+                progress: progress,
+                namePartKind: nameFilter?.NamePart ?? NamePartKind.Name);
+        }
+
+        internal static FileSystemFinderResult? MatchDirectory(
+            string path,
+            Filter nameFilter,
+            FileSystemFinderOptions options,
+            IProgress<FileSystemFinderProgress> progress,
+            NamePartKind namePartKind)
+        {
+            if (options.Attributes != 0
+                && (File.GetAttributes(path) & options.Attributes) != options.Attributes)
+            {
+                return null;
+            }
+
+            progress?.Report(new FileSystemFinderProgress(path, ProgressKind.Directory));
+
+            NamePart namePart = NamePart.FromDirectory(path, namePartKind);
+
+            Match match = nameFilter?.Regex.Match(path, namePart.Index, namePart.Length);
+
+            if (match != null
+                && !nameFilter.IsMatch(match))
+            {
+                return null;
+            }
+
+            if (options.Empty != null
+                && !CheckEmptyDirectory(options.Empty.Value))
+            {
+                return null;
+            }
+
+            return new FileSystemFinderResult(namePart, match, isDirectory: true);
+
+            bool CheckEmptyDirectory(bool empty)
             {
                 try
                 {

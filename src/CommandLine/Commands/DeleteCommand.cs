@@ -17,13 +17,77 @@ namespace Orang.CommandLine
 
         public event EventHandler<DirectoryChangedEventArgs> DirectoryChanged;
 
+        protected override void ExecuteFile(string filePath, SearchContext context)
+        {
+            SearchTelemetry telemetry = context.Telemetry;
+            telemetry.FileCount++;
+
+            const string indent = null;
+
+            FileSystemFinderResult? maybeResult = MatchFile(filePath);
+
+            if (maybeResult == null)
+                return;
+
+            FileSystemFinderResult result = maybeResult.Value;
+
+            if (Options.ContentFilter != null)
+            {
+                string input = ReadFile(filePath, null, Options.DefaultEncoding, null, indent);
+
+                if (input == null)
+                    return;
+
+                if (!Options.ContentFilter.IsMatch(input))
+                    return;
+            }
+
+            telemetry.MatchingFileCount++;
+
+            WritePath(result, null, colors: Colors.Matched_Path, matchColors: (Options.HighlightMatch) ? Colors.Match : default, indent);
+            WriteLine();
+
+            bool success = false;
+
+            if (!Options.DryRun
+                && (!Options.Ask || AskToDelete(context, indent)))
+            {
+                try
+                {
+                    FileSystemHelpers.DeleteFile(
+                        filePath,
+                        contentOnly: Options.ContentOnly,
+                        includingBom: Options.IncludingBom);
+
+                    telemetry.ProcessedFileCount++;
+                    success = true;
+                }
+                catch (Exception ex) when (ex is IOException
+                    || ex is UnauthorizedAccessException)
+                {
+                    WriteFileError(ex, indent: indent);
+                }
+            }
+
+            if (Options.DryRun
+                || success)
+            {
+                context.Output?.WriteLine(filePath);
+            }
+
+            if (Options.MaxMatchingFiles == telemetry.MatchingFileCount + telemetry.MatchingDirectoryCount)
+            {
+                context.State = SearchState.MaxReached;
+            }
+        }
+
         protected override void ExecuteDirectory(string directoryPath, SearchContext context, FileSystemFinderProgressReporter progress)
         {
             SearchTelemetry telemetry = context.Telemetry;
             string basePath = (Options.PathDisplayStyle == PathDisplayStyle.Full) ? null : directoryPath;
             string indent = (Options.PathDisplayStyle == PathDisplayStyle.Relative) ? Options.Indent : "";
 
-            foreach (FileSystemFinderResult result in FileSystemHelpers.Find(directoryPath, Options, progress, notifyDirectoryChanged: this, canEnumerate: true, context.CancellationToken))
+            foreach (FileSystemFinderResult result in Find(directoryPath, progress, notifyDirectoryChanged: this, context.CancellationToken))
             {
                 string path = result.Path;
 
@@ -37,7 +101,7 @@ namespace Orang.CommandLine
                 {
                     if (Options.ContentFilter != null)
                     {
-                        string input = ReadFile(result.Path, path, Options.DefaultEncoding, progress, indent);
+                        string input = ReadFile(path, basePath, Options.DefaultEncoding, progress, indent);
 
                         if (input == null)
                             continue;
@@ -57,7 +121,7 @@ namespace Orang.CommandLine
                 bool success = false;
 
                 if (!Options.DryRun
-                    && ShouldDelete())
+                    && (!Options.Ask || AskToDelete(context, indent)))
                 {
                     try
                     {
@@ -111,21 +175,20 @@ namespace Orang.CommandLine
             telemetry.SearchedDirectoryCount = progress.SearchedDirectoryCount;
             telemetry.FileCount = progress.FileCount;
             telemetry.DirectoryCount = progress.DirectoryCount;
+        }
 
-            bool ShouldDelete()
+        private bool AskToDelete(SearchContext context, string indent = null)
+        {
+            try
             {
-                try
-                {
-                    return ConsoleHelpers.QuestionIf(
-                        Options.Ask,
-                        (Options.ContentOnly) ? "Delete content?" : "Delete?",
-                        indent);
-                }
-                catch (OperationCanceledException)
-                {
-                    context.State = SearchState.Canceled;
-                    return false;
-                }
+                return ConsoleHelpers.Question(
+                    (Options.ContentOnly) ? "Delete content?" : "Delete?",
+                    indent);
+            }
+            catch (OperationCanceledException)
+            {
+                context.State = SearchState.Canceled;
+                return false;
             }
         }
 

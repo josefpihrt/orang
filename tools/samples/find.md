@@ -27,3 +27,27 @@ orang find ^
  -e cs ^
  -c "pattern.txt" f
 ```
+
+### Sample
+
+Display content of new csproj files and pause after each file.
+
+#### Syntax
+
+```
+orang find ^
+ --extension csproj ^
+ --content "<Project Sdk=\"Microsoft.NET.Sdk\">" literal ^
+ --display content=all-lines ^
+ --ask file
+```
+
+#### Short Syntax
+
+```
+orang find ^
+ -e csproj ^
+ -c "<Project Sdk=\"Microsoft.NET.Sdk\">" l ^
+ -y c=a ^
+ --ask f
+```

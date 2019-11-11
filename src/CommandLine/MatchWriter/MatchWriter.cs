@@ -380,7 +380,7 @@ namespace Orang.CommandLine
 
         protected int FindEndOfLine(Capture capture)
         {
-            int index = capture.Index;
+            int index = capture.Index + capture.Length;
 
             if (index > 0
                 && capture.Length > 0

@@ -171,10 +171,6 @@ namespace Orang.CommandLine
                     break;
                 }
             }
-
-            telemetry.SearchedDirectoryCount = progress.SearchedDirectoryCount;
-            telemetry.FileCount = progress.FileCount;
-            telemetry.DirectoryCount = progress.DirectoryCount;
         }
 
         private bool AskToDelete(SearchContext context, string indent = null)

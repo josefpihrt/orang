@@ -145,6 +145,10 @@ namespace Orang.CommandLine
                     context.State = SearchState.Canceled;
                 }
 
+                context.Telemetry.SearchedDirectoryCount = progress.SearchedDirectoryCount;
+                context.Telemetry.FileCount = progress.FileCount;
+                context.Telemetry.DirectoryCount = progress.DirectoryCount;
+
                 if (progress?.ProgressReported == true)
                 {
                     ConsoleOut.WriteLine();

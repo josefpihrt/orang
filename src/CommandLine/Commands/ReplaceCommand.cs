@@ -131,10 +131,6 @@ namespace Orang.CommandLine
                         break;
                 }
             }
-
-            context.Telemetry.SearchedDirectoryCount = progress.SearchedDirectoryCount;
-            context.Telemetry.DirectoryCount = progress.DirectoryCount;
-            context.Telemetry.FileCount = progress.FileCount;
         }
 
         private string ReadFile(string filePath, string basePath, ref Encoding encoding, FileSystemFinderProgressReporter progress = null, string indent = null)

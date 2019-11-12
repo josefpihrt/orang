@@ -120,10 +120,6 @@ namespace Orang.CommandLine
                     }
                 }
             }
-
-            context.Telemetry.SearchedDirectoryCount = progress.SearchedDirectoryCount;
-            context.Telemetry.DirectoryCount = progress.DirectoryCount;
-            context.Telemetry.FileCount = progress.FileCount;
         }
 
         private void WriteMatches(

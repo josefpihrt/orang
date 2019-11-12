@@ -109,10 +109,6 @@ namespace Orang.CommandLine
                     break;
                 }
             }
-
-            telemetry.SearchedDirectoryCount = progress.SearchedDirectoryCount;
-            telemetry.FileCount = progress.FileCount;
-            telemetry.DirectoryCount = progress.DirectoryCount;
         }
 
         protected override void WriteSummary(SearchTelemetry telemetry)

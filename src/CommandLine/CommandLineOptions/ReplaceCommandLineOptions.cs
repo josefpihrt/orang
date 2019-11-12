@@ -87,6 +87,9 @@ namespace Orang.CommandLine
                 return false;
             }
 
+            if (!TryParseMaxCount(MaxCount, out int maxMatchesInFile, out int maxMatches, out int maxMatchingFiles))
+                return false;
+
             ContentDisplayStyle contentDisplayStyle;
             PathDisplayStyle pathDisplayStyle;
 
@@ -131,6 +134,9 @@ namespace Orang.CommandLine
             options.Input = Input;
             options.DryRun = DryRun;
             options.AskMode = askMode;
+            options.MaxMatchesInFile = maxMatchesInFile;
+            options.MaxMatches = maxMatches;
+            options.MaxMatchingFiles = maxMatchingFiles;
 
             return true;
         }

@@ -642,11 +642,14 @@ namespace Orang.CommandLine
             }
         }
 
-        public static bool TryParseMaxCount(IEnumerable<string> values, out int maxMatches, out int maxMatchesInFile, out int maxMatchingFiles)
+        public static bool TryParseMaxCount(IEnumerable<string> values, out int maxCount, out int maxMatches, out int maxMatchingFiles)
         {
+            maxCount = 0;
             maxMatches = 0;
-            maxMatchesInFile = 0;
             maxMatchingFiles = 0;
+
+            if (!values.Any())
+                return true;
 
             foreach (string value in values)
             {
@@ -674,7 +677,7 @@ namespace Orang.CommandLine
                         return false;
                     }
                 }
-                else if (!TryParseCount(value, out maxMatchesInFile))
+                else if (!TryParseCount(value, out maxCount))
                 {
                     return false;
                 }

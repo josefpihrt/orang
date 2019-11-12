@@ -34,16 +34,6 @@ namespace Orang.CommandLine
 
             options = (CommonFindContentCommandOptions)baseOptions;
 
-            int maxMatches = 0;
-            int maxMatchesInFile = 0;
-            int maxMatchingFiles = 0;
-
-            if (MaxCount.Any()
-                && !TryParseMaxCount(MaxCount, out maxMatches, out maxMatchesInFile, out maxMatchingFiles))
-            {
-                return false;
-            }
-
             Filter nameFilter = null;
 
             if (Name.Any()
@@ -53,9 +43,6 @@ namespace Orang.CommandLine
             }
 
             options.NameFilter = nameFilter;
-            options.MaxMatches = maxMatches;
-            options.MaxMatchesInFile = maxMatchesInFile;
-            options.MaxMatchingFiles = maxMatchingFiles;
 
             return true;
         }

@@ -191,27 +191,26 @@ namespace Orang.FileSystem
                 return null;
             }
 
-            if (options.Empty != null
-                && !CheckEmptyFile(options.Empty.Value))
-            {
-                return null;
-            }
-
-            return new FileSystemFinderResult(namePart, match);
-
-            bool CheckEmptyFile(bool empty)
+            if (options.Empty != null)
             {
                 try
                 {
-                    return (empty) ? FileSystemHelpers.IsEmptyFile(path) : !FileSystemHelpers.IsEmptyFile(path);
+                    if ((options.Empty.Value)
+                        ? !FileSystemHelpers.IsEmptyFile(path)
+                        : FileSystemHelpers.IsEmptyFile(path))
+                    {
+                        return null;
+                    }
                 }
                 catch (Exception ex) when (ex is IOException
                     || ex is UnauthorizedAccessException)
                 {
                     progress?.Report(new FileSystemFinderProgress(path, ProgressKind.File, ex));
-                    return false;
+                    return null;
                 }
             }
+
+            return new FileSystemFinderResult(namePart, match);
         }
 
         public static FileSystemFinderResult? MatchDirectory(
@@ -253,27 +252,26 @@ namespace Orang.FileSystem
                 return null;
             }
 
-            if (options.Empty != null
-                && !CheckEmptyDirectory(options.Empty.Value))
-            {
-                return null;
-            }
-
-            return new FileSystemFinderResult(namePart, match, isDirectory: true);
-
-            bool CheckEmptyDirectory(bool empty)
+            if (options.Empty != null)
             {
                 try
                 {
-                    return (empty) ? FileSystemHelpers.IsEmptyDirectory(path) : !FileSystemHelpers.IsEmptyDirectory(path);
+                    if ((options.Empty.Value)
+                        ? !FileSystemHelpers.IsEmptyDirectory(path)
+                        : FileSystemHelpers.IsEmptyDirectory(path))
+                    {
+                        return null;
+                    }
                 }
                 catch (Exception ex) when (ex is IOException
                     || ex is UnauthorizedAccessException)
                 {
                     progress?.Report(new FileSystemFinderProgress(path, ProgressKind.Directory, ex));
-                    return false;
+                    return null;
                 }
             }
+
+            return new FileSystemFinderResult(namePart, match, isDirectory: true);
         }
 
         private static bool IsWellKnownException(Exception ex)

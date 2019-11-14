@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using Orang.FileSystem;
 using static Orang.CommandLine.LogHelpers;
 using static Orang.Logger;
@@ -40,7 +41,7 @@ namespace Orang.CommandLine
 
             FileSystemFinderResult result = maybeResult.Value;
 
-            WritePath(result, null, colors: Colors.Matched_Path, matchColors: (Options.HighlightMatch) ? Colors.Match : default, indent: indent, Verbosity.Minimal);
+            WritePath(result, colors: Colors.Matched_Path, matchColors: (Options.HighlightMatch) ? Colors.Match : default, indent: indent, verbosity: Verbosity.Minimal);
             WriteLine(Verbosity.Minimal);
 
             if (_ask)
@@ -69,13 +70,21 @@ namespace Orang.CommandLine
         protected override void ExecuteDirectory(string directoryPath, SearchContext context, FileSystemFinderProgressReporter progress)
         {
             SearchTelemetry telemetry = context.Telemetry;
-            string basePath = (Options.PathDisplayStyle == PathDisplayStyle.Full) ? null : directoryPath;
             string indent = (Options.PathDisplayStyle == PathDisplayStyle.Relative) ? Options.Indent : "";
 
             foreach (FileSystemFinderResult result in Find(directoryPath, progress, context.CancellationToken))
             {
                 EndProgress(progress);
-                WritePath(result, basePath, colors: Colors.Matched_Path, matchColors: (Options.HighlightMatch) ? Colors.Match : default, indent: indent, Verbosity.Minimal);
+
+                WritePath(
+                    result,
+                    directoryPath,
+                    relativePath: Options.PathDisplayStyle == PathDisplayStyle.Relative,
+                    colors: Colors.Matched_Path,
+                    matchColors: (Options.HighlightMatch) ? Colors.Match : default,
+                    indent: indent,
+                    verbosity: Verbosity.Minimal);
+
                 WriteLine(Verbosity.Minimal);
 
                 if (_ask)

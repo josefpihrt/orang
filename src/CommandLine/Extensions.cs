@@ -14,6 +14,7 @@ namespace Orang
             this TextWriterWithVerbosity writer,
             string path,
             string basePath,
+            bool relativePath = false,
             string indent = null,
             Verbosity verbosity = Verbosity.Quiet)
         {
@@ -26,7 +27,7 @@ namespace Orang
 
             if (string.Equals(path, basePath, StringComparison.OrdinalIgnoreCase))
             {
-                writer.Write(".", verbosity);
+                writer.Write((relativePath) ? "." : path, verbosity);
                 return;
             }
 
@@ -39,6 +40,9 @@ namespace Orang
                 if (FileSystemHelpers.IsDirectorySeparator(path[startIndex]))
                     startIndex++;
             }
+
+            if (!relativePath)
+                writer.Write(path, 0, startIndex, verbosity);
 
             writer.Write(path, startIndex, path.Length - startIndex, verbosity);
         }

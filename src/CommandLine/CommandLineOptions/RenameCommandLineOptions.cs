@@ -110,7 +110,7 @@ namespace Orang.CommandLine
                 contentDisplayStyle: out ContentDisplayStyle _,
                 pathDisplayStyle: out PathDisplayStyle pathDisplayStyle,
                 defaultContentDisplayStyle: 0,
-                defaultPathDisplayStyle: PathDisplayStyle.Relative,
+                defaultPathDisplayStyle: PathDisplayStyle.Full,
                 contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider,
                 pathDisplayStyleProvider: OptionValueProviders.PathDisplayStyleProvider_WithoutOmit))
             {

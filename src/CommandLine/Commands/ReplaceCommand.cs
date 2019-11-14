@@ -98,7 +98,6 @@ namespace Orang.CommandLine
         protected override void ExecuteDirectory(string directoryPath, SearchContext context, FileSystemFinderProgressReporter progress)
         {
             Regex regex = Options.ContentFilter.Regex;
-            string basePath = (Options.PathDisplayStyle == PathDisplayStyle.Full) ? null : directoryPath;
             string indent = (Options.PathDisplayStyle == PathDisplayStyle.Relative) ? Options.Indent : "";
 
             foreach (FileSystemFinderResult result in Find(directoryPath, progress, context.CancellationToken))
@@ -117,7 +116,16 @@ namespace Orang.CommandLine
                     EndProgress(progress);
 
                     if (!Options.OmitPath)
-                        WritePath(result, basePath, colors: Colors.Matched_Path, matchColors: (Options.HighlightMatch) ? Colors.Match_Path : default, indent: indent, verbosity: Verbosity.Minimal);
+                    {
+                        WritePath(
+                            result,
+                            directoryPath,
+                            relativePath: Options.PathDisplayStyle == PathDisplayStyle.Relative,
+                            colors: Colors.Matched_Path,
+                            matchColors: (Options.HighlightMatch) ? Colors.Match_Path : default,
+                            indent: indent,
+                            verbosity: Verbosity.Minimal);
+                    }
 
                     ReplaceMatches(result.Path, encoding, input, match, indent, DirectoryWriterOptions, context);
 
@@ -157,7 +165,13 @@ namespace Orang.CommandLine
             {
                 EndProgress(progress);
 
-                WriteFileError(ex, filePath, basePath, indent: indent);
+                WriteFileError(
+                    ex,
+                    filePath,
+                    basePath,
+                    relativePath: Options.PathDisplayStyle == PathDisplayStyle.Relative,
+                    indent: indent);
+
                 return null;
             }
         }

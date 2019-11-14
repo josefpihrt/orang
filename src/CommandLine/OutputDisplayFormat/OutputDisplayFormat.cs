@@ -10,7 +10,7 @@ namespace Orang.CommandLine
 
         public OutputDisplayFormat(
             ContentDisplayStyle contentDisplayStyle,
-            PathDisplayStyle pathDisplayStyle = PathDisplayStyle.Relative,
+            PathDisplayStyle pathDisplayStyle = PathDisplayStyle.Full,
             LineDisplayOptions lineOptions = LineDisplayOptions.None,
             string indent = null,
             string separator = null)

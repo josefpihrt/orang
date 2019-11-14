@@ -69,7 +69,7 @@ namespace Orang.CommandLine
                 contentDisplayStyle: out ContentDisplayStyle contentDisplayStyle,
                 pathDisplayStyle: out PathDisplayStyle pathDisplayStyle,
                 defaultContentDisplayStyle: (askMode == AskMode.Value) ? ContentDisplayStyle.Value : ContentDisplayStyle.Line,
-                defaultPathDisplayStyle: PathDisplayStyle.Relative,
+                defaultPathDisplayStyle: PathDisplayStyle.Full,
                 contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider,
                 pathDisplayStyleProvider: (contentFilter != null) ? OptionValueProviders.PathDisplayStyleProvider : OptionValueProviders.PathDisplayStyleProvider_WithoutOmit))
             {

@@ -155,7 +155,7 @@ namespace Orang.CommandLine
                 var progress = new FileSystemFinderProgressReporter(path, ConsoleReportMode, FileLogReportMode, Options);
 
                 if (Options.PathDisplayStyle == PathDisplayStyle.Relative)
-                    WriteLine($"Searching in {path}", Colors.Path_Progress, Verbosity.Minimal);
+                    WriteLine(path, Verbosity.Minimal);
 
                 try
                 {
@@ -175,9 +175,6 @@ namespace Orang.CommandLine
                     ConsoleOut.WriteLine();
                     progress.ProgressReported = false;
                 }
-
-                if (Options.PathDisplayStyle == PathDisplayStyle.Relative)
-                    WriteLine($"Done searching in {path}", Colors.Path_Progress, Verbosity.Minimal);
             }
             else if (File.Exists(path))
             {
@@ -236,7 +233,7 @@ namespace Orang.CommandLine
                 || ex is UnauthorizedAccessException)
             {
                 EndProgress(progress);
-                LogHelpers.WriteFileError(ex, filePath, basePath, indent: indent);
+                LogHelpers.WriteFileError(ex, filePath, basePath, relativePath: Options.PathDisplayStyle == PathDisplayStyle.Relative, indent: indent);
                 return null;
             }
         }

@@ -124,7 +124,7 @@ namespace Orang.CommandLine
                 contentDisplayStyle = ContentDisplayStyle.Line;
             }
 
-            pathDisplayStyle = pathDisplayStyle2 ?? PathDisplayStyle.Relative;
+            pathDisplayStyle = pathDisplayStyle2 ?? PathDisplayStyle.Full;
 
             options.Format = new OutputDisplayFormat(contentDisplayStyle: contentDisplayStyle, pathDisplayStyle: pathDisplayStyle, lineOptions: LineDisplayOptions);
             options.HighlightOptions = highlightOptions;

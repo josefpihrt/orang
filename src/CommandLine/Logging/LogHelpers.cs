@@ -11,7 +11,14 @@ namespace Orang.CommandLine
 {
     internal static class LogHelpers
     {
-        public static void WriteFileError(Exception ex, string path = null, string basePath = null, ConsoleColors colors = default, string indent = null, Verbosity verbosity = Verbosity.Normal)
+        public static void WriteFileError(
+            Exception ex,
+            string path = null,
+            string basePath = null,
+            bool relativePath = false,
+            ConsoleColors colors = default,
+            string indent = null,
+            Verbosity verbosity = Verbosity.Normal)
         {
             if (colors.IsDefault)
                 colors = Colors.Message_Warning;
@@ -25,7 +32,7 @@ namespace Orang.CommandLine
                 && !message.Contains(path, StringComparison.OrdinalIgnoreCase))
             {
                 Write($"{indent}PATH: ", colors, verbosity);
-                WritePath(path, basePath, colors: colors, verbosity: verbosity);
+                WritePath(path, basePath, relativePath: relativePath, colors: colors, verbosity: verbosity);
                 WriteLine();
             }
 #if DEBUG
@@ -185,7 +192,8 @@ namespace Orang.CommandLine
 
         public static void WritePath(
             in FileSystemFinderResult result,
-            string basePath,
+            string basePath = null,
+            bool relativePath = false,
             in ConsoleColors colors = default,
             in ConsoleColors matchColors = default,
             string indent = null,
@@ -194,6 +202,7 @@ namespace Orang.CommandLine
             WritePathImpl(
                 path: result.Path,
                 basePath: basePath,
+                relativePath: relativePath,
                 colors: colors,
                 matchIndex: result.Index,
                 matchLength: result.Length,
@@ -205,6 +214,7 @@ namespace Orang.CommandLine
         public static void WritePath(
             string path,
             string basePath = null,
+            bool relativePath = false,
             in ConsoleColors colors = default,
             string indent = null,
             Verbosity verbosity = Verbosity.Quiet)
@@ -212,6 +222,7 @@ namespace Orang.CommandLine
             WritePathImpl(
                 path: path,
                 basePath: basePath,
+                relativePath: relativePath,
                 colors: colors,
                 matchColors: default,
                 indent: indent,
@@ -221,6 +232,7 @@ namespace Orang.CommandLine
         private static void WritePathImpl(
             string path,
             string basePath,
+            bool relativePath = false,
             in ConsoleColors colors = default,
             int matchIndex = -1,
             int matchLength = -1,
@@ -238,7 +250,7 @@ namespace Orang.CommandLine
             if (string.Equals(path, basePath, StringComparison.OrdinalIgnoreCase))
             {
                 Debug.Assert(matchIndex == -1);
-                Write(".", colors, verbosity);
+                Write((relativePath) ? "." : path, colors, verbosity);
                 return;
             }
 
@@ -256,7 +268,15 @@ namespace Orang.CommandLine
                 && !matchColors.IsDefault)
             {
                 if (matchIndex < startIndex)
-                    startIndex = 0;
+                {
+                    startIndex = matchIndex;
+
+                    Write(path, 0, startIndex, verbosity);
+                }
+                else if (!relativePath)
+                {
+                    Write(path, 0, startIndex, verbosity);
+                }
 
                 Write(path, startIndex, matchIndex - startIndex, colors: colors, verbosity);
                 Write(path, matchIndex, matchLength, matchColors, verbosity);
@@ -264,6 +284,9 @@ namespace Orang.CommandLine
             }
             else
             {
+                if (!relativePath)
+                    Write(path, 0, startIndex, verbosity);
+
                 Write(path, startIndex, path.Length - startIndex, colors: colors, verbosity);
             }
         }

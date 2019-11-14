@@ -64,12 +64,11 @@ namespace Orang.CommandLine
         protected override void ExecuteDirectory(string directoryPath, SearchContext context, FileSystemFinderProgressReporter progress)
         {
             Regex regex = Options.ContentFilter.Regex;
-            string basePath = (Options.PathDisplayStyle == PathDisplayStyle.Full) ? null : directoryPath;
             string indent = (Options.PathDisplayStyle == PathDisplayStyle.Relative) ? Options.Indent : "";
 
             foreach (FileSystemFinderResult result in Find(directoryPath, progress, context.CancellationToken))
             {
-                string input = ReadFile(result.Path, basePath, Options.DefaultEncoding, progress, indent);
+                string input = ReadFile(result.Path, directoryPath, Options.DefaultEncoding, progress, indent);
 
                 if (input == null)
                     continue;
@@ -81,7 +80,16 @@ namespace Orang.CommandLine
                     EndProgress(progress);
 
                     if (!Options.OmitPath)
-                        WritePath(result, basePath, colors: Colors.Matched_Path, matchColors: (Options.HighlightMatch) ? Colors.Match_Path : default, indent: indent, verbosity: Verbosity.Minimal);
+                    {
+                        WritePath(
+                            result,
+                            directoryPath,
+                            relativePath: Options.PathDisplayStyle == PathDisplayStyle.Relative,
+                            colors: Colors.Matched_Path,
+                            matchColors: (Options.HighlightMatch) ? Colors.Match_Path : default,
+                            indent: indent,
+                            verbosity: Verbosity.Minimal);
+                    }
 
                     context.Output?.WriteLineIf(Options.Output.IncludePath, result.Path);
 

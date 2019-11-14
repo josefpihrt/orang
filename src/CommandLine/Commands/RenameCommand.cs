@@ -49,7 +49,7 @@ namespace Orang.CommandLine
 
             NamePart part = result.Part;
 
-            WritePath(result, null, colors: Colors.Matched_Path, matchColors: (Options.HighlightMatch) ? Colors.Match : default, indent: indent);
+            WritePath(result, colors: Colors.Matched_Path, matchColors: (Options.HighlightMatch) ? Colors.Match : default, indent: indent);
             WriteLine();
 
             string newPath = GetNewPath(filePath, null, part, indent);
@@ -91,7 +91,6 @@ namespace Orang.CommandLine
         protected override void ExecuteDirectory(string directoryPath, SearchContext context, FileSystemFinderProgressReporter progress)
         {
             SearchTelemetry telemetry = context.Telemetry;
-            string basePath = (Options.PathDisplayStyle == PathDisplayStyle.Full) ? null : directoryPath;
             string indent = (Options.PathDisplayStyle == PathDisplayStyle.Relative) ? Options.Indent : "";
 
             foreach (FileSystemFinderResult result in Find(directoryPath, progress, notifyDirectoryChanged: this, context.CancellationToken))
@@ -106,7 +105,7 @@ namespace Orang.CommandLine
                 {
                     if (Options.ContentFilter != null)
                     {
-                        string input = ReadFile(path, basePath, Options.DefaultEncoding, progress, indent);
+                        string input = ReadFile(path, directoryPath, Options.DefaultEncoding, progress, indent);
 
                         if (input == null)
                             continue;
@@ -124,7 +123,14 @@ namespace Orang.CommandLine
 
                 EndProgress(progress);
 
-                WritePath(result, basePath, colors: Colors.Matched_Path, matchColors: (Options.HighlightMatch) ? Colors.Match : default, indent: indent);
+                WritePath(
+                    result,
+                    directoryPath,
+                    relativePath: Options.PathDisplayStyle == PathDisplayStyle.Relative,
+                    colors: Colors.Matched_Path,
+                    matchColors: (Options.HighlightMatch) ? Colors.Match : default,
+                    indent: indent);
+
                 WriteLine();
 
                 string newPath = GetNewPath(path, directoryPath, part, indent);

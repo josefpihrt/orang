@@ -92,7 +92,7 @@ namespace Orang.FileSystem
 
         private void WritePath(in FileSystemFinderProgress value)
         {
-            Out.WritePath(value.Path, BaseDirectoryPath, verbosity: Verbosity.Detailed);
+            Out.WritePath(value.Path, BaseDirectoryPath, relativePath: Options.PathDisplayStyle == PathDisplayStyle.Relative, verbosity: Verbosity.Detailed);
             Out.WriteLine(Verbosity.Detailed);
         }
 
@@ -101,6 +101,7 @@ namespace Orang.FileSystem
             LogHelpers.WritePath(
                 value.Path,
                 BaseDirectoryPath,
+                relativePath: Options.PathDisplayStyle == PathDisplayStyle.Relative,
                 colors: Colors.Path_Progress,
                 indent: indent,
                 verbosity: verbosity);

@@ -162,6 +162,15 @@ namespace Orang.CommandLine
                 paths = paths.AddRange(pathsFromFile);
             }
 
+            if (Console.IsInputRedirected)
+            {
+                ImmutableArray<string> pathsFromInput = ConsoleHelpers.ReadRedirectedInputAsLines()
+                   .Where(f => !string.IsNullOrEmpty(f))
+                   .ToImmutableArray();
+
+                paths = paths.AddRange(pathsFromInput);
+            }
+
             if (paths.IsEmpty)
                 paths = ImmutableArray.Create(Environment.CurrentDirectory);
 

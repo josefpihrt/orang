@@ -8,7 +8,6 @@ namespace Orang.CommandLine
     internal class EscapeCommandLineOptions
     {
         [Option(shortName: OptionShortNames.Input, longName: OptionNames.Input,
-            Required = true,
             HelpText = "Text to be escaped.",
             MetaValue = MetaValues.Input)]
         public string Input { get; set; }
@@ -23,7 +22,20 @@ namespace Orang.CommandLine
 
         public bool TryParse(ref EscapeCommandOptions options)
         {
-            options.Input = Input;
+            string input = Input;
+
+            if (input == null)
+            {
+                input = ConsoleHelpers.ReadRedirectedInput();
+
+                if (input == null)
+                {
+                    Logger.WriteError("Input is missing.");
+                    return false;
+                }
+            }
+
+            options.Input = input;
             options.InCharGroup = CharGroup;
             options.Replacement = Replacement;
 

@@ -62,10 +62,15 @@ namespace Orang.CommandLine
                     return false;
                 }
             }
-            else if (input == null)
+            else
             {
-                WriteError("Specify either path to a file or text input.");
-                return false;
+                input = ConsoleHelpers.ReadRedirectedInput();
+
+                if (input == null)
+                {
+                    WriteError("Input is missing.");
+                    return false;
+                }
             }
 
             if (!TryParseOutputOptions(Output, OptionNames.Output, out OutputOptions outputOptions))

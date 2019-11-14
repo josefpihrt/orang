@@ -14,8 +14,6 @@ namespace Orang.CommandLine
 
         public int MaxCount { get; internal set; }
 
-        public OutputDisplayFormat Format { get; internal set; }
-
         public ContentDisplayStyle ContentDisplayStyle => Format.ContentDisplayStyle;
 
         public string Separator => Format.Separator;

@@ -109,6 +109,7 @@ namespace Orang.CommandLine
                 optionName: OptionNames.Display,
                 contentDisplayStyle: out ContentDisplayStyle _,
                 pathDisplayStyle: out PathDisplayStyle pathDisplayStyle,
+                includeSummary: out bool includeSummary,
                 defaultContentDisplayStyle: 0,
                 defaultPathDisplayStyle: PathDisplayStyle.Full,
                 contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider,
@@ -117,7 +118,7 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            options.Format = new OutputDisplayFormat(ContentDisplayStyle.None, pathDisplayStyle);
+            options.Format = new OutputDisplayFormat(ContentDisplayStyle.None, pathDisplayStyle, includeSummary: includeSummary);
             options.HighlightOptions = highlightOptions;
             options.SearchTarget = GetSearchTarget();
             options.Replacement = replacement ?? "";

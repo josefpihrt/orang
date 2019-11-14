@@ -40,8 +40,6 @@ namespace Orang.CommandLine
 
         public bool? Empty { get; internal set; }
 
-        public OutputDisplayFormat Format { get; internal set; }
-
         public int MaxMatchingFiles { get; internal set; }
 
         public ContentDisplayStyle ContentDisplayStyle => Format.ContentDisplayStyle;

@@ -68,6 +68,7 @@ namespace Orang.CommandLine
                 optionName: OptionNames.Display,
                 contentDisplayStyle: out ContentDisplayStyle contentDisplayStyle,
                 pathDisplayStyle: out PathDisplayStyle pathDisplayStyle,
+                includeSummary: out bool includeSummary,
                 defaultContentDisplayStyle: (askMode == AskMode.Value) ? ContentDisplayStyle.Value : ContentDisplayStyle.Line,
                 defaultPathDisplayStyle: PathDisplayStyle.Full,
                 contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider,
@@ -102,7 +103,7 @@ namespace Orang.CommandLine
                 maxMatchingFiles = (maxCount > 0) ? maxCount : maxMatchingFiles;
             }
 
-            options.Format = new OutputDisplayFormat(contentDisplayStyle: contentDisplayStyle, pathDisplayStyle: pathDisplayStyle, lineOptions: LineDisplayOptions);
+            options.Format = new OutputDisplayFormat(contentDisplayStyle: contentDisplayStyle, pathDisplayStyle: pathDisplayStyle, lineOptions: LineDisplayOptions, includeSummary: includeSummary);
             options.AskMode = askMode;
             options.HighlightOptions = highlightOptions;
             options.SearchTarget = GetSearchTarget();

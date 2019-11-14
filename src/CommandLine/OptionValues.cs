@@ -22,6 +22,7 @@ namespace Orang.CommandLine
         public static readonly SimpleOptionValue PatternOptions_WholeWord = SimpleOptionValue.Create(PatternOptions.WholeWord, description: "Pattern should match whole word.");
         public static readonly SimpleOptionValue OutputOptions_Content = SimpleOptionValue.Create("Content", description: "Include content in the output.");
         public static readonly SimpleOptionValue OutputOptions_Path = SimpleOptionValue.Create("Path", description: "Include path in the output.");
+        public static readonly SimpleOptionValue Display_Summary = SimpleOptionValue.Create("Summary", description: "Include summary.");
 
         public static readonly KeyValuePairOptionValue Display_Content = KeyValuePairOptionValue.Create("content", MetaValues.ContentDisplay, shortKey: "c");
         public static readonly KeyValuePairOptionValue Display_Path = KeyValuePairOptionValue.Create("path", MetaValues.PathDisplay, shortKey: "p");

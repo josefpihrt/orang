@@ -288,7 +288,8 @@ namespace Orang.CommandLine
 
         public static OptionValueProvider DisplayProvider { get; } = new OptionValueProvider(MetaValues.DisplayOptions,
             OptionValues.Display_Content,
-            OptionValues.Display_Path
+            OptionValues.Display_Path,
+            OptionValues.Display_Summary
         );
 
         public static OptionValueProvider OutputOptionsProvider { get; } = new OptionValueProvider(MetaValues.OutputOptions,

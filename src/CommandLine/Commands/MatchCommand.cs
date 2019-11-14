@@ -28,18 +28,21 @@ namespace Orang.CommandLine
             if (count > 0)
                 WriteLine();
 
-            WriteGroups(matchData.GroupDefinitions);
-            WriteLine(Verbosity.Minimal);
-
-            WriteCount("Matches", matchData.Count, Colors.Message_OK, Verbosity.Minimal);
-
-            if (count != matchData.Count)
+            if (Options.IncludeSummary)
             {
-                Write("  ", Colors.Message_OK, Verbosity.Minimal);
-                WriteCount("Captures", count, Colors.Message_OK, Verbosity.Minimal);
-            }
+                WriteGroups(matchData.GroupDefinitions);
+                WriteLine(Verbosity.Minimal);
 
-            WriteLine(Verbosity.Minimal);
+                WriteCount("Matches", matchData.Count, Colors.Message_OK, Verbosity.Minimal);
+
+                if (count != matchData.Count)
+                {
+                    Write("  ", Colors.Message_OK, Verbosity.Minimal);
+                    WriteCount("Captures", count, Colors.Message_OK, Verbosity.Minimal);
+                }
+
+                WriteLine(Verbosity.Minimal);
+            }
 
             return (count > 0) ? CommandResult.Success : CommandResult.NoSuccess;
         }

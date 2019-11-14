@@ -141,11 +141,14 @@ namespace Orang.CommandLine
 
             stopwatch.Stop();
 
-            SearchTelemetry telemetry = context.Telemetry;
+            if (Options.IncludeSummary)
+            {
+                SearchTelemetry telemetry = context.Telemetry;
 
-            telemetry.Elapsed = stopwatch.Elapsed;
+                telemetry.Elapsed = stopwatch.Elapsed;
 
-            WriteSummary(telemetry);
+                WriteSummary(telemetry);
+            }
         }
 
         private void ExecuteCore(string path, SearchContext context)

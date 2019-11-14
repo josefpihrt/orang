@@ -88,6 +88,7 @@ namespace Orang.CommandLine
             string optionName,
             out ContentDisplayStyle contentDisplayStyle,
             out PathDisplayStyle pathDisplayStyle,
+            out bool includeSummary,
             ContentDisplayStyle defaultContentDisplayStyle,
             PathDisplayStyle defaultPathDisplayStyle,
             OptionValueProvider contentDisplayStyleProvider = null,
@@ -98,6 +99,7 @@ namespace Orang.CommandLine
                 optionName: optionName,
                 contentDisplayStyle: out ContentDisplayStyle? contentDisplayStyle2,
                 pathDisplayStyle: out PathDisplayStyle? pathDisplayStyle2,
+                includeSummary: out includeSummary,
                 contentDisplayStyleProvider: contentDisplayStyleProvider,
                 pathDisplayStyleProvider: pathDisplayStyleProvider))
             {
@@ -116,11 +118,13 @@ namespace Orang.CommandLine
             string optionName,
             out ContentDisplayStyle? contentDisplayStyle,
             out PathDisplayStyle? pathDisplayStyle,
+            out bool includeSummary,
             OptionValueProvider contentDisplayStyleProvider = null,
             OptionValueProvider pathDisplayStyleProvider = null)
         {
             contentDisplayStyle = null;
             pathDisplayStyle = null;
+            includeSummary = false;
 
             foreach (string value in values)
             {
@@ -150,6 +154,10 @@ namespace Orang.CommandLine
                         ThrowException(value);
                     }
                 }
+                else if (OptionValues.Display_Summary.IsValueOrShortValue(value))
+                {
+                    includeSummary = true;
+                }
                 else
                 {
                     ThrowException(value);
@@ -160,7 +168,7 @@ namespace Orang.CommandLine
 
             void ThrowException(string value)
             {
-                string helpText = (OptionValueProviders.DisplayProvider ?? OptionValueProviders.PatternOptionsProvider).GetHelpText();
+                string helpText = OptionValueProviders.DisplayProvider.GetHelpText();
 
                 throw new ArgumentException($"Option '{OptionNames.GetHelpText(optionName)}' has invalid value '{value}'. Allowed values: {helpText}.", nameof(values));
             }

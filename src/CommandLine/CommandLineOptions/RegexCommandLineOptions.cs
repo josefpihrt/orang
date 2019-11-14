@@ -16,11 +16,6 @@ namespace Orang.CommandLine
             MetaName = ArgumentMetaNames.Path)]
         public string Path { get; set; }
 
-        [Option(shortName: OptionShortNames.Display, longName: OptionNames.Display,
-            HelpText = "Display of the results.",
-            MetaValue = MetaValues.DisplayOptions)]
-        public IEnumerable<string> Display { get; set; }
-
         [Option(longName: OptionNames.Input,
             HelpText = "Text to search.",
             MetaValue = MetaValues.Input)]
@@ -81,6 +76,7 @@ namespace Orang.CommandLine
                 optionName: OptionNames.Display,
                 contentDisplayStyle: out ContentDisplayStyle contentDisplayStyle,
                 pathDisplayStyle: out PathDisplayStyle _,
+                includeSummary: out bool includeSummary,
                 defaultContentDisplayStyle: ContentDisplayStyle.Value,
                 defaultPathDisplayStyle: 0,
                 contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider_WithoutLineAndUnmatchedLines,
@@ -89,7 +85,7 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            options.Format = new OutputDisplayFormat(contentDisplayStyle: contentDisplayStyle);
+            options.Format = new OutputDisplayFormat(contentDisplayStyle: contentDisplayStyle, includeSummary: includeSummary);
             options.Input = input;
             options.Output = outputOptions;
 

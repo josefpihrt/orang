@@ -27,16 +27,20 @@ namespace Orang.CommandLine
             int count = outputWriter.WriteSplits(splitData, Options, output, cancellationToken);
 
             WriteLine();
-            WriteGroups(splitData.GroupDefinitions);
-            WriteLine(Verbosity.Minimal);
 
-            WriteCount(
-                "Splits",
-                count,
-                Colors.Message_OK,
-                Verbosity.Minimal);
+            if (Options.IncludeSummary)
+            {
+                WriteGroups(splitData.GroupDefinitions);
+                WriteLine(Verbosity.Minimal);
 
-            WriteLine(Verbosity.Minimal);
+                WriteCount(
+                    "Splits",
+                    count,
+                    Colors.Message_OK,
+                    Verbosity.Minimal);
+
+                WriteLine(Verbosity.Minimal);
+            }
 
             return (count > 0) ? CommandResult.Success : CommandResult.NoSuccess;
         }

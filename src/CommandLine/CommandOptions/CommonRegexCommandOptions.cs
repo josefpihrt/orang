@@ -10,6 +10,10 @@ namespace Orang.CommandLine
 
         public OutputOptions Output { get; internal set; }
 
+        public OutputDisplayFormat Format { get; internal set; }
+
+        public bool IncludeSummary => Format.IncludeSummary;
+
         public string OutputPath => Output?.Path;
 
         public HighlightOptions HighlightOptions { get; internal set; }

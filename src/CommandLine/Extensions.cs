@@ -4,11 +4,45 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
+using Orang.FileSystem;
 
 namespace Orang
 {
     internal static class Extensions
     {
+        public static void WritePath(
+            this TextWriterWithVerbosity writer,
+            string path,
+            string basePath,
+            string indent = null,
+            Verbosity verbosity = Verbosity.Quiet)
+        {
+            if (!writer.ShouldWrite(verbosity))
+                return;
+
+            writer.Write(indent, verbosity);
+
+            int startIndex = 0;
+
+            if (string.Equals(path, basePath, StringComparison.OrdinalIgnoreCase))
+            {
+                writer.Write(".", verbosity);
+                return;
+            }
+
+            if (basePath != null
+                && path.Length > basePath.Length
+                && path.StartsWith(basePath, StringComparison.OrdinalIgnoreCase))
+            {
+                startIndex = basePath.Length;
+
+                if (FileSystemHelpers.IsDirectorySeparator(path[startIndex]))
+                    startIndex++;
+            }
+
+            writer.Write(path, startIndex, path.Length - startIndex, verbosity);
+        }
+
         public static void WriteLineIf(this TextWriter writer, bool condition, string value)
         {
             if (condition)

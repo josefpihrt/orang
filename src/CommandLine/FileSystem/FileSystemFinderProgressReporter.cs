@@ -2,7 +2,6 @@
 
 using System;
 using Orang.CommandLine;
-using static Orang.CommandLine.LogHelpers;
 using static Orang.Logger;
 
 namespace Orang.FileSystem
@@ -11,17 +10,21 @@ namespace Orang.FileSystem
     {
         public FileSystemFinderProgressReporter(
             string baseDirectoryPath,
-            ProgressReporterMode mode,
+            ProgressReportMode consoleReportMode,
+            ProgressReportMode fileLogReportMode,
             CommonFindCommandOptions options)
         {
             BaseDirectoryPath = baseDirectoryPath;
-            Mode = mode;
+            ConsoleReportMode = consoleReportMode;
+            FileLogReportMode = fileLogReportMode;
             Options = options;
         }
 
         public string BaseDirectoryPath { get; }
 
-        public ProgressReporterMode Mode { get; }
+        public ProgressReportMode ConsoleReportMode { get; }
+
+        public ProgressReportMode FileLogReportMode { get; }
 
         public CommonFindCommandOptions Options { get; }
 
@@ -46,18 +49,24 @@ namespace Orang.FileSystem
                     {
                         SearchedDirectoryCount++;
 
-                        if (Mode == ProgressReporterMode.Dot)
+                        if (ConsoleReportMode == ProgressReportMode.Dot)
                         {
                             if (SearchedDirectoryCount % 10 == 0)
                             {
                                 ConsoleOut.Write(".", Colors.Path_Progress);
                                 ProgressReported = true;
                             }
+
+                            if (FileLogReportMode == ProgressReportMode.Path)
+                                WritePath(value);
                         }
-                        else if (Mode == ProgressReporterMode.Path)
+                        else if (ConsoleReportMode == ProgressReportMode.Path)
                         {
-                            WritePath(value.Path, BaseDirectoryPath, colors: Colors.Path_Progress, verbosity: Verbosity.Detailed);
-                            WriteLine(Verbosity.Detailed);
+                            WritePath(value, verbosity: Verbosity.Detailed);
+                        }
+                        else if (FileLogReportMode == ProgressReportMode.Path)
+                        {
+                            WritePath(value);
                         }
 
                         break;
@@ -65,17 +74,13 @@ namespace Orang.FileSystem
                 case ProgressKind.Directory:
                     {
                         DirectoryCount++;
-
-                        WritePath(value.Path, BaseDirectoryPath, colors: Colors.Path_Progress, Options.Indent, Verbosity.Diagnostic);
-                        WriteLine(Verbosity.Diagnostic);
+                        WritePath(value, indent: Options.Indent, verbosity: Verbosity.Diagnostic);
                         break;
                     }
                 case ProgressKind.File:
                     {
                         FileCount++;
-
-                        WritePath(value.Path, BaseDirectoryPath, colors: Colors.Path_Progress, Options.Indent, Verbosity.Diagnostic);
-                        WriteLine(Verbosity.Diagnostic);
+                        WritePath(value, indent: Options.Indent, verbosity: Verbosity.Diagnostic);
                         break;
                     }
                 default:
@@ -83,6 +88,24 @@ namespace Orang.FileSystem
                         throw new InvalidOperationException($"Unknown enum value '{value.Kind}'.");
                     }
             }
+        }
+
+        private void WritePath(in FileSystemFinderProgress value)
+        {
+            Out.WritePath(value.Path, BaseDirectoryPath, verbosity: Verbosity.Detailed);
+            Out.WriteLine(Verbosity.Detailed);
+        }
+
+        private void WritePath(in FileSystemFinderProgress value, string indent = null, Verbosity verbosity = Verbosity.Quiet)
+        {
+            LogHelpers.WritePath(
+                value.Path,
+                BaseDirectoryPath,
+                colors: Colors.Path_Progress,
+                indent: indent,
+                verbosity: verbosity);
+
+            WriteLine(verbosity);
         }
     }
 }

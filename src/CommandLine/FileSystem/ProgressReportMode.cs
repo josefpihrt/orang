@@ -2,7 +2,7 @@
 
 namespace Orang.FileSystem
 {
-    internal enum ProgressReporterMode
+    internal enum ProgressReportMode
     {
         None = 0,
         Path = 1,

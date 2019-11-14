@@ -281,6 +281,11 @@ namespace Orang
             Writer.WriteLine(value);
         }
 
+        public bool ShouldWrite(Verbosity verbosity)
+        {
+            return verbosity <= Verbosity;
+        }
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)

@@ -271,7 +271,7 @@ namespace Orang.CommandLine
         );
 
         public static OptionValueProvider MaxOptionsProvider { get; } = new OptionValueProvider(MetaValues.MaxOptions,
-            SimpleOptionValue.Create("MatchesInFile", "<NUM>", shortValue: "", description: "Stop searching in each file after <NUM> matches."),
+            SimpleOptionValue.Create("MatchesInFile", "<NUM>", shortValue: "", description: "Stop searching after <NUM> matches (or matches in file when searching in file's content)."),
             OptionValues.MaxMatches,
             OptionValues.MaxMatchingFiles
         );

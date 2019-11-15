@@ -31,7 +31,7 @@ Regular expression for the input string\. Syntax is \<PATTERN> \[\<PATTERN\_OPTI
 
 **`[-y|--display] <DISPLAY_OPTIONS>`**
 
-Display of the results\. Allowed values are \[c\]ontent=\<CONTENT\_DISPLAY> and \[p\]ath=\<PATH\_DISPLAY>\.
+Display of the results\. Allowed values are \[c\]ontent=\<CONTENT\_DISPLAY>, \[p\]ath=\<PATH\_DISPLAY> and \[s\]ummary\.
 
 **`[-h|--help]`**
 

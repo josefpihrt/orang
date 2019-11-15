@@ -53,7 +53,7 @@ Regular expression for files' content\. Syntax is \<PATTERN> \[\<PATTERN\_OPTION
 
 **`[-y|--display] <DISPLAY_OPTIONS>`**
 
-Display of the results\. Allowed values are \[c\]ontent=\<CONTENT\_DISPLAY> and \[p\]ath=\<PATH\_DISPLAY>\.
+Display of the results\. Allowed values are \[c\]ontent=\<CONTENT\_DISPLAY>, \[p\]ath=\<PATH\_DISPLAY> and \[s\]ummary\.
 
 **`[--encoding] <ENCODING>`**
 

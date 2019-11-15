@@ -7,7 +7,7 @@ Escapes special characters by replacing them with their escape codes\.
 ```
 orang escape
 [   --char-group]
- -i|--input        <INPUT>
+[-i|--input]       <INPUT>
 [-r|--replacement]
 ```
 
@@ -17,7 +17,7 @@ orang escape
 
 Text is part of a character group\.
 
-**`-i|--input <INPUT>`**
+**`[-i|--input] <INPUT>`**
 
 Text to be escaped\.
 

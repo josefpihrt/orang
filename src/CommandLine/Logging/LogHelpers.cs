@@ -271,11 +271,11 @@ namespace Orang.CommandLine
                 {
                     startIndex = matchIndex;
 
-                    Write(path, 0, startIndex, verbosity);
+                    Write(path, 0, startIndex, Colors.BasePath, verbosity);
                 }
                 else if (!relativePath)
                 {
-                    Write(path, 0, startIndex, verbosity);
+                    Write(path, 0, startIndex, Colors.BasePath, verbosity);
                 }
 
                 Write(path, startIndex, matchIndex - startIndex, colors: colors, verbosity);
@@ -285,7 +285,7 @@ namespace Orang.CommandLine
             else
             {
                 if (!relativePath)
-                    Write(path, 0, startIndex, verbosity);
+                    Write(path, 0, startIndex, Colors.BasePath, verbosity);
 
                 Write(path, startIndex, path.Length - startIndex, colors: colors, verbosity);
             }

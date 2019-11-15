@@ -158,7 +158,7 @@ namespace Orang.CommandLine
                 var progress = new FileSystemFinderProgressReporter(path, ConsoleReportMode, FileLogReportMode, Options);
 
                 if (Options.PathDisplayStyle == PathDisplayStyle.Relative)
-                    WriteLine(path, Verbosity.Minimal);
+                    WriteLine(path, Colors.BasePath, Verbosity.Minimal);
 
                 try
                 {

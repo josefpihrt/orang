@@ -42,7 +42,7 @@ namespace Orang
             }
 
             if (!relativePath)
-                writer.Write(path, 0, startIndex, verbosity);
+                writer.Write(path, 0, startIndex, Colors.BasePath, verbosity);
 
             writer.Write(path, startIndex, path.Length - startIndex, verbosity);
         }

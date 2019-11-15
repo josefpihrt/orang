@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace Orang.CommandLine
 {
-    internal abstract class AskReplacementWriter : MatchWriter
+    internal abstract class AskReplacementWriter : ContentWriter
     {
         protected readonly Lazy<TextWriter> _lazyWriter;
         protected int _writerIndex;
@@ -16,7 +16,7 @@ namespace Orang.CommandLine
             string input,
             MatchEvaluator matchEvaluator,
             Lazy<TextWriter> lazyWriter,
-            MatchWriterOptions options) : base(input, options)
+            ContentWriterOptions options) : base(input, options)
         {
             MatchEvaluator = matchEvaluator;
             _lazyWriter = lazyWriter;
@@ -33,7 +33,7 @@ namespace Orang.CommandLine
             string input,
             MatchEvaluator matchEvaluator,
             Lazy<TextWriter> lazyWriter,
-            MatchWriterOptions options,
+            ContentWriterOptions options,
             MatchOutputInfo outputInfo)
         {
             switch (contentDisplayStyle)
@@ -120,7 +120,7 @@ namespace Orang.CommandLine
                 string input,
                 MatchEvaluator matchEvaluator,
                 Lazy<TextWriter> lazyWriter,
-                MatchWriterOptions options,
+                ContentWriterOptions options,
                 MatchOutputInfo outputInfo) : base(input, matchEvaluator, lazyWriter, options)
             {
                 OutputInfo = outputInfo;
@@ -170,7 +170,7 @@ namespace Orang.CommandLine
                 string input,
                 MatchEvaluator matchEvaluator,
                 Lazy<TextWriter> lazyWriter,
-                MatchWriterOptions options) : base(input, matchEvaluator, lazyWriter, options)
+                ContentWriterOptions options) : base(input, matchEvaluator, lazyWriter, options)
             {
                 MatchingLineCount = 0;
             }

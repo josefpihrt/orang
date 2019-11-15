@@ -5,14 +5,14 @@ using System.Text.RegularExpressions;
 
 namespace Orang.CommandLine
 {
-    internal class UnmatchedLineWriter : MatchWriter
+    internal class UnmatchedLineWriter : ContentWriter
     {
         private int _lastEndIndex;
         private int _lineNumber;
 
         public UnmatchedLineWriter(
             string input,
-            MatchWriterOptions options = null,
+            ContentWriterOptions options = null,
             IResultStorage storage = null) : base(input, options)
         {
             ResultStorage = storage;

@@ -6,16 +6,16 @@ using System.Text.RegularExpressions;
 
 namespace Orang.CommandLine
 {
-    internal class TextWriterMatchWriter : MatchWriter
+    internal class TextWriterContentWriter : ContentWriter
     {
         private readonly TextWriter _writer;
         private int _writerIndex;
 
-        public TextWriterMatchWriter(
+        public TextWriterContentWriter(
             string input,
             MatchEvaluator matchEvaluator,
             TextWriter writer,
-            MatchWriterOptions options = null) : base(input, options)
+            ContentWriterOptions options = null) : base(input, options)
         {
             MatchEvaluator = matchEvaluator;
             _writer = writer;

@@ -4,14 +4,14 @@ using System.Text.RegularExpressions;
 
 namespace Orang.CommandLine
 {
-    internal class AllLinesMatchWriter : MatchWriter
+    internal class AllLinesContentWriter : ContentWriter
     {
         private int _lastPos;
         private ValueWriter _valueWriter;
 
-        public AllLinesMatchWriter(
+        public AllLinesContentWriter(
             string input,
-            MatchWriterOptions options = null,
+            ContentWriterOptions options = null,
             IResultStorage storage = null) : base(input, options)
         {
             ResultStorage = storage;

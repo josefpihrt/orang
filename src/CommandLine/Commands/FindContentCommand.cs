@@ -133,7 +133,7 @@ namespace Orang.CommandLine
         private void WriteMatches(
             string input,
             Match match,
-            MatchWriterOptions writerOptions,
+            ContentWriterOptions writerOptions,
             SearchContext context)
         {
             SearchTelemetry telemetry = context.Telemetry;
@@ -164,29 +164,29 @@ namespace Orang.CommandLine
 
                 MatchOutputInfo outputInfo = Options.CreateOutputInfo(input, match);
 
-                using (MatchWriter matchWriter = MatchWriter.CreateFind(Options.ContentDisplayStyle, input, writerOptions, _storage, outputInfo, ask: _askMode == AskMode.Value))
+                using (ContentWriter contentWriter = ContentWriter.CreateFind(Options.ContentDisplayStyle, input, writerOptions, _storage, outputInfo, ask: _askMode == AskMode.Value))
                 {
-                    maxReason = WriteMatches(matchWriter, match, context);
-                    fileMatchCount += matchWriter.MatchCount;
+                    maxReason = WriteMatches(contentWriter, match, context);
+                    fileMatchCount += contentWriter.MatchCount;
 
-                    if (matchWriter.MatchingLineCount >= 0)
+                    if (contentWriter.MatchingLineCount >= 0)
                     {
                         if (telemetry.MatchingLineCount == -1)
                             telemetry.MatchingLineCount = 0;
 
-                        telemetry.MatchingLineCount += matchWriter.MatchingLineCount;
+                        telemetry.MatchingLineCount += contentWriter.MatchingLineCount;
                     }
 
                     if (_askMode == AskMode.Value)
                     {
-                        if (matchWriter is AskValueMatchWriter askValueMatchWriter)
+                        if (contentWriter is AskValueContentWriter askValueContentWriter)
                         {
-                            if (!askValueMatchWriter.Ask)
+                            if (!askValueContentWriter.Ask)
                                 _askMode = AskMode.None;
                         }
-                        else if (matchWriter is AskLineMatchWriter askLineMatchWriter)
+                        else if (contentWriter is AskLineContentWriter askLineContentWriter)
                         {
-                            if (!askLineMatchWriter.Ask)
+                            if (!askLineContentWriter.Ask)
                                 _askMode = AskMode.None;
                         }
                     }
@@ -219,19 +219,19 @@ namespace Orang.CommandLine
 
             int EnumerateValues()
             {
-                using (var matchWriter = new EmptyMatchWriter(null, writerOptions))
+                using (var contentWriter = new EmptyContentWriter(null, writerOptions))
                 {
-                    maxReason = WriteMatches(matchWriter, match, context);
+                    maxReason = WriteMatches(contentWriter, match, context);
 
-                    if (matchWriter.MatchingLineCount >= 0)
+                    if (contentWriter.MatchingLineCount >= 0)
                     {
                         if (telemetry.MatchingLineCount == -1)
                             telemetry.MatchingLineCount = 0;
 
-                        telemetry.MatchingLineCount += matchWriter.MatchingLineCount;
+                        telemetry.MatchingLineCount += contentWriter.MatchingLineCount;
                     }
 
-                    return matchWriter.MatchCount;
+                    return contentWriter.MatchCount;
                 }
             }
         }
@@ -259,7 +259,7 @@ namespace Orang.CommandLine
             WriteLine(Verbosity.Minimal);
         }
 
-        protected override MatchWriterOptions CreateMatchWriteOptions(string indent)
+        protected override ContentWriterOptions CreateMatchWriteOptions(string indent)
         {
             int groupNumber = Options.ContentFilter.GroupNumber;
 
@@ -267,7 +267,7 @@ namespace Orang.CommandLine
                 ? new GroupDefinition(groupNumber, Options.ContentFilter.GroupName)
                 : default(GroupDefinition?);
 
-            return new MatchWriterOptions(
+            return new ContentWriterOptions(
                 format: Options.Format,
                 groupDefinition,
                 symbols: Symbols,

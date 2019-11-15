@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace Orang.CommandLine
 {
-    internal class LineMatchWriter : MatchWriter
+    internal class LineContentWriter : ContentWriter
     {
         private int _lastEndIndex;
         protected int _solIndex;
@@ -12,9 +12,9 @@ namespace Orang.CommandLine
         protected int _lineNumber;
         private ValueWriter _valueWriter;
 
-        public LineMatchWriter(
+        public LineContentWriter(
             string input,
-            MatchWriterOptions options = null,
+            ContentWriterOptions options = null,
             IResultStorage storage = null) : base(input, options)
         {
             ResultStorage = storage;

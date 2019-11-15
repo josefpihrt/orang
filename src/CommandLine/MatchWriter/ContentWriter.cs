@@ -7,11 +7,11 @@ using System.Threading;
 
 namespace Orang.CommandLine
 {
-    internal abstract class MatchWriter : IDisposable
+    internal abstract class ContentWriter : IDisposable
     {
-        protected MatchWriter(
+        protected ContentWriter(
             string input,
-            MatchWriterOptions options)
+            ContentWriterOptions options)
         {
             Input = input;
             Options = options;
@@ -20,7 +20,7 @@ namespace Orang.CommandLine
 
         public string Input { get; }
 
-        public MatchWriterOptions Options { get; }
+        public ContentWriterOptions Options { get; }
 
         public int MatchCount { get; private set; }
 
@@ -38,10 +38,10 @@ namespace Orang.CommandLine
 
         public ConsoleColors ReplacementBoundaryColors => (Options.HighlightBoundary) ? Colors.ReplacementBoundary : default;
 
-        public static MatchWriter CreateFind(
+        public static ContentWriter CreateFind(
             ContentDisplayStyle contentDisplayStyle,
             string input,
-            MatchWriterOptions options,
+            ContentWriterOptions options,
             IResultStorage storage,
             MatchOutputInfo outputInfo,
             bool ask = false)
@@ -52,9 +52,9 @@ namespace Orang.CommandLine
                 {
                     case ContentDisplayStyle.Value:
                     case ContentDisplayStyle.ValueDetail:
-                        return new AskValueMatchWriter(input, options, storage, outputInfo);
+                        return new AskValueContentWriter(input, options, storage, outputInfo);
                     case ContentDisplayStyle.Line:
-                        return new AskLineMatchWriter(input, options, storage);
+                        return new AskLineContentWriter(input, options, storage);
                     case ContentDisplayStyle.UnmatchedLines:
                     case ContentDisplayStyle.AllLines:
                         throw new InvalidOperationException();
@@ -68,24 +68,24 @@ namespace Orang.CommandLine
                 {
                     case ContentDisplayStyle.Value:
                     case ContentDisplayStyle.ValueDetail:
-                        return new ValueMatchWriter(input, options, storage, outputInfo);
+                        return new ValueContentWriter(input, options, storage, outputInfo);
                     case ContentDisplayStyle.Line:
-                        return new LineMatchWriter(input, options, storage);
+                        return new LineContentWriter(input, options, storage);
                     case ContentDisplayStyle.UnmatchedLines:
                         return new UnmatchedLineWriter(input, options, storage);
                     case ContentDisplayStyle.AllLines:
-                        return new AllLinesMatchWriter(input, options, storage);
+                        return new AllLinesContentWriter(input, options, storage);
                     default:
                         throw new InvalidOperationException($"Unknown enum value '{contentDisplayStyle}'.");
                 }
             }
         }
 
-        public static MatchWriter CreateReplace(
+        public static ContentWriter CreateReplace(
             ContentDisplayStyle contentDisplayStyle,
             string input,
             MatchEvaluator evaluator,
-            MatchWriterOptions options,
+            ContentWriterOptions options,
             TextWriter writer = null,
             MatchOutputInfo outputInfo = null)
         {

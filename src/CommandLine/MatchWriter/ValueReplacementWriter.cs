@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace Orang.CommandLine
 {
-    internal class ValueReplacementWriter : ValueMatchWriter
+    internal class ValueReplacementWriter : ValueContentWriter
     {
         private readonly TextWriter _writer;
         private int _writerIndex;
@@ -15,7 +15,7 @@ namespace Orang.CommandLine
         public ValueReplacementWriter(
             string input,
             MatchEvaluator matchEvaluator,
-            MatchWriterOptions options = null,
+            ContentWriterOptions options = null,
             TextWriter writer = null,
             MatchOutputInfo outputInfo = null) : base(input, options, outputInfo: outputInfo)
         {

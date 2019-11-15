@@ -4,11 +4,11 @@ using System.Text.RegularExpressions;
 
 namespace Orang.CommandLine
 {
-    internal class AskValueMatchWriter : ValueMatchWriter
+    internal class AskValueContentWriter : ValueContentWriter
     {
-        public AskValueMatchWriter(
+        public AskValueContentWriter(
             string input,
-            MatchWriterOptions options = null,
+            ContentWriterOptions options = null,
             IResultStorage storage = null,
             MatchOutputInfo outputInfo = null) : base(input, options, storage, outputInfo)
         {

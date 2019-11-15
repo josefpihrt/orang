@@ -2,9 +2,9 @@
 
 namespace Orang.CommandLine
 {
-    internal class MatchWriterOptions
+    internal class ContentWriterOptions
     {
-        public MatchWriterOptions(
+        public ContentWriterOptions(
             OutputDisplayFormat format,
             GroupDefinition? groupDefinition = null,
             OutputSymbols symbols = null,

@@ -5,11 +5,11 @@ using System.Text.RegularExpressions;
 
 namespace Orang.CommandLine
 {
-    internal class EmptyMatchWriter : MatchWriter
+    internal class EmptyContentWriter : ContentWriter
     {
-        public EmptyMatchWriter(
+        public EmptyContentWriter(
             string input,
-            MatchWriterOptions options) : base(input, options)
+            ContentWriterOptions options) : base(input, options)
         {
         }
 

@@ -9,14 +9,14 @@ namespace Orang.CommandLine
 {
     internal abstract class CommonFindContentCommand<TOptions> : CommonFindCommand<TOptions> where TOptions : CommonFindContentCommandOptions
     {
-        private MatchWriterOptions _fileWriterOptions;
-        private MatchWriterOptions _directoryWriterOptions;
+        private ContentWriterOptions _fileWriterOptions;
+        private ContentWriterOptions _directoryWriterOptions;
 
         protected CommonFindContentCommand(TOptions options) : base(options)
         {
         }
 
-        protected MatchWriterOptions FileWriterOptions
+        protected ContentWriterOptions FileWriterOptions
         {
             get
             {
@@ -31,7 +31,7 @@ namespace Orang.CommandLine
             }
         }
 
-        protected MatchWriterOptions DirectoryWriterOptions
+        protected ContentWriterOptions DirectoryWriterOptions
         {
             get
             {
@@ -61,9 +61,9 @@ namespace Orang.CommandLine
             }
         }
 
-        protected abstract MatchWriterOptions CreateMatchWriteOptions(string indent);
+        protected abstract ContentWriterOptions CreateMatchWriteOptions(string indent);
 
-        public MaxReason WriteMatches(MatchWriter writer, Match match, SearchContext context)
+        public MaxReason WriteMatches(ContentWriter writer, Match match, SearchContext context)
         {
             int maxMatchesInFile = Options.MaxMatchesInFile;
             int maxMatches = Options.MaxMatches;

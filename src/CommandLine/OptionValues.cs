@@ -23,6 +23,7 @@ namespace Orang.CommandLine
         public static readonly SimpleOptionValue OutputOptions_Content = SimpleOptionValue.Create("Content", description: "Include content in the output.");
         public static readonly SimpleOptionValue OutputOptions_Path = SimpleOptionValue.Create("Path", description: "Include path in the output.");
         public static readonly SimpleOptionValue Display_Summary = SimpleOptionValue.Create("Summary", description: "Include summary.");
+        public static readonly SimpleOptionValue Display_Count = SimpleOptionValue.Create("Count", shortValue: "", description: "Include number of matches in file.");
 
         public static readonly KeyValuePairOptionValue Display_Content = KeyValuePairOptionValue.Create("content", MetaValues.ContentDisplay, shortKey: "c");
         public static readonly KeyValuePairOptionValue Display_Path = KeyValuePairOptionValue.Create("path", MetaValues.PathDisplay, shortKey: "p");

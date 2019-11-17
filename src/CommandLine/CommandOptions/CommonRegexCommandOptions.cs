@@ -12,7 +12,9 @@ namespace Orang.CommandLine
 
         public OutputDisplayFormat Format { get; internal set; }
 
-        public bool IncludeSummary => Format.IncludeSummary;
+        public bool? IncludeSummary => Format.IncludeSummary;
+
+        public bool? IncludeCount => Format.IncludeCount;
 
         public string OutputPath => Output?.Path;
 

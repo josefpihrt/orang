@@ -4,11 +4,17 @@ using System.Collections.Generic;
 using System.Linq;
 using CommandLine;
 using static Orang.CommandLine.ParseHelpers;
+using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
     internal abstract class CommonFindContentCommandLineOptions : CommonFindCommandLineOptions
     {
+        [Option(longName: OptionNames.Ask,
+            HelpText = "Ask for permission after each file or value.",
+            MetaValue = MetaValues.AskMode)]
+        public string Ask { get; set; }
+
         [Option(shortName: OptionShortNames.LineNumber, longName: OptionNames.LineNumber,
             HelpText = "Include line number.")]
         public bool LineNumber { get; set; }
@@ -34,6 +40,16 @@ namespace Orang.CommandLine
 
             options = (CommonFindContentCommandOptions)baseOptions;
 
+            if (!TryParseAsEnum(Ask, OptionNames.Ask, out AskMode askMode, defaultValue: AskMode.None, OptionValueProviders.AskModeProvider))
+                return false;
+
+            if (askMode == AskMode.Value
+                && ConsoleOut.Verbosity < Orang.Verbosity.Normal)
+            {
+                WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Ask)}' cannot have value '{OptionValueProviders.AskModeProvider.GetValue(nameof(AskMode.Value)).HelpValue}' when '{OptionNames.GetHelpText(OptionNames.Verbosity)}' is set to '{OptionValueProviders.VerbosityProvider.GetValue(ConsoleOut.Verbosity.ToString()).HelpValue}'.");
+                return false;
+            }
+
             Filter nameFilter = null;
 
             if (Name.Any()
@@ -42,6 +58,7 @@ namespace Orang.CommandLine
                 return false;
             }
 
+            options.AskMode = askMode;
             options.NameFilter = nameFilter;
 
             return true;

@@ -199,9 +199,9 @@ namespace Orang.CommandLine
             DirectoryChanged?.Invoke(this, e);
         }
 
-        protected override void WriteSummary(SearchTelemetry telemetry)
+        protected override void WriteSummary(SearchTelemetry telemetry, Verbosity verbosity)
         {
-            WriteSearchedFilesAndDirectories(telemetry, Options.SearchTarget);
+            WriteSearchedFilesAndDirectories(telemetry, Options.SearchTarget, verbosity);
 
             string filesTitle = (Options.ContentOnly)
                 ? "Deleted files content"
@@ -211,7 +211,7 @@ namespace Orang.CommandLine
                 ? "Deleted directories content"
                 : "Deleted directories";
 
-            WriteProcessedFilesAndDirectories(telemetry, Options.SearchTarget, filesTitle, directoriesTitle);
+            WriteProcessedFilesAndDirectories(telemetry, Options.SearchTarget, filesTitle, directoriesTitle, verbosity);
         }
     }
 }

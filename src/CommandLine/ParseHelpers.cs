@@ -89,6 +89,7 @@ namespace Orang.CommandLine
             out ContentDisplayStyle contentDisplayStyle,
             out PathDisplayStyle pathDisplayStyle,
             out bool includeSummary,
+            out bool includeCount,
             ContentDisplayStyle defaultContentDisplayStyle,
             PathDisplayStyle defaultPathDisplayStyle,
             OptionValueProvider contentDisplayStyleProvider = null,
@@ -100,6 +101,7 @@ namespace Orang.CommandLine
                 contentDisplayStyle: out ContentDisplayStyle? contentDisplayStyle2,
                 pathDisplayStyle: out PathDisplayStyle? pathDisplayStyle2,
                 includeSummary: out includeSummary,
+                includeCount: out includeCount,
                 contentDisplayStyleProvider: contentDisplayStyleProvider,
                 pathDisplayStyleProvider: pathDisplayStyleProvider))
             {
@@ -119,12 +121,14 @@ namespace Orang.CommandLine
             out ContentDisplayStyle? contentDisplayStyle,
             out PathDisplayStyle? pathDisplayStyle,
             out bool includeSummary,
+            out bool includeCount,
             OptionValueProvider contentDisplayStyleProvider = null,
             OptionValueProvider pathDisplayStyleProvider = null)
         {
             contentDisplayStyle = null;
             pathDisplayStyle = null;
             includeSummary = false;
+            includeCount = false;
 
             foreach (string value in values)
             {
@@ -157,6 +161,10 @@ namespace Orang.CommandLine
                 else if (OptionValues.Display_Summary.IsValueOrShortValue(value))
                 {
                     includeSummary = true;
+                }
+                else if (OptionValues.Display_Count.IsValueOrShortValue(value))
+                {
+                    includeCount = true;
                 }
                 else
                 {

@@ -41,30 +41,30 @@ namespace Orang.CommandLine
 #endif
         }
 
-        public static void WriteSearchedFilesAndDirectories(SearchTelemetry telemetry, SearchTarget searchTarget)
+        public static void WriteSearchedFilesAndDirectories(SearchTelemetry telemetry, SearchTarget searchTarget, Verbosity verbosity = Verbosity.Detailed)
         {
-            if (!ShouldLog(Verbosity.Minimal))
+            if (!ShouldLog(verbosity))
                 return;
 
-            WriteLine(Verbosity.Minimal);
+            WriteLine(verbosity);
 
             if (searchTarget != SearchTarget.Directories)
             {
-                WriteCount("Files searched", telemetry.FileCount, verbosity: Verbosity.Minimal);
+                WriteCount("Files searched", telemetry.FileCount, verbosity: verbosity);
             }
 
             if (searchTarget != SearchTarget.Files)
             {
                 if (searchTarget != SearchTarget.Directories)
-                    Write("  ", Verbosity.Minimal);
+                    Write("  ", verbosity);
 
-                WriteCount("Directories searched", telemetry.DirectoryCount, verbosity: Verbosity.Minimal);
+                WriteCount("Directories searched", telemetry.DirectoryCount, verbosity: verbosity);
             }
 
             if (telemetry.Elapsed != default)
-                Write($"  Elapsed Time: {telemetry.Elapsed:mm\\:ss\\.ff}", Verbosity.Minimal);
+                Write($"  Elapsed Time: {telemetry.Elapsed:mm\\:ss\\.ff}", verbosity);
 
-            WriteLine(Verbosity.Minimal);
+            WriteLine(verbosity);
         }
 
         public static void WriteProcessedFilesAndDirectories(
@@ -72,7 +72,7 @@ namespace Orang.CommandLine
             SearchTarget searchTarget,
             string processedFilesTitle,
             string processedDirectoriesTitle,
-            Verbosity verbosity = Verbosity.Minimal)
+            Verbosity verbosity = Verbosity.Detailed)
         {
             if (!ShouldLog(verbosity))
                 return;
@@ -96,35 +96,35 @@ namespace Orang.CommandLine
             int width4 = Math.Max(matchingDirectoryCount.Length, processedDirectoryCount.Length);
 
             if (files)
-                WriteCount(filesTitle, matchingFileCount, width1, width2, Colors.Message_OK);
+                WriteCount(filesTitle, matchingFileCount, width1, width2, Colors.Message_OK, verbosity);
 
             if (directories)
             {
                 if (files)
                     Write("  ", Colors.Message_Change, verbosity);
 
-                WriteCount(directoriesTitle, matchingDirectoryCount, width3, width4, Colors.Message_OK);
+                WriteCount(directoriesTitle, matchingDirectoryCount, width3, width4, Colors.Message_OK, verbosity);
             }
 
             WriteLine(verbosity);
 
             if (files)
-                WriteCount(processedFilesTitle, processedFileCount, width1, width2, Colors.Message_Change);
+                WriteCount(processedFilesTitle, processedFileCount, width1, width2, Colors.Message_Change, verbosity);
 
             if (directories)
             {
                 if (files)
                     Write("  ", Colors.Message_Change, verbosity);
 
-                WriteCount(processedDirectoriesTitle, processedDirectoryCount, width3, width4, Colors.Message_Change);
+                WriteCount(processedDirectoriesTitle, processedDirectoryCount, width3, width4, Colors.Message_Change, verbosity);
             }
 
             WriteLine(verbosity);
         }
 
-        public static void WriteGroups(GroupDefinitionCollection groupDefinitions, Dictionary<int, ConsoleColors> colors = null)
+        public static void WriteGroups(GroupDefinitionCollection groupDefinitions, Dictionary<int, ConsoleColors> colors = null, Verbosity verbosity = Verbosity.Detailed)
         {
-            if (!ShouldLog(Verbosity.Normal))
+            if (!ShouldLog(verbosity))
                 return;
 
             if (groupDefinitions.Count == 1
@@ -133,9 +133,9 @@ namespace Orang.CommandLine
                 return;
             }
 
-            WriteLine(Verbosity.Normal);
+            WriteLine(verbosity);
 
-            WriteLine("Groups:", Verbosity.Normal);
+            WriteLine("Groups:", verbosity);
 
             int maxWidth = groupDefinitions.Max(f => f.Number).GetDigitCount();
 
@@ -148,20 +148,20 @@ namespace Orang.CommandLine
 
                 colors?.TryGetValue(groupDefinition.Number, out groupColors);
 
-                Write(" ", Verbosity.Normal);
+                Write(" ", verbosity);
 
                 string indexText = groupDefinition.Number.ToString();
 
-                Write(' ', maxWidth - indexText.Length, Verbosity.Normal);
-                Write(indexText, groupColors, Verbosity.Normal);
+                Write(' ', maxWidth - indexText.Length, verbosity);
+                Write(indexText, groupColors, verbosity);
 
                 if (indexText != groupDefinition.Name)
                 {
-                    Write(" ", Verbosity.Normal);
-                    Write(groupDefinition.Name, groupColors, Verbosity.Normal);
+                    Write(" ", verbosity);
+                    Write(groupDefinition.Name, groupColors, verbosity);
                 }
 
-                WriteLine(Verbosity.Normal);
+                WriteLine(verbosity);
             }
         }
 

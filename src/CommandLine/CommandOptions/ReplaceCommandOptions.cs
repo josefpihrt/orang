@@ -14,8 +14,6 @@ namespace Orang.CommandLine
 
         public string Replacement { get; internal set; }
 
-        public AskMode AskMode { get; internal set; }
-
         public bool DryRun { get; internal set; }
 
         public MatchEvaluator MatchEvaluator { get; internal set; }

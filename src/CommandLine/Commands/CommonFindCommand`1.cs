@@ -30,7 +30,7 @@ namespace Orang.CommandLine
             {
                 if (_consoleReportMode == null)
                 {
-                    if (ConsoleOut.ShouldWrite(Verbosity.Detailed))
+                    if (ConsoleOut.ShouldWrite(Verbosity.Diagnostic))
                     {
                         _consoleReportMode = ProgressReportMode.Path;
                     }
@@ -54,7 +54,7 @@ namespace Orang.CommandLine
             {
                 if (_fileLogReportMode == null)
                 {
-                    if (Out?.ShouldWrite(Verbosity.Detailed) == true)
+                    if (Out?.ShouldWrite(Verbosity.Diagnostic) == true)
                     {
                         _fileLogReportMode = ProgressReportMode.Path;
                     }
@@ -84,7 +84,7 @@ namespace Orang.CommandLine
 
         public virtual bool CanEnumerate => true;
 
-        protected abstract void WriteSummary(SearchTelemetry telemetry);
+        protected abstract void WriteSummary(SearchTelemetry telemetry, Verbosity verbosity);
 
         protected sealed override CommandResult ExecuteCore(CancellationToken cancellationToken = default)
         {
@@ -141,13 +141,14 @@ namespace Orang.CommandLine
 
             stopwatch.Stop();
 
-            if (Options.IncludeSummary)
+            if (ShouldLog(Verbosity.Detailed)
+                || Options.IncludeSummary == true)
             {
                 SearchTelemetry telemetry = context.Telemetry;
 
                 telemetry.Elapsed = stopwatch.Elapsed;
 
-                WriteSummary(telemetry);
+                WriteSummary(telemetry, (Options.IncludeSummary == true) ? Verbosity.Minimal : Verbosity.Detailed);
             }
         }
 

@@ -7,7 +7,5 @@ namespace Orang.CommandLine
         internal FindCommandOptions()
         {
         }
-
-        public AskMode AskMode { get; internal set; }
     }
 }

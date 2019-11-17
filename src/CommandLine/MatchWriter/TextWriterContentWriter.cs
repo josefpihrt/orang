@@ -8,17 +8,17 @@ namespace Orang.CommandLine
 {
     internal class TextWriterContentWriter : ContentWriter
     {
-        private readonly TextWriter _writer;
+        private readonly TextWriter _textWriter;
         private int _writerIndex;
 
         public TextWriterContentWriter(
             string input,
             MatchEvaluator matchEvaluator,
-            TextWriter writer,
+            TextWriter textWriter,
             ContentWriterOptions options = null) : base(input, options)
         {
             MatchEvaluator = matchEvaluator;
-            _writer = writer;
+            _textWriter = textWriter;
         }
 
         public MatchEvaluator MatchEvaluator { get; }
@@ -36,11 +36,11 @@ namespace Orang.CommandLine
 
         protected override void WriteMatch(Capture capture)
         {
-            _writer.Write(Input.AsSpan(_writerIndex, capture.Index - _writerIndex));
+            _textWriter.Write(Input.AsSpan(_writerIndex, capture.Index - _writerIndex));
 
             string result = MatchEvaluator((Match)capture);
 
-            _writer.Write(result);
+            _textWriter.Write(result);
 
             _writerIndex = capture.Index + capture.Length;
         }
@@ -55,7 +55,7 @@ namespace Orang.CommandLine
 
         protected override void WriteEndMatches()
         {
-            _writer.Write(Input.AsSpan(_writerIndex, Input.Length - _writerIndex));
+            _textWriter.Write(Input.AsSpan(_writerIndex, Input.Length - _writerIndex));
         }
 
         protected override void WriteStartReplacement(Match match, string result)
@@ -68,7 +68,7 @@ namespace Orang.CommandLine
 
         public override void Dispose()
         {
-            _writer.Dispose();
+            _textWriter.Dispose();
         }
     }
 }

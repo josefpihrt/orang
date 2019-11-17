@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -25,6 +26,8 @@ namespace Orang.CommandLine
         public int MatchCount { get; private set; }
 
         public int MatchingLineCount { get; protected set; }
+
+        protected ContentTextWriter Writer => ContentTextWriter.Default;
 
         protected abstract ValueWriter ValueWriter { get; }
 
@@ -86,18 +89,18 @@ namespace Orang.CommandLine
             string input,
             MatchEvaluator evaluator,
             ContentWriterOptions options,
-            TextWriter writer = null,
+            TextWriter textWriter = null,
             MatchOutputInfo outputInfo = null)
         {
             switch (contentDisplayStyle)
             {
                 case ContentDisplayStyle.Value:
                 case ContentDisplayStyle.ValueDetail:
-                    return new ValueReplacementWriter(input, evaluator, options, writer, outputInfo);
+                    return new ValueReplacementWriter(input, evaluator, options, textWriter, outputInfo);
                 case ContentDisplayStyle.Line:
-                    return new LineReplacementWriter(input, evaluator, options, writer);
+                    return new LineReplacementWriter(input, evaluator, options, textWriter);
                 case ContentDisplayStyle.AllLines:
-                    return new AllLinesReplacementWriter(input, evaluator, options, writer);
+                    return new AllLinesReplacementWriter(input, evaluator, options, textWriter);
                 case ContentDisplayStyle.UnmatchedLines:
                     throw new NotSupportedException($"Value '{contentDisplayStyle}' is not supported.");
                 default:
@@ -121,24 +124,34 @@ namespace Orang.CommandLine
 
         public abstract void Dispose();
 
-        protected virtual void Write(string value)
+        protected void Write(string value)
         {
-            Logger.Write(value, Verbosity.Normal);
+            Writer?.Write(value);
         }
 
-        protected virtual void Write(string value, in ConsoleColors colors)
+        protected void Write(string value, in ConsoleColors colors)
         {
-            Logger.Write(value, colors, Verbosity.Normal);
+            Writer?.Write(value, colors);
         }
 
-        protected virtual void Write(string value, int startIndex, int length)
+        protected void Write(string value, int startIndex, int length)
         {
-            Logger.Write(value, startIndex, length, Verbosity.Normal);
+            Writer?.Write(value, startIndex, length);
+        }
+
+        protected void Write(string value, int startIndex, int length, in ConsoleColors colors)
+        {
+            Writer?.Write(value, startIndex, length, colors);
+        }
+
+        protected virtual void WriteLine()
+        {
+            Writer?.WriteLine();
         }
 
         protected virtual void WriteLineNumber(int value)
         {
-            Logger.Write(value.ToString(), Colors.LineNumber, Verbosity.Normal);
+            Write(value.ToString(), Colors.LineNumber);
             Write(" ");
         }
 
@@ -150,7 +163,7 @@ namespace Orang.CommandLine
             }
             else if (Options.HighlightEmptyMatch)
             {
-                Logger.Write("|", Colors.EmptyMatch, Verbosity.Normal);
+                Write("|", Colors.EmptyMatch);
             }
         }
 
@@ -173,7 +186,7 @@ namespace Orang.CommandLine
             }
             else if (Options.HighlightEmptyReplacement)
             {
-                Logger.Write("|", Colors.EmptyReplacement, Verbosity.Normal);
+                Write("|", Colors.EmptyReplacement);
             }
         }
 
@@ -182,22 +195,36 @@ namespace Orang.CommandLine
             ValueWriter.Write(result, Symbols, ReplacementColors, ReplacementBoundaryColors);
         }
 
-        protected virtual void WriteLine()
-        {
-            Logger.WriteLine(Verbosity.Normal);
-        }
-
-        public virtual MaxReason WriteMatches(Match match, int count = 0, in CancellationToken cancellationToken = default)
+        public virtual void WriteMatches(IEnumerable<Group> matches, in CancellationToken cancellationToken = default)
         {
             MatchCount = 0;
 
             WriteStartMatches();
 
-            MaxReason maxReason;
-
             try
             {
-                maxReason = WriteMatchesImpl(match, count, cancellationToken);
+                using (IEnumerator<Group> en = matches.GetEnumerator())
+                {
+                    if (en.MoveNext())
+                    {
+                        while (true)
+                        {
+                            WriteMatch(en.Current);
+                            MatchCount++;
+
+                            if (en.MoveNext())
+                            {
+                                WriteMatchSeparator();
+                            }
+                            else
+                            {
+                                break;
+                            }
+
+                            cancellationToken.ThrowIfCancellationRequested();
+                        }
+                    }
+                }
             }
             catch (OperationCanceledException)
             {
@@ -206,92 +233,6 @@ namespace Orang.CommandLine
             finally
             {
                 WriteEndMatches();
-            }
-
-            return maxReason;
-        }
-
-        private MaxReason WriteMatchesImpl(Match match, int count, in CancellationToken cancellationToken)
-        {
-            int groupNumber = Options.GroupNumber;
-
-            if (groupNumber < 1)
-            {
-                while (true)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    WriteMatch(match);
-                    MatchCount++;
-
-                    match = match.NextMatch();
-
-                    if (MatchCount == count)
-                    {
-                        return (match.Success)
-                            ? MaxReason.CountExceedsMax
-                            : MaxReason.CountEqualsMax;
-                    }
-
-                    if (match.Success)
-                    {
-                        WriteMatchSeparator();
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                Group group = NextGroup();
-
-                if (group != null)
-                {
-                    while (true)
-                    {
-                        cancellationToken.ThrowIfCancellationRequested();
-
-                        WriteMatch(group);
-                        MatchCount++;
-
-                        group = NextGroup();
-
-                        if (MatchCount == count)
-                        {
-                            return (group != null)
-                                ? MaxReason.CountExceedsMax
-                                : MaxReason.CountEqualsMax;
-                        }
-
-                        if (group != null)
-                        {
-                            WriteMatchSeparator();
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-                }
-            }
-
-            return MaxReason.None;
-
-            Group NextGroup()
-            {
-                while (match.Success)
-                {
-                    Group group = match.Groups[groupNumber];
-
-                    match = match.NextMatch();
-
-                    if (group.Success)
-                        return group;
-                }
-
-                return null;
             }
         }
 

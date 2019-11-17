@@ -16,6 +16,8 @@ namespace Orang.CommandLine
             Verbosity = verbosity;
         }
 
+        protected ContentTextWriter Writer => ContentTextWriter.Default;
+
         public string Indent { get; }
 
         public bool IncludeEndingIndent { get; }
@@ -29,9 +31,6 @@ namespace Orang.CommandLine
 
         public void Write(string value, int startIndex, int length, OutputSymbols symbols, in ConsoleColors colors = default, in ConsoleColors boundaryColors = default)
         {
-            if (!ShouldWrite())
-                return;
-
             if (symbols == null)
                 symbols = OutputSymbols.Empty;
 
@@ -136,24 +135,19 @@ namespace Orang.CommandLine
             }
         }
 
-        protected virtual bool ShouldWrite()
-        {
-            return Logger.ShouldLog(Verbosity);
-        }
-
         protected virtual void Write(string value)
         {
-            Logger.Write(value, verbosity: Verbosity);
+            Writer?.Write(value);
         }
 
         protected virtual void Write(string value, in ConsoleColors colors)
         {
-            Logger.Write(value, colors, Verbosity);
+            Writer?.Write(value, colors);
         }
 
         protected virtual void Write(string value, int startIndex, int length, in ConsoleColors colors)
         {
-            Logger.Write(value, startIndex, length, colors, Verbosity);
+            Writer?.Write(value, startIndex, length, colors);
         }
     }
 }

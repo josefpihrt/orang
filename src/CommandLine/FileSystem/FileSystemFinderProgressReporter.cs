@@ -62,7 +62,7 @@ namespace Orang.FileSystem
                         }
                         else if (ConsoleReportMode == ProgressReportMode.Path)
                         {
-                            WritePath(value, verbosity: Verbosity.Detailed);
+                            WritePath(value, verbosity: Verbosity.Diagnostic);
                         }
                         else if (FileLogReportMode == ProgressReportMode.Path)
                         {
@@ -92,8 +92,8 @@ namespace Orang.FileSystem
 
         private void WritePath(in FileSystemFinderProgress value)
         {
-            Out.WritePath(value.Path, BaseDirectoryPath, relativePath: Options.PathDisplayStyle == PathDisplayStyle.Relative, verbosity: Verbosity.Detailed);
-            Out.WriteLine(Verbosity.Detailed);
+            Out.WritePath(value.Path, BaseDirectoryPath, relativePath: Options.PathDisplayStyle == PathDisplayStyle.Relative, verbosity: Verbosity.Diagnostic);
+            Out.WriteLine(Verbosity.Diagnostic);
         }
 
         private void WritePath(in FileSystemFinderProgress value, string indent = null, Verbosity verbosity = Verbosity.Quiet)

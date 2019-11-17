@@ -120,25 +120,25 @@ namespace Orang.CommandLine
             }
         }
 
-        protected override void WriteSummary(SearchTelemetry telemetry)
+        protected override void WriteSummary(SearchTelemetry telemetry, Verbosity verbosity)
         {
-            WriteSearchedFilesAndDirectories(telemetry, Options.SearchTarget);
+            WriteSearchedFilesAndDirectories(telemetry, Options.SearchTarget, verbosity);
 
-            if (!ShouldLog(Verbosity.Minimal))
+            if (!ShouldLog(verbosity))
                 return;
 
-            WriteLine(Verbosity.Minimal);
+            WriteLine(verbosity);
 
             if (Options.SearchTarget != SearchTarget.Directories)
             {
-                WriteCount("Matching files", telemetry.MatchingFileCount, Colors.Message_OK, Verbosity.Minimal);
-                WriteLine(Verbosity.Minimal);
+                WriteCount("Matching files", telemetry.MatchingFileCount, Colors.Message_OK, verbosity);
+                WriteLine(verbosity);
             }
 
             if (Options.SearchTarget != SearchTarget.Files)
             {
-                WriteCount("Matching directories", telemetry.MatchingDirectoryCount, Colors.Message_OK, Verbosity.Minimal);
-                WriteLine(Verbosity.Minimal);
+                WriteCount("Matching directories", telemetry.MatchingDirectoryCount, Colors.Message_OK, verbosity);
+                WriteLine(verbosity);
             }
         }
     }

@@ -261,7 +261,7 @@ namespace Orang.CommandLine
             ContentDisplayStyleProvider.Values.Where(f => f.Name != nameof(ContentDisplayStyle.UnmatchedLines))
         );
 
-        public static OptionValueProvider ContentDisplayStyleProvider_WithoutLineAndUnmatchedLines { get; } = new OptionValueProvider(OptionValueProviderNames.ContentDisplayStyle_WithoutLineAndUnmatchedLines,
+        public static OptionValueProvider ContentDisplayStyleProvider_WithoutLineAndUnmatchedLinesAndOmit { get; } = new OptionValueProvider(OptionValueProviderNames.ContentDisplayStyle_WithoutLineAndUnmatchedLines,
             ContentDisplayStyleProvider.Values.Where(f => f.Name != nameof(ContentDisplayStyle.Line) && f.Name != nameof(ContentDisplayStyle.UnmatchedLines))
         );
 
@@ -288,6 +288,7 @@ namespace Orang.CommandLine
 
         public static OptionValueProvider DisplayProvider { get; } = new OptionValueProvider(MetaValues.DisplayOptions,
             OptionValues.Display_Content,
+            OptionValues.Display_Count,
             OptionValues.Display_Path,
             OptionValues.Display_Summary
         );

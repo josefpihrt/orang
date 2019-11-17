@@ -13,11 +13,6 @@ namespace Orang.CommandLine
     [Verb("replace", HelpText = "Searches the file system for files and replaces its content.")]
     internal class ReplaceCommandLineOptions : CommonFindContentCommandLineOptions
     {
-        [Option(longName: OptionNames.Ask,
-            HelpText = "Ask for a permission to update each file or value.",
-            MetaValue = MetaValues.AskMode)]
-        public string Ask { get; set; }
-
         [Option(shortName: OptionShortNames.Content, longName: OptionNames.Content,
             Required = true,
             HelpText = "Regular expression for files' content. Syntax is <PATTERN> [<PATTERN_OPTIONS>].",
@@ -59,16 +54,6 @@ namespace Orang.CommandLine
 
             options = (ReplaceCommandOptions)baseOptions;
 
-            if (!TryParseAsEnum(Ask, OptionNames.Ask, out AskMode askMode, defaultValue: AskMode.None, OptionValueProviders.AskModeProvider))
-                return false;
-
-            if (askMode == AskMode.Value
-                && ConsoleOut.Verbosity < Orang.Verbosity.Normal)
-            {
-                WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Ask)}' cannot have value '{OptionValueProviders.AskModeProvider.GetValue(nameof(AskMode.Value)).HelpValue}' when '{OptionNames.GetHelpText(OptionNames.Verbosity)}' is set to '{OptionValueProviders.VerbosityProvider.GetValue(ConsoleOut.Verbosity.ToString()).HelpValue}'.");
-                return false;
-            }
-
             if (!TryParseAsEnumFlags(Highlight, OptionNames.Highlight, out HighlightOptions highlightOptions, defaultValue: HighlightOptions.Replacement, provider: OptionValueProviders.ReplaceHighlightOptionsProvider))
                 return false;
 
@@ -99,6 +84,7 @@ namespace Orang.CommandLine
                 contentDisplayStyle: out ContentDisplayStyle? contentDisplayStyle2,
                 pathDisplayStyle: out PathDisplayStyle? pathDisplayStyle2,
                 includeSummary: out bool includeSummary,
+                includeCount: out bool includeCount,
                 contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider_WithoutUnmatchedLines,
                 pathDisplayStyleProvider: OptionValueProviders.PathDisplayStyleProvider))
             {
@@ -107,7 +93,7 @@ namespace Orang.CommandLine
 
             if (contentDisplayStyle2 != null)
             {
-                if (askMode == AskMode.Value
+                if (options.AskMode == AskMode.Value
                     && contentDisplayStyle2 == ContentDisplayStyle.AllLines)
                 {
                     WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Format)}' cannot have value '{OptionValueProviders.ContentDisplayStyleProvider.GetValue(nameof(ContentDisplayStyle.AllLines)).HelpValue}' when option '{OptionNames.GetHelpText(OptionNames.Ask)}' has value '{OptionValueProviders.AskModeProvider.GetValue(nameof(AskMode.Value)).HelpValue}'.");
@@ -127,14 +113,13 @@ namespace Orang.CommandLine
 
             pathDisplayStyle = pathDisplayStyle2 ?? PathDisplayStyle.Full;
 
-            options.Format = new OutputDisplayFormat(contentDisplayStyle: contentDisplayStyle, pathDisplayStyle: pathDisplayStyle, lineOptions: LineDisplayOptions, includeSummary: includeSummary);
+            options.Format = new OutputDisplayFormat(contentDisplayStyle: contentDisplayStyle, pathDisplayStyle: pathDisplayStyle, lineOptions: LineDisplayOptions, includeSummary: includeSummary, includeCount: includeCount);
             options.HighlightOptions = highlightOptions;
             options.ContentFilter = contentFilter;
             options.Replacement = replacement ?? "";
             options.MatchEvaluator = matchEvaluator;
             options.Input = Input;
             options.DryRun = DryRun;
-            options.AskMode = askMode;
             options.MaxMatchesInFile = maxMatchesInFile;
             options.MaxMatches = maxMatches;
             options.MaxMatchingFiles = maxMatchingFiles;

@@ -77,15 +77,16 @@ namespace Orang.CommandLine
                 contentDisplayStyle: out ContentDisplayStyle contentDisplayStyle,
                 pathDisplayStyle: out PathDisplayStyle _,
                 includeSummary: out bool includeSummary,
+                includeCount: out bool includeCount,
                 defaultContentDisplayStyle: ContentDisplayStyle.Value,
                 defaultPathDisplayStyle: 0,
-                contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider_WithoutLineAndUnmatchedLines,
+                contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider_WithoutLineAndUnmatchedLinesAndOmit,
                 pathDisplayStyleProvider: OptionValueProviders.PathDisplayStyleProvider))
             {
                 return false;
             }
 
-            options.Format = new OutputDisplayFormat(contentDisplayStyle: contentDisplayStyle, includeSummary: includeSummary);
+            options.Format = new OutputDisplayFormat(contentDisplayStyle: contentDisplayStyle, includeSummary: includeSummary, includeCount: includeCount);
             options.Input = input;
             options.Output = outputOptions;
 

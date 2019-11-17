@@ -12,7 +12,8 @@ namespace Orang.CommandLine
             ContentDisplayStyle contentDisplayStyle,
             PathDisplayStyle pathDisplayStyle = PathDisplayStyle.Full,
             LineDisplayOptions lineOptions = LineDisplayOptions.None,
-            bool includeSummary = false,
+            bool? includeSummary = null,
+            bool? includeCount = null,
             string indent = null,
             string separator = null)
         {
@@ -20,6 +21,7 @@ namespace Orang.CommandLine
             PathDisplayStyle = pathDisplayStyle;
             LineOptions = lineOptions;
             IncludeSummary = includeSummary;
+            IncludeCount = includeCount;
             Indent = indent ?? DefaultIndent;
             Separator = separator ?? Environment.NewLine;
         }
@@ -30,7 +32,9 @@ namespace Orang.CommandLine
 
         public LineDisplayOptions LineOptions { get; }
 
-        public bool IncludeSummary { get; }
+        public bool? IncludeSummary { get; }
+
+        public bool? IncludeCount { get; }
 
         public string Indent { get; }
 

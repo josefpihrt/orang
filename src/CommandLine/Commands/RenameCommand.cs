@@ -261,10 +261,10 @@ namespace Orang.CommandLine
             DirectoryChanged?.Invoke(this, e);
         }
 
-        protected override void WriteSummary(SearchTelemetry telemetry)
+        protected override void WriteSummary(SearchTelemetry telemetry, Verbosity verbosity)
         {
-            WriteSearchedFilesAndDirectories(telemetry, Options.SearchTarget);
-            WriteProcessedFilesAndDirectories(telemetry, Options.SearchTarget, "Renamed files", "Renamed directories");
+            WriteSearchedFilesAndDirectories(telemetry, Options.SearchTarget, verbosity);
+            WriteProcessedFilesAndDirectories(telemetry, Options.SearchTarget, "Renamed files", "Renamed directories", verbosity);
         }
     }
 }

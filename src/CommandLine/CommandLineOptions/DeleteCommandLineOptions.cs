@@ -86,6 +86,7 @@ namespace Orang.CommandLine
                 contentDisplayStyle: out ContentDisplayStyle _,
                 pathDisplayStyle: out PathDisplayStyle pathDisplayStyle,
                 includeSummary: out bool includeSummary,
+                includeCount: out bool includeCount,
                 defaultContentDisplayStyle: 0,
                 defaultPathDisplayStyle: PathDisplayStyle.Full,
                 contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider,
@@ -94,7 +95,7 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            options.Format = new OutputDisplayFormat(ContentDisplayStyle.None, pathDisplayStyle, includeSummary: includeSummary);
+            options.Format = new OutputDisplayFormat(ContentDisplayStyle.None, pathDisplayStyle, includeSummary: includeSummary, includeCount: includeCount);
             options.Ask = Ask;
             options.DryRun = DryRun;
             options.HighlightOptions = highlightOptions;

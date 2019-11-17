@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Orang.FileSystem;
 using static Orang.CommandLine.LogHelpers;
@@ -140,123 +141,84 @@ namespace Orang.CommandLine
 
             telemetry.MatchingFileCount++;
 
-            int fileMatchCount = 0;
-            var maxReason = MaxReason.None;
+            ContentWriter contentWriter = null;
+            List<Group> groups = null;
 
-            if (_storage != null
-                || Options.AskMode == AskMode.Value
-                || ShouldLog(Verbosity.Normal))
+            try
             {
-                if (!Options.OmitPath)
-                {
-                    if (Options.AskMode == AskMode.Value)
-                    {
-                        ConsoleOut.WriteLine();
-                    }
-                    else if (ConsoleOut.Verbosity >= Verbosity.Normal)
-                    {
-                        ConsoleOut.WriteLine(Verbosity.Normal);
-                    }
+                groups = ListCache<Group>.GetInstance();
 
-                    if (Out?.Verbosity >= Verbosity.Normal)
-                        Out.WriteLine(Verbosity.Normal);
+                GetGroups(match, writerOptions.GroupNumber, context, pathExists: !Options.OmitPath, groups);
+
+                if (_storage != null
+                    || Options.AskMode == AskMode.Value
+                    || ShouldLog(Verbosity.Normal))
+                {
+                    MatchOutputInfo outputInfo = Options.CreateOutputInfo(input, match);
+
+                    contentWriter = ContentWriter.CreateFind(Options.ContentDisplayStyle, input, writerOptions, _storage, outputInfo, ask: _askMode == AskMode.Value);
+                }
+                else
+                {
+                    contentWriter = new EmptyContentWriter(null, writerOptions);
                 }
 
-                MatchOutputInfo outputInfo = Options.CreateOutputInfo(input, match);
+                WriteMatches(contentWriter, groups, context);
 
-                using (ContentWriter contentWriter = ContentWriter.CreateFind(Options.ContentDisplayStyle, input, writerOptions, _storage, outputInfo, ask: _askMode == AskMode.Value))
+                telemetry.MatchCount += contentWriter.MatchCount;
+
+                if (contentWriter.MatchingLineCount >= 0)
                 {
-                    maxReason = WriteMatches(contentWriter, match, context);
-                    fileMatchCount += contentWriter.MatchCount;
+                    if (telemetry.MatchingLineCount == -1)
+                        telemetry.MatchingLineCount = 0;
 
-                    if (contentWriter.MatchingLineCount >= 0)
+                    telemetry.MatchingLineCount += contentWriter.MatchingLineCount;
+                }
+
+                if (_askMode == AskMode.Value)
+                {
+                    if (contentWriter is AskValueContentWriter askValueContentWriter)
                     {
-                        if (telemetry.MatchingLineCount == -1)
-                            telemetry.MatchingLineCount = 0;
-
-                        telemetry.MatchingLineCount += contentWriter.MatchingLineCount;
+                        if (!askValueContentWriter.Ask)
+                            _askMode = AskMode.None;
                     }
-
-                    if (_askMode == AskMode.Value)
+                    else if (contentWriter is AskLineContentWriter askLineContentWriter)
                     {
-                        if (contentWriter is AskValueContentWriter askValueContentWriter)
-                        {
-                            if (!askValueContentWriter.Ask)
-                                _askMode = AskMode.None;
-                        }
-                        else if (contentWriter is AskLineContentWriter askLineContentWriter)
-                        {
-                            if (!askLineContentWriter.Ask)
-                                _askMode = AskMode.None;
-                        }
+                        if (!askLineContentWriter.Ask)
+                            _askMode = AskMode.None;
                     }
                 }
             }
-            else
+            finally
             {
-                fileMatchCount = EnumerateValues();
-            }
+                contentWriter?.Dispose();
 
-            if (Options.AskMode != AskMode.Value
-                && !Options.OmitPath)
-            {
-                if (ConsoleOut.Verbosity == Verbosity.Minimal)
-                {
-                    ConsoleOut.Write($" {fileMatchCount.ToString("n0")}", Colors.Message_OK);
-                    ConsoleOut.WriteIf(maxReason == MaxReason.CountExceedsMax, "+", Colors.Message_OK);
-                    ConsoleOut.WriteLine();
-                }
-
-                if (Out?.Verbosity == Verbosity.Minimal)
-                {
-                    Out.Write($" {fileMatchCount.ToString("n0")}");
-                    Out.WriteIf(maxReason == MaxReason.CountExceedsMax, "+");
-                    Out.WriteLine();
-                }
-            }
-
-            telemetry.MatchCount += fileMatchCount;
-
-            int EnumerateValues()
-            {
-                using (var contentWriter = new EmptyContentWriter(null, writerOptions))
-                {
-                    maxReason = WriteMatches(contentWriter, match, context);
-
-                    if (contentWriter.MatchingLineCount >= 0)
-                    {
-                        if (telemetry.MatchingLineCount == -1)
-                            telemetry.MatchingLineCount = 0;
-
-                        telemetry.MatchingLineCount += contentWriter.MatchingLineCount;
-                    }
-
-                    return contentWriter.MatchCount;
-                }
+                if (groups != null)
+                    ListCache<Group>.Free(groups);
             }
         }
 
-        protected override void WriteSummary(SearchTelemetry telemetry)
+        protected override void WriteSummary(SearchTelemetry telemetry, Verbosity verbosity)
         {
-            WriteSearchedFilesAndDirectories(telemetry, Options.SearchTarget);
+            WriteSearchedFilesAndDirectories(telemetry, Options.SearchTarget, verbosity);
 
-            if (!ShouldLog(Verbosity.Minimal))
+            if (!ShouldLog(verbosity))
                 return;
 
-            WriteLine(Verbosity.Minimal);
-            WriteCount("Matches", telemetry.MatchCount, Colors.Message_OK, Verbosity.Minimal);
-            Write("  ", Colors.Message_OK, Verbosity.Minimal);
+            WriteLine(verbosity);
+            WriteCount("Matches", telemetry.MatchCount, Colors.Message_OK, verbosity);
+            Write("  ", Colors.Message_OK, verbosity);
 
             if (telemetry.MatchingLineCount > 0)
             {
-                WriteCount("Matching lines", telemetry.MatchingLineCount, Colors.Message_OK, Verbosity.Minimal);
-                Write("  ", Colors.Message_OK, Verbosity.Minimal);
+                WriteCount("Matching lines", telemetry.MatchingLineCount, Colors.Message_OK, verbosity);
+                Write("  ", Colors.Message_OK, verbosity);
             }
 
             if (telemetry.MatchingFileCount > 0)
-                WriteCount("Matching files", telemetry.MatchingFileCount, Colors.Message_OK, Verbosity.Minimal);
+                WriteCount("Matching files", telemetry.MatchingFileCount, Colors.Message_OK, verbosity);
 
-            WriteLine(Verbosity.Minimal);
+            WriteLine(verbosity);
         }
 
         protected override ContentWriterOptions CreateMatchWriteOptions(string indent)

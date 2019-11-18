@@ -6,6 +6,7 @@ Displays help\.
 
 ```
 orang help [<COMMAND>]
+[-m|--manual]
 [-v|--values]
 ```
 
@@ -16,6 +17,10 @@ orang help [<COMMAND>]
 Command name\.
 
 ## Options
+
+**`[-m|--manual]`**
+
+Display full manual\.
 
 **`[-v|--values]`**
 

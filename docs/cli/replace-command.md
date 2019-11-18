@@ -40,7 +40,7 @@ Path to one or more files and/or directories that should be searched\.
 
 **`[--ask] <ASK_MODE>`**
 
-Ask for a permission to update each file or value\. Allowed values are \[f\]ile and \[v\]alue\.
+Ask for permission after each file or value\. Allowed values are \[f\]ile and \[v\]alue\.
 
 **`[-a|--attributes] <ATTRIBUTES>`**
 
@@ -56,7 +56,7 @@ Regular expression for files' content\. Syntax is \<PATTERN> \[\<PATTERN\_OPTION
 
 **`[-y|--display] <DISPLAY_OPTIONS>`**
 
-Display of the results\. Allowed values are \[c\]ontent=\<CONTENT\_DISPLAY>, \[p\]ath=\<PATH\_DISPLAY> and \[s\]ummary\.
+Display of the results\. Allowed values are \[c\]ontent=\<CONTENT\_DISPLAY>, count, \[p\]ath=\<PATH\_DISPLAY> and \[s\]ummary\.
 
 **`[-d|--dry-run]`**
 

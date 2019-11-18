@@ -59,7 +59,7 @@ Delete content of a file or directory but not the file or directory itself\.
 
 **`[-y|--display] <DISPLAY_OPTIONS>`**
 
-Display of the results\. Allowed values are \[c\]ontent=\<CONTENT\_DISPLAY>, \[p\]ath=\<PATH\_DISPLAY> and \[s\]ummary\.
+Display of the results\. Allowed values are \[c\]ontent=\<CONTENT\_DISPLAY>, count, \[p\]ath=\<PATH\_DISPLAY> and \[s\]ummary\.
 
 **`[-d|--dry-run]`**
 

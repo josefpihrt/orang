@@ -30,6 +30,7 @@ namespace Orang.CommandLine
         public const string IncludingBom = "including-bom";
         public const string Input = "input";
         public const string LineNumber = "line-number";
+        public const string Manual = "manual";
         public const string MaxCount = "max-count";
         public const string Name = "name";
         public const string NoGroups = "no-groups";

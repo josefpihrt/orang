@@ -18,7 +18,7 @@ namespace Orang.CommandLine
         {
             try
             {
-                string text = GetHelpText(commandName: Options.Command, includeValues: Options.IncludeValues);
+                string text = GetHelpText(commandName: Options.Command, manual: Options.Manual, includeValues: Options.IncludeValues);
 
                 Logger.Write(text);
             }
@@ -31,7 +31,7 @@ namespace Orang.CommandLine
             return CommandResult.Success;
         }
 
-        private static string GetHelpText(string commandName = null, bool includeValues = false)
+        private static string GetHelpText(string commandName = null, bool manual = false, bool includeValues = false)
         {
             if (commandName != null)
             {
@@ -42,9 +42,13 @@ namespace Orang.CommandLine
 
                 return HelpProvider.GetHelpText(command, includeValues);
             }
+            else if (manual)
+            {
+                return HelpProvider.GetManual(includeValues: includeValues);
+            }
             else
             {
-                return HelpProvider.GetHelpText(includeValues);
+                return HelpProvider.GetHelpText(includeValues: includeValues);
             }
         }
     }

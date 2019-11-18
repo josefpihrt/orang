@@ -11,5 +11,7 @@ namespace Orang.CommandLine
         public string Command { get; internal set; }
 
         public bool IncludeValues { get; internal set; }
+
+        public bool Manual { get; internal set; }
     }
 }

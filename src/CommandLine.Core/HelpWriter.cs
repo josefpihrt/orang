@@ -9,9 +9,9 @@ using System.Text;
 
 namespace Orang
 {
-    public class HelpWriter
+    public abstract class HelpWriter
     {
-        public HelpWriter(TextWriter writer, HelpWriterOptions options = null, IEnumerable<OptionValueProvider> optionValueProviders = default)
+        protected HelpWriter(TextWriter writer, HelpWriterOptions options = null, IEnumerable<OptionValueProvider> optionValueProviders = default)
         {
             Writer = writer;
             Options = options ?? HelpWriterOptions.Default;
@@ -24,143 +24,147 @@ namespace Orang
 
         public ImmutableArray<OptionValueProvider> OptionValueProviders { get; }
 
-        public void WriteCommand(Command command)
+        public virtual void WriteCommand(Command command)
         {
+            WriteStartCommand(command);
+
             ImmutableArray<CommandArgument> arguments = command.Arguments;
+
+            if (arguments.Any())
+            {
+                WriteStartArguments(command);
+                WriteArguments(arguments);
+                WriteEndArguments(command);
+            }
+
             ImmutableArray<CommandOption> options = command.Options;
 
-            Write("Usage: orang ");
-            Write(command.Name);
+            if (options.Any())
+            {
+                WriteStartOptions(command);
+                WriteOptions(options);
+                WriteEndOptions(command);
+            }
+
+            WriteEndCommand(command);
+        }
+
+        public virtual void WriteStartCommand(Command command)
+        {
+        }
+
+        public virtual void WriteEndCommand(Command command)
+        {
+        }
+
+        private void WriteOptions(ImmutableArray<CommandOption> options)
+        {
+            bool anyIsOptional = options.Any(f => !f.IsRequired);
+            bool anyHasShortName = options.Any(f => !string.IsNullOrEmpty(f.ShortName));
+
+            int maxWidth1 = options.Max(f => f.Name.Length) + 3;
+
+            if (anyIsOptional)
+                maxWidth1 += 2;
+
+            if (anyHasShortName)
+                maxWidth1 += 4;
+
+            int maxWidth2 = options.Select(f => f.MetaValue?.Length ?? 0).DefaultIfEmpty().Max();
+
+            var sb = new StringBuilder();
+
+            foreach (CommandOption option in options)
+            {
+                Write(Options.Indent);
+
+                if (!option.IsRequired)
+                {
+                    sb.Append("[");
+                }
+                else if (anyIsOptional)
+                {
+                    sb.Append(" ");
+                }
+
+                if (!string.IsNullOrEmpty(option.ShortName))
+                {
+                    sb.Append("-");
+                    sb.Append(option.ShortName);
+                    sb.Append(", ");
+                }
+                else if (anyHasShortName)
+                {
+                    sb.Append(' ', 4);
+                }
+
+                sb.Append("--");
+                sb.Append(option.Name);
+
+                if (!option.IsRequired)
+                    sb.Append("]");
+
+                Write(sb.ToString());
+
+                WriteSpaces(maxWidth1 - sb.Length);
+
+                sb.Clear();
+
+                if (!string.IsNullOrEmpty(option.MetaValue))
+                {
+                    Write(option.MetaValue);
+                    WriteSpaces(maxWidth2 - option.MetaValue.Length);
+                }
+                else
+                {
+                    WriteSpaces(maxWidth2);
+                }
+
+                Write(" ");
+                Write(option.Description);
+                WriteLine();
+            }
+        }
+
+        public virtual void WriteStartOptions(Command command)
+        {
+            WriteLine();
+            WriteHeading("Options");
+        }
+
+        public virtual void WriteEndOptions(Command command)
+        {
+        }
+
+        private void WriteArguments(ImmutableArray<CommandArgument> arguments)
+        {
+            bool anyIsOptional = arguments.Any(f => !f.IsRequired);
+
+            int maxWidth = arguments.Max(f => f.Name.Length) + 1;
 
             foreach (CommandArgument argument in arguments)
             {
-                Write(" ");
+                Write(Options.Indent);
 
                 if (!argument.IsRequired)
+                {
                     Write("[");
+                }
+                else if (anyIsOptional)
+                {
+                    Write(" ");
+                }
 
                 Write(argument.Name);
 
                 if (!argument.IsRequired)
                     Write("]");
-            }
 
-            if (options.Any())
-                Write(" [options]");
-
-            WriteLine();
-
-            if (arguments.Length > 0)
-            {
-                WriteStartArguments(command);
-
-                bool anyIsOptional = arguments.Any(f => !f.IsRequired);
-
-                int maxWidth = arguments.Max(f => f.Name.Length) + 1;
-
-                foreach (CommandArgument argument in arguments)
+                if (!string.IsNullOrEmpty(argument.Description))
                 {
-                    Write(Options.Indent);
-
-                    if (!argument.IsRequired)
-                    {
-                        Write("[");
-                    }
-                    else if (anyIsOptional)
-                    {
-                        Write(" ");
-                    }
-
-                    Write(argument.Name);
-
-                    if (!argument.IsRequired)
-                        Write("]");
-
-                    if (!string.IsNullOrEmpty(argument.Description))
-                    {
-                        WriteSpaces(maxWidth - (argument.Name.Length) + ((argument.IsRequired) ? 1 : 0));
-                        WriteLine(argument.Description);
-                    }
+                    WriteSpaces(maxWidth - (argument.Name.Length) + ((argument.IsRequired) ? 1 : 0));
+                    WriteLine(argument.Description);
                 }
-
-                WriteEndArguments(command);
-            }
-
-            if (options.Length > 0)
-            {
-                WriteStartOptions(command);
-
-                bool anyIsOptional = options.Any(f => !f.IsRequired);
-                bool anyHasShortName = options.Any(f => !string.IsNullOrEmpty(f.ShortName));
-
-                int maxWidth1 = options.Max(f => f.Name.Length) + 3;
-
-                if (anyIsOptional)
-                    maxWidth1 += 2;
-
-                if (anyHasShortName)
-                    maxWidth1 += 4;
-
-                int maxWidth2 = options.Select(f => f.MetaValue?.Length ?? 0).DefaultIfEmpty().Max();
-
-                var sb = new StringBuilder();
-
-                foreach (CommandOption option in options)
-                {
-                    Write(Options.Indent);
-
-                    if (!option.IsRequired)
-                    {
-                        sb.Append("[");
-                    }
-                    else if (anyIsOptional)
-                    {
-                        sb.Append(" ");
-                    }
-
-                    if (!string.IsNullOrEmpty(option.ShortName))
-                    {
-                        sb.Append("-");
-                        sb.Append(option.ShortName);
-                        sb.Append(", ");
-                    }
-                    else if (anyHasShortName)
-                    {
-                        sb.Append(' ', 4);
-                    }
-
-                    sb.Append("--");
-                    sb.Append(option.Name);
-
-                    if (!option.IsRequired)
-                        sb.Append("]");
-
-                    Write(sb.ToString());
-
-                    WriteSpaces(maxWidth1 - sb.Length);
-
-                    sb.Clear();
-
-                    if (!string.IsNullOrEmpty(option.MetaValue))
-                    {
-                        Write(option.MetaValue);
-                        WriteSpaces(maxWidth2 - option.MetaValue.Length);
-                    }
-                    else
-                    {
-                        WriteSpaces(maxWidth2);
-                    }
-
-                    Write(" ");
-                    Write(option.Description);
-
-                    WriteEndOption(option);
-                }
-
-                WriteEndOptions(command);
-
-                if (Options.IncludeValues)
-                    WriteValues(options);
             }
         }
 
@@ -174,53 +178,35 @@ namespace Orang
         {
         }
 
-        public virtual void WriteStartOptions(Command command)
-        {
-            WriteLine();
-            WriteHeading("Options");
-        }
-
-        public virtual void WriteEndOption(CommandOption option)
-        {
-            WriteLine();
-        }
-
-        public virtual void WriteEndOptions(Command command)
-        {
-        }
-
         public virtual void WriteCommands(IEnumerable<Command> commands)
         {
-            WriteStartCommands();
+            WriteStartCommands(commands);
 
             int maxWidth = commands.Max(f => f.Name.Length) + 1;
 
             foreach (Command command in commands)
             {
-                WriteCommandSummary(command, maxWidth);
+                Write(Options.Indent);
+                Write(command.Name);
+                WriteSpaces(maxWidth - command.Name.Length);
+                WriteLine(command.Description);
             }
 
-            WriteEndCommands();
-
-            if (Options.IncludeValues)
-                WriteValues(commands.SelectMany(f => f.Options));
+            WriteEndCommands(commands);
         }
 
-        public virtual void WriteCommandSummary(Command command, int columnWidth)
-        {
-            Write(Options.Indent);
-            Write(command.Name);
-            WriteSpaces(columnWidth - command.Name.Length);
-            WriteLine(command.Description);
-        }
-
-        public virtual void WriteStartCommands()
+        public virtual void WriteStartCommands(IEnumerable<Command> commands)
         {
             WriteHeading("Commands");
         }
 
-        public virtual void WriteEndCommands()
+        public virtual void WriteEndCommands(IEnumerable<Command> commands)
         {
+        }
+
+        public void WriteValues(IEnumerable<Command> commands)
+        {
+            WriteValues(commands.SelectMany(f => f.Options));
         }
 
         protected virtual void WriteValues(IEnumerable<CommandOption> options)
@@ -286,7 +272,7 @@ namespace Orang
                             WriteSpaces(width2 - value.Length);
 
                             string shortValue = GetShortValue(optionValue);
-                            Write(shortValue);
+                            Write((!string.IsNullOrEmpty(shortValue)) ? shortValue : "-");
 
                             string description = optionValue.Description;
 

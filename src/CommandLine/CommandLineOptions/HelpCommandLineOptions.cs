@@ -16,10 +16,15 @@ namespace Orang.CommandLine
             HelpText = "Display list of allowed values.")]
         public bool Values { get; set; }
 
+        [Option(shortName: OptionShortNames.Manual, longName: OptionNames.Manual,
+            HelpText = "Display full manual.")]
+        public bool Manual { get; set; }
+
         public bool TryParse(ref HelpCommandOptions options)
         {
             options.Command = Command;
             options.IncludeValues = Values;
+            options.Manual = Manual;
 
             return true;
         }

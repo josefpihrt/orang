@@ -52,6 +52,12 @@ For a full list of commands, parameters and parameter values run:
 orang help [command] [-v]
 ```
 
+For a full manual run:
+
+```
+orang help -m [-v]
+```
+
 For a full list of .NET regular expressions syntax run:
 
 ```

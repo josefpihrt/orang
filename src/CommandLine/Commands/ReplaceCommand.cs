@@ -56,7 +56,7 @@ namespace Orang.CommandLine
                 {
                     groups = ListCache<Group>.GetInstance();
 
-                    maxReason = GetGroups(match, FileWriterOptions.GroupNumber, context, pathExists: false, groups);
+                    maxReason = GetGroups(match, FileWriterOptions.GroupNumber, context, isPathWritten: false, groups);
 
                     if (ShouldLog(Verbosity.Normal))
                     {
@@ -98,74 +98,85 @@ namespace Orang.CommandLine
         {
             context.Telemetry.FileCount++;
 
+            FileSystemFinderResult? maybeResult = MatchFile(filePath);
+
+            if (maybeResult != null)
+                ProcessResult(maybeResult.Value, context, FileWriterOptions);
+        }
+
+        protected override void ExecuteDirectory(string directoryPath, SearchContext context)
+        {
+            foreach (FileSystemFinderResult result in Find(directoryPath, context))
+            {
+                ProcessResult(result, context, DirectoryWriterOptions, directoryPath);
+
+                if (context.State == SearchState.Canceled)
+                    break;
+
+                if (context.State == SearchState.MaxReached)
+                    break;
+            }
+        }
+
+        private void ProcessResult(
+            FileSystemFinderResult result,
+            SearchContext context,
+            ContentWriterOptions writerOptions,
+            string baseDirectoryPath = null)
+        {
+            string indent = (baseDirectoryPath != null && Options.PathDisplayStyle == PathDisplayStyle.Relative)
+                ? Options.Indent
+                : "";
+
             Encoding encoding = Options.DefaultEncoding;
 
-            string input = ReadFile(filePath, null, ref encoding);
+            string input = ReadFile(result.Path, baseDirectoryPath, ref encoding, context, indent);
 
-            if (input != null)
-            {
-                Match match = Options.ContentFilter.Regex.Match(input);
+            if (input == null)
+                return;
 
-                if (match.Success)
-                {
-                    if (!Options.OmitPath)
-                        WritePath(filePath, colors: Colors.Matched_Path, verbosity: Verbosity.Minimal);
+            Match match = Options.ContentFilter.Regex.Match(input);
 
-                    ReplaceMatches(filePath, encoding, input, match, "", FileWriterOptions, context);
+            if (!match.Success)
+                return;
 
-                    if (Options.MaxMatchingFiles == context.Telemetry.MatchingFileCount)
-                        context.State = SearchState.MaxReached;
-                }
-            }
+            ExecuteOrAddResult(result, context, writerOptions, match, input, encoding, baseDirectoryPath);
         }
 
-        protected override void ExecuteDirectory(string directoryPath, SearchContext context, FileSystemFinderProgressReporter progress)
+        protected override void ExecuteResult(
+            FileSystemFinderResult result,
+            SearchContext context,
+            ContentWriterOptions writerOptions,
+            Match match,
+            string input,
+            Encoding encoding,
+            string baseDirectoryPath = null)
         {
-            Regex regex = Options.ContentFilter.Regex;
-            string indent = (Options.PathDisplayStyle == PathDisplayStyle.Relative) ? Options.Indent : "";
+            string indent = (baseDirectoryPath != null && Options.PathDisplayStyle == PathDisplayStyle.Relative)
+                ? Options.Indent
+                : "";
 
-            foreach (FileSystemFinderResult result in Find(directoryPath, progress, context.CancellationToken))
+            if (!Options.OmitPath)
             {
-                Encoding encoding = Options.DefaultEncoding;
-
-                string input = ReadFile(result.Path, directoryPath, ref encoding, progress, indent);
-
-                if (input == null)
-                    continue;
-
-                Match match = regex.Match(input);
-
-                if (match.Success)
-                {
-                    EndProgress(progress);
-
-                    if (!Options.OmitPath)
-                    {
-                        WritePath(
-                            result,
-                            directoryPath,
-                            relativePath: Options.PathDisplayStyle == PathDisplayStyle.Relative,
-                            colors: Colors.Matched_Path,
-                            matchColors: (Options.HighlightMatch) ? Colors.Match_Path : default,
-                            indent: indent,
-                            verbosity: Verbosity.Minimal);
-                    }
-
-                    ReplaceMatches(result.Path, encoding, input, match, indent, DirectoryWriterOptions, context);
-
-                    if (context.State == SearchState.Canceled)
-                        break;
-
-                    if (Options.MaxMatchingFiles == context.Telemetry.MatchingFileCount)
-                        context.State = SearchState.MaxReached;
-
-                    if (context.State == SearchState.MaxReached)
-                        break;
-                }
+                WritePath(
+                    result,
+                    baseDirectoryPath,
+                    relativePath: Options.PathDisplayStyle == PathDisplayStyle.Relative,
+                    colors: Colors.Matched_Path,
+                    matchColors: (Options.HighlightMatch) ? Colors.Match_Path : default,
+                    indent: indent,
+                    verbosity: Verbosity.Minimal);
             }
+
+            ReplaceMatches(result.Path, encoding, input, match, indent, writerOptions, context);
         }
 
-        private string ReadFile(string filePath, string basePath, ref Encoding encoding, FileSystemFinderProgressReporter progress = null, string indent = null)
+        private string ReadFile(
+            string filePath,
+            string basePath,
+            ref Encoding encoding,
+            SearchContext context,
+            string indent = null)
         {
             try
             {
@@ -187,7 +198,7 @@ namespace Orang.CommandLine
             catch (Exception ex) when (ex is IOException
                 || ex is UnauthorizedAccessException)
             {
-                EndProgress(progress);
+                EndProgress(context);
 
                 WriteFileError(
                     ex,
@@ -210,7 +221,6 @@ namespace Orang.CommandLine
             SearchContext context)
         {
             SearchTelemetry telemetry = context.Telemetry;
-            telemetry.MatchingFileCount++;
 
             ContentWriter contentWriter = null;
             TextWriter textWriter = null;
@@ -220,7 +230,7 @@ namespace Orang.CommandLine
             {
                 groups = ListCache<Group>.GetInstance();
 
-                GetGroups(match, writerOptions.GroupNumber, context, pathExists: !Options.OmitPath, groups);
+                GetGroups(match, writerOptions.GroupNumber, context, isPathWritten: !Options.OmitPath, groups);
 
                 int fileMatchCount = 0;
                 int fileReplacementCount = 0;

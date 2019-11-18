@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Orang.FileSystem;
@@ -66,6 +67,56 @@ namespace Orang.CommandLine
 
         protected abstract ContentWriterOptions CreateMatchWriteOptions(string indent);
 
+        protected abstract void ExecuteResult(
+            FileSystemFinderResult result,
+            SearchContext context,
+            ContentWriterOptions writerOptions,
+            Match match,
+            string input,
+            Encoding encoding,
+            string baseDirectoryPath = null);
+
+        protected override void ExecuteResult(FileSystemFinderResult result, SearchContext context, string baseDirectoryPath)
+        {
+            throw new NotSupportedException();
+        }
+
+        protected override void ExecuteResult(SearchResult result, SearchContext context)
+        {
+            ExecuteResult((ContentSearchResult)result, context);
+        }
+
+        private void ExecuteResult(ContentSearchResult result, SearchContext context)
+        {
+            ExecuteResult(result.Result, context, result.WriterOptions, result.Match, result.Input, result.Encoding, result.BaseDirectoryPath);
+        }
+
+        protected void ExecuteOrAddResult(
+            FileSystemFinderResult result,
+            SearchContext context,
+            ContentWriterOptions writerOptions,
+            Match match,
+            string input,
+            Encoding encoding,
+            string baseDirectoryPath = null)
+        {
+            context.Telemetry.MatchingFileCount++;
+
+            if (Options.MaxMatchingFiles == context.Telemetry.MatchingFileCount)
+                context.State = SearchState.MaxReached;
+
+            if (context.Results != null)
+            {
+                context.AddResult(result, baseDirectoryPath, match, input, encoding: encoding, writerOptions);
+            }
+            else
+            {
+                EndProgress(context);
+
+                ExecuteResult(result, context, writerOptions, match, input, encoding, baseDirectoryPath);
+            }
+        }
+
         protected void WriteMatches(ContentWriter writer, IEnumerable<Group> groups, SearchContext context)
         {
             try
@@ -82,7 +133,7 @@ namespace Orang.CommandLine
             Match match,
             int groupNumber,
             SearchContext context,
-            bool pathExists,
+            bool isPathWritten,
             List<Group> groups)
         {
             int maxMatchesInFile = Options.MaxMatchesInFile;
@@ -119,7 +170,7 @@ namespace Orang.CommandLine
                 context.State = SearchState.MaxReached;
             }
 
-            if (pathExists)
+            if (isPathWritten)
             {
                 Verbosity verbosity = ConsoleOut.Verbosity;
 

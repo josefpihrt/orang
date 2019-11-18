@@ -2,7 +2,7 @@
 
 using System;
 
-namespace Orang.FileSystem
+namespace Orang.CommandLine
 {
     public class SearchTelemetry
     {

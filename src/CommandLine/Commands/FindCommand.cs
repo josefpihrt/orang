@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics;
 using Orang.FileSystem;
 using static Orang.CommandLine.LogHelpers;
 using static Orang.Logger;
@@ -29,19 +28,48 @@ namespace Orang.CommandLine
 
         protected override void ExecuteFile(string filePath, SearchContext context)
         {
-            SearchTelemetry telemetry = context.Telemetry;
-            telemetry.FileCount++;
-
-            const string indent = null;
+            context.Telemetry.FileCount++;
 
             FileSystemFinderResult? maybeResult = MatchFile(filePath);
 
-            if (maybeResult == null)
-                return;
+            if (maybeResult != null)
+                ExecuteOrAddResult(maybeResult.Value, context, null);
+        }
 
-            FileSystemFinderResult result = maybeResult.Value;
+        protected override void ExecuteDirectory(string directoryPath, SearchContext context)
+        {
+            foreach (FileSystemFinderResult result in Find(directoryPath, context))
+            {
+                ExecuteOrAddResult(result, context, directoryPath);
 
-            WritePath(result, colors: Colors.Matched_Path, matchColors: (Options.HighlightMatch) ? Colors.Match : default, indent: indent, verbosity: Verbosity.Minimal);
+                if (context.State == SearchState.Canceled)
+                    break;
+
+                if (context.State == SearchState.MaxReached)
+                    break;
+            }
+        }
+
+        protected override void ExecuteResult(SearchResult result, SearchContext context)
+        {
+            ExecuteResult(result.Result, context, result.BaseDirectoryPath);
+        }
+
+        protected override void ExecuteResult(FileSystemFinderResult result, SearchContext context, string baseDirectoryPath = null)
+        {
+            string indent = (baseDirectoryPath != null && Options.PathDisplayStyle == PathDisplayStyle.Relative)
+                ? Options.Indent
+                : "";
+
+            WritePath(
+                result,
+                baseDirectoryPath,
+                relativePath: Options.PathDisplayStyle == PathDisplayStyle.Relative,
+                colors: Colors.Matched_Path,
+                matchColors: (Options.HighlightMatch) ? Colors.Match : default,
+                indent: indent,
+                verbosity: Verbosity.Minimal);
+
             WriteLine(Verbosity.Minimal);
 
             if (_ask)
@@ -54,70 +82,11 @@ namespace Orang.CommandLine
                 catch (OperationCanceledException)
                 {
                     context.State = SearchState.Canceled;
+                    return;
                 }
             }
 
-            telemetry.MatchingFileCount++;
-
-            context.Output?.WriteLine(filePath);
-
-            if (Options.MaxMatchingFiles == telemetry.MatchingFileCount + telemetry.MatchingDirectoryCount)
-            {
-                context.State = SearchState.MaxReached;
-            }
-        }
-
-        protected override void ExecuteDirectory(string directoryPath, SearchContext context, FileSystemFinderProgressReporter progress)
-        {
-            SearchTelemetry telemetry = context.Telemetry;
-            string indent = (Options.PathDisplayStyle == PathDisplayStyle.Relative) ? Options.Indent : "";
-
-            foreach (FileSystemFinderResult result in Find(directoryPath, progress, context.CancellationToken))
-            {
-                EndProgress(progress);
-
-                WritePath(
-                    result,
-                    directoryPath,
-                    relativePath: Options.PathDisplayStyle == PathDisplayStyle.Relative,
-                    colors: Colors.Matched_Path,
-                    matchColors: (Options.HighlightMatch) ? Colors.Match : default,
-                    indent: indent,
-                    verbosity: Verbosity.Minimal);
-
-                WriteLine(Verbosity.Minimal);
-
-                if (_ask)
-                {
-                    try
-                    {
-                        if (ConsoleHelpers.Question("Continue without asking?", indent))
-                            _ask = false;
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        context.State = SearchState.Canceled;
-                        break;
-                    }
-                }
-
-                if (result.IsDirectory)
-                {
-                    telemetry.MatchingDirectoryCount++;
-                }
-                else
-                {
-                    telemetry.MatchingFileCount++;
-                }
-
-                context.Output?.WriteLine(result.Path);
-
-                if (Options.MaxMatchingFiles == telemetry.MatchingFileCount + telemetry.MatchingDirectoryCount)
-                {
-                    context.State = SearchState.MaxReached;
-                    break;
-                }
-            }
+            context.Output?.WriteLine(result.Path);
         }
 
         protected override void WriteSummary(SearchTelemetry telemetry, Verbosity verbosity)

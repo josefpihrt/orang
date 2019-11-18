@@ -9,18 +9,16 @@ namespace Orang.FileSystem
     internal class FileSystemFinderProgressReporter : IProgress<FileSystemFinderProgress>
     {
         public FileSystemFinderProgressReporter(
-            string baseDirectoryPath,
             ProgressReportMode consoleReportMode,
             ProgressReportMode fileLogReportMode,
             CommonFindCommandOptions options)
         {
-            BaseDirectoryPath = baseDirectoryPath;
             ConsoleReportMode = consoleReportMode;
             FileLogReportMode = fileLogReportMode;
             Options = options;
         }
 
-        public string BaseDirectoryPath { get; }
+        public string BaseDirectoryPath { get; set; }
 
         public ProgressReportMode ConsoleReportMode { get; }
 

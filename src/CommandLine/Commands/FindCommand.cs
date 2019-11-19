@@ -61,16 +61,19 @@ namespace Orang.CommandLine
                 ? Options.Indent
                 : "";
 
-            WritePath(
-                result,
-                baseDirectoryPath,
-                relativePath: Options.PathDisplayStyle == PathDisplayStyle.Relative,
-                colors: Colors.Matched_Path,
-                matchColors: (Options.HighlightMatch) ? Colors.Match : default,
-                indent: indent,
-                verbosity: Verbosity.Minimal);
+            if (!Options.OmitPath)
+            {
+                WritePath(
+                    result,
+                    baseDirectoryPath,
+                    relativePath: Options.PathDisplayStyle == PathDisplayStyle.Relative,
+                    colors: Colors.Matched_Path,
+                    matchColors: (Options.HighlightMatch) ? Colors.Match : default,
+                    indent: indent,
+                    verbosity: Verbosity.Minimal);
 
-            WriteLine(Verbosity.Minimal);
+                WriteLine(Verbosity.Minimal);
+            }
 
             if (_ask)
             {

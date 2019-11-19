@@ -20,6 +20,8 @@ namespace Orang.CommandLine
         {
         }
 
+        public override bool CanEndProgress => true;
+
         protected ContentWriterOptions FileWriterOptions
         {
             get

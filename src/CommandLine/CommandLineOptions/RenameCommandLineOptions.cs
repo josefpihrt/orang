@@ -114,7 +114,7 @@ namespace Orang.CommandLine
                 defaultContentDisplayStyle: 0,
                 defaultPathDisplayStyle: PathDisplayStyle.Full,
                 contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider,
-                pathDisplayStyleProvider: OptionValueProviders.PathDisplayStyleProvider_WithoutOmit))
+                pathDisplayStyleProvider: OptionValueProviders.PathDisplayStyleProvider))
             {
                 return false;
             }

@@ -282,10 +282,6 @@ namespace Orang.CommandLine
             SimpleOptionValue.Create(PathDisplayStyle.Omit, description: "Do not display path.")
         );
 
-        public static OptionValueProvider PathDisplayStyleProvider_WithoutOmit { get; } = new OptionValueProvider(OptionValueProviderNames.PathDisplayStyle_WithoutOmit,
-            PathDisplayStyleProvider.Values.Where(f => f.Name != nameof(PathDisplayStyle.Omit))
-        );
-
         public static OptionValueProvider DisplayProvider { get; } = new OptionValueProvider(MetaValues.DisplayOptions,
             OptionValues.Display_Content,
             OptionValues.Display_Count,

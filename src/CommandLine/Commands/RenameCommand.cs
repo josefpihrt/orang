@@ -86,16 +86,19 @@ namespace Orang.CommandLine
 
             string path = result.Path;
 
-            WritePath(
-                result,
-                baseDirectoryPath,
-                relativePath: Options.PathDisplayStyle == PathDisplayStyle.Relative,
-                colors: Colors.Matched_Path,
-                matchColors: (Options.HighlightMatch) ? Colors.Match : default,
-                indent: indent,
-                verbosity: Verbosity.Minimal);
+            if (!Options.OmitPath)
+            {
+                WritePath(
+                    result,
+                    baseDirectoryPath,
+                    relativePath: Options.PathDisplayStyle == PathDisplayStyle.Relative,
+                    colors: Colors.Matched_Path,
+                    matchColors: (Options.HighlightMatch) ? Colors.Match : default,
+                    indent: indent,
+                    verbosity: Verbosity.Minimal);
 
-            WriteLine();
+                WriteLine(Verbosity.Minimal);
+            }
 
             string newPath = GetNewPath(path, baseDirectoryPath, result.Part, indent);
 

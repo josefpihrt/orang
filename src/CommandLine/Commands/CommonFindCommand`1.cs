@@ -38,6 +38,8 @@ namespace Orang.CommandLine
 
         public virtual bool CanEnumerate => true;
 
+        public virtual bool CanEndProgress => !Options.OmitPath;
+
         protected abstract void ExecuteDirectory(string directoryPath, SearchContext context);
 
         protected abstract void ExecuteFile(string filePath, SearchContext context);
@@ -228,7 +230,8 @@ namespace Orang.CommandLine
         {
             if (context.Progress?.ProgressReported == true
                 && ConsoleOut.Verbosity >= Verbosity.Minimal
-                && context.Results == null)
+                && context.Results == null
+                && CanEndProgress)
             {
                 ConsoleOut.WriteLine();
                 context.Progress.ProgressReported = false;

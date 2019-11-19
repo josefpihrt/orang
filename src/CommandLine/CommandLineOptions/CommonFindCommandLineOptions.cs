@@ -57,7 +57,7 @@ namespace Orang.CommandLine
         public string PathsFrom { get; set; }
 
         [Option(longName: OptionNames.Progress,
-            HelpText = "Display dot (.) for every tenth searched directory.")]
+            HelpText = "Display dot (.) for every hundredth searched file or directory.")]
         public bool Progress { get; set; }
 
         public bool TryParse(ref CommonFindCommandOptions options)

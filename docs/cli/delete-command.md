@@ -111,7 +111,7 @@ Read the list of paths to search from a file\. Paths should be separated by newl
 
 **`[--progress]`**
 
-Display dot \(\.\) for every tenth searched directory\.
+Display dot \(\.\) for every hundredth searched file or directory\.
 
 **`[-v|--verbosity] <VERBOSITY>`**
 

@@ -272,7 +272,11 @@ namespace Orang
                             WriteSpaces(width2 - value.Length);
 
                             string shortValue = GetShortValue(optionValue);
-                            Write((!string.IsNullOrEmpty(shortValue)) ? shortValue : "-");
+
+                            if (string.IsNullOrEmpty(shortValue))
+                                shortValue = "-";
+
+                            Write(shortValue);
 
                             string description = optionValue.Description;
 

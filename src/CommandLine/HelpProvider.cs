@@ -85,10 +85,10 @@ namespace Orang.CommandLine
 
                 TextWriter writer = helpWriter.Writer;
 
-                WriteSeparator(writer);
-
                 foreach (Command command in commands.Select(f => f.WithOptions(f.Options.Sort(CompareOptions))))
                 {
+                    WriteSeparator(writer);
+
                     writer.WriteLine();
                     writer.WriteLine($"Command: {command.Name}");
                     writer.WriteLine();
@@ -102,8 +102,6 @@ namespace Orang.CommandLine
                     }
 
                     helpWriter.WriteCommand(command);
-
-                    WriteSeparator(writer);
                 }
 
                 if (includeValues)

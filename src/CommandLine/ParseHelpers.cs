@@ -251,6 +251,7 @@ namespace Orang.CommandLine
             string groupName = null;
             NamePartKind namePart = defaultNamePart;
             string separator = null;
+            Func<Group, bool> predicate = null;
 
             List<string> options;
 
@@ -264,7 +265,7 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            return TryParseFilter(pattern, options, matchTimeout, groupName, namePart, optionName, separator, out filter, provider, includedPatternOptions);
+            return TryParseFilter(pattern, options, matchTimeout, groupName, namePart, optionName, separator, predicate, out filter, provider, includedPatternOptions);
 
             IEnumerable<string> EnumerateOptions()
             {
@@ -279,38 +280,51 @@ namespace Orang.CommandLine
                     {
                         string option = en.Current;
 
-                        int index = option.IndexOf('=');
+                        (int index, int index2, OperatorKind operatorKind) = ParseOperator(option);
 
                         if (index >= 0)
                         {
                             string key = option.Substring(0, index);
-                            string value = option.Substring(index + 1);
+                            string value = option.Substring(index2 + 1);
 
-                            if (OptionValues.Group.IsKeyOrShortKey(key))
+                            if (operatorKind == OperatorKind.Equals)
                             {
-                                groupName = value;
-                            }
-                            else if (OptionValues.ListSeparator.IsKeyOrShortKey(key))
-                            {
-                                separator = value;
-                            }
-                            else if (OptionValues.Part.IsKeyOrShortKey(key))
-                            {
-                                if (!TryParseAsEnum(value, out namePart, provider: OptionValueProviders.NamePartKindProvider))
+                                if (OptionValues.Group.IsKeyOrShortKey(key))
                                 {
-                                    string helpText = OptionValueProviders.NamePartKindProvider?.GetHelpText() ?? OptionValue.GetDefaultHelpText<NamePartKind>();
-                                    throw new ArgumentException($"Option '{OptionNames.GetHelpText(optionName)}' has invalid value '{value}'. Allowed values: {helpText}.", nameof(values));
+                                    groupName = value;
+                                }
+                                else if (OptionValues.ListSeparator.IsKeyOrShortKey(key))
+                                {
+                                    separator = value;
+                                }
+                                else if (OptionValues.Part.IsKeyOrShortKey(key))
+                                {
+                                    if (!TryParseAsEnum(value, out namePart, provider: OptionValueProviders.NamePartKindProvider))
+                                    {
+                                        string helpText = OptionValueProviders.NamePartKindProvider?.GetHelpText() ?? OptionValue.GetDefaultHelpText<NamePartKind>();
+                                        throw new ArgumentException($"Option '{OptionNames.GetHelpText(optionName)}' has invalid value '{value}'. Allowed values: {helpText}.", nameof(values));
+                                    }
+                                }
+                                else if (OptionValues.Timeout.IsKeyOrShortKey(key))
+                                {
+                                    matchTimeout = ParseMatchTimeout(value);
+                                }
+                                else if (OptionValues.Length.IsKeyOrShortKey(key))
+                                {
+                                    predicate = ParsePredicate(value, operatorKind);
+                                }
+                                else
+                                {
+                                    ThrowError(option);
                                 }
                             }
-                            else if (OptionValues.Timeout.IsKeyOrShortKey(key))
+                            else if (OptionValues.Length.IsKeyOrShortKey(key))
                             {
-                                matchTimeout = ParseMatchTimeout(value);
+                                predicate = ParsePredicate(value, operatorKind);
                             }
                             else
                             {
-                                string helpText = (provider ?? OptionValueProviders.PatternOptionsProvider).GetHelpText();
-
-                                throw new ArgumentException($"Option '{OptionNames.GetHelpText(optionName)}' has invalid value '{option}'. Allowed values: {helpText}.", nameof(values));
+                                ThrowError(option);
                             }
                         }
                         else
@@ -318,6 +332,79 @@ namespace Orang.CommandLine
                             yield return option;
                         }
                     }
+                }
+            }
+
+            void ThrowError(string value)
+            {
+                string helpText = (provider ?? OptionValueProviders.PatternOptionsProvider).GetHelpText();
+
+                throw new ArgumentException($"Option '{OptionNames.GetHelpText(optionName)}' has invalid value '{value}'. Allowed values: {helpText}.", nameof(values));
+            }
+
+            Func<Group, bool> ParsePredicate(string value, OperatorKind operatorKind)
+            {
+                if (!int.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out int length))
+                    throw new ArgumentException($"Option '{OptionNames.GetHelpText(optionName)}' has invalid value '{value}'.");
+
+                return CreatePredicate(length, operatorKind);
+            }
+
+            (int index, int index2, OperatorKind operatorKind) ParseOperator(string value)
+            {
+                for (int i = 0; i < value.Length; i++)
+                {
+                    if (value[i] == '=')
+                    {
+                        return (i, i, OperatorKind.Equals);
+                    }
+                    else if (value[i] == '>')
+                    {
+                        if (i < value.Length - 1
+                            && value[i + 1] == '=')
+                        {
+                            return (i, i + 1, OperatorKind.GreaterThanOrEqual);
+                        }
+                        else
+                        {
+                            return (i, i, OperatorKind.GreaterThan);
+                        }
+                    }
+                    else if (value[i] == '<')
+                    {
+                        if (i < value.Length - 1
+                            && value[i + 1] == '=')
+                        {
+                            return (i, i + 1, OperatorKind.LessThanOrEqual);
+                        }
+                        else
+                        {
+                            return (i, i, OperatorKind.LessThan);
+                        }
+                    }
+                }
+
+                return (-1, -1, OperatorKind.None);
+            }
+
+            Func<Group, bool> CreatePredicate(int length, OperatorKind operatorKind)
+            {
+                switch (operatorKind)
+                {
+                    case OperatorKind.Equals:
+                        return f => f.Length == length;
+                    case OperatorKind.GreaterThan:
+                        return f => f.Length > length;
+                    case OperatorKind.LessThan:
+                        return f => f.Length < length;
+                    case OperatorKind.GreaterThanOrEqual:
+                        return f => f.Length >= length;
+                    case OperatorKind.LessThanOrEqual:
+                        return f => f.Length <= length;
+                    case OperatorKind.None:
+                        throw new InvalidOperationException();
+                    default:
+                        throw new InvalidOperationException($"Unknown enum value '{operatorKind}'.");
                 }
             }
         }
@@ -330,6 +417,7 @@ namespace Orang.CommandLine
             NamePartKind namePart,
             string optionName,
             string separator,
+            Func<Group, bool> predicate,
             out Filter filter,
             OptionValueProvider provider = null,
             PatternOptions includedPatternOptions = PatternOptions.None)
@@ -415,7 +503,7 @@ namespace Orang.CommandLine
                 }
             }
 
-            filter = new Filter(regex, namePart, groupNumber: groupIndex, isNegative: (patternOptions & PatternOptions.Negative) != 0);
+            filter = new Filter(regex, namePart, groupNumber: groupIndex, isNegative: (patternOptions & PatternOptions.Negative) != 0, predicate);
             return true;
         }
 
@@ -759,6 +847,16 @@ namespace Orang.CommandLine
                 result = null;
                 return false;
             }
+        }
+
+        private enum OperatorKind
+        {
+            None,
+            Equals,
+            GreaterThan,
+            LessThan,
+            GreaterThanOrEqual,
+            LessThanOrEqual,
         }
     }
 }

@@ -24,6 +24,7 @@ namespace Orang.CommandLine
             OptionValues.PatternOptions_IgnoreCase,
             OptionValues.PatternOptions_IgnorePatternWhitespace,
             OptionValues.PatternOptions_List,
+            OptionValues.Length,
             OptionValues.ListSeparator,
             OptionValues.PatternOptions_Literal,
             OptionValues.PatternOptions_Multiline,

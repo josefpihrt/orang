@@ -73,9 +73,9 @@ namespace Orang.CommandLine
             if (input == null)
                 return;
 
-            Match match = Options.ContentFilter.Regex.Match(input);
+            Match match = Options.ContentFilter.Match(input, context.CancellationToken);
 
-            if (!Options.ContentFilter.IsMatch(match))
+            if (match == null)
                 return;
 
             ExecuteOrAddResult(result, context, writerOptions, match, input, default(Encoding), baseDirectoryPath);
@@ -146,7 +146,7 @@ namespace Orang.CommandLine
             {
                 groups = ListCache<Group>.GetInstance();
 
-                GetGroups(match, writerOptions.GroupNumber, context, isPathWritten: !Options.OmitPath, groups);
+                GetGroups(match, writerOptions.GroupNumber, context, isPathWritten: !Options.OmitPath, predicate: Options.ContentFilter.Predicate, groups: groups);
 
                 if (_storage != null
                     || Options.AskMode == AskMode.Value

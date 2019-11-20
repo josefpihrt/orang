@@ -136,6 +136,7 @@ namespace Orang.CommandLine
             int groupNumber,
             SearchContext context,
             bool isPathWritten,
+            Func<Group, bool> predicate,
             List<Group> groups)
         {
             int maxMatchesInFile = Options.MaxMatchesInFile;
@@ -163,7 +164,15 @@ namespace Orang.CommandLine
 
             Debug.Assert(count >= 0, count.ToString());
 
-            MaxReason maxReason = GetGroups(match, groupNumber, count, groups, context.CancellationToken);
+            MaxReason maxReason;
+            if (groupNumber < 1)
+            {
+                maxReason = GetMatches(groups, match, count, predicate, context.CancellationToken);
+            }
+            else
+            {
+                maxReason = GetGroups(groups, match, groupNumber, count, predicate, context.CancellationToken);
+            }
 
             if ((maxReason == MaxReason.CountEqualsMax || maxReason == MaxReason.CountExceedsMax)
                 && maxMatches > 0
@@ -209,68 +218,101 @@ namespace Orang.CommandLine
             return maxReason;
         }
 
+        private MaxReason GetMatches(
+            List<Group> groups,
+            Match match,
+            int count,
+            Func<Group, bool> predicate,
+            CancellationToken cancellationToken)
+        {
+            do
+            {
+                groups.Add(match);
+
+                if (predicate != null)
+                {
+                    Match m = match.NextMatch();
+
+                    match = Match.Empty;
+
+                    while (m.Success)
+                    {
+                        if (predicate(m))
+                        {
+                            match = m;
+                            break;
+                        }
+
+                        m = m.NextMatch();
+                    }
+                }
+                else
+                {
+                    match = match.NextMatch();
+                }
+
+                if (groups.Count == count)
+                {
+                    return (match.Success)
+                        ? MaxReason.CountExceedsMax
+                        : MaxReason.CountEqualsMax;
+                }
+
+                cancellationToken.ThrowIfCancellationRequested();
+
+            } while (match.Success);
+
+            return MaxReason.None;
+        }
+
         private MaxReason GetGroups(
+            List<Group> groups,
             Match match,
             int groupNumber,
             int count,
-            List<Group> groups,
+            Func<Group, bool> predicate,
             CancellationToken cancellationToken)
         {
-            if (groupNumber < 1)
+            Group group = match.Groups[groupNumber];
+
+            do
             {
-                do
+                groups.Add(group);
+
+                group = NextGroup();
+
+                if (groups.Count == count)
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    groups.Add(match);
-
-                    match = match.NextMatch();
-
-                    if (groups.Count == count)
-                    {
-                        return (match.Success)
-                            ? MaxReason.CountExceedsMax
-                            : MaxReason.CountEqualsMax;
-                    }
-
-                } while (match.Success);
-            }
-            else
-            {
-                Group group = NextGroup();
-
-                while (group != null)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    groups.Add(group);
-
-                    group = NextGroup();
-
-                    if (groups.Count == count)
-                    {
-                        return (group != null)
-                            ? MaxReason.CountExceedsMax
-                            : MaxReason.CountEqualsMax;
-                    }
+                    return (group.Success)
+                        ? MaxReason.CountExceedsMax
+                        : MaxReason.CountEqualsMax;
                 }
-            }
+
+                cancellationToken.ThrowIfCancellationRequested();
+
+            } while (group.Success);
 
             return MaxReason.None;
 
             Group NextGroup()
             {
-                while (match.Success)
+                while (true)
                 {
-                    Group group = match.Groups[groupNumber];
-
                     match = match.NextMatch();
 
-                    if (group.Success)
-                        return group;
+                    if (!match.Success)
+                        break;
+
+                    Group g = match.Groups[groupNumber];
+
+                    if (g.Success
+                        && predicate?.Invoke(g) != false)
+                    {
+                        return g;
+                    }
                 }
 
-                return null;
+                return Match.Empty;
             }
         }
     }

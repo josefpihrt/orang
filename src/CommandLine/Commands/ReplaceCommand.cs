@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -20,6 +21,7 @@ namespace Orang.CommandLine
 
         public ReplaceCommand(ReplaceCommandOptions options) : base(options)
         {
+            Debug.Assert(!options.ContentFilter.IsNegative);
         }
 
         private OutputSymbols Symbols => _symbols ?? (_symbols = OutputSymbols.Create(Options.HighlightOptions));
@@ -45,7 +47,7 @@ namespace Orang.CommandLine
             string input = Options.Input;
             int count = 0;
             var maxReason = MaxReason.None;
-            Match match = Options.ContentFilter.Regex.Match(input);
+            Match match = Options.ContentFilter.Match(input, context.CancellationToken);
 
             if (match.Success)
             {
@@ -56,7 +58,7 @@ namespace Orang.CommandLine
                 {
                     groups = ListCache<Group>.GetInstance();
 
-                    maxReason = GetGroups(match, FileWriterOptions.GroupNumber, context, isPathWritten: false, groups);
+                    maxReason = GetGroups(match, FileWriterOptions.GroupNumber, context, isPathWritten: false, predicate: Options.ContentFilter.Predicate, groups: groups);
 
                     if (ShouldLog(Verbosity.Normal))
                     {
@@ -81,13 +83,12 @@ namespace Orang.CommandLine
                 }
             }
 
-            WriteLine();
-
             if (ShouldLog(Verbosity.Detailed)
                 || Options.IncludeSummary == true)
             {
                 Verbosity verbosity = (Options.IncludeSummary == true) ? Verbosity.Minimal : Verbosity.Detailed;
 
+                WriteLine(verbosity);
                 WriteCount("Replacements", count, Colors.Message_OK, verbosity);
                 WriteIf(maxReason == MaxReason.CountExceedsMax, "+", Colors.Message_OK, verbosity);
                 WriteLine(verbosity);
@@ -135,9 +136,9 @@ namespace Orang.CommandLine
             if (input == null)
                 return;
 
-            Match match = Options.ContentFilter.Regex.Match(input);
+            Match match = Options.ContentFilter.Match(input, context.CancellationToken);
 
-            if (!match.Success)
+            if (match == null)
                 return;
 
             ExecuteOrAddResult(result, context, writerOptions, match, input, encoding, baseDirectoryPath);
@@ -230,7 +231,7 @@ namespace Orang.CommandLine
             {
                 groups = ListCache<Group>.GetInstance();
 
-                GetGroups(match, writerOptions.GroupNumber, context, isPathWritten: !Options.OmitPath, groups);
+                GetGroups(match, writerOptions.GroupNumber, context, isPathWritten: !Options.OmitPath, predicate: Options.ContentFilter.Predicate, groups: groups);
 
                 int fileMatchCount = 0;
                 int fileReplacementCount = 0;

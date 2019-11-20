@@ -14,6 +14,7 @@ namespace Orang.CommandLine
     {
         public RenameCommand(RenameCommandOptions options) : base(options)
         {
+            Debug.Assert(!options.ContentFilter.IsNegative);
         }
 
         public override bool CanEnumerate => Options.DryRun;

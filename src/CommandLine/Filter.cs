@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using Orang.FileSystem;
 
 namespace Orang
@@ -15,7 +16,8 @@ namespace Orang
             Regex regex,
             NamePartKind namePart = NamePartKind.Name,
             int groupNumber = -1,
-            bool isNegative = false)
+            bool isNegative = false,
+            Func<Group, bool> predicate = null)
         {
             Regex = regex ?? throw new ArgumentNullException(nameof(regex));
 
@@ -24,6 +26,7 @@ namespace Orang
             GroupNumber = groupNumber;
             IsNegative = isNegative;
             NamePart = namePart;
+            Predicate = predicate;
         }
 
         public Regex Regex { get; }
@@ -34,10 +37,55 @@ namespace Orang
 
         public NamePartKind NamePart { get; }
 
+        public Func<Group, bool> Predicate { get; }
+
         public string GroupName => Regex.GroupNameFromNumber(GroupNumber);
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private string DebuggerDisplay => $"Negative = {IsNegative}  Part = {NamePart}  Group {GroupNumber}  {Regex}";
+
+        public Match Match(
+            string input,
+            CancellationToken cancellationToken = default)
+        {
+            Match match = Regex.Match(input);
+
+            if (GroupNumber < 1)
+            {
+                while (match.Success)
+                {
+                    if (Predicate?.Invoke(match) != false)
+                    {
+                        return (IsNegative) ? null : match;
+                    }
+
+                    match = match.NextMatch();
+
+                    cancellationToken.ThrowIfCancellationRequested();
+                }
+            }
+            else
+            {
+                while (match.Success)
+                {
+                    Group group = match.Groups[GroupNumber];
+
+                    if (group.Success
+                        && Predicate?.Invoke(group) != false)
+                    {
+                        return (IsNegative) ? null : match;
+                    }
+
+                    match = match.NextMatch();
+
+                    cancellationToken.ThrowIfCancellationRequested();
+                }
+            }
+
+            return (IsNegative)
+                ? System.Text.RegularExpressions.Match.Empty
+                : null;
+        }
 
         internal bool IsMatch(string input)
         {
@@ -49,11 +97,19 @@ namespace Orang
             return IsMatch(Regex.Match(part.Path, part.Index, part.Length));
         }
 
-        public bool IsMatch(Match match)
+        internal bool IsMatch(Match match)
         {
-            return (IsNegative)
-                ? ((GroupNumber < 1) ? !match.Success : !match.Groups[GroupNumber].Success)
-                : ((GroupNumber < 1) ? match.Success : match.Groups[GroupNumber].Success);
+            return (IsNegative) ? !IsMatchImpl(match) : IsMatchImpl(match);
+        }
+
+        private bool IsMatchImpl(Match match)
+        {
+            return IsMatchImpl((GroupNumber < 1) ? match : match.Groups[GroupNumber]);
+        }
+
+        private bool IsMatchImpl(Group group)
+        {
+            return group.Success && Predicate?.Invoke(group) != false;
         }
     }
 }

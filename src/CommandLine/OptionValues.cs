@@ -30,6 +30,7 @@ namespace Orang.CommandLine
         public static readonly KeyValuePairOptionValue Encoding = KeyValuePairOptionValue.Create("encoding", MetaValues.Encoding, shortKey: "e");
         public static readonly KeyValuePairOptionValue Group = KeyValuePairOptionValue.Create("group", "<GROUP_NAME>", shortKey: "g");
         public static readonly KeyValuePairOptionValue ListSeparator = KeyValuePairOptionValue.Create("list-separator", "<SEPARATOR>", shortKey: "ls", helpValue: "[li]st-[s]eparator", description: "String that separate each value in a list. Default value is comma (,) or newline if the list is loaded from a file.");
+        public static readonly KeyValuePairOptionValue Length = KeyValuePairOptionValue.Create("length", "<NUM>", shortKey: "", description: "Include matches whose length matches the expression. Allowed operators: = < > <= >= .");
         public static readonly KeyValuePairOptionValue MaxMatches = KeyValuePairOptionValue.Create("matches", "<NUM>", description: "Stop searching after <NUM> matches.");
         public static readonly KeyValuePairOptionValue MaxMatchingFiles = KeyValuePairOptionValue.Create("matching-files", "<NUM>", shortKey: "mf", helpValue: "[m]atching-[f]iles", description: "Stop searching after <NUM> matching files.");
         public static readonly KeyValuePairOptionValue Part = KeyValuePairOptionValue.Create("part", MetaValues.NamePart, shortKey: "p", description: "The part of a file or a directory name that should be matched.");

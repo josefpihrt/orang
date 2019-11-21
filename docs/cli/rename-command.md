@@ -25,6 +25,7 @@ orang rename [<PATH>]
 [   --paths-from]         <FILE_PATH>
 [   --progress]
 [-r|--replacement]        <REPLACEMENT>
+[-s|--sort]               <SORT_OPTIONS>
 [-v|--verbosity]          <VERBOSITY>
 [   --file-log]           <FILE_LOG>
 ```
@@ -55,7 +56,7 @@ Regular expression for files' content\. Syntax is \<PATTERN> \[\<PATTERN\_OPTION
 
 **`[-y|--display] <DISPLAY_OPTIONS>`**
 
-Display of the results\. Allowed values are \[c\]ontent=\<CONTENT\_DISPLAY>, count, \[p\]ath=\<PATH\_DISPLAY> and \[s\]ummary\.
+Display of the results\. Allowed values are \[c\]ontent=\<CONTENT\_DISPLAY>, count, creation\-time, modified\-time, \[p\]ath=\<PATH\_DISPLAY>, size and \[s\]ummary\.
 
 **`[-d|--dry-run]`**
 
@@ -112,6 +113,10 @@ Display dot \(\.\) for every hundredth searched file or directory\.
 **`[-r|--replacement] <REPLACEMENT>`**
 
 Replacement pattern\. Syntax is \<REPLACEMENT> \[\<REPLACEMENT\_OPTIONS>\]\. Allowed values are \[f\]rom\-file, \[l\]iteral and \[m\]ultiline\.
+
+**`[-s|--sort] <SORT_OPTIONS>`**
+
+Sort matched files and directories\. Allowed values are \[a\]scending, \[c\]reation\-time, \[d\]escending, max=\<NUM>, \[m\]odified\-time, \[n\]ame and \[s\]ize\.
 
 **`[-v|--verbosity] <VERBOSITY>`**
 

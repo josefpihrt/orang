@@ -286,7 +286,10 @@ namespace Orang.CommandLine
         public static OptionValueProvider DisplayProvider { get; } = new OptionValueProvider(MetaValues.DisplayOptions,
             OptionValues.Display_Content,
             OptionValues.Display_Count,
+            OptionValues.Display_CreationTime,
+            OptionValues.Display_ModifiedTime,
             OptionValues.Display_Path,
+            OptionValues.Display_Size,
             OptionValues.Display_Summary
         );
 
@@ -294,6 +297,16 @@ namespace Orang.CommandLine
             OptionValues.OutputOptions_Content,
             OptionValues.OutputOptions_Path,
             OptionValues.Encoding
+        );
+
+        public static OptionValueProvider SortFlagsProvider { get; } = new OptionValueProvider(MetaValues.SortOptions,
+            SimpleOptionValue.Create(SortFlags.Ascending, description: "Sort items in ascending order."),
+            SimpleOptionValue.Create(SortFlags.CreationTime, description: "Sort items by creation time."),
+            SimpleOptionValue.Create(SortFlags.Descending, description: "Sort items in descending order."),
+            OptionValues.Max,
+            SimpleOptionValue.Create(SortFlags.ModifiedTime, description: "Sort items by last modified time."),
+            SimpleOptionValue.Create(SortFlags.Name, description: "Sort items by full name."),
+            SimpleOptionValue.Create(SortFlags.Size, description: "Sort items by size.")
         );
 
         public static ImmutableDictionary<string, OptionValueProvider> ProvidersByName

@@ -25,6 +25,7 @@ orang delete [<PATH>]
 [-o|--output]             <OUTPUT_OPTIONS>
 [   --paths-from]         <FILE_PATH>
 [   --progress]
+[-s|--sort]               <SORT_OPTIONS>
 [-v|--verbosity]          <VERBOSITY>
 [   --file-log]           <FILE_LOG>
 ```
@@ -59,7 +60,7 @@ Delete content of a file or directory but not the file or directory itself\.
 
 **`[-y|--display] <DISPLAY_OPTIONS>`**
 
-Display of the results\. Allowed values are \[c\]ontent=\<CONTENT\_DISPLAY>, count, \[p\]ath=\<PATH\_DISPLAY> and \[s\]ummary\.
+Display of the results\. Allowed values are \[c\]ontent=\<CONTENT\_DISPLAY>, count, creation\-time, modified\-time, \[p\]ath=\<PATH\_DISPLAY>, size and \[s\]ummary\.
 
 **`[-d|--dry-run]`**
 
@@ -112,6 +113,10 @@ Read the list of paths to search from a file\. Paths should be separated by newl
 **`[--progress]`**
 
 Display dot \(\.\) for every hundredth searched file or directory\.
+
+**`[-s|--sort] <SORT_OPTIONS>`**
+
+Sort matched files and directories\. Allowed values are \[a\]scending, \[c\]reation\-time, \[d\]escending, max=\<NUM>, \[m\]odified\-time, \[n\]ame and \[s\]ize\.
 
 **`[-v|--verbosity] <VERBOSITY>`**
 

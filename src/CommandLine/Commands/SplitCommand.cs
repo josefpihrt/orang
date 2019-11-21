@@ -29,9 +29,9 @@ namespace Orang.CommandLine
             WriteLine();
 
             if (ShouldLog(Verbosity.Detailed)
-                || Options.IncludeSummary == true)
+                || Options.IncludeSummary)
             {
-                Verbosity verbosity = (Options.IncludeSummary == true) ? Verbosity.Minimal : Verbosity.Detailed;
+                Verbosity verbosity = (Options.IncludeSummary) ? Verbosity.Minimal : Verbosity.Detailed;
 
                 WriteGroups(splitData.GroupDefinitions, verbosity: verbosity);
                 WriteLine(verbosity);

@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using CommandLine;
 using static Orang.CommandLine.ParseHelpers;
@@ -85,8 +86,8 @@ namespace Orang.CommandLine
                 optionName: OptionNames.Display,
                 contentDisplayStyle: out ContentDisplayStyle _,
                 pathDisplayStyle: out PathDisplayStyle pathDisplayStyle,
-                includeSummary: out bool includeSummary,
-                includeCount: out bool includeCount,
+                displayParts: out DisplayParts displayParts,
+                fileProperties: out ImmutableArray<FileProperty> fileProperties,
                 defaultContentDisplayStyle: 0,
                 defaultPathDisplayStyle: PathDisplayStyle.Full,
                 contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider,
@@ -95,7 +96,13 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            options.Format = new OutputDisplayFormat(ContentDisplayStyle.None, pathDisplayStyle, includeSummary: includeSummary, includeCount: includeCount);
+            if (pathDisplayStyle == PathDisplayStyle.Relative
+                && options.SortOptions != null)
+            {
+                pathDisplayStyle = PathDisplayStyle.Full;
+            }
+
+            options.Format = new OutputDisplayFormat(ContentDisplayStyle.None, pathDisplayStyle, displayParts: displayParts, fileProperties: fileProperties);
             options.Ask = Ask;
             options.DryRun = DryRun;
             options.HighlightOptions = highlightOptions;

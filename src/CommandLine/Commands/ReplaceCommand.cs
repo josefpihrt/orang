@@ -84,9 +84,9 @@ namespace Orang.CommandLine
             }
 
             if (ShouldLog(Verbosity.Detailed)
-                || Options.IncludeSummary == true)
+                || Options.IncludeSummary)
             {
-                Verbosity verbosity = (Options.IncludeSummary == true) ? Verbosity.Minimal : Verbosity.Detailed;
+                Verbosity verbosity = (Options.IncludeSummary) ? Verbosity.Minimal : Verbosity.Detailed;
 
                 WriteLine(verbosity);
                 WriteCount("Replacements", count, Colors.Message_OK, verbosity);
@@ -151,7 +151,8 @@ namespace Orang.CommandLine
             Match match,
             string input,
             Encoding encoding,
-            string baseDirectoryPath = null)
+            string baseDirectoryPath = null,
+            ColumnWidths columnWidths = null)
         {
             string indent = (baseDirectoryPath != null && Options.PathDisplayStyle == PathDisplayStyle.Relative)
                 ? Options.Indent
@@ -166,6 +167,8 @@ namespace Orang.CommandLine
                     colors: Colors.Matched_Path,
                     matchColors: (Options.HighlightMatch) ? Colors.Match_Path : default,
                     indent: indent,
+                    fileProperties: Options.Format.FileProperties,
+                    columnWidths: columnWidths,
                     verbosity: Verbosity.Minimal);
             }
 

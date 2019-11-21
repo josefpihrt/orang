@@ -88,7 +88,8 @@ namespace Orang.CommandLine
             Match match,
             string input,
             Encoding encoding,
-            string baseDirectoryPath = null)
+            string baseDirectoryPath = null,
+            ColumnWidths columnWidths = null)
         {
             string indent = (baseDirectoryPath != null && Options.PathDisplayStyle == PathDisplayStyle.Relative)
                 ? Options.Indent
@@ -103,6 +104,8 @@ namespace Orang.CommandLine
                     colors: Colors.Matched_Path,
                     matchColors: (Options.HighlightMatch) ? Colors.Match_Path : default,
                     indent: indent,
+                    fileProperties: Options.Format.FileProperties,
+                    columnWidths: columnWidths,
                     verbosity: Verbosity.Minimal);
             }
 

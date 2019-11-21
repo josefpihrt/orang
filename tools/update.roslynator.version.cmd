@@ -1,6 +1,6 @@
 @echo off
 
-rem This script requires Orang Commnd-Line Tool to be installed. Run command below to install Orang.
+rem This script requires Orang to be installed. Run command below to install Orang.
 rem dotnet tool install orang.dotnet.cli
 
 set _tempFile=josefpihrt-vscode.roslynator.version.tmp

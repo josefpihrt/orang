@@ -1,11 +1,9 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using Orang.CommandLine;
 
 namespace Orang.FileSystem
@@ -18,6 +16,51 @@ namespace Orang.FileSystem
             IgnoreInaccessible = true,
             RecurseSubdirectories = false,
         };
+
+        public static int ComparePaths(string path1, string path2, StringComparison comparisonType = StringComparison.CurrentCulture)
+        {
+            int i1 = -1;
+            int i2 = -1;
+
+            while (true)
+            {
+                int l1 = IndexOfDirectorySeparator(path1, ++i1) - i1;
+                int l2 = IndexOfDirectorySeparator(path2, ++i2) - i2;
+
+                int diff = string.Compare(path1, i1, path2, i2, Math.Min(l1, l2), comparisonType);
+
+                if (diff != 0)
+                    return diff;
+
+                if (l1 != l2)
+                {
+                    diff = l1 - l2;
+
+                    if (diff != 0)
+                        return diff;
+                }
+
+                i1 += l1;
+                i2 += l2;
+
+                if (i1 == path1.Length)
+                    return (i2 == path2.Length) ? 0 : -1;
+
+                if (i2 == path2.Length)
+                    return 1;
+            }
+        }
+
+        internal static int IndexOfDirectorySeparator(string path, int start)
+        {
+            for (int i = start; i < path.Length; i++)
+            {
+                if (IsDirectorySeparator(path[i]))
+                    return i;
+            }
+
+            return path.Length;
+        }
 
         public static void Delete(
             in FileSystemFinderResult result,

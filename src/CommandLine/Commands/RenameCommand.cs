@@ -71,15 +71,16 @@ namespace Orang.CommandLine
             ExecuteOrAddResult(result, context, baseDirectoryPath);
         }
 
-        protected override void ExecuteResult(SearchResult result, SearchContext context)
+        protected override void ExecuteResult(SearchResult result, SearchContext context, ColumnWidths columnWidths)
         {
-            ExecuteResult(result.Result, context, result.BaseDirectoryPath);
+            ExecuteResult(result.Result, context, result.BaseDirectoryPath, columnWidths);
         }
 
         protected override void ExecuteResult(
             FileSystemFinderResult result,
             SearchContext context,
-            string baseDirectoryPath)
+            string baseDirectoryPath,
+            ColumnWidths columnWidths)
         {
             string indent = (baseDirectoryPath != null && Options.PathDisplayStyle == PathDisplayStyle.Relative)
                 ? Options.Indent
@@ -96,6 +97,8 @@ namespace Orang.CommandLine
                     colors: Colors.Matched_Path,
                     matchColors: (Options.HighlightMatch) ? Colors.Match : default,
                     indent: indent,
+                    fileProperties: Options.Format.FileProperties,
+                    columnWidths: columnWidths,
                     verbosity: Verbosity.Minimal);
 
                 WriteLine(Verbosity.Minimal);

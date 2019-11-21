@@ -76,21 +76,22 @@ namespace Orang.CommandLine
             Match match,
             string input,
             Encoding encoding,
-            string baseDirectoryPath = null);
+            string baseDirectoryPath = null,
+            ColumnWidths columnWidths = null);
 
-        protected override void ExecuteResult(FileSystemFinderResult result, SearchContext context, string baseDirectoryPath)
+        protected override void ExecuteResult(FileSystemFinderResult result, SearchContext context, string baseDirectoryPath, ColumnWidths columnWidths)
         {
             throw new NotSupportedException();
         }
 
-        protected override void ExecuteResult(SearchResult result, SearchContext context)
+        protected override void ExecuteResult(SearchResult result, SearchContext context, ColumnWidths columnWidths)
         {
-            ExecuteResult((ContentSearchResult)result, context);
+            ExecuteResult((ContentSearchResult)result, context, columnWidths);
         }
 
-        private void ExecuteResult(ContentSearchResult result, SearchContext context)
+        private void ExecuteResult(ContentSearchResult result, SearchContext context, ColumnWidths columnWidths)
         {
-            ExecuteResult(result.Result, context, result.WriterOptions, result.Match, result.Input, result.Encoding, result.BaseDirectoryPath);
+            ExecuteResult(result.Result, context, result.WriterOptions, result.Match, result.Input, result.Encoding, result.BaseDirectoryPath, columnWidths);
         }
 
         protected void ExecuteOrAddResult(
@@ -186,11 +187,11 @@ namespace Orang.CommandLine
                 Verbosity verbosity = ConsoleOut.Verbosity;
 
                 if (verbosity >= Verbosity.Detailed
-                    || Options.IncludeCount == true)
+                    || Options.IncludeCount)
                 {
-                    verbosity = (Options.IncludeCount == true) ? Verbosity.Minimal : Verbosity.Detailed;
+                    verbosity = (Options.IncludeCount) ? Verbosity.Minimal : Verbosity.Detailed;
 
-                    ConsoleOut.Write(" ", Colors.Message_OK, verbosity);
+                    ConsoleOut.Write("  ", Colors.Message_OK, verbosity);
                     ConsoleOut.Write(groups.Count.ToString("n0"), Colors.Message_OK, verbosity);
                     ConsoleOut.WriteIf(maxReason == MaxReason.CountExceedsMax, "+", Colors.Message_OK, verbosity);
                 }
@@ -202,11 +203,11 @@ namespace Orang.CommandLine
                     verbosity = Out.Verbosity;
 
                     if (verbosity >= Verbosity.Detailed
-                        || Options.IncludeCount == true)
+                        || Options.IncludeCount)
                     {
-                        verbosity = (Options.IncludeCount == true) ? Verbosity.Minimal : Verbosity.Detailed;
+                        verbosity = (Options.IncludeCount) ? Verbosity.Minimal : Verbosity.Detailed;
 
-                        Out.Write(" ", verbosity);
+                        Out.Write("  ", verbosity);
                         Out.Write(groups.Count.ToString("n0"), verbosity);
                         Out.WriteIf(maxReason == MaxReason.CountExceedsMax, "+", verbosity);
                     }

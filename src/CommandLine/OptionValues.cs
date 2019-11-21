@@ -24,6 +24,9 @@ namespace Orang.CommandLine
         public static readonly SimpleOptionValue OutputOptions_Path = SimpleOptionValue.Create("Path", description: "Include path in the output.");
         public static readonly SimpleOptionValue Display_Summary = SimpleOptionValue.Create("Summary", description: "Include summary.");
         public static readonly SimpleOptionValue Display_Count = SimpleOptionValue.Create("Count", shortValue: "", description: "Include number of matches in file.");
+        public static readonly SimpleOptionValue Display_CreationTime = SimpleOptionValue.Create("CreationTime", shortValue: "", description: "Include file creation time.");
+        public static readonly SimpleOptionValue Display_ModifiedTime = SimpleOptionValue.Create("ModifiedTime", shortValue: "", description: "Include file last modified time.");
+        public static readonly SimpleOptionValue Display_Size = SimpleOptionValue.Create("Size", shortValue: "", description: "Include file size.");
 
         public static readonly KeyValuePairOptionValue Display_Content = KeyValuePairOptionValue.Create("content", MetaValues.ContentDisplay, shortKey: "c");
         public static readonly KeyValuePairOptionValue Display_Path = KeyValuePairOptionValue.Create("path", MetaValues.PathDisplay, shortKey: "p");
@@ -36,5 +39,6 @@ namespace Orang.CommandLine
         public static readonly KeyValuePairOptionValue Part = KeyValuePairOptionValue.Create("part", MetaValues.NamePart, shortKey: "p", description: "The part of a file or a directory name that should be matched.");
         public static readonly KeyValuePairOptionValue Timeout = KeyValuePairOptionValue.Create("timeout", "<NUM>", shortKey: "", description: "Match time-out interval in seconds.");
         public static readonly KeyValuePairOptionValue Verbosity = KeyValuePairOptionValue.Create("verbosity", MetaValues.Verbosity, shortKey: "v");
+        public static readonly KeyValuePairOptionValue Max = KeyValuePairOptionValue.Create("max", "<NUM>", shortKey: "", description: "Show only <NUM> items.");
     }
 }

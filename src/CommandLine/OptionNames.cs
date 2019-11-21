@@ -41,6 +41,7 @@ namespace Orang.CommandLine
         public const string Progress = "progress";
         public const string Replacement = "replacement";
         public const string Section = "section";
+        public const string Sort = "sort";
         public const string Timeout = "timeout";
         public const string Values = "values";
         public const string Verbosity = "verbosity";

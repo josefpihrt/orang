@@ -83,8 +83,8 @@ namespace Orang.CommandLine
                 optionName: OptionNames.Display,
                 contentDisplayStyle: out ContentDisplayStyle? contentDisplayStyle2,
                 pathDisplayStyle: out PathDisplayStyle? pathDisplayStyle2,
-                includeSummary: out bool includeSummary,
-                includeCount: out bool includeCount,
+                displayParts: out DisplayParts displayParts,
+                fileProperties: out ImmutableArray<FileProperty> fileProperties,
                 contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider_WithoutUnmatchedLines,
                 pathDisplayStyleProvider: OptionValueProviders.PathDisplayStyleProvider))
             {
@@ -113,7 +113,13 @@ namespace Orang.CommandLine
 
             pathDisplayStyle = pathDisplayStyle2 ?? PathDisplayStyle.Full;
 
-            options.Format = new OutputDisplayFormat(contentDisplayStyle: contentDisplayStyle, pathDisplayStyle: pathDisplayStyle, lineOptions: LineDisplayOptions, includeSummary: includeSummary, includeCount: includeCount);
+            if (pathDisplayStyle == PathDisplayStyle.Relative
+                && options.SortOptions != null)
+            {
+                pathDisplayStyle = PathDisplayStyle.Full;
+            }
+
+            options.Format = new OutputDisplayFormat(contentDisplayStyle: contentDisplayStyle, pathDisplayStyle: pathDisplayStyle, lineOptions: LineDisplayOptions, displayParts: displayParts, fileProperties: fileProperties);
             options.HighlightOptions = highlightOptions;
             options.ContentFilter = contentFilter;
             options.Replacement = replacement ?? "";

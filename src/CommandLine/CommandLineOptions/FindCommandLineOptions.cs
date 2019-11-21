@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using CommandLine;
 using static Orang.CommandLine.ParseHelpers;
@@ -53,14 +54,20 @@ namespace Orang.CommandLine
                 optionName: OptionNames.Display,
                 contentDisplayStyle: out ContentDisplayStyle contentDisplayStyle,
                 pathDisplayStyle: out PathDisplayStyle pathDisplayStyle,
-                includeSummary: out bool includeSummary,
-                includeCount: out bool includeCount,
+                displayParts: out DisplayParts displayParts,
+                fileProperties: out ImmutableArray<FileProperty> fileProperties,
                 defaultContentDisplayStyle: ContentDisplayStyle.Line,
                 defaultPathDisplayStyle: PathDisplayStyle.Full,
                 contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider,
                 pathDisplayStyleProvider: OptionValueProviders.PathDisplayStyleProvider))
             {
                 return false;
+            }
+
+            if (pathDisplayStyle == PathDisplayStyle.Relative
+                && options.SortOptions != null)
+            {
+                pathDisplayStyle = PathDisplayStyle.Full;
             }
 
             if (options.AskMode == AskMode.Value
@@ -89,7 +96,7 @@ namespace Orang.CommandLine
                 maxMatchingFiles = (maxCount > 0) ? maxCount : maxMatchingFiles;
             }
 
-            options.Format = new OutputDisplayFormat(contentDisplayStyle: contentDisplayStyle, pathDisplayStyle: pathDisplayStyle, lineOptions: LineDisplayOptions, includeSummary: includeSummary, includeCount: includeCount);
+            options.Format = new OutputDisplayFormat(contentDisplayStyle: contentDisplayStyle, pathDisplayStyle: pathDisplayStyle, lineOptions: LineDisplayOptions, displayParts: displayParts, fileProperties: fileProperties);
             options.HighlightOptions = highlightOptions;
             options.SearchTarget = GetSearchTarget();
             options.ContentFilter = contentFilter;

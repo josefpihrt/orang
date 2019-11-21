@@ -60,6 +60,11 @@ namespace Orang.CommandLine
             HelpText = "Display dot (.) for every hundredth searched file or directory.")]
         public bool Progress { get; set; }
 
+        [Option(shortName: OptionShortNames.Sort, longName: OptionNames.Sort,
+            HelpText = "Sort matched files and directories.",
+            MetaValue = MetaValues.SortOptions)]
+        public IEnumerable<string> Sort { get; set; }
+
         public bool TryParse(ref CommonFindCommandOptions options)
         {
             var baseOptions = (CommonRegexCommandOptions)options;
@@ -79,6 +84,9 @@ namespace Orang.CommandLine
                 return false;
 
             if (!TryParseEncoding(Encoding, out Encoding defaultEncoding, EncodingHelpers.UTF8NoBom))
+                return false;
+
+            if (!TryParseSortOptions(Sort, OptionNames.Sort, out SortOptions sortOptions))
                 return false;
 
             Filter directoryFilter = null;
@@ -126,6 +134,7 @@ namespace Orang.CommandLine
             options.RecurseSubdirectories = !NoRecurse;
             options.Progress = Progress;
             options.DefaultEncoding = defaultEncoding;
+            options.SortOptions = sortOptions;
 
             FileSystemAttributes = attributes;
 

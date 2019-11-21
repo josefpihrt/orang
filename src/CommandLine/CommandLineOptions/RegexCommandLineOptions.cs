@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using CommandLine;
 using static Orang.CommandLine.ParseHelpers;
@@ -76,8 +77,8 @@ namespace Orang.CommandLine
                 optionName: OptionNames.Display,
                 contentDisplayStyle: out ContentDisplayStyle contentDisplayStyle,
                 pathDisplayStyle: out PathDisplayStyle _,
-                includeSummary: out bool includeSummary,
-                includeCount: out bool includeCount,
+                displayParts: out DisplayParts displayParts,
+                fileProperties: out ImmutableArray<FileProperty> fileProperties,
                 defaultContentDisplayStyle: ContentDisplayStyle.Value,
                 defaultPathDisplayStyle: 0,
                 contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider_WithoutLineAndUnmatchedLinesAndOmit,
@@ -86,7 +87,7 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            options.Format = new OutputDisplayFormat(contentDisplayStyle: contentDisplayStyle, includeSummary: includeSummary, includeCount: includeCount);
+            options.Format = new OutputDisplayFormat(contentDisplayStyle: contentDisplayStyle, displayParts: displayParts, fileProperties: fileProperties);
             options.Input = input;
             options.Output = outputOptions;
 

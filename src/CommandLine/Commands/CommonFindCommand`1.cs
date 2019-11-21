@@ -4,10 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using Orang.FileSystem;
 using static Orang.Logger;
+using System.Collections.Immutable;
 
 namespace Orang.CommandLine
 {
@@ -44,9 +46,9 @@ namespace Orang.CommandLine
 
         protected abstract void ExecuteFile(string filePath, SearchContext context);
 
-        protected abstract void ExecuteResult(FileSystemFinderResult result, SearchContext context, string baseDirectoryPath);
+        protected abstract void ExecuteResult(FileSystemFinderResult result, SearchContext context, string baseDirectoryPath, ColumnWidths columnWidths);
 
-        protected abstract void ExecuteResult(SearchResult result, SearchContext context);
+        protected abstract void ExecuteResult(SearchResult result, SearchContext context, ColumnWidths columnWidths);
 
         protected abstract void WriteSummary(SearchTelemetry telemetry, Verbosity verbosity);
 
@@ -65,6 +67,10 @@ namespace Orang.CommandLine
 
                     writer = new StreamWriter(path, false, Options.Output.Encoding);
                 }
+
+                List<SearchResult> results = (Options.SortOptions != null || Options.Format.FileProperties.Any())
+                    ? new List<SearchResult>()
+                    : null;
 
                 ProgressReportMode consoleReportMode;
                 if (ConsoleOut.ShouldWrite(Verbosity.Diagnostic))
@@ -92,7 +98,7 @@ namespace Orang.CommandLine
 
                 var progress = new FileSystemFinderProgressReporter(consoleReportMode, fileLogReportMode, Options);
 
-                context = new SearchContext(progress: progress, output: writer, cancellationToken: cancellationToken);
+                context = new SearchContext(progress: progress, output: writer, results: results, cancellationToken: cancellationToken);
 
                 ExecuteCore(context);
             }
@@ -134,11 +140,11 @@ namespace Orang.CommandLine
             stopwatch.Stop();
 
             if (ShouldLog(Verbosity.Detailed)
-                || Options.IncludeSummary == true)
+                || Options.IncludeSummary)
             {
                 context.Telemetry.Elapsed = stopwatch.Elapsed;
 
-                WriteSummary(context.Telemetry, (Options.IncludeSummary == true) ? Verbosity.Minimal : Verbosity.Detailed);
+                WriteSummary(context.Telemetry, (Options.IncludeSummary) ? Verbosity.Minimal : Verbosity.Detailed);
             }
         }
 
@@ -151,11 +157,46 @@ namespace Orang.CommandLine
                 context.Progress.ProgressReported = false;
             }
 
+            IEnumerable<SearchResult> results = context.Results;
+            SortOptions sortOptions = Options.SortOptions;
+
+            if (sortOptions?.Descriptors.Any() == true)
+            {
+                results = SortHelpers.SortResults(context.Results, sortOptions.Descriptors);
+
+                if (sortOptions.MaxCount > 0)
+                    results = results.Take(sortOptions.MaxCount);
+            }
+
+            ImmutableArray<FileProperty> fileProperties = Options.Format.FileProperties;
+            ColumnWidths columnWidths = null;
+
+            if (fileProperties.Any())
+            {
+                List<SearchResult> resultList = results.ToList();
+
+                int maxNameWidth = resultList.Max(f => f.Path.Length);
+                int maxSizeWidth = 0;
+
+                if (fileProperties.Contains(FileProperty.Size))
+                {
+                    maxSizeWidth = resultList
+                        .Where(f => !f.IsDirectory)
+                        .Max(f => ((FileInfo)f.FileSystemInfo).Length)
+                        .ToString("n0")
+                        .Length;
+                }
+
+                columnWidths = new ColumnWidths(maxNameWidth, maxSizeWidth);
+
+                results = resultList;
+            }
+
             try
             {
-                foreach (SearchResult result in context.Results)
+                foreach (SearchResult result in results)
                 {
-                    ExecuteResult(result, context);
+                    ExecuteResult(result, context, columnWidths);
 
                     if (context.State == SearchState.Canceled)
                         break;
@@ -260,7 +301,7 @@ namespace Orang.CommandLine
             {
                 EndProgress(context);
 
-                ExecuteResult(result, context, baseDirectoryPath);
+                ExecuteResult(result, context, baseDirectoryPath, columnWidths: null);
             }
         }
 

@@ -32,7 +32,7 @@ Regular expression for the input string\. Syntax is \<PATTERN> \[\<PATTERN\_OPTI
 
 **`[-y|--display] <DISPLAY_OPTIONS>`**
 
-Display of the results\. Allowed values are \[c\]ontent=\<CONTENT\_DISPLAY>, count, \[p\]ath=\<PATH\_DISPLAY> and \[s\]ummary\.
+Display of the results\. Allowed values are \[c\]ontent=\<CONTENT\_DISPLAY>, count, creation\-time, modified\-time, \[p\]ath=\<PATH\_DISPLAY>, size and \[s\]ummary\.
 
 **`[-h|--help]`**
 

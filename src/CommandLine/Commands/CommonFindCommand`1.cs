@@ -135,7 +135,17 @@ namespace Orang.CommandLine
             }
 
             if (context.Results != null)
-                ExecuteResults(context);
+            {
+                if (context.Progress?.ProgressReported == true
+                    && ConsoleOut.Verbosity >= Verbosity.Minimal)
+                {
+                    ConsoleOut.WriteLine();
+                    context.Progress.ProgressReported = false;
+                }
+
+                if (context.Results.Count > 0)
+                    ExecuteResults(context);
+            }
 
             stopwatch.Stop();
 
@@ -150,13 +160,6 @@ namespace Orang.CommandLine
 
         private void ExecuteResults(SearchContext context)
         {
-            if (context.Progress?.ProgressReported == true
-                && ConsoleOut.Verbosity >= Verbosity.Minimal)
-            {
-                ConsoleOut.WriteLine();
-                context.Progress.ProgressReported = false;
-            }
-
             IEnumerable<SearchResult> results = context.Results;
             SortOptions sortOptions = Options.SortOptions;
 
@@ -344,7 +347,7 @@ namespace Orang.CommandLine
             SearchContext context,
             INotifyDirectoryChanged notifyDirectoryChanged)
         {
-            return FileSystemFinder.Find(
+            IEnumerable<FileSystemFinderResult> results = FileSystemFinder.Find(
                 directoryPath: directoryPath,
                 nameFilter: Options.NameFilter,
                 extensionFilter: Options.ExtensionFilter,
@@ -353,16 +356,29 @@ namespace Orang.CommandLine
                 progress: context.Progress,
                 notifyDirectoryChanged: notifyDirectoryChanged,
                 cancellationToken: context.CancellationToken);
+
+            if (Options.FilePropertyFilter != null)
+                results = results.Where(Options.FilePropertyFilter.IsMatch);
+
+            return results;
         }
 
         protected FileSystemFinderResult? MatchFile(string filePath, FileSystemFinderProgressReporter progress = null)
         {
-            return FileSystemFinder.MatchFile(
+            FileSystemFinderResult? result = FileSystemFinder.MatchFile(
                 filePath,
                 nameFilter: Options.NameFilter,
                 extensionFilter: Options.ExtensionFilter,
                 options: FinderOptions,
                 progress: progress);
+
+            if (result != null
+                && Options.FilePropertyFilter?.IsMatch(result.Value) == false)
+            {
+                return null;
+            }
+
+            return result;
         }
     }
 }

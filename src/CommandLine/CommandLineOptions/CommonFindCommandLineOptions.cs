@@ -42,6 +42,11 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.ExtensionFilter)]
         public IEnumerable<string> Extension { get; set; }
 
+        [Option(shortName: OptionShortNames.Properties, longName: OptionNames.Properties,
+            HelpText = "A filter for file properties.",
+            MetaValue = MetaValues.FileProperties)]
+        public IEnumerable<string> FileProperties { get; set; }
+
         [Option(shortName: OptionShortNames.IncludeDirectory, longName: OptionNames.IncludeDirectory,
             HelpText = "Regular expression for a directory name. Syntax is <PATTERN> [<PATTERN_OPTIONS>].",
             MetaValue = MetaValues.Regex)]
@@ -111,6 +116,14 @@ namespace Orang.CommandLine
                 return false;
             }
 
+            if (!TryParseFileProperties(
+                FileProperties,
+                OptionNames.Properties,
+                out FilePropertyFilter filePropertyFilter))
+            {
+                return false;
+            }
+
             if ((attributes & FileSystemAttributes.Empty) != 0)
             {
                 if ((attributesToSkip & FileSystemAttributes.Empty) != 0)
@@ -135,6 +148,7 @@ namespace Orang.CommandLine
             options.Progress = Progress;
             options.DefaultEncoding = defaultEncoding;
             options.SortOptions = sortOptions;
+            options.FilePropertyFilter = filePropertyFilter;
 
             FileSystemAttributes = attributes;
 

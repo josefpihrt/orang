@@ -23,6 +23,7 @@ orang find [<PATH>]
 [-o|--output]             <OUTPUT_OPTIONS>
 [   --paths-from]         <FILE_PATH>
 [   --progress]
+[-p|--properties]         <FILE_PROPERTIES>
 [-s|--sort]               <SORT_OPTIONS>
 [-v|--verbosity]          <VERBOSITY>
 [   --file-log]           <FILE_LOG>
@@ -54,7 +55,7 @@ Regular expression for files' content\. Syntax is \<PATTERN> \[\<PATTERN\_OPTION
 
 **`[-y|--display] <DISPLAY_OPTIONS>`**
 
-Display of the results\. Allowed values are \[c\]ontent=\<CONTENT\_DISPLAY>, count, creation\-time, modified\-time, \[p\]ath=\<PATH\_DISPLAY>, size and \[s\]ummary\.
+Display of the results\. Allowed values are \[c\]ontent=\<CONTENT\_DISPLAY>, count, \[c\]reation\-time, \[m\]odified\-time, \[p\]ath=\<PATH\_DISPLAY>, \[s\]ize and summary\.
 
 **`[--encoding] <ENCODING>`**
 
@@ -103,6 +104,10 @@ Read the list of paths to search from a file\. Paths should be separated by newl
 **`[--progress]`**
 
 Display dot \(\.\) for every hundredth searched file or directory\.
+
+**`[-p|--properties] <FILE_PROPERTIES>`**
+
+A filter for file properties\. Allowed values are \[c\]reation\-time=\<DATE>, \[m\]odified\-time=\<DATE> and \[s\]ize=\<NUM>\.
 
 **`[-s|--sort] <SORT_OPTIONS>`**
 

@@ -44,6 +44,8 @@ namespace Orang.CommandLine
 
         public SortOptions SortOptions { get; internal set; }
 
+        public FilePropertyFilter FilePropertyFilter { get; internal set; }
+
         public ContentDisplayStyle ContentDisplayStyle => Format.ContentDisplayStyle;
 
         public PathDisplayStyle PathDisplayStyle => Format.PathDisplayStyle;

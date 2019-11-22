@@ -12,6 +12,7 @@ namespace Orang.CommandLine
         public const string Evaluator = "<EVALUATOR>";
         public const string ExtensionFilter = "<EXTENSION_FILTER>";
         public const string ExtensionOptions = "<EXTENSION_OPTIONS>";
+        public const string FileProperties = "<FILE_PROPERTIES>";
         public const string FilePath = "<FILE_PATH>";
         public const string Highlight = "<HIGHLIGHT>";
         public const string Input = "<INPUT>";

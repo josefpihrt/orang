@@ -309,6 +309,12 @@ namespace Orang.CommandLine
             SimpleOptionValue.Create(SortFlags.Size, description: "Sort items by size.")
         );
 
+        public static OptionValueProvider FilePropertiesProvider { get; } = new OptionValueProvider(MetaValues.FileProperties,
+            OptionValues.FileProperty_CreationTime,
+            OptionValues.FileProperty_ModifiedTime,
+            OptionValues.FileProperty_Size
+        );
+
         public static ImmutableDictionary<string, OptionValueProvider> ProvidersByName
         {
             get

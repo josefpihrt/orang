@@ -22,23 +22,26 @@ namespace Orang.CommandLine
         public static readonly SimpleOptionValue PatternOptions_WholeWord = SimpleOptionValue.Create(PatternOptions.WholeWord, description: "Pattern should match whole word.");
         public static readonly SimpleOptionValue OutputOptions_Content = SimpleOptionValue.Create("Content", description: "Include content in the output.");
         public static readonly SimpleOptionValue OutputOptions_Path = SimpleOptionValue.Create("Path", description: "Include path in the output.");
-        public static readonly SimpleOptionValue Display_Summary = SimpleOptionValue.Create("Summary", description: "Include summary.");
+        public static readonly SimpleOptionValue Display_Summary = SimpleOptionValue.Create("Summary", shortValue: "", description: "Include summary.");
         public static readonly SimpleOptionValue Display_Count = SimpleOptionValue.Create("Count", shortValue: "", description: "Include number of matches in file.");
-        public static readonly SimpleOptionValue Display_CreationTime = SimpleOptionValue.Create("CreationTime", shortValue: "", description: "Include file creation time.");
-        public static readonly SimpleOptionValue Display_ModifiedTime = SimpleOptionValue.Create("ModifiedTime", shortValue: "", description: "Include file last modified time.");
-        public static readonly SimpleOptionValue Display_Size = SimpleOptionValue.Create("Size", shortValue: "", description: "Include file size.");
+        public static readonly SimpleOptionValue Display_CreationTime = SimpleOptionValue.Create("CreationTime", description: "Include file creation time.");
+        public static readonly SimpleOptionValue Display_ModifiedTime = SimpleOptionValue.Create("ModifiedTime", description: "Include file last modified time.");
+        public static readonly SimpleOptionValue Display_Size = SimpleOptionValue.Create("Size", description: "Include file size.");
 
         public static readonly KeyValuePairOptionValue Display_Content = KeyValuePairOptionValue.Create("content", MetaValues.ContentDisplay, shortKey: "c");
         public static readonly KeyValuePairOptionValue Display_Path = KeyValuePairOptionValue.Create("path", MetaValues.PathDisplay, shortKey: "p");
         public static readonly KeyValuePairOptionValue Encoding = KeyValuePairOptionValue.Create("encoding", MetaValues.Encoding, shortKey: "e");
+        public static readonly KeyValuePairOptionValue FileProperty_CreationTime = KeyValuePairOptionValue.Create("creation-time", "<DATE>", description: "Filter files by creation time.");
+        public static readonly KeyValuePairOptionValue FileProperty_ModifiedTime = KeyValuePairOptionValue.Create("modified-time", "<DATE>", description: "Filter files by modified time.");
+        public static readonly KeyValuePairOptionValue FileProperty_Size = KeyValuePairOptionValue.Create("size", "<NUM>", description: "Filter files by size.");
         public static readonly KeyValuePairOptionValue Group = KeyValuePairOptionValue.Create("group", "<GROUP_NAME>", shortKey: "g");
         public static readonly KeyValuePairOptionValue ListSeparator = KeyValuePairOptionValue.Create("list-separator", "<SEPARATOR>", shortKey: "ls", helpValue: "[li]st-[s]eparator", description: "String that separate each value in a list. Default value is comma (,) or newline if the list is loaded from a file.");
         public static readonly KeyValuePairOptionValue Length = KeyValuePairOptionValue.Create("length", "<NUM>", shortKey: "", description: "Include matches whose length matches the expression. Allowed operators: = < > <= >= .");
+        public static readonly KeyValuePairOptionValue Max = KeyValuePairOptionValue.Create("max", "<NUM>", shortKey: "", description: "Show only <NUM> items.");
         public static readonly KeyValuePairOptionValue MaxMatches = KeyValuePairOptionValue.Create("matches", "<NUM>", description: "Stop searching after <NUM> matches.");
         public static readonly KeyValuePairOptionValue MaxMatchingFiles = KeyValuePairOptionValue.Create("matching-files", "<NUM>", shortKey: "mf", helpValue: "[m]atching-[f]iles", description: "Stop searching after <NUM> matching files.");
         public static readonly KeyValuePairOptionValue Part = KeyValuePairOptionValue.Create("part", MetaValues.NamePart, shortKey: "p", description: "The part of a file or a directory name that should be matched.");
         public static readonly KeyValuePairOptionValue Timeout = KeyValuePairOptionValue.Create("timeout", "<NUM>", shortKey: "", description: "Match time-out interval in seconds.");
         public static readonly KeyValuePairOptionValue Verbosity = KeyValuePairOptionValue.Create("verbosity", MetaValues.Verbosity, shortKey: "v");
-        public static readonly KeyValuePairOptionValue Max = KeyValuePairOptionValue.Create("max", "<NUM>", shortKey: "", description: "Show only <NUM> items.");
     }
 }

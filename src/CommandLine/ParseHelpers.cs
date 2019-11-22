@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Orang.Expressions;
 using Orang.FileSystem;
 using static Orang.Logger;
 
@@ -15,6 +16,61 @@ namespace Orang.CommandLine
 {
     internal static class ParseHelpers
     {
+        public static bool TryParseFileProperties(
+            IEnumerable<string> values,
+            string optionName,
+            out FilePropertyFilter filter)
+        {
+            filter = null;
+            Func<long, bool> sizePredicate = null;
+            Func<DateTime, bool> creationTimePredicate = null;
+            Func<DateTime, bool> modifiedTimePredicate = null;
+
+            foreach (string value in values)
+            {
+                try
+                {
+                    Expression expression = Expression.Parse(value);
+
+                    if (OptionValues.FileProperty_Size.IsKeyOrShortKey(expression.Identifier))
+                    {
+                        if (expression.Kind == ExpressionKind.DecrementExpression)
+                        {
+                            WriteError($"Option '{OptionNames.GetHelpText(optionName)}' has invalid expression '{value}'.");
+                            return false;
+                        }
+
+                        sizePredicate = PredicateHelpers.GetLongPredicate(expression);
+                    }
+                    else if (OptionValues.FileProperty_CreationTime.IsKeyOrShortKey(expression.Identifier))
+                    {
+                        creationTimePredicate = PredicateHelpers.GetDateTimePredicate(expression);
+                    }
+                    else if (OptionValues.FileProperty_ModifiedTime.IsKeyOrShortKey(expression.Identifier))
+                    {
+                        modifiedTimePredicate = PredicateHelpers.GetDateTimePredicate(expression);
+                    }
+                    else
+                    {
+                        WriteParseError(value, optionName, OptionValueProviders.FilePropertiesProvider);
+                        return false;
+                    }
+                }
+                catch (ArgumentException)
+                {
+                    WriteError($"Option '{OptionNames.GetHelpText(optionName)}' has invalid expression '{value}'.");
+                    return false;
+                }
+            }
+
+            filter = new FilePropertyFilter(
+                sizePredicate: sizePredicate,
+                creationTimePredicate: creationTimePredicate,
+                modifiedTimePredicate: modifiedTimePredicate);
+
+            return true;
+        }
+
         public static bool TryParseSortOptions(
             IEnumerable<string> values,
             string optionName,
@@ -390,51 +446,13 @@ namespace Orang.CommandLine
                     {
                         string option = en.Current;
 
-                        (int index, int index2, OperatorKind operatorKind) = ParseOperator(option);
-
-                        if (index >= 0)
+                        if (Expression.TryParse(option, out Expression expression))
                         {
-                            string key = option.Substring(0, index);
-                            string value = option.Substring(index2 + 1);
+                            if (!ParseExpression(expression))
+                            {
+                                string helpText = (provider ?? OptionValueProviders.PatternOptionsProvider).GetHelpText();
 
-                            if (operatorKind == OperatorKind.Equals)
-                            {
-                                if (OptionValues.Group.IsKeyOrShortKey(key))
-                                {
-                                    groupName = value;
-                                }
-                                else if (OptionValues.ListSeparator.IsKeyOrShortKey(key))
-                                {
-                                    separator = value;
-                                }
-                                else if (OptionValues.Part.IsKeyOrShortKey(key))
-                                {
-                                    if (!TryParseAsEnum(value, out namePart, provider: OptionValueProviders.NamePartKindProvider))
-                                    {
-                                        string helpText = OptionValueProviders.NamePartKindProvider?.GetHelpText() ?? OptionValue.GetDefaultHelpText<NamePartKind>();
-                                        throw new ArgumentException($"Option '{OptionNames.GetHelpText(optionName)}' has invalid value '{value}'. Allowed values: {helpText}.", nameof(values));
-                                    }
-                                }
-                                else if (OptionValues.Timeout.IsKeyOrShortKey(key))
-                                {
-                                    matchTimeout = ParseMatchTimeout(value);
-                                }
-                                else if (OptionValues.Length.IsKeyOrShortKey(key))
-                                {
-                                    predicate = ParsePredicate(value, operatorKind);
-                                }
-                                else
-                                {
-                                    ThrowError(option);
-                                }
-                            }
-                            else if (OptionValues.Length.IsKeyOrShortKey(key))
-                            {
-                                predicate = ParsePredicate(value, operatorKind);
-                            }
-                            else
-                            {
-                                ThrowError(option);
+                                throw new ArgumentException($"Option '{OptionNames.GetHelpText(optionName)}' has invalid value '{option}'. Allowed values: {helpText}.", nameof(values));
                             }
                         }
                         else
@@ -445,77 +463,56 @@ namespace Orang.CommandLine
                 }
             }
 
-            void ThrowError(string value)
+            bool ParseExpression(Expression expression)
             {
-                string helpText = (provider ?? OptionValueProviders.PatternOptionsProvider).GetHelpText();
+                string key = expression.Identifier;
 
-                throw new ArgumentException($"Option '{OptionNames.GetHelpText(optionName)}' has invalid value '{value}'. Allowed values: {helpText}.", nameof(values));
-            }
-
-            Func<Group, bool> ParsePredicate(string value, OperatorKind operatorKind)
-            {
-                if (!int.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out int length))
-                    throw new ArgumentException($"Option '{OptionNames.GetHelpText(optionName)}' has invalid value '{value}'.");
-
-                return CreatePredicate(length, operatorKind);
-            }
-
-            (int index, int index2, OperatorKind operatorKind) ParseOperator(string value)
-            {
-                for (int i = 0; i < value.Length; i++)
+                if (expression.Kind == ExpressionKind.EqualsExpression)
                 {
-                    if (value[i] == '=')
+                    var equalsExpression = (BinaryExpression)expression;
+                    string value = equalsExpression.Value;
+
+                    if (OptionValues.Group.IsKeyOrShortKey(key))
                     {
-                        return (i, i, OperatorKind.Equals);
+                        groupName = value;
+                        return true;
                     }
-                    else if (value[i] == '>')
+                    else if (OptionValues.ListSeparator.IsKeyOrShortKey(key))
                     {
-                        if (i < value.Length - 1
-                            && value[i + 1] == '=')
-                        {
-                            return (i, i + 1, OperatorKind.GreaterThanOrEqual);
-                        }
-                        else
-                        {
-                            return (i, i, OperatorKind.GreaterThan);
-                        }
+                        separator = value;
+                        return true;
                     }
-                    else if (value[i] == '<')
+                    else if (OptionValues.Part.IsKeyOrShortKey(key))
                     {
-                        if (i < value.Length - 1
-                            && value[i + 1] == '=')
+                        if (!TryParseAsEnum(value, out namePart, provider: OptionValueProviders.NamePartKindProvider))
                         {
-                            return (i, i + 1, OperatorKind.LessThanOrEqual);
+                            string helpText = OptionValueProviders.NamePartKindProvider?.GetHelpText() ?? OptionValue.GetDefaultHelpText<NamePartKind>();
+                            throw new ArgumentException($"Option '{OptionNames.GetHelpText(optionName)}' has invalid value '{value}'. Allowed values: {helpText}.", nameof(values));
                         }
-                        else
-                        {
-                            return (i, i, OperatorKind.LessThan);
-                        }
+
+                        return true;
+                    }
+                    else if (OptionValues.Timeout.IsKeyOrShortKey(key))
+                    {
+                        matchTimeout = ParseMatchTimeout(value);
+                        return true;
                     }
                 }
 
-                return (-1, -1, OperatorKind.None);
-            }
-
-            Func<Group, bool> CreatePredicate(int length, OperatorKind operatorKind)
-            {
-                switch (operatorKind)
+                if (expression.Kind != ExpressionKind.DecrementExpression
+                    && OptionValues.Length.IsKeyOrShortKey(key))
                 {
-                    case OperatorKind.Equals:
-                        return f => f.Length == length;
-                    case OperatorKind.GreaterThan:
-                        return f => f.Length > length;
-                    case OperatorKind.LessThan:
-                        return f => f.Length < length;
-                    case OperatorKind.GreaterThanOrEqual:
-                        return f => f.Length >= length;
-                    case OperatorKind.LessThanOrEqual:
-                        return f => f.Length <= length;
-                    case OperatorKind.None:
-                        throw new InvalidOperationException();
-                    default:
-                        throw new InvalidOperationException($"Unknown enum value '{operatorKind}'.");
+                    try
+                    {
+                        predicate = PredicateHelpers.GetLengthPredicate(expression);
+                        return true;
+                    }
+                    catch (ArgumentException)
+                    {
+                    }
                 }
+
+                return false;
             }
         }
 
@@ -966,16 +963,6 @@ namespace Orang.CommandLine
         private static void WriteParseError(string value, string optionName, string helpText)
         {
             WriteError($"Option '{OptionNames.GetHelpText(optionName)}' has invalid value '{value}'. Allowed values: {helpText}.");
-        }
-
-        private enum OperatorKind
-        {
-            None,
-            Equals,
-            GreaterThan,
-            LessThan,
-            GreaterThanOrEqual,
-            LessThanOrEqual,
         }
     }
 }

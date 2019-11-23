@@ -104,7 +104,53 @@ namespace Orang.CommandLine
                 WriteLine(Verbosity.Minimal);
             }
 
-            string newPath = GetNewPath(path, baseDirectoryPath, result.Part, indent);
+            NamePart part = result.Part;
+
+            Match match = Options.NameFilter.Regex.Match(path.Substring(part.Index, part.Length));
+
+            string replacement = (Options.MatchEvaluator != null)
+                ? Options.MatchEvaluator(match)
+                : match.Result(Options.Replacement);
+
+            int index = part.Index + match.Index;
+            int endIndex = index + match.Length;
+
+            string newPath = path.Remove(index) + replacement + path.Substring(endIndex);
+
+            int fileNameIndex = part.GetFileNameIndex();
+
+            int indentCount = fileNameIndex;
+
+            if (Options.PathDisplayStyle == PathDisplayStyle.Relative
+                && baseDirectoryPath != null
+                && path.StartsWith(baseDirectoryPath, StringComparison.OrdinalIgnoreCase))
+            {
+                indentCount -= baseDirectoryPath.Length;
+
+                if (fileNameIndex > 0
+                    && FileSystemHelpers.IsDirectorySeparator(path[fileNameIndex - 1]))
+                {
+                    indentCount--;
+                }
+            }
+
+            indentCount += indent?.Length ?? 0;
+
+            if (!Options.OmitPath)
+            {
+                Write(' ', indentCount);
+                Write(path, fileNameIndex, index - fileNameIndex);
+                Write(replacement, (Options.HighlightReplacement) ? Colors.Replacement : default);
+                Write(path, endIndex, path.Length - endIndex);
+
+                if (string.Equals(path, newPath, StringComparison.Ordinal))
+                {
+                    WriteLine(" NO CHANGE", Colors.Message_Warning);
+                    return;
+                }
+
+                WriteLine();
+            }
 
             if (newPath == null)
                 return;
@@ -167,54 +213,6 @@ namespace Orang.CommandLine
                     return false;
                 }
             }
-        }
-
-        private string GetNewPath(string path, string directoryPath, NamePart part, string indent)
-        {
-            Match match = Options.NameFilter.Regex.Match(path.Substring(part.Index, part.Length));
-
-            string replacement = (Options.MatchEvaluator != null)
-                ? Options.MatchEvaluator(match)
-                : match.Result(Options.Replacement);
-
-            int index = part.Index + match.Index;
-            int endIndex = index + match.Length;
-
-            string newPath = path.Remove(index) + replacement + path.Substring(endIndex);
-
-            int fileNameIndex = part.GetFileNameIndex();
-
-            int indentCount = fileNameIndex;
-
-            if (Options.PathDisplayStyle == PathDisplayStyle.Relative
-                && directoryPath != null
-                && path.StartsWith(directoryPath, StringComparison.OrdinalIgnoreCase))
-            {
-                indentCount -= directoryPath.Length;
-
-                if (fileNameIndex > 0
-                    && FileSystemHelpers.IsDirectorySeparator(path[fileNameIndex - 1]))
-                {
-                    indentCount--;
-                }
-            }
-
-            indentCount += indent?.Length ?? 0;
-
-            Write(' ', indentCount);
-            Write(path, fileNameIndex, index - fileNameIndex);
-            Write(replacement, (Options.HighlightReplacement) ? Colors.Replacement : default);
-            Write(path, endIndex, path.Length - endIndex);
-
-            if (string.Equals(path, newPath, StringComparison.Ordinal))
-            {
-                WriteLine(" NO CHANGE", Colors.Message_Warning);
-                return null;
-            }
-
-            WriteLine();
-
-            return newPath;
         }
 
         protected virtual void OnDirectoryChanged(DirectoryChangedEventArgs e)

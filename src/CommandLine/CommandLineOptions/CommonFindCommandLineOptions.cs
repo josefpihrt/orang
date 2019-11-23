@@ -12,6 +12,7 @@ using static Orang.CommandLine.ParseHelpers;
 
 namespace Orang.CommandLine
 {
+    [OptionValueProvider(nameof(AttributesToSkip), OptionValueProviderNames.FileSystemAttributesToSkip)]
     internal abstract class CommonFindCommandLineOptions : CommonRegexCommandLineOptions
     {
         private FileSystemAttributes FileSystemAttributes { get; set; }
@@ -29,7 +30,6 @@ namespace Orang.CommandLine
         [Option(longName: OptionNames.AttributesToSkip,
             HelpText = "File attributes that should be skipped.",
             MetaValue = MetaValues.Attributes)]
-        [OptionValueProvider(OptionValueProviderNames.FileSystemAttributesToSkip)]
         public IEnumerable<string> AttributesToSkip { get; set; }
 
         [Option(longName: OptionNames.Encoding,

@@ -12,6 +12,9 @@ using static Orang.Logger;
 namespace Orang.CommandLine
 {
     [Verb("rename", HelpText = "Renames files and directories.")]
+    [OptionValueProvider(nameof(Content), OptionValueProviderNames.PatternOptionsWithoutPart)]
+    [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.RenameHighlightOptions)]
+    [OptionValueProvider(nameof(Name), OptionValueProviderNames.PatternOptionsWithoutGroupAndNegative)]
     internal class RenameCommandLineOptions : CommonFindCommandLineOptions
     {
         [Option(longName: OptionNames.Ask,
@@ -21,7 +24,6 @@ namespace Orang.CommandLine
         [Option(shortName: OptionShortNames.Content, longName: OptionNames.Content,
             HelpText = "Regular expression for files' content. Syntax is <PATTERN> [<PATTERN_OPTIONS>].",
             MetaValue = MetaValues.Regex)]
-        [OptionValueProvider(OptionValueProviderNames.PatternOptionsWithoutPart)]
         public IEnumerable<string> Content { get; set; }
 
         [Option(shortName: OptionShortNames.DryRun, longName: OptionNames.DryRun,
@@ -33,12 +35,6 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.Evaluator)]
         public string Evaluator { get; set; }
 
-        [Option(shortName: OptionShortNames.Highlight, longName: OptionNames.Highlight,
-            HelpText = "Parts of the output to highlight.",
-            MetaValue = MetaValues.Highlight)]
-        [OptionValueProvider(OptionValueProviderNames.RenameHighlightOptions)]
-        public IEnumerable<string> Highlight { get; set; }
-
         [Option(shortName: OptionShortNames.MaxCount, longName: OptionNames.MaxCount,
             HelpText = "Stop deleting after specified number is reached.",
             MetaValue = MetaValues.Number)]
@@ -48,7 +44,6 @@ namespace Orang.CommandLine
             Required = true,
             HelpText = "Regular expression for file or directory name. Syntax is <PATTERN> [<PATTERN_OPTIONS>].",
             MetaValue = MetaValues.Regex)]
-        [OptionValueProvider(OptionValueProviderNames.PatternOptionsWithoutGroupAndNegative)]
         public IEnumerable<string> Name { get; set; }
 
         [Option(shortName: OptionShortNames.Output, longName: OptionNames.Output,

@@ -10,19 +10,14 @@ using static Orang.Logger;
 namespace Orang.CommandLine
 {
     [Verb("find", HelpText = "Searches the file system for files and directories and optionally searches files' content.")]
+    [OptionValueProvider(nameof(Content), OptionValueProviderNames.PatternOptionsWithoutPart)]
+    [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.FindHighlightOptions)]
     internal class FindCommandLineOptions : CommonFindContentCommandLineOptions
     {
         [Option(shortName: OptionShortNames.Content, longName: OptionNames.Content,
             HelpText = "Regular expression for files' content. Syntax is <PATTERN> [<PATTERN_OPTIONS>].",
             MetaValue = MetaValues.Regex)]
-        [OptionValueProvider(OptionValueProviderNames.PatternOptionsWithoutPart)]
         public IEnumerable<string> Content { get; set; }
-
-        [Option(shortName: OptionShortNames.Highlight, longName: OptionNames.Highlight,
-            HelpText = "Parts of the output to highlight.",
-            MetaValue = MetaValues.Highlight)]
-        [OptionValueProvider(OptionValueProviderNames.FindHighlightOptions)]
-        public IEnumerable<string> Highlight { get; set; }
 
         [Option(shortName: OptionShortNames.Output, longName: OptionNames.Output,
             HelpText = "Path to a file that should store results. Syntax is <PATH> [<OUTPUT_OPTIONS>].",

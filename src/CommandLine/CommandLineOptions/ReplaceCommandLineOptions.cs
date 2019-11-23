@@ -11,13 +11,14 @@ using static Orang.Logger;
 namespace Orang.CommandLine
 {
     [Verb("replace", HelpText = "Searches the file system for files and replaces its content.")]
+    [OptionValueProvider(nameof(Content), OptionValueProviderNames.PatternOptionsWithoutGroupAndPartAndNegative)]
+    [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.ReplaceHighlightOptions)]
     internal class ReplaceCommandLineOptions : CommonFindContentCommandLineOptions
     {
         [Option(shortName: OptionShortNames.Content, longName: OptionNames.Content,
             Required = true,
             HelpText = "Regular expression for files' content. Syntax is <PATTERN> [<PATTERN_OPTIONS>].",
             MetaValue = MetaValues.Regex)]
-        [OptionValueProvider(OptionValueProviderNames.PatternOptionsWithoutGroupAndPartAndNegative)]
         public IEnumerable<string> Content { get; set; }
 
         [Option(shortName: OptionShortNames.DryRun, longName: OptionNames.DryRun,
@@ -28,12 +29,6 @@ namespace Orang.CommandLine
             HelpText = "Path to the evaluator method to compute replacements. The format is \"LibraryPath,FullTypeName.MethodName\".",
             MetaValue = MetaValues.Evaluator)]
         public string Evaluator { get; set; }
-
-        [Option(shortName: OptionShortNames.Highlight, longName: OptionNames.Highlight,
-            HelpText = "Parts of the output to highlight.",
-            MetaValue = MetaValues.Highlight)]
-        [OptionValueProvider(OptionValueProviderNames.ReplaceHighlightOptions)]
-        public IEnumerable<string> Highlight { get; set; }
 
         [Option(longName: OptionNames.Input,
             HelpText = "Text to search.",

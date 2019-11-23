@@ -7,20 +7,15 @@ using static Orang.CommandLine.ParseHelpers;
 namespace Orang.CommandLine
 {
     [Verb("match", HelpText = "Searches the input string for occurrences of the regular expression.")]
+    [OptionValueProvider(nameof(Content), OptionValueProviderNames.PatternOptionsWithoutPartAndNegative)]
+    [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.MatchHighlightOptions)]
     internal class MatchCommandLineOptions : RegexCommandLineOptions
     {
         [Option(shortName: OptionShortNames.Content, longName: OptionNames.Content,
             Required = true,
             HelpText = "Regular expression for the input string. Syntax is <PATTERN> [<PATTERN_OPTIONS>].",
             MetaValue = MetaValues.Regex)]
-        [OptionValueProvider(OptionValueProviderNames.PatternOptionsWithoutPartAndNegative)]
         public IEnumerable<string> Content { get; set; }
-
-        [Option(shortName: OptionShortNames.Highlight, longName: OptionNames.Highlight,
-            HelpText = "Parts of the output to highlight.",
-            MetaValue = MetaValues.Highlight)]
-        [OptionValueProvider(OptionValueProviderNames.MatchHighlightOptions)]
-        public IEnumerable<string> Highlight { get; set; }
 
         [Option(shortName: OptionShortNames.MaxCount, longName: OptionNames.MaxCount,
             Default = -1,

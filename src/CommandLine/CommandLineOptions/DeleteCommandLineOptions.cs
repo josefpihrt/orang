@@ -9,6 +9,8 @@ using static Orang.CommandLine.ParseHelpers;
 namespace Orang.CommandLine
 {
     [Verb("delete", HelpText = "Deletes files and directories.")]
+    [OptionValueProvider(nameof(Content), OptionValueProviderNames.PatternOptionsWithoutPart)]
+    [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.DeleteHighlightOptions)]
     internal class DeleteCommandLineOptions : CommonFindCommandLineOptions
     {
         [Option(longName: OptionNames.Ask,
@@ -18,7 +20,6 @@ namespace Orang.CommandLine
         [Option(shortName: OptionShortNames.Content, longName: OptionNames.Content,
             HelpText = "Regular expression for files' content. Syntax is <PATTERN> [<PATTERN_OPTIONS>].",
             MetaValue = MetaValues.Regex)]
-        [OptionValueProvider(OptionValueProviderNames.PatternOptionsWithoutPart)]
         public IEnumerable<string> Content { get; set; }
 
         [Option(longName: OptionNames.ContentOnly,
@@ -28,12 +29,6 @@ namespace Orang.CommandLine
         [Option(shortName: OptionShortNames.DryRun, longName: OptionNames.DryRun,
             HelpText = "Display which files or directories should be deleted but do not actually delete any file or directory.")]
         public bool DryRun { get; set; }
-
-        [Option(shortName: OptionShortNames.Highlight, longName: OptionNames.Highlight,
-            HelpText = "Parts of the output to highlight.",
-            MetaValue = MetaValues.Highlight)]
-        [OptionValueProvider(OptionValueProviderNames.DeleteHighlightOptions)]
-        public IEnumerable<string> Highlight { get; set; }
 
         [Option(longName: OptionNames.IncludingBom,
             HelpText = "Delete byte order mark (BOM) when deleting file's content.")]

@@ -7,20 +7,15 @@ using static Orang.CommandLine.ParseHelpers;
 namespace Orang.CommandLine
 {
     [Verb("split", HelpText = "Splits the input string into an list of substrings at the positions defined by a regular expression.")]
+    [OptionValueProvider(nameof(Content), OptionValueProviderNames.PatternOptionsWithoutGroupAndPartAndNegative)]
+    [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.SplitHighlightOptions)]
     internal class SplitCommandLineOptions : RegexCommandLineOptions
     {
         [Option(shortName: OptionShortNames.Content, longName: OptionNames.Content,
             Required = true,
             HelpText = "Regular expression for the input string. Syntax is <PATTERN> [<PATTERN_OPTIONS>].",
             MetaValue = MetaValues.Regex)]
-        [OptionValueProvider(OptionValueProviderNames.PatternOptionsWithoutGroupAndPartAndNegative)]
         public IEnumerable<string> Content { get; set; }
-
-        [Option(shortName: OptionShortNames.Highlight, longName: OptionNames.Highlight,
-            HelpText = "Parts of the output to highlight.",
-            MetaValue = MetaValues.Highlight)]
-        [OptionValueProvider(OptionValueProviderNames.SplitHighlightOptions)]
-        public IEnumerable<string> Highlight { get; set; }
 
         [Option(shortName: OptionShortNames.MaxCount, longName: OptionNames.MaxCount,
             Default = 0,

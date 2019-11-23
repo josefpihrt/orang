@@ -47,9 +47,11 @@ namespace Orang.CommandLine
             ImmutableArray<CommandArgument>.Builder arguments = ImmutableArray.CreateBuilder<CommandArgument>();
             ImmutableArray<CommandOption>.Builder options = ImmutableArray.CreateBuilder<CommandOption>();
 
+            Dictionary<string, string> providerMap = type.GetCustomAttributes<OptionValueProviderAttribute>()
+                .ToDictionary(f => f.PropertyName, f => f.ProviderName);
+
             foreach (PropertyInfo propertyInfo in type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
             {
-                OptionValueProviderAttribute optionValueProviderAttribute = null;
                 OptionAttribute optionAttribute = null;
 
                 foreach (Attribute attribute in propertyInfo.GetCustomAttributes())
@@ -65,23 +67,12 @@ namespace Orang.CommandLine
                         arguments.Add(argument);
                         break;
                     }
-                    else
+                    else if (optionAttribute == null)
                     {
-                        if (optionAttribute == null)
-                        {
-                            optionAttribute = attribute as OptionAttribute;
+                        optionAttribute = attribute as OptionAttribute;
 
-                            if (optionAttribute != null)
-                                continue;
-                        }
-
-                        if (optionValueProviderAttribute == null)
-                        {
-                            optionValueProviderAttribute = attribute as OptionValueProviderAttribute;
-
-                            if (optionValueProviderAttribute != null)
-                                continue;
-                        }
+                        if (optionAttribute != null)
+                            continue;
                     }
                 }
 
@@ -95,7 +86,7 @@ namespace Orang.CommandLine
                         metaValue: optionAttribute.MetaValue,
                         description: optionAttribute.HelpText,
                         isRequired: optionAttribute.Required,
-                        valueProviderName: optionValueProviderAttribute?.Name);
+                        valueProviderName: (providerMap.TryGetValue(propertyInfo.Name, out string valueProviderName)) ? valueProviderName : null);
 
                     options.Add(option);
                 }

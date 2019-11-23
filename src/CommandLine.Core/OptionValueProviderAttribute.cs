@@ -4,14 +4,17 @@ using System;
 
 namespace Orang
 {
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-    public sealed class OptionValueProviderAttribute : Attribute
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+    internal sealed class OptionValueProviderAttribute : Attribute
     {
-        public OptionValueProviderAttribute(string name)
+        public OptionValueProviderAttribute(string propertyName, string providerName)
         {
-            Name = name;
+            PropertyName = propertyName;
+            ProviderName = providerName;
         }
 
-        public string Name { get; }
+        public string PropertyName { get; }
+
+        public string ProviderName { get; }
     }
 }

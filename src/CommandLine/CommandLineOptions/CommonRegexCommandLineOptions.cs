@@ -12,6 +12,11 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.DisplayOptions)]
         public IEnumerable<string> Display { get; set; }
 
+        [Option(shortName: OptionShortNames.Highlight, longName: OptionNames.Highlight,
+            HelpText = "Parts of the output to highlight.",
+            MetaValue = MetaValues.Highlight)]
+        public IEnumerable<string> Highlight { get; set; }
+
         public bool TryParse(ref CommonRegexCommandOptions options)
         {
             return true;

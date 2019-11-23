@@ -118,17 +118,6 @@ namespace Orang.CommandLine
             }
         }
 
-        private class SearchResultLastAccessTimeComparer : SearchResultComparer
-        {
-            public override int Compare(SearchResult x, SearchResult y)
-            {
-                if (object.ReferenceEquals(x, y))
-                    return 0;
-
-                return x.FileSystemInfo.LastAccessTime.CompareTo(y.FileSystemInfo.LastAccessTime);
-            }
-        }
-
         private class SearchResultModifiedTimeComparer : SearchResultComparer
         {
             public override int Compare(SearchResult x, SearchResult y)

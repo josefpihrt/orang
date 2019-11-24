@@ -109,6 +109,7 @@ namespace Orang.CommandLine
             pathDisplayStyle = pathDisplayStyle2 ?? PathDisplayStyle.Full;
 
             if (pathDisplayStyle == PathDisplayStyle.Relative
+                && options.Paths.Length > 1
                 && options.SortOptions != null)
             {
                 pathDisplayStyle = PathDisplayStyle.Full;

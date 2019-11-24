@@ -47,7 +47,8 @@ namespace Orang.CommandLine
             ImmutableArray<CommandArgument>.Builder arguments = ImmutableArray.CreateBuilder<CommandArgument>();
             ImmutableArray<CommandOption>.Builder options = ImmutableArray.CreateBuilder<CommandOption>();
 
-            Dictionary<string, string> providerMap = type.GetCustomAttributes<OptionValueProviderAttribute>()
+            Dictionary<string, string> providerMap = type
+                .GetCustomAttributes<OptionValueProviderAttribute>()
                 .ToDictionary(f => f.PropertyName, f => f.ProviderName);
 
             foreach (PropertyInfo propertyInfo in type.GetProperties(BindingFlags.Instance | BindingFlags.Public))

@@ -7,6 +7,8 @@ namespace Orang.CommandLine
         public const string ContentDisplayStyle_WithoutLineAndUnmatchedLines = nameof(ContentDisplayStyle_WithoutLineAndUnmatchedLines);
         public const string ContentDisplayStyle_WithoutUnmatchedLines = nameof(ContentDisplayStyle_WithoutUnmatchedLines);
         public const string DeleteHighlightOptions = nameof(DeleteHighlightOptions);
+        public const string Display_MatchAndSplit = nameof(Display_MatchAndSplit);
+        public const string Display_NonContent = nameof(Display_NonContent);
         public const string FileSystemAttributesToSkip = nameof(FileSystemAttributesToSkip);
         public const string FindHighlightOptions = nameof(FindHighlightOptions);
         public const string MatchHighlightOptions = nameof(MatchHighlightOptions);

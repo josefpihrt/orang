@@ -22,14 +22,12 @@ namespace Orang.CommandLine
         public const string Extension = "extension";
         public const string FileLog = "file-log";
         public const string Filter = "filter";
-        public const string Format = "format";
         public const string Help = "help";
         public const string Highlight = "highlight";
         public const string CharGroup = "char-group";
         public const string IncludeDirectory = "include-directory";
         public const string IncludingBom = "including-bom";
         public const string Input = "input";
-        public const string LineNumber = "line-number";
         public const string Manual = "manual";
         public const string MaxCount = "max-count";
         public const string Name = "name";

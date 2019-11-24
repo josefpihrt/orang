@@ -10,6 +10,7 @@ namespace Orang.CommandLine
 {
     [Verb("delete", HelpText = "Deletes files and directories.")]
     [OptionValueProvider(nameof(Content), OptionValueProviderNames.PatternOptionsWithoutPart)]
+    [OptionValueProvider(nameof(Display), OptionValueProviderNames.Display_NonContent)]
     [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.DeleteHighlightOptions)]
     internal class DeleteCommandLineOptions : CommonFindCommandLineOptions
     {
@@ -79,12 +80,13 @@ namespace Orang.CommandLine
             if (!TryParseDisplay(
                 values: Display,
                 optionName: OptionNames.Display,
-                contentDisplayStyle: out ContentDisplayStyle _,
-                pathDisplayStyle: out PathDisplayStyle pathDisplayStyle,
+                contentDisplayStyle: out ContentDisplayStyle? _,
+                pathDisplayStyle: out PathDisplayStyle? pathDisplayStyle,
+                lineDisplayOptions: out LineDisplayOptions lineDisplayOptions,
                 displayParts: out DisplayParts displayParts,
                 fileProperties: out ImmutableArray<FileProperty> fileProperties,
-                defaultContentDisplayStyle: 0,
-                defaultPathDisplayStyle: PathDisplayStyle.Full,
+                indent: out string indent,
+                separator: out string separator,
                 contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider,
                 pathDisplayStyleProvider: OptionValueProviders.PathDisplayStyleProvider))
             {
@@ -98,7 +100,15 @@ namespace Orang.CommandLine
                 pathDisplayStyle = PathDisplayStyle.Full;
             }
 
-            options.Format = new OutputDisplayFormat(ContentDisplayStyle.None, pathDisplayStyle, displayParts: displayParts, fileProperties: fileProperties);
+            options.Format = new OutputDisplayFormat(
+                contentDisplayStyle: ContentDisplayStyle.None,
+                pathDisplayStyle: pathDisplayStyle ?? PathDisplayStyle.Full,
+                lineOptions: lineDisplayOptions,
+                displayParts: displayParts,
+                fileProperties: fileProperties,
+                indent: indent,
+                separator: separator);
+
             options.Ask = Ask;
             options.DryRun = DryRun;
             options.HighlightOptions = highlightOptions;

@@ -287,9 +287,30 @@ namespace Orang.CommandLine
             OptionValues.Display_Content,
             OptionValues.Display_Count,
             OptionValues.Display_CreationTime,
+            OptionValues.Display_Indent,
+            OptionValues.Display_LineNumber,
             OptionValues.Display_ModifiedTime,
             OptionValues.Display_Path,
             OptionValues.Display_Size,
+            OptionValues.Display_Separator,
+            OptionValues.Display_Summary,
+            OptionValues.Display_TrimLine
+        );
+
+        public static OptionValueProvider DisplayProvider_MatchAndSplit { get; } = new OptionValueProvider(OptionValueProviderNames.Display_MatchAndSplit,
+            OptionValues.Display_Content,
+            OptionValues.Display_Indent,
+            OptionValues.Display_Separator,
+            OptionValues.Display_Summary
+        );
+
+        public static OptionValueProvider DisplayProvider_NonContent { get; } = new OptionValueProvider(OptionValueProviderNames.Display_NonContent,
+            OptionValues.Display_CreationTime,
+            OptionValues.Display_Indent,
+            OptionValues.Display_ModifiedTime,
+            OptionValues.Display_Path,
+            OptionValues.Display_Size,
+            OptionValues.Display_Separator,
             OptionValues.Display_Summary
         );
 

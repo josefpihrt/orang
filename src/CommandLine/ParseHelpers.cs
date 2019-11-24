@@ -237,49 +237,23 @@ namespace Orang.CommandLine
         public static bool TryParseDisplay(
             IEnumerable<string> values,
             string optionName,
-            out ContentDisplayStyle contentDisplayStyle,
-            out PathDisplayStyle pathDisplayStyle,
-            out DisplayParts displayParts,
-            out ImmutableArray<FileProperty> fileProperties,
-            ContentDisplayStyle defaultContentDisplayStyle,
-            PathDisplayStyle defaultPathDisplayStyle,
-            OptionValueProvider contentDisplayStyleProvider = null,
-            OptionValueProvider pathDisplayStyleProvider = null)
-        {
-            if (!TryParseDisplay(
-                values: values,
-                optionName: optionName,
-                contentDisplayStyle: out ContentDisplayStyle? contentDisplayStyle2,
-                pathDisplayStyle: out PathDisplayStyle? pathDisplayStyle2,
-                displayParts: out displayParts,
-                fileProperties: out fileProperties,
-                contentDisplayStyleProvider: contentDisplayStyleProvider,
-                pathDisplayStyleProvider: pathDisplayStyleProvider))
-            {
-                contentDisplayStyle = 0;
-                pathDisplayStyle = 0;
-                return false;
-            }
-
-            contentDisplayStyle = contentDisplayStyle2 ?? defaultContentDisplayStyle;
-            pathDisplayStyle = pathDisplayStyle2 ?? defaultPathDisplayStyle;
-            return true;
-        }
-
-        public static bool TryParseDisplay(
-            IEnumerable<string> values,
-            string optionName,
             out ContentDisplayStyle? contentDisplayStyle,
             out PathDisplayStyle? pathDisplayStyle,
+            out LineDisplayOptions lineDisplayOptions,
             out DisplayParts displayParts,
             out ImmutableArray<FileProperty> fileProperties,
+            out string indent,
+            out string separator,
             OptionValueProvider contentDisplayStyleProvider = null,
             OptionValueProvider pathDisplayStyleProvider = null)
         {
             contentDisplayStyle = null;
             pathDisplayStyle = null;
+            lineDisplayOptions = LineDisplayOptions.None;
             displayParts = DisplayParts.None;
             fileProperties = ImmutableArray<FileProperty>.Empty;
+            indent = null;
+            separator = null;
 
             ImmutableArray<FileProperty>.Builder builder = null;
 
@@ -306,6 +280,14 @@ namespace Orang.CommandLine
 
                         pathDisplayStyle = pathDisplayStyle2;
                     }
+                    else if (OptionValues.Display_Indent.IsKeyOrShortKey(key))
+                    {
+                        indent = value2;
+                    }
+                    else if (OptionValues.Display_Separator.IsKeyOrShortKey(key))
+                    {
+                        separator = value2;
+                    }
                     else
                     {
                         ThrowException(value);
@@ -330,6 +312,22 @@ namespace Orang.CommandLine
                 else if (OptionValues.Display_Size.IsValueOrShortValue(value))
                 {
                     (builder ?? (builder = ImmutableArray.CreateBuilder<FileProperty>())).Add(FileProperty.Size);
+                }
+                else if (OptionValues.Display_LineNumber.IsValueOrShortValue(value))
+                {
+                    lineDisplayOptions |= LineDisplayOptions.IncludeLineNumber;
+                }
+                else if (OptionValues.Display_TrimLine.IsValueOrShortValue(value))
+                {
+                    lineDisplayOptions |= LineDisplayOptions.TrimLine;
+                }
+                else if (OptionValues.Display_TrimLine.IsValueOrShortValue(value))
+                {
+                    lineDisplayOptions |= LineDisplayOptions.TrimLine;
+                }
+                else if (OptionValues.Display_TrimLine.IsValueOrShortValue(value))
+                {
+                    lineDisplayOptions |= LineDisplayOptions.TrimLine;
                 }
                 else
                 {

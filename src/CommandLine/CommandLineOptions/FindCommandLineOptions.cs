@@ -47,12 +47,13 @@ namespace Orang.CommandLine
             if (!TryParseDisplay(
                 values: Display,
                 optionName: OptionNames.Display,
-                contentDisplayStyle: out ContentDisplayStyle contentDisplayStyle,
-                pathDisplayStyle: out PathDisplayStyle pathDisplayStyle,
+                contentDisplayStyle: out ContentDisplayStyle? contentDisplayStyle,
+                pathDisplayStyle: out PathDisplayStyle? pathDisplayStyle,
+                lineDisplayOptions: out LineDisplayOptions lineDisplayOptions,
                 displayParts: out DisplayParts displayParts,
                 fileProperties: out ImmutableArray<FileProperty> fileProperties,
-                defaultContentDisplayStyle: ContentDisplayStyle.Line,
-                defaultPathDisplayStyle: PathDisplayStyle.Full,
+                indent: out string indent,
+                separator: out string separator,
                 contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider,
                 pathDisplayStyleProvider: OptionValueProviders.PathDisplayStyleProvider))
             {
@@ -92,7 +93,15 @@ namespace Orang.CommandLine
                 maxMatchingFiles = (maxCount > 0) ? maxCount : maxMatchingFiles;
             }
 
-            options.Format = new OutputDisplayFormat(contentDisplayStyle: contentDisplayStyle, pathDisplayStyle: pathDisplayStyle, lineOptions: LineDisplayOptions, displayParts: displayParts, fileProperties: fileProperties);
+            options.Format = new OutputDisplayFormat(
+                contentDisplayStyle: contentDisplayStyle ?? ContentDisplayStyle.Line,
+                pathDisplayStyle: pathDisplayStyle ?? PathDisplayStyle.Full,
+                lineOptions: lineDisplayOptions,
+                displayParts: displayParts,
+                fileProperties: fileProperties,
+                indent: indent,
+                separator: separator);
+
             options.HighlightOptions = highlightOptions;
             options.SearchTarget = GetSearchTarget();
             options.ContentFilter = contentFilter;

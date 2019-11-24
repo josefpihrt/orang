@@ -10,6 +10,7 @@ using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
+    [OptionValueProvider(nameof(Display), OptionValueProviderNames.Display_MatchAndSplit)]
     internal abstract class RegexCommandLineOptions : CommonRegexCommandLineOptions
     {
         [Value(index: 0,
@@ -75,19 +76,28 @@ namespace Orang.CommandLine
             if (!TryParseDisplay(
                 values: Display,
                 optionName: OptionNames.Display,
-                contentDisplayStyle: out ContentDisplayStyle contentDisplayStyle,
-                pathDisplayStyle: out PathDisplayStyle _,
+                contentDisplayStyle: out ContentDisplayStyle? contentDisplayStyle,
+                pathDisplayStyle: out PathDisplayStyle? _,
+                lineDisplayOptions: out LineDisplayOptions lineDisplayOptions,
                 displayParts: out DisplayParts displayParts,
                 fileProperties: out ImmutableArray<FileProperty> fileProperties,
-                defaultContentDisplayStyle: ContentDisplayStyle.Value,
-                defaultPathDisplayStyle: 0,
+                indent: out string indent,
+                separator: out string separator,
                 contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider_WithoutLineAndUnmatchedLinesAndOmit,
                 pathDisplayStyleProvider: OptionValueProviders.PathDisplayStyleProvider))
             {
                 return false;
             }
 
-            options.Format = new OutputDisplayFormat(contentDisplayStyle: contentDisplayStyle, displayParts: displayParts, fileProperties: fileProperties);
+            options.Format = new OutputDisplayFormat(
+                contentDisplayStyle: contentDisplayStyle ?? ContentDisplayStyle.Value,
+                pathDisplayStyle: PathDisplayStyle.Full,
+                lineOptions: lineDisplayOptions,
+                displayParts: displayParts,
+                fileProperties: fileProperties,
+                indent: indent,
+                separator: separator ?? Environment.NewLine);
+
             options.Input = input;
             options.Output = outputOptions;
 

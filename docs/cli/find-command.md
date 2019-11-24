@@ -16,7 +16,6 @@ orang find [<PATH>]
 [-h|--help]
 [-t|--highlight]          <HIGHLIGHT>
 [-i|--include-directory]  <REGEX>
-[-l|--line-number]
 [-m|--max-count]          <MAX_OPTIONS>
 [-n|--name]               <REGEX>
 [   --no-recurse]
@@ -55,7 +54,7 @@ Regular expression for files' content\. Syntax is \<PATTERN> \[\<PATTERN\_OPTION
 
 **`[-y|--display] <DISPLAY_OPTIONS>`**
 
-Display of the results\. Allowed values are \[c\]ontent=\<CONTENT\_DISPLAY>, count, \[c\]reation\-time, \[m\]odified\-time, \[p\]ath=\<PATH\_DISPLAY>, \[s\]ize and summary\.
+Display of the results\. Allowed values are \[c\]ontent=\<CONTENT\_DISPLAY>, count, \[c\]reation\-\[t\]ime, indent=\<INDENT>, \[l\]ine\-number, \[m\]odified\-time, \[p\]ath=\<PATH\_DISPLAY>, \[s\]ize, separator=\<SEPARATOR>, summary and \[t\]rim\-line\.
 
 **`[--encoding] <ENCODING>`**
 
@@ -76,10 +75,6 @@ Parts of the output to highlight\. Allowed values are \[n\]one, \[m\]atch, \[e\]
 **`[-i|--include-directory] <REGEX>`**
 
 Regular expression for a directory name\. Syntax is \<PATTERN> \[\<PATTERN\_OPTIONS>\]\. Allowed values are compiled, \[c\]ulture\-\[i\]nvariant, \[e\]cma\-\[s\]cript, \[n\] explicit\-capture, \[f\]rom\-file, \[g\]roup=\<GROUP\_NAME>, \[i\]gnore\-case, \[x\] ignore\-pattern\-whitespace, \[li\]st, length=\<NUM>, \[li\]st\-\[s\]eparator, \[l\]iteral, \[m\]ultiline, \[neg\]ative, \[p\]art=\<NAME\_PART>, \[r\]ight\-to\-left, \[s\]ingleline, timeout=\<NUM>, \[w\]hole\-\[i\]nput, \[w\]hole\-\[l\]ine and \[w\]hole\-word\.
-
-**`[-l|--line-number]`**
-
-Include line number\.
 
 **`[-m|--max-count] <MAX_OPTIONS>`**
 

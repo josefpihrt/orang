@@ -78,8 +78,11 @@ namespace Orang.CommandLine
                 optionName: OptionNames.Display,
                 contentDisplayStyle: out ContentDisplayStyle? contentDisplayStyle2,
                 pathDisplayStyle: out PathDisplayStyle? pathDisplayStyle2,
+                lineDisplayOptions: out LineDisplayOptions lineDisplayOptions,
                 displayParts: out DisplayParts displayParts,
                 fileProperties: out ImmutableArray<FileProperty> fileProperties,
+                indent: out string indent,
+                separator: out string separator,
                 contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider_WithoutUnmatchedLines,
                 pathDisplayStyleProvider: OptionValueProviders.PathDisplayStyleProvider))
             {
@@ -91,7 +94,7 @@ namespace Orang.CommandLine
                 if (options.AskMode == AskMode.Value
                     && contentDisplayStyle2 == ContentDisplayStyle.AllLines)
                 {
-                    WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Format)}' cannot have value '{OptionValueProviders.ContentDisplayStyleProvider.GetValue(nameof(ContentDisplayStyle.AllLines)).HelpValue}' when option '{OptionNames.GetHelpText(OptionNames.Ask)}' has value '{OptionValueProviders.AskModeProvider.GetValue(nameof(AskMode.Value)).HelpValue}'.");
+                    WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Display)}' cannot have value '{OptionValueProviders.ContentDisplayStyleProvider.GetValue(nameof(ContentDisplayStyle.AllLines)).HelpValue}' when option '{OptionNames.GetHelpText(OptionNames.Ask)}' has value '{OptionValueProviders.AskModeProvider.GetValue(nameof(AskMode.Value)).HelpValue}'.");
                     return false;
                 }
 
@@ -115,7 +118,15 @@ namespace Orang.CommandLine
                 pathDisplayStyle = PathDisplayStyle.Full;
             }
 
-            options.Format = new OutputDisplayFormat(contentDisplayStyle: contentDisplayStyle, pathDisplayStyle: pathDisplayStyle, lineOptions: LineDisplayOptions, displayParts: displayParts, fileProperties: fileProperties);
+            options.Format = new OutputDisplayFormat(
+                contentDisplayStyle: contentDisplayStyle,
+                pathDisplayStyle: pathDisplayStyle,
+                lineOptions: lineDisplayOptions,
+                displayParts: displayParts,
+                fileProperties: fileProperties,
+                indent: indent,
+                separator: separator);
+
             options.HighlightOptions = highlightOptions;
             options.ContentFilter = contentFilter;
             options.Replacement = replacement ?? "";

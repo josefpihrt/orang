@@ -15,10 +15,6 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.AskMode)]
         public string Ask { get; set; }
 
-        [Option(shortName: OptionShortNames.LineNumber, longName: OptionNames.LineNumber,
-            HelpText = "Include line number.")]
-        public bool LineNumber { get; set; }
-
         [Option(shortName: OptionShortNames.MaxCount, longName: OptionNames.MaxCount,
             HelpText = "Stop searching after specified number is reached.",
             MetaValue = MetaValues.MaxOptions)]
@@ -28,8 +24,6 @@ namespace Orang.CommandLine
             HelpText = "Regular expression for file or directory name. Syntax is <PATTERN> [<PATTERN_OPTIONS>].",
             MetaValue = MetaValues.Regex)]
         public IEnumerable<string> Name { get; set; }
-
-        internal LineDisplayOptions LineDisplayOptions => (LineNumber) ? LineDisplayOptions.IncludeLineNumber : LineDisplayOptions.None;
 
         public bool TryParse(ref CommonFindContentCommandOptions options)
         {

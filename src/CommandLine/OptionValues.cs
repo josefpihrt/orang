@@ -23,7 +23,7 @@ namespace Orang.CommandLine
         public static readonly SimpleOptionValue OutputOptions_Content = SimpleOptionValue.Create("Content", description: "Include content in the output.");
         public static readonly SimpleOptionValue OutputOptions_Path = SimpleOptionValue.Create("Path", description: "Include path in the output.");
         public static readonly SimpleOptionValue Display_Count = SimpleOptionValue.Create("Count", shortValue: "", description: "Include number of matches in file.");
-        public static readonly SimpleOptionValue Display_CreationTime = SimpleOptionValue.Create("CreationTime", shortValue: "ct", helpValue: "[c]reation-[t]ime", description: "Include file creation time.");
+        public static readonly SimpleOptionValue Display_CreationTime = SimpleOptionValue.Create("CreationTime", description: "Include file creation time.");
         public static readonly SimpleOptionValue Display_LineNumber = SimpleOptionValue.Create("LineNumber", description: "Include line number.");
         public static readonly SimpleOptionValue Display_ModifiedTime = SimpleOptionValue.Create("ModifiedTime", description: "Include file last modified time.");
         public static readonly SimpleOptionValue Display_Size = SimpleOptionValue.Create("Size", description: "Include file size.");

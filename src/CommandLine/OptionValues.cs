@@ -35,12 +35,12 @@ namespace Orang.CommandLine
         public static readonly KeyValuePairOptionValue Display_Path = KeyValuePairOptionValue.Create("path", MetaValues.PathDisplay, shortKey: "p");
         public static readonly KeyValuePairOptionValue Display_Separator = KeyValuePairOptionValue.Create("separator", "<SEPARATOR>", shortKey: "", description: "String that separate each value.");
         public static readonly KeyValuePairOptionValue Encoding = KeyValuePairOptionValue.Create("encoding", MetaValues.Encoding, shortKey: "e");
-        public static readonly KeyValuePairOptionValue FileProperty_CreationTime = KeyValuePairOptionValue.Create("creation-time", "<DATE>", description: "Filter files by creation time.");
-        public static readonly KeyValuePairOptionValue FileProperty_ModifiedTime = KeyValuePairOptionValue.Create("modified-time", "<DATE>", description: "Filter files by modified time.");
-        public static readonly KeyValuePairOptionValue FileProperty_Size = KeyValuePairOptionValue.Create("size", "<NUM>", description: "Filter files by size.");
+        public static readonly KeyValuePairOptionValue FileProperty_CreationTime = KeyValuePairOptionValue.Create("creation-time", "<DATE>", description: "Filter files by creation time (See 'Expression syntax' for other expressions).");
+        public static readonly KeyValuePairOptionValue FileProperty_ModifiedTime = KeyValuePairOptionValue.Create("modified-time", "<DATE>", description: "Filter files by modified time (See 'Expression syntax' for other expressions).");
+        public static readonly KeyValuePairOptionValue FileProperty_Size = KeyValuePairOptionValue.Create("size", "<NUM>", description: "Filter files by size (See 'Expression syntax' for other expressions).");
         public static readonly KeyValuePairOptionValue Group = KeyValuePairOptionValue.Create("group", "<GROUP_NAME>", shortKey: "g");
         public static readonly KeyValuePairOptionValue ListSeparator = KeyValuePairOptionValue.Create("list-separator", "<SEPARATOR>", shortKey: "ls", helpValue: "[li]st-[s]eparator", description: "String that separate each value in a list. Default value is comma (,) or newline if the list is loaded from a file.");
-        public static readonly KeyValuePairOptionValue Length = KeyValuePairOptionValue.Create("length", "<NUM>", shortKey: "", description: "Include matches whose length matches the expression. Allowed operators: = < > <= >= .");
+        public static readonly KeyValuePairOptionValue Length = KeyValuePairOptionValue.Create("length", "<NUM>", shortKey: "", description: "Include matches whose length matches the expression (See 'Expression syntax' for other expressions).");
         public static readonly KeyValuePairOptionValue Max = KeyValuePairOptionValue.Create("max", "<NUM>", shortKey: "", description: "Show only <NUM> items.");
         public static readonly KeyValuePairOptionValue MaxMatches = KeyValuePairOptionValue.Create("matches", "<NUM>", description: "Stop searching after <NUM> matches.");
         public static readonly KeyValuePairOptionValue MaxMatchingFiles = KeyValuePairOptionValue.Create("matching-files", "<NUM>", shortKey: "mf", helpValue: "[m]atching-[f]iles", description: "Stop searching after <NUM> matching files.");

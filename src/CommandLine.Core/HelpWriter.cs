@@ -300,6 +300,20 @@ namespace Orang
                     }
 
                     WriteEndValues();
+
+                    if (optionValues.Any(f => f.Description?.Contains("(See 'Expression syntax' for other expressions)") == true))
+                    {
+                        WriteLine();
+                        WriteLine("Expression syntax:");
+                        WriteLine($"{Options.Indent}x=n");
+                        WriteLine($"{Options.Indent}x<n");
+                        WriteLine($"{Options.Indent}x>n");
+                        WriteLine($"{Options.Indent}x<=n");
+                        WriteLine($"{Options.Indent}x>=n");
+                        WriteLine($"{Options.Indent}x=<min;max>          Inclusive interval");
+                        WriteLine($"{Options.Indent}x=(min;max)          Exclusive interval");
+                        WriteLine($"{Options.Indent}x=-d|[d.]hh:mm[:ss]  x is greater than actual date - <VALUE>");
+                    }
                 }
             }
 

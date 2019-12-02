@@ -105,7 +105,10 @@ namespace Orang.CommandLine
                 }
 
                 if (includeValues)
+                {
+                    WriteSeparator(writer);
                     helpWriter.WriteValues(commands);
+                }
 
                 return stringWriter.ToString();
             }

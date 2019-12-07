@@ -18,6 +18,12 @@ Orang is distributed as a [.NET Core global tool](https://docs.microsoft.com/en-
 dotnet install tool -g orang.dotnet.cli
 ```
 
+To install non-alpha version run:
+
+```
+dotnet install tool -g orang.dotnet.cli --version 0.1.0-beta
+```
+
 To update Orang run:
 
 ```

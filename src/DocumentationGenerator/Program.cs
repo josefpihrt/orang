@@ -24,16 +24,23 @@ namespace Orang.Documentation
                 "Search, replace, rename and delete files and its content using the power or .NET regular expressions.",
                 commands.OrderBy(f => f.Name, StringComparer.InvariantCulture));
 
-            string rootPath = null;
-#if DEBUG
-            rootPath = (args.Length > 0) ? args[0] : @"..\..\..\..\..\docs\cli";
-#else
-            rootPath = args[0];
-#endif
+            string destinationDirectoryPath = null;
+            string dataDirectoryPath = null;
 
-            string filePath = Path.GetFullPath(Path.Combine(rootPath, "README.md"));
+            if (Debugger.IsAttached)
+            {
+                destinationDirectoryPath = (args.Length > 0) ? args[0] : @"..\..\..\..\..\docs\cli";
+                dataDirectoryPath = @"..\..\..\data";
+            }
+            else
+            {
+                destinationDirectoryPath = args[0];
+                dataDirectoryPath = @"..\src\DocumentationGenerator\data";
+            }
 
-            using (var sw = new StreamWriter(filePath, append: false, Encoding.UTF8))
+            string readmeFilePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "README.md"));
+
+            using (var sw = new StreamWriter(readmeFilePath, append: false, Encoding.UTF8))
             using (MarkdownWriter mw = MarkdownWriter.Create(sw))
             {
                 mw.WriteHeading1("Orang Command-Line Interface");
@@ -50,16 +57,22 @@ namespace Orang.Documentation
                 }
 
                 mw.WriteLine();
+
+                string readmeLinksFilePath = Path.Combine(dataDirectoryPath, "readme_bottom.md");
+
+                if (File.Exists(readmeLinksFilePath))
+                    mw.WriteRaw(File.ReadAllText(readmeLinksFilePath));
+
                 WriteFootNote(mw);
 
-                Console.WriteLine(filePath);
+                Console.WriteLine(readmeFilePath);
             }
 
             foreach (Command command in application.Commands)
             {
-                filePath = Path.GetFullPath(Path.Combine(rootPath, $"{command.Name}-command.md"));
+                readmeFilePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, $"{command.Name}-command.md"));
 
-                using (var sw = new StreamWriter(filePath, append: false, Encoding.UTF8))
+                using (var sw = new StreamWriter(readmeFilePath, append: false, Encoding.UTF8))
                 using (MarkdownWriter mw = MarkdownWriter.Create(sw))
                 {
                     var writer = new DocumentationWriter(mw);
@@ -70,18 +83,18 @@ namespace Orang.Documentation
                     writer.WriteArguments(command.Arguments);
                     writer.WriteOptions(command.Options);
 
-                    string sampleFilePath = Path.Combine("samples", command.Name + ".md");
+                    string samplesFilePath = Path.Combine(dataDirectoryPath, command.Name + "_bottom.md");
 
-                    if (File.Exists(sampleFilePath))
+                    if (File.Exists(samplesFilePath))
                     {
-                        string content = File.ReadAllText(sampleFilePath);
+                        string content = File.ReadAllText(samplesFilePath);
                         mw.WriteHeading2("Samples");
                         mw.WriteRaw(content);
                     }
 
                     WriteFootNote(mw);
 
-                    Console.WriteLine(filePath);
+                    Console.WriteLine(readmeFilePath);
                 }
             }
 

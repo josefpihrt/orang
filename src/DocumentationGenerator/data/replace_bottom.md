@@ -1,4 +1,10 @@
-﻿### Sample
+﻿## Use Redirected Input
+
+Piped output from a previous command will be treated as a list of paths separated by newlines.
+
+## Samples
+
+### Sample
 
 Update version in csproj and vbproj files in a current directory.
 
@@ -68,7 +74,7 @@ orang replace ^
 orang replace ^
  -e cs ^
  -c "pattern.txt" ^
- -i ".git" wi neg ^
+ -i ".git" wi e ^
  -t m
 
 ```

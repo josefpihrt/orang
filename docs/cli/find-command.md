@@ -118,6 +118,12 @@ Syntax is \<LOG\_PATH> \[\<LOG\_OPTIONS>\]\. Allowed values are \[v\]erbosity=\<
 
 ## Samples
 
+## Use Redirected Input
+
+Piped output from a previous command will be treated as a list of paths separated by newlines.
+
+## Samples
+
 ### Sample
 
 Find TODO comments in a C# source files in a current directory.

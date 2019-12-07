@@ -8,7 +8,7 @@ Sample: Exclude directories that starts with dot (.) from a search.
 orang find --include-directory "^\." negative
 ```
 ```
-orang find -i "^\." neg
+orang find -i "^\." e
 ```
 
 ### How to pass option value that starts with dash (-)

@@ -1,6 +1,6 @@
 ﻿# Orang Command\-Line Interface
 
-Search, replace, rename and delete files and its content using the power or \.NET regular expressions\.
+Search, replace, rename and delete files and its content using the power of \.NET regular expressions\.
 
 ## Commands
 

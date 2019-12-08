@@ -88,7 +88,6 @@ namespace Orang.Documentation
                     if (File.Exists(samplesFilePath))
                     {
                         string content = File.ReadAllText(samplesFilePath);
-                        mw.WriteHeading2("Samples");
                         mw.WriteRaw(content);
                     }
 

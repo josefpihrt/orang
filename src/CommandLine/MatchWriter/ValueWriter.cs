@@ -11,12 +11,13 @@ namespace Orang.CommandLine
             bool includeEndingIndent = true,
             Verbosity verbosity = Verbosity.Normal)
         {
+            Writer = (verbosity == Verbosity.Normal) ? ContentTextWriter.Default : new ContentTextWriter(verbosity);
             Indent = indent;
             IncludeEndingIndent = includeEndingIndent;
             Verbosity = verbosity;
         }
 
-        protected ContentTextWriter Writer => ContentTextWriter.Default;
+        protected ContentTextWriter Writer { get; }
 
         public string Indent { get; }
 

@@ -20,7 +20,6 @@ namespace Orang.CommandLine
         public const string Encoding = "encoding";
         public const string Evaluator = "evaluator";
         public const string Extension = "extension";
-        public const string FileLog = "file-log";
         public const string Filter = "filter";
         public const string Help = "help";
         public const string Highlight = "highlight";

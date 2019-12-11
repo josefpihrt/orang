@@ -14,13 +14,11 @@ namespace Orang.CommandLine
         public SearchContext(
             SearchTelemetry telemetry = null,
             FileSystemFinderProgressReporter progress = null,
-            TextWriter output = null,
             List<SearchResult> results = null,
             in CancellationToken cancellationToken = default)
         {
             Telemetry = telemetry ?? new SearchTelemetry();
             Progress = progress;
-            Output = output;
             Results = results;
             CancellationToken = cancellationToken;
         }
@@ -28,8 +26,6 @@ namespace Orang.CommandLine
         public SearchTelemetry Telemetry { get; }
 
         public FileSystemFinderProgressReporter Progress { get; }
-
-        public TextWriter Output { get; }
 
         public List<SearchResult> Results { get; }
 

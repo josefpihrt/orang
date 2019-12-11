@@ -245,9 +245,10 @@ namespace Orang.CommandLine
             })
         );
 
-        public static OptionValueProvider FileLogOptionsProvider { get; } = new OptionValueProvider(MetaValues.LogOptions,
+        public static OptionValueProvider OutputFlagsProvider { get; } = new OptionValueProvider(MetaValues.OutputOptions,
+            OptionValues.Encoding,
             OptionValues.Verbosity,
-            SimpleOptionValue.Create(FileLogFlags.Append, description: "If the log file exists logging will start at the end of the file.")
+            OptionValues.Output_Append
         );
 
         public static OptionValueProvider ContentDisplayStyleProvider { get; } = new OptionValueProvider(MetaValues.ContentDisplay,
@@ -312,12 +313,6 @@ namespace Orang.CommandLine
             OptionValues.Display_Size,
             OptionValues.Display_Separator,
             OptionValues.Display_Summary
-        );
-
-        public static OptionValueProvider OutputOptionsProvider { get; } = new OptionValueProvider(MetaValues.OutputOptions,
-            OptionValues.OutputOptions_Content,
-            OptionValues.OutputOptions_Path,
-            OptionValues.Encoding
         );
 
         public static OptionValueProvider SortFlagsProvider { get; } = new OptionValueProvider(MetaValues.SortOptions,

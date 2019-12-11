@@ -189,12 +189,6 @@ namespace Orang.CommandLine
                 }
             }
 
-            if (Options.DryRun
-                || success)
-            {
-                context.Output?.WriteLine(newPath);
-            }
-
             if (result.IsDirectory
                 && success)
             {

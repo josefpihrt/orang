@@ -87,11 +87,8 @@ namespace Orang.CommandLine
                 catch (OperationCanceledException)
                 {
                     context.State = SearchState.Canceled;
-                    return;
                 }
             }
-
-            context.Output?.WriteLine(result.Path);
         }
 
         protected override void WriteSummary(SearchTelemetry telemetry, Verbosity verbosity)

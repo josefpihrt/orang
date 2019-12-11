@@ -16,7 +16,6 @@ namespace Orang.CommandLine
         public const string FilePath = "<FILE_PATH>";
         public const string Highlight = "<HIGHLIGHT>";
         public const string Input = "<INPUT>";
-        public const string LogOptions = "<LOG_OPTIONS>";
         public const string MaxOptions = "<MAX_OPTIONS>";
         public const string NamePart = "<NAME_PART>";
         public const string Number = "<NUMBER>";

@@ -25,7 +25,6 @@ orang find [<PATH>]
 [-p|--properties]         <FILE_PROPERTIES>
 [-s|--sort]               <SORT_OPTIONS>
 [-v|--verbosity]          <VERBOSITY>
-[   --file-log]           <FILE_LOG>
 ```
 
 ## Arguments
@@ -90,7 +89,7 @@ Do not search subdirectories\.
 
 **`[-o|--output] <OUTPUT_OPTIONS>`**
 
-Path to a file that should store results\. Syntax is \<PATH> \[\<OUTPUT\_OPTIONS>\]\. Allowed values are \[c\]ontent, \[p\]ath and \[e\]ncoding=\<ENCODING>\.
+Path to a file that should store output\. Syntax is \<PATH> \[\<OUTPUT\_OPTIONS>\]\. Allowed values are \[e\]ncoding=\<ENCODING>, \[v\]erbosity=\<VERBOSITY> and \[a\]ppend\.
 
 **`[--paths-from] <FILE_PATH>`**
 
@@ -111,10 +110,6 @@ Sort matched files and directories\. Allowed values are \[a\]scending, \[c\]reat
 **`[-v|--verbosity] <VERBOSITY>`**
 
 The amount of information to display in the log\. Allowed values are \[q\]uiet, \[m\]inimal, \[n\]ormal, \[d\]etailed and \[diag\]nostic\.
-
-**`[--file-log] <FILE_LOG>`**
-
-Syntax is \<LOG\_PATH> \[\<LOG\_OPTIONS>\]\. Allowed values are \[v\]erbosity=\<VERBOSITY> and \[a\]ppend\.
 
 ## Use Redirected Input
 

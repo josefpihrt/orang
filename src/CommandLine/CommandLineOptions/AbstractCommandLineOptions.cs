@@ -7,10 +7,10 @@ namespace Orang.CommandLine
 {
     internal abstract class AbstractCommandLineOptions
     {
-        [Option(longName: OptionNames.FileLog,
-            HelpText = "Syntax is <LOG_PATH> [<LOG_OPTIONS>].",
-            MetaValue = "<FILE_LOG>")]
-        public IEnumerable<string> FileLog { get; set; }
+        [Option(shortName: OptionShortNames.Output, longName: OptionNames.Output,
+            HelpText = "Path to a file that should store output. Syntax is <PATH> [<OUTPUT_OPTIONS>].",
+            MetaValue = MetaValues.OutputOptions)]
+        public IEnumerable<string> Output { get; set; }
 
         [Option(shortName: OptionShortNames.Help, longName: OptionNames.Help,
             HelpText = "Show command line help.")]

@@ -132,12 +132,6 @@ namespace Orang.CommandLine
                 }
             }
 
-            if (Options.DryRun
-                || success)
-            {
-                context.Output?.WriteLine(result.Path);
-            }
-
             if (result.IsDirectory
                 && success)
             {

@@ -47,11 +47,6 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.Regex)]
         public IEnumerable<string> Name { get; set; }
 
-        [Option(shortName: OptionShortNames.Output, longName: OptionNames.Output,
-            HelpText = "Path to a file that should store results. Syntax is <PATH> [<OUTPUT_OPTIONS>].",
-            MetaValue = MetaValues.OutputOptions)]
-        public IEnumerable<string> Output { get; set; }
-
         [Option(shortName: OptionShortNames.Replacement, longName: OptionNames.Replacement,
             HelpText = "Replacement pattern. Syntax is <REPLACEMENT> [<REPLACEMENT_OPTIONS>].",
             MetaValue = MetaValues.Replacement)]
@@ -98,9 +93,6 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            if (!TryParseOutputOptions(Output, OptionNames.Output, out OutputOptions outputOptions))
-                return false;
-
             if (!TryParseDisplay(
                 values: Display,
                 optionName: OptionNames.Display,
@@ -142,7 +134,6 @@ namespace Orang.CommandLine
             options.ContentFilter = contentFilter;
             options.MatchEvaluator = matchEvaluator;
             options.MaxMatchingFiles = MaxCount;
-            options.Output = outputOptions;
 
             return true;
         }

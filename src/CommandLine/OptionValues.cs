@@ -20,8 +20,6 @@ namespace Orang.CommandLine
         public static readonly SimpleOptionValue PatternOptions_WholeInput = SimpleOptionValue.Create(PatternOptions.WholeInput, shortValue: "wi", helpValue: "[w]hole-[i]nput", description: "Pattern should match whole input string.");
         public static readonly SimpleOptionValue PatternOptions_WholeLine = SimpleOptionValue.Create(PatternOptions.WholeLine, shortValue: "wl", helpValue: "[w]hole-[l]ine", description: "Pattern should match whole line.");
         public static readonly SimpleOptionValue PatternOptions_WholeWord = SimpleOptionValue.Create(PatternOptions.WholeWord, description: "Pattern should match whole word.");
-        public static readonly SimpleOptionValue OutputOptions_Content = SimpleOptionValue.Create("Content", description: "Include content in the output.");
-        public static readonly SimpleOptionValue OutputOptions_Path = SimpleOptionValue.Create("Path", description: "Include path in the output.");
         public static readonly SimpleOptionValue Display_Count = SimpleOptionValue.Create("Count", shortValue: "", description: "Include number of matches in file.");
         public static readonly SimpleOptionValue Display_CreationTime = SimpleOptionValue.Create("CreationTime", description: "Include file creation time.");
         public static readonly SimpleOptionValue Display_LineNumber = SimpleOptionValue.Create("LineNumber", description: "Include line number.");
@@ -29,6 +27,7 @@ namespace Orang.CommandLine
         public static readonly SimpleOptionValue Display_Size = SimpleOptionValue.Create("Size", description: "Include file size.");
         public static readonly SimpleOptionValue Display_Summary = SimpleOptionValue.Create("Summary", shortValue: "", description: "Include summary.");
         public static readonly SimpleOptionValue Display_TrimLine = SimpleOptionValue.Create("TrimLine", description: "Trim leading and trailing white-space from a line.");
+        public static readonly SimpleOptionValue Output_Append = SimpleOptionValue.Create("Append", description: "If the file exists output will be appended to the end of the file.");
 
         public static readonly KeyValuePairOptionValue Display_Content = KeyValuePairOptionValue.Create("content", MetaValues.ContentDisplay, shortKey: "c");
         public static readonly KeyValuePairOptionValue Display_Indent = KeyValuePairOptionValue.Create("indent", "<INDENT>", shortKey: "", description: "Indentation for a list of results. Default indentation are 2 spaces.");

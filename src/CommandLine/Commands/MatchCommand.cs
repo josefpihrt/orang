@@ -13,7 +13,7 @@ namespace Orang.CommandLine
         {
         }
 
-        protected override CommandResult ExecuteCore(TextWriter output, CancellationToken cancellationToken = default)
+        protected override CommandResult ExecuteCore(CancellationToken cancellationToken = default)
         {
             MatchData matchData = MatchData.Create(
                 Options.Input,
@@ -23,7 +23,7 @@ namespace Orang.CommandLine
 
             var outputWriter = new OutputWriter(Options.HighlightOptions);
 
-            int count = outputWriter.WriteMatches(matchData, Options, output, cancellationToken);
+            int count = outputWriter.WriteMatches(matchData, Options, cancellationToken);
 
             if (count > 0)
                 WriteLine();

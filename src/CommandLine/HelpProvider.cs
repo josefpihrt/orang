@@ -127,36 +127,7 @@ namespace Orang.CommandLine
 
         private static int CompareOptions(CommandOption x, CommandOption y)
         {
-            if (IsFileLogOption(x.Name))
-            {
-                if (IsFileLogOption(y.Name))
-                {
-                    return StringComparer.InvariantCulture.Compare(x.Name, y.Name);
-                }
-                else
-                {
-                    return 1;
-                }
-            }
-            else if (IsFileLogOption(y.Name))
-            {
-                return -1;
-            }
-            else
-            {
-                return StringComparer.InvariantCulture.Compare(x.Name, y.Name);
-            }
-
-            bool IsFileLogOption(string name)
-            {
-                switch (name)
-                {
-                    case OptionNames.FileLog:
-                        return true;
-                }
-
-                return false;
-            }
+            return StringComparer.InvariantCulture.Compare(x.Name, y.Name);
         }
 
         private class ManualHelpWriter : HelpWriter

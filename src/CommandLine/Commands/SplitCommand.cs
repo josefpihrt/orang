@@ -13,7 +13,7 @@ namespace Orang.CommandLine
         {
         }
 
-        protected override CommandResult ExecuteCore(TextWriter output, CancellationToken cancellationToken = default)
+        protected override CommandResult ExecuteCore(CancellationToken cancellationToken = default)
         {
             SplitData splitData = SplitData.Create(
                 Options.Filter.Regex,
@@ -24,7 +24,7 @@ namespace Orang.CommandLine
 
             var outputWriter = new OutputWriter(Options.HighlightOptions);
 
-            int count = outputWriter.WriteSplits(splitData, Options, output, cancellationToken);
+            int count = outputWriter.WriteSplits(splitData, Options, cancellationToken);
 
             WriteLine();
 

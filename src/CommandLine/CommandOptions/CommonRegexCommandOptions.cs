@@ -8,15 +8,11 @@ namespace Orang.CommandLine
         {
         }
 
-        public OutputOptions Output { get; internal set; }
-
         public OutputDisplayFormat Format { get; internal set; }
 
         public bool IncludeSummary => Format.Includes(DisplayParts.Summary);
 
         public bool IncludeCount => Format.Includes(DisplayParts.Count);
-
-        public string OutputPath => Output?.Path;
 
         public HighlightOptions HighlightOptions { get; internal set; }
 

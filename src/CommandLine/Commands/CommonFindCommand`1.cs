@@ -54,63 +54,39 @@ namespace Orang.CommandLine
 
         protected sealed override CommandResult ExecuteCore(CancellationToken cancellationToken = default)
         {
-            SearchContext context = null;
-            StreamWriter writer = null;
+            List<SearchResult> results = (Options.SortOptions != null || Options.Format.FileProperties.Any())
+                ? new List<SearchResult>()
+                : null;
 
-            try
+            ProgressReportMode consoleReportMode;
+            if (ConsoleOut.ShouldWrite(Verbosity.Diagnostic))
             {
-                string path = Options.OutputPath;
-
-                if (path != null)
-                {
-                    WriteLine($"Opening '{path}'", Verbosity.Diagnostic);
-
-                    writer = new StreamWriter(path, false, Options.Output.Encoding);
-                }
-
-                List<SearchResult> results = (Options.SortOptions != null || Options.Format.FileProperties.Any())
-                    ? new List<SearchResult>()
-                    : null;
-
-                ProgressReportMode consoleReportMode;
-                if (ConsoleOut.ShouldWrite(Verbosity.Diagnostic))
-                {
-                    consoleReportMode = ProgressReportMode.Path;
-                }
-                else if (Options.Progress)
-                {
-                    consoleReportMode = ProgressReportMode.Dot;
-                }
-                else
-                {
-                    consoleReportMode = ProgressReportMode.None;
-                }
-
-                ProgressReportMode fileLogReportMode;
-                if (Out?.ShouldWrite(Verbosity.Diagnostic) == true)
-                {
-                    fileLogReportMode = ProgressReportMode.Path;
-                }
-                else
-                {
-                    fileLogReportMode = ProgressReportMode.None;
-                }
-
-                var progress = new FileSystemFinderProgressReporter(consoleReportMode, fileLogReportMode, Options);
-
-                context = new SearchContext(progress: progress, output: writer, results: results, cancellationToken: cancellationToken);
-
-                ExecuteCore(context);
+                consoleReportMode = ProgressReportMode.Path;
             }
-            catch (Exception ex) when (ex is IOException
-                || ex is UnauthorizedAccessException)
+            else if (Options.Progress)
             {
-                WriteWarning(ex);
+                consoleReportMode = ProgressReportMode.Dot;
             }
-            finally
+            else
             {
-                writer?.Dispose();
+                consoleReportMode = ProgressReportMode.None;
             }
+
+            ProgressReportMode fileReportMode;
+            if (Out?.ShouldWrite(Verbosity.Diagnostic) == true)
+            {
+                fileReportMode = ProgressReportMode.Path;
+            }
+            else
+            {
+                fileReportMode = ProgressReportMode.None;
+            }
+
+            var progress = new FileSystemFinderProgressReporter(consoleReportMode, fileReportMode, Options);
+
+            var context = new SearchContext(progress: progress, results: results, cancellationToken: cancellationToken);
+
+            ExecuteCore(context);
 
             return (context?.Telemetry.MatchingFileCount > 0) ? CommandResult.Success : CommandResult.NoSuccess;
         }

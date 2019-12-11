@@ -173,67 +173,6 @@ namespace Orang.CommandLine
             }
         }
 
-        public static bool TryParseOutputOptions(
-            IEnumerable<string> values,
-            string optionName,
-            out OutputOptions outputOptions)
-        {
-            outputOptions = null;
-            Encoding encoding = null;
-            bool includeContent = false;
-            bool includePath = false;
-
-            if (!values.Any())
-                return true;
-
-            if (!TryEnsureFullPath(values.First(), out string path))
-                return false;
-
-            foreach (string value in values.Skip(1))
-            {
-                int index = value.IndexOf('=');
-
-                if (index >= 0)
-                {
-                    string key = value.Substring(0, index);
-                    string value2 = value.Substring(index + 1);
-
-                    if (OptionValues.Encoding.IsKeyOrShortKey(key))
-                    {
-                        if (!TryParseEncoding(value2, out encoding, Encoding.UTF8))
-                            return false;
-                    }
-                    else
-                    {
-                        WriteParseError(value, optionName, OptionValueProviders.OutputOptionsProvider);
-                        return false;
-                    }
-                }
-                else if (OptionValues.OutputOptions_Content.IsValueOrShortValue(value))
-                {
-                    includeContent = true;
-                }
-                else if (OptionValues.OutputOptions_Path.IsValueOrShortValue(value))
-                {
-                    includePath = true;
-                }
-                else
-                {
-                    WriteParseError(value, optionName, OptionValueProviders.OutputOptionsProvider);
-                    return false;
-                }
-            }
-
-            if (!includePath
-                && !includeContent)
-            {
-                includePath = true;
-            }
-
-            outputOptions = new OutputOptions(path, encoding ?? Encoding.UTF8, includeContent: includeContent, includePath: includePath);
-            return true;
-        }
-
         public static bool TryParseDisplay(
             IEnumerable<string> values,
             string optionName,
@@ -348,24 +287,24 @@ namespace Orang.CommandLine
             }
         }
 
-        public static bool TryParseFileLogOptions(
+        public static bool TryParseOutputOptions(
             IEnumerable<string> values,
             string optionName,
             out string path,
-            out FileLogFlags flags,
-            out Verbosity verbosity)
+            out Verbosity verbosity,
+            out Encoding encoding,
+            out bool append)
         {
             path = null;
-            flags = FileLogFlags.None;
             verbosity = Verbosity.Normal;
+            encoding = Encoding.UTF8;
+            append = false;
 
             if (!values.Any())
                 return true;
 
             if (!TryEnsureFullPath(values.First(), out path))
                 return false;
-
-            List<string> options = null;
 
             foreach (string value in values.Skip(1))
             {
@@ -378,26 +317,34 @@ namespace Orang.CommandLine
                     string key = option.Substring(0, index);
                     string value2 = option.Substring(index + 1);
 
-                    if ((key.Length == 1 && key[0] == OptionShortNames.Verbosity)
-                        || key == OptionNames.Verbosity)
+                    if (OptionValues.Verbosity.IsKeyOrShortKey(key))
                     {
                         if (!TryParseVerbosity(value2, out verbosity))
                             return false;
                     }
+                    else if (OptionValues.Encoding.IsKeyOrShortKey(key))
+                    {
+                        if (!TryParseEncoding(value2, out encoding))
+                            return false;
+                    }
                     else
                     {
-                        WriteParseError(value, optionName, OptionValueProviders.FileLogOptionsProvider);
+                        WriteParseError(value, optionName, OptionValueProviders.OutputFlagsProvider);
                         return false;
                     }
                 }
+                else if (OptionValues.Output_Append.IsValueOrShortValue(value))
+                {
+                    append = true;
+                }
                 else
                 {
-                    (options ?? (options = new List<string>())).Add(option);
+                    WriteParseError(value, optionName, OptionValueProviders.OutputFlagsProvider);
+                    return false;
                 }
             }
 
-            return options == null
-                || TryParseAsEnumFlags(options, optionName, out flags, provider: OptionValueProviders.FileLogOptionsProvider);
+            return true;
         }
 
         public static bool TryParseFilter(
@@ -821,14 +768,8 @@ namespace Orang.CommandLine
         }
 
         // https://docs.microsoft.com/en-us/dotnet/api/system.text.encoding#remarks
-        public static bool TryParseEncoding(string name, out Encoding encoding, Encoding defaultEncoding)
+        public static bool TryParseEncoding(string name, out Encoding encoding)
         {
-            if (name == null)
-            {
-                encoding = defaultEncoding;
-                return true;
-            }
-
             if (name == "utf-8-no-bom")
             {
                 encoding = EncodingHelpers.UTF8NoBom;
@@ -847,6 +788,17 @@ namespace Orang.CommandLine
                 encoding = null;
                 return false;
             }
+        }
+
+        public static bool TryParseEncoding(string name, out Encoding encoding, Encoding defaultEncoding)
+        {
+            if (name == null)
+            {
+                encoding = defaultEncoding;
+                return true;
+            }
+
+            return TryParseEncoding(name, out encoding, defaultEncoding);
         }
 
         public static bool TryParseMaxCount(IEnumerable<string> values, out int maxCount, out int maxMatches, out int maxMatchingFiles)

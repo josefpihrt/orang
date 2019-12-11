@@ -30,7 +30,7 @@ namespace Orang.CommandLine
                 {
                     string indent = (Options.OmitPath) ? "" : Options.Indent;
 
-                    _fileWriterOptions = CreateMatchWriteOptions(indent);
+                    _fileWriterOptions = CreateContentWriterOptions(indent);
                 }
 
                 return _fileWriterOptions;
@@ -45,7 +45,7 @@ namespace Orang.CommandLine
                 {
                     string indent = GetIndent();
 
-                    _directoryWriterOptions = CreateMatchWriteOptions(indent);
+                    _directoryWriterOptions = CreateContentWriterOptions(indent);
                 }
 
                 return _directoryWriterOptions;
@@ -67,7 +67,7 @@ namespace Orang.CommandLine
             }
         }
 
-        protected abstract ContentWriterOptions CreateMatchWriteOptions(string indent);
+        protected abstract ContentWriterOptions CreateContentWriterOptions(string indent);
 
         protected abstract void ExecuteResult(
             FileSystemFinderResult result,

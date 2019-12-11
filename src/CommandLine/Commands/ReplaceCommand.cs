@@ -397,7 +397,7 @@ namespace Orang.CommandLine
             WriteLine(verbosity);
         }
 
-        protected override ContentWriterOptions CreateMatchWriteOptions(string indent)
+        protected override ContentWriterOptions CreateContentWriterOptions(string indent)
         {
             return new ContentWriterOptions(
                 format: Options.Format,

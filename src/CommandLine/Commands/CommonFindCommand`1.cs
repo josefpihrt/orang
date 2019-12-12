@@ -219,7 +219,7 @@ namespace Orang.CommandLine
                 context.Telemetry.FileCount = progress.FileCount;
                 context.Telemetry.DirectoryCount = progress.DirectoryCount;
 
-                if (progress?.ProgressReported == true)
+                if (progress.ProgressReported)
                 {
                     ConsoleOut.WriteLine();
                     progress.ProgressReported = false;

@@ -120,7 +120,7 @@ namespace Orang.FileSystem
                                 if (currentDirectory != null
                                     && options.RecurseSubdirectories)
                                 {
-                                    subDirectories.Enqueue(currentDirectory);
+                                    subDirectories!.Enqueue(currentDirectory);
                                 }
                             }
 
@@ -130,7 +130,7 @@ namespace Orang.FileSystem
 
                     if (options.RecurseSubdirectories)
                     {
-                        while (subDirectories.Count > 0)
+                        while (subDirectories!.Count > 0)
                             directories.Enqueue(subDirectories.Dequeue());
                     }
                 }
@@ -182,13 +182,14 @@ namespace Orang.FileSystem
                 return null;
 
             NamePart namePart = NamePart.FromFile(path, namePartKind);
+            Match match = null;
 
-            Match match = nameFilter?.Regex.Match(path, namePart.Index, namePart.Length);
-
-            if (match != null
-                && !nameFilter.IsMatch(match))
+            if (nameFilter != null)
             {
-                return null;
+                match = nameFilter.Regex.Match(path, namePart.Index, namePart.Length);
+
+                if (!nameFilter.IsMatch(match))
+                    return null;
             }
 
             if (options.Empty != null)
@@ -243,13 +244,14 @@ namespace Orang.FileSystem
             progress?.Report(new FileSystemFinderProgress(path, ProgressKind.Directory));
 
             NamePart namePart = NamePart.FromDirectory(path, namePartKind);
+            Match match = null;
 
-            Match match = nameFilter?.Regex.Match(path, namePart.Index, namePart.Length);
-
-            if (match != null
-                && !nameFilter.IsMatch(match))
+            if (nameFilter != null)
             {
-                return null;
+                match = nameFilter.Regex.Match(path, namePart.Index, namePart.Length);
+
+                if (!nameFilter.IsMatch(match))
+                    return null;
             }
 
             if (options.Empty != null)

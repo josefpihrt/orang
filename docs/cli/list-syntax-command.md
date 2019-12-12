@@ -18,7 +18,7 @@ Filter string that should be used to filter results\.
 
 **`[-s|--section] <SYNTAX_SECTIONS>`**
 
-Syntax sections to filter\. Allowed values are \[a\]lternation\-\[c\]onstructs, \[a\]nchors, \[b\]ackreference\-constructs, \[c\]haracter\-classes, \[c\]haracter\-\[e\]scapes, \[g\]eneral\-\[c\]ategories, \[g\]rouping\-constructs, \[m\]iscellaneous, \[n\]amed\-blocks, \[o\]ptions, \[q\]uantifiers and \[s\]ubstitutions\.
+Syntax sections to filter\. Allowed values are a\[lternation\-\]c\[onstructs\], a\[nchors\], b\[ackreference\-constructs\], c\[haracter\-classes\], c\[haracter\-\]e\[scapes\], g\[eneral\-\]c\[ategories\], g\[rouping\-constructs\], m\[iscellaneous\], n\[amed\-blocks\], o\[ptions\], q\[uantifiers\] and s\[ubstitutions\]\.
 
 ### Sample
 

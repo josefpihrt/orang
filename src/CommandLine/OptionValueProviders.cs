@@ -65,8 +65,8 @@ namespace Orang.CommandLine
 
         public static OptionValueProvider RegexOptionsProvider { get; } = new OptionValueProvider(MetaValues.RegexOptions,
             SimpleOptionValue.Create(RegexOptions.Compiled, description: "Compile the regular expression to an assembly."),
-            SimpleOptionValue.Create(RegexOptions.CultureInvariant, shortValue: "ci", helpValue: "[c]ulture-[i]nvariant", description: "Ignore cultural differences between languages."),
-            SimpleOptionValue.Create(RegexOptions.ECMAScript, value: "ecma-script", shortValue: "es", helpValue: "[e]cma-[s]cript", description: "Enable ECMAScript-compliant behavior for the expression."),
+            SimpleOptionValue.Create(RegexOptions.CultureInvariant, shortValue: "ci", helpValue: "c[ulture]-i[nvariant]", description: "Ignore cultural differences between languages."),
+            SimpleOptionValue.Create(RegexOptions.ECMAScript, value: "ecma-script", shortValue: "es", helpValue: "e[cma]-s[cript]", description: "Enable ECMAScript-compliant behavior for the expression."),
             SimpleOptionValue.Create(RegexOptions.ExplicitCapture, shortValue: "n", description: "Do not capture unnamed groups."),
             SimpleOptionValue.Create(RegexOptions.IgnoreCase, description: "Use case-insensitive matching."),
             SimpleOptionValue.Create(RegexOptions.IgnorePatternWhitespace, shortValue: "x", description: "Exclude unescaped white-space from the pattern and enable comments after a number sign (#)."),
@@ -86,7 +86,7 @@ namespace Orang.CommandLine
             SimpleOptionValue.Create(Verbosity.Minimal),
             SimpleOptionValue.Create(Verbosity.Normal),
             SimpleOptionValue.Create(Verbosity.Detailed),
-            SimpleOptionValue.Create(Verbosity.Diagnostic, shortValue: "diag")
+            SimpleOptionValue.Create(Verbosity.Diagnostic, shortValue: "di")
         );
 
         public static OptionValueProvider FileSystemAttributesProvider { get; } = new OptionValueProvider(MetaValues.Attributes,
@@ -103,7 +103,7 @@ namespace Orang.CommandLine
             SimpleOptionValue.Create(FileSystemAttributes.NotContentIndexed, shortValue: "", hidden: true),
             SimpleOptionValue.Create(FileSystemAttributes.Offline, shortValue: ""),
             SimpleOptionValue.Create(FileSystemAttributes.ReadOnly),
-            SimpleOptionValue.Create(FileSystemAttributes.ReparsePoint, shortValue: "rp", helpValue: "[r]eparse-[p]oint"),
+            SimpleOptionValue.Create(FileSystemAttributes.ReparsePoint, shortValue: "rp", helpValue: "r[eparse]-p[oint]"),
             SimpleOptionValue.Create(FileSystemAttributes.SparseFile, shortValue: "", hidden: true),
             SimpleOptionValue.Create(FileSystemAttributes.System),
             SimpleOptionValue.Create(FileSystemAttributes.Temporary, shortValue: "")
@@ -117,16 +117,16 @@ namespace Orang.CommandLine
             SimpleOptionValue.Create(NamePartKind.Extension, description: "Search in file extension."),
             SimpleOptionValue.Create(NamePartKind.FullName, description: "Search in full path."),
             SimpleOptionValue.Create(NamePartKind.Name, description: "Search in file name and its extension."),
-            SimpleOptionValue.Create(NamePartKind.NameWithoutExtension, shortValue: "w", helpValue: "name-[w]ithout-extension", description: "Search in file name without extension.")
+            SimpleOptionValue.Create(NamePartKind.NameWithoutExtension, shortValue: "w", description: "Search in file name without extension.")
         );
 
         public static OptionValueProvider SyntaxSectionProvider { get; } = new OptionValueProvider(MetaValues.SyntaxSections,
-            SimpleOptionValue.Create(SyntaxSection.AlternationConstructs, shortValue: "ac", helpValue: "[a]lternation-[c]onstructs"),
+            SimpleOptionValue.Create(SyntaxSection.AlternationConstructs, shortValue: "ac", helpValue: "a[lternation-]c[onstructs]"),
             SimpleOptionValue.Create(SyntaxSection.Anchors),
             SimpleOptionValue.Create(SyntaxSection.BackreferenceConstructs),
             SimpleOptionValue.Create(SyntaxSection.CharacterClasses),
-            SimpleOptionValue.Create(SyntaxSection.CharacterEscapes, shortValue: "ce", helpValue: "[c]haracter-[e]scapes"),
-            SimpleOptionValue.Create(SyntaxSection.GeneralCategories, shortValue: "gc", helpValue: "[g]eneral-[c]ategories"),
+            SimpleOptionValue.Create(SyntaxSection.CharacterEscapes, shortValue: "ce", helpValue: "c[haracter-]e[scapes]"),
+            SimpleOptionValue.Create(SyntaxSection.GeneralCategories, shortValue: "gc", helpValue: "g[eneral-]c[ategories]"),
             SimpleOptionValue.Create(SyntaxSection.GroupingConstructs),
             SimpleOptionValue.Create(SyntaxSection.Miscellaneous),
             SimpleOptionValue.Create(SyntaxSection.NamedBlocks),
@@ -140,15 +140,15 @@ namespace Orang.CommandLine
             SimpleOptionValue.Create(HighlightOptions.Match, description: "Highlight match value."),
             SimpleOptionValue.Create(HighlightOptions.Replacement, description: "Highlight replacement value."),
             SimpleOptionValue.Create(HighlightOptions.Split, description: "Highlight split value."),
-            SimpleOptionValue.Create(HighlightOptions.EmptyMatch, shortValue: "em", helpValue: "[e]mpty-[m]atch", description: "Highlight match value that is empty string."),
-            SimpleOptionValue.Create(HighlightOptions.EmptyReplacement, shortValue: "er", helpValue: "[e]mpty-[r]eplacement", description: "Highlight replacement value that is empty string."),
-            SimpleOptionValue.Create(HighlightOptions.EmptySplit, shortValue: "es", helpValue: "[e]mpty-[s]plit", description: "Highlight split value that is empty string."),
+            SimpleOptionValue.Create(HighlightOptions.EmptyMatch, shortValue: "em", helpValue: "e[mpty-]m[atch]", description: "Highlight match value that is empty string."),
+            SimpleOptionValue.Create(HighlightOptions.EmptyReplacement, shortValue: "er", helpValue: "e[mpty-]r[eplacement]", description: "Highlight replacement value that is empty string."),
+            SimpleOptionValue.Create(HighlightOptions.EmptySplit, shortValue: "es", helpValue: "e[mpty-]s[plit]", description: "Highlight split value that is empty string."),
             SimpleOptionValue.Create(HighlightOptions.Empty, description: "Highlight value that is empty string."),
             SimpleOptionValue.Create(HighlightOptions.Boundary, description: "Highlight start and end of the value."),
             SimpleOptionValue.Create(HighlightOptions.Tab, description: "Highlight tab character."),
-            SimpleOptionValue.Create(HighlightOptions.CarriageReturn, shortValue: "cr", helpValue: "[c]arriage-[r]eturn", description: "Highlight carriage return character."),
-            SimpleOptionValue.Create(HighlightOptions.Linefeed, shortValue: "lf", helpValue: "[l]ine[f]eed", description: "Highlight linefeed character."),
-            SimpleOptionValue.Create(HighlightOptions.NewLine, shortValue: "nl", helpValue: "[n]ew-[l]ine", description: "Highlight carriage return and linefeed characters."),
+            SimpleOptionValue.Create(HighlightOptions.CarriageReturn, shortValue: "cr", helpValue: "c[arriage-]r[eturn]", description: "Highlight carriage return character."),
+            SimpleOptionValue.Create(HighlightOptions.Linefeed, shortValue: "lf", helpValue: "l[ine]f[eed]", description: "Highlight linefeed character."),
+            SimpleOptionValue.Create(HighlightOptions.NewLine, shortValue: "nl", helpValue: "n[ew-]l[ine]", description: "Highlight carriage return and linefeed characters."),
             SimpleOptionValue.Create(HighlightOptions.Space, shortValue: "", description: "Highlight space character.")
         );
 
@@ -253,7 +253,7 @@ namespace Orang.CommandLine
 
         public static OptionValueProvider ContentDisplayStyleProvider { get; } = new OptionValueProvider(MetaValues.ContentDisplay,
             SimpleOptionValue.Create(ContentDisplayStyle.Value, description: "Display just the matched value."),
-            SimpleOptionValue.Create(ContentDisplayStyle.ValueDetail, shortValue: "d", helpValue: "value-[d]etail", description: "Display matched value and include information about each value such as index or length."),
+            SimpleOptionValue.Create(ContentDisplayStyle.ValueDetail, shortValue: "d", description: "Display matched value and include information about each value such as index or length."),
             SimpleOptionValue.Create(ContentDisplayStyle.Line, description: "Display entire line containing the matched value."),
             SimpleOptionValue.Create(ContentDisplayStyle.UnmatchedLines, description: "Display all lines that do not contain the matched value."),
             SimpleOptionValue.Create(ContentDisplayStyle.AllLines, description: "Display all lines.")
@@ -317,10 +317,10 @@ namespace Orang.CommandLine
 
         public static OptionValueProvider SortFlagsProvider { get; } = new OptionValueProvider(MetaValues.SortOptions,
             SimpleOptionValue.Create(SortFlags.Ascending, description: "Sort items in ascending order."),
-            SimpleOptionValue.Create(SortFlags.CreationTime, description: "Sort items by creation time."),
+            SimpleOptionValue.Create(SortFlags.CreationTime, shortValue: "ct", helpValue: "c[reation-]t[ime]", description: "Sort items by creation time."),
             SimpleOptionValue.Create(SortFlags.Descending, description: "Sort items in descending order."),
-            OptionValues.Max,
-            SimpleOptionValue.Create(SortFlags.ModifiedTime, description: "Sort items by last modified time."),
+            OptionValues.MaxCount,
+            SimpleOptionValue.Create(SortFlags.ModifiedTime, shortValue: "mt", helpValue: "m[odified-]t[ime]", description: "Sort items by last modified time."),
             SimpleOptionValue.Create(SortFlags.Name, description: "Sort items by full name."),
             SimpleOptionValue.Create(SortFlags.Size, description: "Sort items by size.")
         );

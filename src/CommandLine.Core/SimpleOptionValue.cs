@@ -62,11 +62,11 @@ namespace Orang
                 {
                     if (string.CompareOrdinal(shortValue, 0, value, 0, shortValue.Length) == 0)
                     {
-                        helpValue = $"[{shortValue}]{value.Substring(shortValue.Length)}";
+                        helpValue = $"{shortValue}[{value.Substring(shortValue.Length)}]";
                     }
                     else
                     {
-                        helpValue = $"[{shortValue}] {value}";
+                        helpValue = $"{shortValue} [{value}]";
                     }
                 }
                 else

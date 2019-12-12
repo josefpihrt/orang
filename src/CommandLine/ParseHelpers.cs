@@ -93,7 +93,7 @@ namespace Orang.CommandLine
                     string key = value.Substring(0, index);
                     string value2 = value.Substring(index + 1);
 
-                    if (OptionValues.Max.IsKeyOrShortKey(key))
+                    if (OptionValues.MaxCount.IsKeyOrShortKey(key))
                     {
                         if (!TryParseCount(value2, out maxCount, value))
                             return false;

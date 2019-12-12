@@ -54,11 +54,11 @@ namespace Orang
                 {
                     if (string.CompareOrdinal(shortKey, 0, key, 0, shortKey.Length) == 0)
                     {
-                        helpValue = $"[{shortKey}]{key.Substring(shortKey.Length)}={value}";
+                        helpValue = $"{shortKey}[{key.Substring(shortKey.Length)}]={value}";
                     }
                     else
                     {
-                        helpValue = $"[{shortKey}] {key}={value}";
+                        helpValue = $"{shortKey} [{key}]={value}";
                     }
                 }
                 else

@@ -88,15 +88,20 @@ namespace Orang.FileSystem
                 }
 
                 if (FileReportMode == ProgressReportMode.Path)
-                    WritePath(value, indent: Options.Indent);
+                    WritePath(value, indent: GetIndent());
             }
             else if (ConsoleReportMode == ProgressReportMode.Path)
             {
-                WritePath(value, indent: Options.Indent, verbosity: Verbosity.Diagnostic);
+                WritePath(value, indent: GetIndent(), verbosity: Verbosity.Diagnostic);
             }
             else if (FileReportMode == ProgressReportMode.Path)
             {
-                WritePath(value, indent: Options.Indent);
+                WritePath(value, indent: GetIndent());
+            }
+
+            string GetIndent()
+            {
+                return (Options.PathDisplayStyle == PathDisplayStyle.Relative) ? Options.Indent : "";
             }
         }
 

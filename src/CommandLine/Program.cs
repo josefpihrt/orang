@@ -108,7 +108,7 @@ namespace Orang.CommandLine
                 {
                     if (options.Help)
                     {
-                        string commandName = typeof(AbstractCommandLineOptions).GetCustomAttribute<VerbAttribute>().Name;
+                        string commandName = options.GetType().GetCustomAttribute<VerbAttribute>().Name;
 
                         Console.WriteLine(HelpProvider.GetHelpText(commandName));
 

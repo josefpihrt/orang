@@ -13,7 +13,6 @@ namespace Orang.CommandLine
     internal class FindContentCommand : CommonFindContentCommand<FindCommandOptions>
     {
         private AskMode _askMode;
-        private IResultStorage _storage;
         private OutputSymbols _symbols;
 
         public FindContentCommand(FindCommandOptions options) : base(options)
@@ -143,13 +142,12 @@ namespace Orang.CommandLine
 
                 GetGroups(match, writerOptions.GroupNumber, context, isPathWritten: !Options.OmitPath, predicate: Options.ContentFilter.Predicate, groups: groups);
 
-                if (_storage != null
-                    || Options.AskMode == AskMode.Value
+                if (Options.AskMode == AskMode.Value
                     || ShouldLog(Verbosity.Normal))
                 {
                     MatchOutputInfo outputInfo = Options.CreateOutputInfo(input, match);
 
-                    contentWriter = ContentWriter.CreateFind(Options.ContentDisplayStyle, input, writerOptions, _storage, outputInfo, ask: _askMode == AskMode.Value);
+                    contentWriter = ContentWriter.CreateFind(Options.ContentDisplayStyle, input, writerOptions, default(IResultStorage), outputInfo, ask: _askMode == AskMode.Value);
                 }
                 else
                 {

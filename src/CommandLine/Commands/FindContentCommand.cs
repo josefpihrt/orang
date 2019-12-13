@@ -89,18 +89,7 @@ namespace Orang.CommandLine
                 : "";
 
             if (!Options.OmitPath)
-            {
-                WritePath(
-                    result,
-                    baseDirectoryPath,
-                    relativePath: baseDirectoryPath != null && Options.DisplayRelativePath,
-                    colors: Colors.Matched_Path,
-                    matchColors: (Options.HighlightMatch) ? Colors.Match_Path : default,
-                    indent: indent,
-                    fileProperties: Options.Format.FileProperties,
-                    columnWidths: columnWidths,
-                    verbosity: Verbosity.Minimal);
-            }
+                WritePath(result, baseDirectoryPath, indent, columnWidths);
 
             if (Options.ContentFilter.IsNegative)
             {

@@ -316,5 +316,10 @@ namespace Orang.CommandLine
                 return Match.Empty;
             }
         }
+
+        protected override void WritePath(FileSystemFinderResult result, string baseDirectoryPath, string indent, ColumnWidths columnWidths)
+        {
+            WritePath(result, baseDirectoryPath, indent, columnWidths, Colors.Match_Path);
+        }
     }
 }

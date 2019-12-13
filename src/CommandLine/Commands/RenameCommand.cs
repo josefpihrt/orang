@@ -89,20 +89,7 @@ namespace Orang.CommandLine
             string path = result.Path;
 
             if (!Options.OmitPath)
-            {
-                WritePath(
-                    result,
-                    baseDirectoryPath,
-                    relativePath: Options.DisplayRelativePath,
-                    colors: Colors.Matched_Path,
-                    matchColors: (Options.HighlightMatch) ? Colors.Match : default,
-                    indent: indent,
-                    fileProperties: Options.Format.FileProperties,
-                    columnWidths: columnWidths,
-                    verbosity: Verbosity.Minimal);
-
-                WriteLine(Verbosity.Minimal);
-            }
+                WritePath(result, baseDirectoryPath, indent, columnWidths);
 
             NamePart part = result.Part;
 

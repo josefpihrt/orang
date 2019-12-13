@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -9,7 +10,6 @@ using System.Text;
 using System.Threading;
 using Orang.FileSystem;
 using static Orang.Logger;
-using System.Collections.Immutable;
 
 namespace Orang.CommandLine
 {
@@ -355,6 +355,69 @@ namespace Orang.CommandLine
             }
 
             return result;
+        }
+
+        protected virtual void WritePath(FileSystemFinderResult result, string baseDirectoryPath, string indent, ColumnWidths columnWidths)
+        {
+            WritePath(result, baseDirectoryPath, indent, columnWidths, Colors.Match);
+
+            WriteLine(Verbosity.Minimal);
+        }
+
+        protected void WritePath(FileSystemFinderResult result, string baseDirectoryPath, string indent, ColumnWidths columnWidths, ConsoleColors matchColors)
+        {
+            LogHelpers.WritePath(
+                result,
+                baseDirectoryPath,
+                relativePath: Options.DisplayRelativePath,
+                colors: Colors.Matched_Path,
+                matchColors: (Options.HighlightMatch) ? matchColors : default,
+                indent: indent,
+                verbosity: Verbosity.Minimal);
+
+            if (columnWidths != null
+                && ShouldLog(Verbosity.Minimal))
+            {
+                StringBuilder sb = StringBuilderCache.GetInstance();
+
+                sb.Append(' ', columnWidths.NameWidth - result.Path.Length);
+
+                foreach (FileProperty fileProperty in Options.Format.FileProperties)
+                {
+                    if (fileProperty == FileProperty.Size)
+                    {
+                        sb.Append("  ");
+
+                        if (result.IsDirectory)
+                        {
+                            sb.Append(' ', columnWidths.SizeWidth);
+                        }
+                        else
+                        {
+                            string s = new FileInfo(result.Path).Length.ToString("n0");
+
+                            sb.Append(' ', columnWidths.SizeWidth - s.Length);
+                            sb.Append(s);
+                        }
+                    }
+                    else if (fileProperty == FileProperty.CreationTime)
+                    {
+                        sb.Append("  ");
+                        sb.Append(File.GetCreationTime(result.Path).ToString("yyyy-MM-dd HH:mm:ss"));
+                    }
+                    else if (fileProperty == FileProperty.ModifiedTime)
+                    {
+                        sb.Append("  ");
+                        sb.Append(File.GetLastWriteTime(result.Path).ToString("yyyy-MM-dd HH:mm:ss"));
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException($"Unknown enum value '{fileProperty}'.");
+                    }
+                }
+
+                Write(StringBuilderCache.GetStringAndFree(sb), Verbosity.Minimal);
+            }
         }
     }
 }

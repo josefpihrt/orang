@@ -84,7 +84,7 @@ namespace Orang.CommandLine
             string baseDirectoryPath = null,
             ColumnWidths columnWidths = null)
         {
-            string indent = (baseDirectoryPath != null && Options.PathDisplayStyle == PathDisplayStyle.Relative)
+            string indent = (baseDirectoryPath != null && Options.DisplayRelativePath)
                 ? Options.Indent
                 : "";
 
@@ -93,7 +93,7 @@ namespace Orang.CommandLine
                 WritePath(
                     result,
                     baseDirectoryPath,
-                    relativePath: baseDirectoryPath != null && Options.PathDisplayStyle == PathDisplayStyle.Relative,
+                    relativePath: baseDirectoryPath != null && Options.DisplayRelativePath,
                     colors: Colors.Matched_Path,
                     matchColors: (Options.HighlightMatch) ? Colors.Match_Path : default,
                     indent: indent,

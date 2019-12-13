@@ -52,6 +52,8 @@ namespace Orang.CommandLine
 
         public bool OmitPath => PathDisplayStyle == PathDisplayStyle.Omit;
 
+        public bool DisplayRelativePath => PathDisplayStyle == PathDisplayStyle.Relative;
+
         public string Indent => Format.Indent;
 
         internal string DoubleIndent => _doubleIndent ?? (_doubleIndent = Indent + Indent);

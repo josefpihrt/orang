@@ -101,7 +101,7 @@ namespace Orang.FileSystem
 
             string GetIndent()
             {
-                return (Options.PathDisplayStyle == PathDisplayStyle.Relative) ? Options.Indent : "";
+                return (Options.DisplayRelativePath) ? Options.Indent : "";
             }
         }
 
@@ -110,7 +110,7 @@ namespace Orang.FileSystem
             Out.WritePath(
                 value.Path,
                 BaseDirectoryPath,
-                relativePath: Options.PathDisplayStyle == PathDisplayStyle.Relative,
+                relativePath: Options.DisplayRelativePath,
                 indent: indent,
                 verbosity: Verbosity.Diagnostic);
 
@@ -122,7 +122,7 @@ namespace Orang.FileSystem
             LogHelpers.WritePath(
                 value.Path,
                 BaseDirectoryPath,
-                relativePath: Options.PathDisplayStyle == PathDisplayStyle.Relative,
+                relativePath: Options.DisplayRelativePath,
                 colors: Colors.Path_Progress,
                 indent: indent,
                 verbosity: verbosity);

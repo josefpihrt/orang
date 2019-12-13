@@ -203,7 +203,7 @@ namespace Orang.CommandLine
 
                 progress.BaseDirectoryPath = path;
 
-                if (Options.PathDisplayStyle == PathDisplayStyle.Relative)
+                if (Options.DisplayRelativePath)
                     WriteLine(path, Colors.BasePath, Verbosity.Minimal);
 
                 try
@@ -303,7 +303,7 @@ namespace Orang.CommandLine
                 || ex is UnauthorizedAccessException)
             {
                 EndProgress(context);
-                LogHelpers.WriteFileError(ex, filePath, basePath, relativePath: Options.PathDisplayStyle == PathDisplayStyle.Relative, indent: indent);
+                LogHelpers.WriteFileError(ex, filePath, basePath, relativePath: Options.DisplayRelativePath, indent: indent);
                 return null;
             }
         }

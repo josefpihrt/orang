@@ -31,5 +31,7 @@ namespace Orang.CommandLine
         public int MatchingLineCount { get; internal set; }
 
         public TimeSpan Elapsed { get; internal set; }
+
+        public long FilesTotalSize { get; internal set; }
     }
 }

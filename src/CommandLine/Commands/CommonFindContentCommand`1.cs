@@ -317,9 +317,9 @@ namespace Orang.CommandLine
             }
         }
 
-        protected override void WritePath(FileSystemFinderResult result, string baseDirectoryPath, string indent, ColumnWidths columnWidths)
+        protected override void WritePath(SearchContext context, FileSystemFinderResult result, string baseDirectoryPath, string indent, ColumnWidths columnWidths)
         {
-            WritePath(result, baseDirectoryPath, indent, columnWidths, Colors.Match_Path);
+            WritePath(context, result, baseDirectoryPath, indent, columnWidths, Colors.Match_Path);
         }
     }
 }

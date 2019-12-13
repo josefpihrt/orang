@@ -61,6 +61,12 @@ namespace Orang.CommandLine
                 WriteCount("Directories searched", telemetry.DirectoryCount, verbosity: verbosity);
             }
 
+            if (searchTarget != SearchTarget.Directories
+                && telemetry.FilesTotalSize > 0)
+            {
+                WriteCount("  Files total size", telemetry.FilesTotalSize, verbosity: verbosity);
+            }
+
             if (telemetry.Elapsed != default)
                 Write($"  Elapsed Time: {telemetry.Elapsed:mm\\:ss\\.ff}", verbosity);
 
@@ -166,6 +172,11 @@ namespace Orang.CommandLine
         }
 
         public static int WriteCount(string name, int count, in ConsoleColors colors = default, Verbosity verbosity = Verbosity.Quiet)
+        {
+            return WriteCount(name, count.ToString("n0"), colors, verbosity);
+        }
+
+        public static int WriteCount(string name, long count, in ConsoleColors colors = default, Verbosity verbosity = Verbosity.Quiet)
         {
             return WriteCount(name, count.ToString("n0"), colors, verbosity);
         }

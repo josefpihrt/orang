@@ -89,7 +89,7 @@ namespace Orang.CommandLine
             string path = result.Path;
 
             if (!Options.OmitPath)
-                WritePath(result, baseDirectoryPath, indent, columnWidths);
+                WritePath(context, result, baseDirectoryPath, indent, columnWidths);
 
             NamePart part = result.Part;
 

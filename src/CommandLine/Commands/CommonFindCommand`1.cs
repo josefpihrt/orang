@@ -357,14 +357,14 @@ namespace Orang.CommandLine
             return result;
         }
 
-        protected virtual void WritePath(FileSystemFinderResult result, string baseDirectoryPath, string indent, ColumnWidths columnWidths)
+        protected virtual void WritePath(SearchContext context, FileSystemFinderResult result, string baseDirectoryPath, string indent, ColumnWidths columnWidths)
         {
-            WritePath(result, baseDirectoryPath, indent, columnWidths, Colors.Match);
+            WritePath(context, result, baseDirectoryPath, indent, columnWidths, Colors.Match);
 
             WriteLine(Verbosity.Minimal);
         }
 
-        protected void WritePath(FileSystemFinderResult result, string baseDirectoryPath, string indent, ColumnWidths columnWidths, ConsoleColors matchColors)
+        protected void WritePath(SearchContext context, FileSystemFinderResult result, string baseDirectoryPath, string indent, ColumnWidths columnWidths, ConsoleColors matchColors)
         {
             LogHelpers.WritePath(
                 result,
@@ -394,10 +394,13 @@ namespace Orang.CommandLine
                         }
                         else
                         {
-                            string s = new FileInfo(result.Path).Length.ToString("n0");
+                            long size = new FileInfo(result.Path).Length;
+                            string sizeText = size.ToString("n0");
 
-                            sb.Append(' ', columnWidths.SizeWidth - s.Length);
-                            sb.Append(s);
+                            sb.Append(' ', columnWidths.SizeWidth - sizeText.Length);
+                            sb.Append(sizeText);
+
+                            context.Telemetry.FilesTotalSize += size;
                         }
                     }
                     else if (fileProperty == FileProperty.CreationTime)

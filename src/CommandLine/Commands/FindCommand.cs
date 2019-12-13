@@ -62,7 +62,7 @@ namespace Orang.CommandLine
                 : "";
 
             if (!Options.OmitPath)
-                WritePath(result, baseDirectoryPath, indent, columnWidths);
+                WritePath(context, result, baseDirectoryPath, indent, columnWidths);
 
             if (_ask)
             {

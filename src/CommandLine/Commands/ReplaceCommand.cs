@@ -160,6 +160,8 @@ namespace Orang.CommandLine
 
             if (!Options.OmitPath)
                 WritePath(context, result, baseDirectoryPath, indent, columnWidths);
+
+            ReplaceMatches(result.Path, encoding, input, match, indent, writerOptions, context);
         }
 
         private string ReadFile(

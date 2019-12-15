@@ -180,13 +180,11 @@ namespace Orang
             return input;
         }
 
-        internal static string ConvertToMultiline(string replacement)
+        internal static string ConvertCharacterEscapes(string replacement)
         {
             for (int i = 0; i < replacement.Length; i++)
             {
-                if (replacement[i] == '\\'
-                    && i < replacement.Length - 1
-                    && (replacement[i + 1] == 'r' || replacement[i + 1] == 'n'))
+                if (IsChar(i))
                 {
                     var sb = new StringBuilder();
 
@@ -196,19 +194,15 @@ namespace Orang
                     do
                     {
                         i++;
-                        sb.Append((replacement[i] == 'r') ? '\r' : '\n');
+                        sb.Append(GetChar(replacement[i]));
 
                         i++;
                         lastPos = i;
 
                         while (i < replacement.Length)
                         {
-                            if (replacement[i] == '\\'
-                                && i < replacement.Length - 1
-                                && (replacement[i + 1] == 'r' || replacement[i + 1] == 'n'))
-                            {
+                            if (IsChar(i))
                                 break;
-                            }
 
                             i++;
                         }
@@ -222,6 +216,42 @@ namespace Orang
             }
 
             return replacement;
+
+            bool IsChar(int i)
+            {
+                if (replacement[i] == '\\'
+                    && i < replacement.Length - 1)
+                {
+                    switch (replacement[i + 1])
+                    {
+                        case 'a':
+                        case 'b':
+                        case 'f':
+                        case 'n':
+                        case 'r':
+                        case 't':
+                        case 'v':
+                            return true;
+                    }
+                }
+
+                return false;
+            }
+
+            char GetChar(char ch)
+            {
+                return ch switch
+                {
+                    'a' => '\a',
+                    'b' => '\b',
+                    'f' => '\f',
+                    'n' => '\n',
+                    'r' => '\r',
+                    't' => '\t',
+                    'v' => '\v',
+                    _ => throw new InvalidOperationException(),
+                };
+            }
         }
 
         private static readonly CharEscapeMode[] _escapeModes = new CharEscapeMode[] {

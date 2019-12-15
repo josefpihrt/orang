@@ -654,8 +654,8 @@ namespace Orang.CommandLine
             if ((options & ReplacementOptions.Literal) != 0)
                 replacement = RegexEscape.EscapeSubstitution(replacement);
 
-            if ((options & ReplacementOptions.Multiline) != 0)
-                replacement = RegexEscape.ConvertToMultiline(replacement);
+            if ((options & ReplacementOptions.CharacterEscapes) != 0)
+                replacement = RegexEscape.ConvertCharacterEscapes(replacement);
 
             return true;
         }

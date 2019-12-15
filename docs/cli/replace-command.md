@@ -121,7 +121,7 @@ A filter for file properties\. Allowed values are c\[reation\-\]t\[ime\], m\[odi
 
 **`[-r|--replacement] <REPLACEMENT>`**
 
-Replacement pattern\. Syntax is \<REPLACEMENT> \[\<REPLACEMENT\_OPTIONS>\]\. Allowed values are f\[rom\-file\], l\[iteral\] and m\[ultiline\]\.
+Replacement pattern\. Syntax is \<REPLACEMENT> \[\<REPLACEMENT\_OPTIONS>\]\. Allowed values are f\[rom\-file\], l\[iteral\] and c\[haracter\-\]e\[scapes\]\.
 
 **`[-s|--sort] <SORT_OPTIONS>`**
 

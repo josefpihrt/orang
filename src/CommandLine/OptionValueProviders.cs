@@ -78,7 +78,7 @@ namespace Orang.CommandLine
         public static OptionValueProvider ReplacementOptionsProvider { get; } = new OptionValueProvider(MetaValues.ReplacementOptions,
             SimpleOptionValue.Create(ReplacementOptions.FromFile, description: "Load replacement string from a file whose path is specified in <REPLACEMENT> value."),
             SimpleOptionValue.Create(ReplacementOptions.Literal, description: "Replacement should be treated as a literal expression and not as a replacement expression."),
-            SimpleOptionValue.Create(ReplacementOptions.Multiline, description: @"Literals '\r' and '\n' should be treated as carriage return and linefeed respectively.")
+            SimpleOptionValue.Create(ReplacementOptions.CharacterEscapes, shortValue: "ce", helpValue: "c[haracter-]e[scapes]", description: @"Interpret literals \a, \b, \f, \n, \r, \t and \v as character escapes.")
         );
 
         public static OptionValueProvider VerbosityProvider { get; } = new OptionValueProvider(MetaValues.Verbosity,

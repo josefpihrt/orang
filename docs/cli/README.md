@@ -16,6 +16,7 @@ Search, replace, rename and delete files and its content using the power of \.NE
 
 ## Links
 
+* [List of Allowed Values](AllowedValues.md)
 * [How To](HowTo.md)
 
 ## External Links
@@ -25,4 +26,5 @@ Search, replace, rename and delete files and its content using the power of \.NE
 * [.NET Core 2.1 Global Tools](https://natemcmaster.com/blog/2018/05/12/dotnet-global-tools/)
 * [Windows CMD Shell](https://ss64.com/nt/syntax.html)
 * [Parsing C++ Command-Line Arguments](https://docs.microsoft.com/cpp/cpp/parsing-cpp-command-line-arguments?view=vs-2019)
+
 *\(Generated with [DotMarkdown](http://github.com/JosefPihrt/DotMarkdown)\)*

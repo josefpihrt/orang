@@ -130,6 +130,39 @@ namespace Orang.CommandLine
             return StringComparer.InvariantCulture.Compare(x.Name, y.Name);
         }
 
+        public static IEnumerable<OptionValueProvider> GetProviders(IEnumerable<Command> commands, IEnumerable<OptionValueProvider> allProviders = null)
+        {
+            return GetProviders2(commands.SelectMany(f => f.Options), allProviders);
+        }
+
+        private static IEnumerable<OptionValueProvider> GetProviders2(IEnumerable<CommandOption> options, IEnumerable<OptionValueProvider> allProviders = null)
+        {
+            ImmutableArray<OptionValueProvider> providers = GetProviders(options, allProviders).ToImmutableArray();
+
+            return providers
+                .SelectMany(f => f.Values)
+                .OfType<KeyValuePairOptionValue>()
+                .Select(f => f.Value)
+                .Distinct()
+                .Join(allProviders ?? OptionValueProviders.ProvidersByName.Select(f => f.Value), f => f, f => f.Name, (_, f) => f)
+                .OrderBy(f => f.Name)
+                .Concat(providers)
+                .Distinct()
+                .OrderBy(f => f.Name);
+        }
+
+        private static IEnumerable<OptionValueProvider> GetProviders(IEnumerable<CommandOption> options, IEnumerable<OptionValueProvider> allProviders = null)
+        {
+            IEnumerable<string> metaValues = options
+                .SelectMany(f => _metaValueRegex.Matches(f.Description).Select(m => m.Value))
+                .Concat(options.Select(f => f.MetaValue))
+                .Distinct();
+
+            return metaValues
+                .Join(allProviders ?? OptionValueProviders.ProvidersByName.Select(f => f.Value), f => f, f => f.Name, (_, f) => f)
+                .OrderBy(f => f.Name);
+        }
+
         private class ManualHelpWriter : HelpWriter
         {
             public ManualHelpWriter(
@@ -174,32 +207,9 @@ namespace Orang.CommandLine
 
             protected override void WriteValues(IEnumerable<CommandOption> options)
             {
-                ImmutableArray<OptionValueProvider> providers = GetProviders(options).ToImmutableArray();
-
-                providers = providers
-                    .SelectMany(f => f.Values)
-                    .OfType<KeyValuePairOptionValue>()
-                    .Select(f => f.Value)
-                    .Distinct()
-                    .Join(OptionValueProviders, f => f, f => f.Name, (_, f) => f)
-                    .OrderBy(f => f.Name)
-                    .Concat(providers)
-                    .Distinct()
-                    .ToImmutableArray();
+                ImmutableArray<OptionValueProvider> providers = GetProviders2(options, OptionValueProviders).ToImmutableArray();
 
                 WriteValues(providers);
-            }
-
-            protected IEnumerable<OptionValueProvider> GetProviders(IEnumerable<CommandOption> options)
-            {
-                IEnumerable<string> metaValues = options
-                    .SelectMany(f => _metaValueRegex.Matches(f.Description).Select(m => m.Value))
-                    .Concat(options.Select(f => f.MetaValue))
-                    .Distinct();
-
-                return metaValues
-                    .Join(OptionValueProviders, f => f, f => f.Name, (_, f) => f)
-                    .OrderBy(f => f.Name);
             }
         }
 
@@ -220,7 +230,7 @@ namespace Orang.CommandLine
                 }
                 else
                 {
-                    IEnumerable<string> metaValues = GetProviders(command.Options).Select(f => f.Name);
+                    IEnumerable<string> metaValues = GetProviders(command.Options, OptionValueProviders).Select(f => f.Name);
 
                     if (!metaValues.Any())
                         return;

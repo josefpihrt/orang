@@ -1,5 +1,6 @@
 ﻿## Links
 
+* [List of Allowed Values](AllowedValues.md)
 * [How To](HowTo.md)
 
 ## External Links

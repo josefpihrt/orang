@@ -2,12 +2,15 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 using DotMarkdown;
+using DotMarkdown.Linq;
 using Orang.CommandLine;
+using static DotMarkdown.Linq.MFactory;
 
 namespace Orang.Documentation
 {
@@ -67,6 +70,32 @@ namespace Orang.Documentation
 
                 Console.WriteLine(readmeFilePath);
             }
+
+            string valuesFilePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "AllowedValues.md"));
+
+            ImmutableArray<OptionValueProvider> providers = HelpProvider.GetProviders(commands).ToImmutableArray();
+
+            MDocument document = Document(
+                Heading1("List of Allowed Values"),
+                BulletList(providers.Select(f => Link(f.Name, "#" + f.Name
+                    .ToLower()
+                    .Replace("<", "")
+                    .Replace(">", "")
+                    .Replace("_", "-")))),
+                providers.Select(provider =>
+                {
+                    return new MObject[]
+                    {
+                        Heading2(provider.Name),
+                        Table(
+                            TableRow("Value", "Description"),
+                            provider.Values.Select(f => TableRow(f.HelpValue, f.Description)))
+                    };
+                }));
+
+            var markdownFormat = new MarkdownFormat(tableOptions: MarkdownFormat.Default.TableOptions | TableOptions.FormatContent);
+
+            File.WriteAllText(valuesFilePath, document.ToString(markdownFormat));
 
             foreach (Command command in application.Commands)
             {

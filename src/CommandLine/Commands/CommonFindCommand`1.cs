@@ -159,11 +159,18 @@ namespace Orang.CommandLine
 
                 if (fileProperties.Contains(FileProperty.Size))
                 {
-                    maxSizeWidth = resultList
-                        .Where(f => !f.IsDirectory)
-                        .Max(f => ((FileInfo)f.FileSystemInfo).Length)
-                        .ToString("n0")
-                        .Length;
+                    if (resultList.Any(f => !f.IsDirectory))
+                    {
+                        maxSizeWidth = resultList
+                            .Where(f => !f.IsDirectory)
+                            .Max(f => ((FileInfo)f.FileSystemInfo).Length)
+                            .ToString("n0")
+                            .Length;
+                    }
+                    else
+                    {
+                        maxSizeWidth = 0;
+                    }
                 }
 
                 columnWidths = new ColumnWidths(maxNameWidth, maxSizeWidth);

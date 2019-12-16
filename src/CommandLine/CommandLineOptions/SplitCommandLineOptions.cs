@@ -20,7 +20,7 @@ namespace Orang.CommandLine
         [Option(shortName: OptionShortNames.MaxCount, longName: OptionNames.MaxCount,
             Default = 0,
             HelpText = "Maximum number of times the split can occur.",
-            MetaValue = MetaValues.Number)]
+            MetaValue = MetaValues.Num)]
         public int MaxCount { get; set; }
 
         [Option(longName: OptionNames.NoGroups,

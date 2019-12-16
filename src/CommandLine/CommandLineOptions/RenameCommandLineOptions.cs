@@ -38,7 +38,7 @@ namespace Orang.CommandLine
 
         [Option(shortName: OptionShortNames.MaxCount, longName: OptionNames.MaxCount,
             HelpText = "Stop deleting after specified number is reached.",
-            MetaValue = MetaValues.Number)]
+            MetaValue = MetaValues.Num)]
         public int MaxCount { get; set; }
 
         [Option(shortName: OptionShortNames.Name, longName: OptionNames.Name,

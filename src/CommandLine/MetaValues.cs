@@ -18,7 +18,7 @@ namespace Orang.CommandLine
         public const string Input = "<INPUT>";
         public const string MaxOptions = "<MAX_OPTIONS>";
         public const string NamePart = "<NAME_PART>";
-        public const string Number = "<NUMBER>";
+        public const string Num = "<NUM>";
         public const string OutputOptions = "<OUTPUT_OPTIONS>";
         public const string SortOptions = "<SORT_OPTIONS>";
         public const string PathDisplay = "<PATH_DISPLAY>";

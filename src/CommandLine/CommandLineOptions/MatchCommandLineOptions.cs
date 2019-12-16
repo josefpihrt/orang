@@ -20,7 +20,7 @@ namespace Orang.CommandLine
         [Option(shortName: OptionShortNames.MaxCount, longName: OptionNames.MaxCount,
             Default = -1,
             HelpText = "Maximum number of matches returned.",
-            MetaValue = MetaValues.Number)]
+            MetaValue = MetaValues.Num)]
         public int MaxCount { get; set; }
 
         public bool TryParse(ref MatchCommandOptions options)

@@ -21,6 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocumentationGenerator", "D
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{3A93F055-6756-4074-8F4C-E8858963604C}"
 	ProjectSection(SolutionItems) = preProject
+		..\docs\cli\AllowedValues.md = ..\docs\cli\AllowedValues.md
 		..\docs\cli\delete-command.md = ..\docs\cli\delete-command.md
 		..\docs\cli\escape-command.md = ..\docs\cli\escape-command.md
 		..\docs\cli\find-command.md = ..\docs\cli\find-command.md

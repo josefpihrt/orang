@@ -30,7 +30,7 @@ Regular expression for the input string\. Syntax is \<PATTERN> \[\<PATTERN\_OPTI
 
 **`[-y|--display] <DISPLAY_OPTIONS>`**
 
-Display of the results\. Allowed values are c\[ontent\]=\<CONTENT\_DISPLAY>, indent=\<INDENT>, separator=\<SEPARATOR> and summary\.
+Display of the results\. Allowed values are c\[ontent\]=\<CONTENT\_DISPLAY>, indent=\<INDENT>, s\[eparator\]=\<SEPARATOR> and su\[mmary\]\.
 
 **`[-h|--help]`**
 

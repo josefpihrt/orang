@@ -56,7 +56,7 @@ Regular expression for files' content\. Syntax is \<PATTERN> \[\<PATTERN\_OPTION
 
 **`[-y|--display] <DISPLAY_OPTIONS>`**
 
-Display of the results\. Allowed values are c\[reation\-\]t\[ime\], indent=\<INDENT>, m\[odified\-\]t\[ime\], p\[ath\]=\<PATH\_DISPLAY>, s\[ize\], separator=\<SEPARATOR> and summary\.
+Display of the results\. Allowed values are c\[reation\-\]t\[ime\], indent=\<INDENT>, m\[odified\-\]t\[ime\], p\[ath\]=\<PATH\_DISPLAY>, s\[ize\], s\[eparator\]=\<SEPARATOR> and su\[mmary\]\.
 
 **`[-d|--dry-run]`**
 

@@ -68,8 +68,8 @@
 | m\[odified\-\]t\[ime\]          | Include file last modified time\.                                      |
 | p\[ath\]=\<PATH\_DISPLAY>       |
 | s\[ize\]                        | Include file size\.                                                    |
-| separator=\<SEPARATOR>          | String that separate each value\.                                      |
-| summary                         | Include summary\.                                                      |
+| s\[eparator\]=\<SEPARATOR>      | String that separate each value\.                                      |
+| su\[mmary\]                     | Include summary\.                                                      |
 | t\[rim\-line\]                  | Trim leading and trailing white\-space from a line\.                   |
 
 ## \<EXTENSION\_OPTIONS>

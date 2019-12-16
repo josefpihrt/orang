@@ -53,7 +53,7 @@ Regular expression for files' content\. Syntax is \<PATTERN> \[\<PATTERN\_OPTION
 
 **`[-y|--display] <DISPLAY_OPTIONS>`**
 
-Display of the results\. Allowed values are c\[ontent\]=\<CONTENT\_DISPLAY>, c\[ount\], c\[reation\-\]t\[ime\], indent=\<INDENT>, l\[ine\-number\], m\[odified\-\]t\[ime\], p\[ath\]=\<PATH\_DISPLAY>, s\[ize\], separator=\<SEPARATOR>, summary and t\[rim\-line\]\.
+Display of the results\. Allowed values are c\[ontent\]=\<CONTENT\_DISPLAY>, c\[ount\], c\[reation\-\]t\[ime\], indent=\<INDENT>, l\[ine\-number\], m\[odified\-\]t\[ime\], p\[ath\]=\<PATH\_DISPLAY>, s\[ize\], s\[eparator\]=\<SEPARATOR>, su\[mmary\] and t\[rim\-line\]\.
 
 **`[--encoding] <ENCODING>`**
 

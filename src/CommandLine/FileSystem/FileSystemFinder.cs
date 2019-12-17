@@ -186,7 +186,9 @@ namespace Orang.FileSystem
 
             if (nameFilter != null)
             {
-                match = nameFilter.Regex.Match(path, namePart.Index, namePart.Length);
+                match = (options.PartOnly)
+                    ? nameFilter.Regex.Match(namePart.ToString())
+                    : nameFilter.Regex.Match(path, namePart.Index, namePart.Length);
 
                 if (!nameFilter.IsMatch(match))
                     return null;
@@ -248,7 +250,9 @@ namespace Orang.FileSystem
 
             if (nameFilter != null)
             {
-                match = nameFilter.Regex.Match(path, namePart.Index, namePart.Length);
+                match = (options.PartOnly)
+                    ? nameFilter.Regex.Match(namePart.ToString())
+                    : nameFilter.Regex.Match(path, namePart.Index, namePart.Length);
 
                 if (!nameFilter.IsMatch(match))
                     return null;

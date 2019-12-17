@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Orang.CommandLine
 {
@@ -19,11 +20,12 @@ namespace Orang.CommandLine
             {
                 List<T> list = _cachedInstance;
 
+                Debug.Assert(list == null || list.Count == 0, "");
+
                 if (list != null
                     && capacity <= list.Capacity)
                 {
                     _cachedInstance = null;
-                    list.Clear();
                     return list;
                 }
             }
@@ -33,11 +35,10 @@ namespace Orang.CommandLine
 
         public static void Free(List<T> list)
         {
+            list.Clear();
+
             if (list.Capacity <= MaxSize)
-            {
-                list.Clear();
                 _cachedInstance = list;
-            }
         }
     }
 }

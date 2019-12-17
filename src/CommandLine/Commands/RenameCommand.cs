@@ -1,9 +1,12 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using Orang.FileSystem;
 using static Orang.CommandLine.LogHelpers;
 using static Orang.Logger;
@@ -14,12 +17,22 @@ namespace Orang.CommandLine
     {
         public RenameCommand(RenameCommandOptions options) : base(options)
         {
-            Debug.Assert(!options.ContentFilter.IsNegative);
+            Debug.Assert(options.ContentFilter?.IsNegative != true);
         }
 
-        public override bool CanEnumerate => Options.DryRun;
-
         public event EventHandler<DirectoryChangedEventArgs> DirectoryChanged;
+
+        protected override FileSystemFinderOptions CreateFinderOptions()
+        {
+            return new FileSystemFinderOptions(
+                searchTarget: Options.SearchTarget,
+                recurseSubdirectories: Options.RecurseSubdirectories,
+                attributes: Options.Attributes,
+                attributesToSkip: Options.AttributesToSkip,
+                empty: Options.Empty,
+                canEnumerate: Options.DryRun,
+                partOnly: true);
+        }
 
         protected override void ExecuteFile(string filePath, SearchContext context)
         {
@@ -86,23 +99,31 @@ namespace Orang.CommandLine
                 ? Options.Indent
                 : "";
 
-            string path = result.Path;
+            List<ReplaceItem> replaceItems = GetReplaceItems(result, context.CancellationToken);
 
             if (!Options.OmitPath)
-                WritePath(context, result, baseDirectoryPath, indent, columnWidths);
+            {
+                LogHelpers.WritePath(
+                    result,
+                    replaceItems,
+                    baseDirectoryPath,
+                    relativePath: Options.DisplayRelativePath,
+                    colors: Colors.Matched_Path,
+                    matchColors: (Options.HighlightMatch) ? Colors.Match : default,
+                    indent: indent,
+                    verbosity: Verbosity.Minimal);
 
+                WriteProperties(context, result, columnWidths);
+
+                WriteLine(Verbosity.Minimal);
+            }
+
+            string path = result.Path;
             NamePart part = result.Part;
 
-            Match match = Options.NameFilter.Regex.Match(path.Substring(part.Index, part.Length));
+            string newPath = GetNewPath(result, replaceItems);
 
-            string replacement = (Options.MatchEvaluator != null)
-                ? Options.MatchEvaluator(match)
-                : match.Result(Options.Replacement);
-
-            int index = part.Index + match.Index;
-            int endIndex = index + match.Length;
-
-            string newPath = path.Remove(index) + replacement + path.Substring(endIndex);
+            bool noChange = string.Equals(path, newPath, StringComparison.Ordinal);
 
             int fileNameIndex = part.GetFileNameIndex();
 
@@ -126,20 +147,29 @@ namespace Orang.CommandLine
             if (!Options.OmitPath)
             {
                 Write(' ', indentCount);
-                Write(path, fileNameIndex, index - fileNameIndex);
-                Write(replacement, (Options.HighlightReplacement) ? Colors.Replacement : default);
-                Write(path, endIndex, path.Length - endIndex);
+                Write(path, fileNameIndex, part.Index - fileNameIndex);
 
-                if (string.Equals(path, newPath, StringComparison.Ordinal))
+                int lastPos = part.Index;
+
+                foreach (ReplaceItem item in replaceItems)
                 {
-                    WriteLine(" NO CHANGE", Colors.Message_Warning);
-                    return;
+                    Write(path, lastPos, part.Index + item.Match.Index - lastPos);
+                    Write(item.Value, (Options.HighlightReplacement) ? Colors.Replacement : default);
+                    lastPos = part.Index + item.Match.Index + item.Match.Length;
                 }
+
+                Write(path, lastPos, part.EndIndex - lastPos);
+                Write(path, part.EndIndex, path.Length - part.EndIndex);
+
+                if (noChange)
+                    Write(" NO CHANGE", Colors.Message_Warning);
 
                 WriteLine();
             }
 
-            if (newPath == null)
+            ListCache<ReplaceItem>.Free(replaceItems);
+
+            if (noChange)
                 return;
 
             bool success = false;
@@ -194,6 +224,76 @@ namespace Orang.CommandLine
                     return false;
                 }
             }
+        }
+
+        private List<ReplaceItem> GetReplaceItems(FileSystemFinderResult result, CancellationToken cancellationToken)
+        {
+            List<Match> matches = GetMatches(result.Match);
+
+            int offset = 0;
+            List<ReplaceItem> items = ListCache<ReplaceItem>.GetInstance();
+
+            foreach (Match match in matches)
+            {
+                string value = Options.MatchEvaluator?.Invoke(match) ?? match.Result(Options.Replacement);
+
+                items.Add(new ReplaceItem(match, value, match.Index + offset));
+
+                offset += value.Length - match.Length;
+
+                cancellationToken.ThrowIfCancellationRequested();
+            }
+
+            ListCache<Match>.Free(matches);
+
+            return items;
+
+            List<Match> GetMatches(Match match)
+            {
+                List<Match> matches = ListCache<Match>.GetInstance();
+
+                do
+                {
+                    matches.Add(match);
+
+                    match = match.NextMatch();
+
+                } while (match.Success);
+
+                if (matches.Count > 1
+                    && matches[0].Index > matches[1].Index)
+                {
+                    matches.Reverse();
+                }
+
+                return matches;
+            }
+        }
+
+        private string GetNewPath(FileSystemFinderResult result, List<ReplaceItem> items)
+        {
+            StringBuilder sb = StringBuilderCache.GetInstance();
+
+            string path = result.Path;
+            NamePart part = result.Part;
+
+            sb.Append(path, 0, part.Index);
+
+            int lastPos = part.Index;
+
+            foreach (ReplaceItem item in items)
+            {
+                Match match = item.Match;
+
+                sb.Append(path, lastPos, part.Index + match.Index - lastPos);
+                sb.Append(item.Value);
+
+                lastPos = part.Index + match.Index + match.Length;
+            }
+
+            sb.Append(path, lastPos, path.Length - lastPos);
+
+            return StringBuilderCache.GetStringAndFree(sb);
         }
 
         protected virtual void OnDirectoryChanged(DirectoryChangedEventArgs e)

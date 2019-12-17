@@ -157,7 +157,7 @@ namespace Orang
                     count--;
 
                     if (count == 0)
-                        yield break;
+                        break;
 
                     match = match.NextMatch();
                 }

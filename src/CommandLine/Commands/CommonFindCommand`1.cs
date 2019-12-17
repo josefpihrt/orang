@@ -24,23 +24,19 @@ namespace Orang.CommandLine
 
         public TOptions Options { get; }
 
-        protected FileSystemFinderOptions FinderOptions
-        {
-            get
-            {
-                return _finderOptions ?? (_finderOptions = new FileSystemFinderOptions(
-                    searchTarget: Options.SearchTarget,
-                    recurseSubdirectories: Options.RecurseSubdirectories,
-                    attributes: Options.Attributes,
-                    attributesToSkip: Options.AttributesToSkip,
-                    empty: Options.Empty,
-                    canEnumerate: CanEnumerate));
-            }
-        }
-
-        public virtual bool CanEnumerate => true;
+        protected FileSystemFinderOptions FinderOptions => _finderOptions ?? (_finderOptions = CreateFinderOptions());
 
         public virtual bool CanEndProgress => !Options.OmitPath;
+
+        protected virtual FileSystemFinderOptions CreateFinderOptions()
+        {
+            return new FileSystemFinderOptions(
+                searchTarget: Options.SearchTarget,
+                recurseSubdirectories: Options.RecurseSubdirectories,
+                attributes: Options.Attributes,
+                attributesToSkip: Options.AttributesToSkip,
+                empty: Options.Empty);
+        }
 
         protected abstract void ExecuteDirectory(string directoryPath, SearchContext context);
 
@@ -382,6 +378,11 @@ namespace Orang.CommandLine
                 indent: indent,
                 verbosity: Verbosity.Minimal);
 
+            WriteProperties(context, result, columnWidths);
+        }
+
+        protected void WriteProperties(SearchContext context, FileSystemFinderResult result, ColumnWidths columnWidths)
+        {
             if (columnWidths != null
                 && ShouldLog(Verbosity.Minimal))
             {

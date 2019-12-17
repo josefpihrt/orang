@@ -37,7 +37,7 @@ namespace Orang.CommandLine
         public string Evaluator { get; set; }
 
         [Option(shortName: OptionShortNames.MaxCount, longName: OptionNames.MaxCount,
-            HelpText = "Stop deleting after specified number is reached.",
+            HelpText = "Stop renaming after specified number is reached.",
             MetaValue = MetaValues.Num)]
         public int MaxCount { get; set; }
 

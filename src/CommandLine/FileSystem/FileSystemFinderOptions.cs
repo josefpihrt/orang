@@ -18,7 +18,8 @@ namespace Orang.FileSystem
             MatchType matchType = MatchType.Simple,
             MatchCasing matchCasing = MatchCasing.PlatformDefault,
             bool? empty = null,
-            bool canEnumerate = true)
+            bool canEnumerate = true,
+            bool partOnly = false)
         {
             SearchTarget = searchTarget;
             RecurseSubdirectories = recurseSubdirectories;
@@ -30,6 +31,7 @@ namespace Orang.FileSystem
             MatchCasing = matchCasing;
             Empty = empty;
             CanEnumerate = canEnumerate;
+            PartOnly = partOnly;
         }
 
         public SearchTarget SearchTarget { get; }
@@ -51,5 +53,7 @@ namespace Orang.FileSystem
         public bool? Empty { get; }
 
         public bool CanEnumerate { get; }
+
+        public bool PartOnly { get; }
     }
 }

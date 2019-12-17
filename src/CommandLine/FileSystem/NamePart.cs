@@ -23,10 +23,14 @@ namespace Orang.FileSystem
 
         public int Length { get; }
 
+        internal int EndIndex => Index + Length;
+
         public NamePartKind Kind { get; }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private string DebuggerDisplay => $"{Kind} {Path}";
+
+        public override string ToString() => Path.Substring(Index, Length);
 
         internal int GetFileNameIndex()
         {

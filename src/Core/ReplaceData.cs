@@ -74,13 +74,18 @@ namespace Orang
 
                     var item = new ReplaceItem(match, result, match.Index + offset);
                     items.Add(item);
-                    offset += item.Value.Length - match.Length;
+
+                    if (!regex.RightToLeft)
+                        offset += item.Value.Length - match.Length;
 
                     cancellationToken.ThrowIfCancellationRequested();
 
                     return item.Value;
                 },
                 count);
+
+            if (regex.RightToLeft)
+                items.Reverse();
 
             return new ReplaceData(regex, input, count, new ReplaceItemCollection(items), output);
         }

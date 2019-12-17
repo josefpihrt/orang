@@ -241,7 +241,7 @@ namespace Orang.CommandLine
 
             (int startIndex, bool isWritten) = WritePathImpl(path, basePath, relativePath, colors, matchColors, matchIndex, indent, verbosity);
 
-            if(!isWritten)
+            if (!isWritten)
             {
                 foreach (ReplaceItem item in items)
                 {

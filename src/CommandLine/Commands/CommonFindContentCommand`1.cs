@@ -175,6 +175,12 @@ namespace Orang.CommandLine
                 maxReason = GetGroups(groups, match, groupNumber, count, predicate, context.CancellationToken);
             }
 
+            if (groups.Count > 1
+                && groups[0].Index > groups[1].Index)
+            {
+                groups.Reverse();
+            }
+
             if ((maxReason == MaxReason.CountEqualsMax || maxReason == MaxReason.CountExceedsMax)
                 && maxMatches > 0
                 && (maxMatchesInFile == 0 || maxMatches <= maxMatchesInFile))

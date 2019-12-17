@@ -88,7 +88,7 @@ Regular expression for a directory name\. Syntax is \<PATTERN> \[\<PATTERN\_OPTI
 
 **`[-m|--max-count] <NUM>`**
 
-Stop deleting after specified number is reached\.
+Stop renaming after specified number is reached\.
 
 **`-n|--name <REGEX>`**
 

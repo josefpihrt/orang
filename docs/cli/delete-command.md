@@ -92,7 +92,7 @@ Delete byte order mark \(BOM\) when deleting file's content\.
 
 **`[-m|--max-count] <NUM>`**
 
-Stop renaming after specified number is reached\.
+Stop deleting after specified number is reached\.
 
 **`-n|--name <REGEX>`**
 

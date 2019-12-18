@@ -52,17 +52,13 @@ namespace Orang.CommandLine
 
                 string GetIndent()
                 {
-                    switch (Options.PathDisplayStyle)
+                    return Options.PathDisplayStyle switch
                     {
-                        case PathDisplayStyle.Full:
-                            return Options.Indent;
-                        case PathDisplayStyle.Relative:
-                            return Options.DoubleIndent;
-                        case PathDisplayStyle.Omit:
-                            return "";
-                        default:
-                            throw new InvalidOperationException();
-                    }
+                        PathDisplayStyle.Full => Options.Indent,
+                        PathDisplayStyle.Relative => Options.DoubleIndent,
+                        PathDisplayStyle.Omit => "",
+                        _ => throw new InvalidOperationException(),
+                    };
                 }
             }
         }

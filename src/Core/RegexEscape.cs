@@ -104,31 +104,20 @@ namespace Orang
 
         public static string Escape(char value, bool inCharGroup = false)
         {
-            switch (GetEscapeMode(value, inCharGroup))
+            return (GetEscapeMode(value, inCharGroup)) switch
             {
-                case CharEscapeMode.None:
-                    return value.ToString();
-                case CharEscapeMode.AsciiHexadecimal:
-                    return @"\x" + ((int)value).ToString("X2", CultureInfo.InvariantCulture);
-                case CharEscapeMode.Backslash:
-                    return @"\" + value.ToString();
-                case CharEscapeMode.Bell:
-                    return @"\a";
-                case CharEscapeMode.CarriageReturn:
-                    return @"\r";
-                case CharEscapeMode.Escape:
-                    return @"\e";
-                case CharEscapeMode.FormFeed:
-                    return @"\f";
-                case CharEscapeMode.Linefeed:
-                    return @"\n";
-                case CharEscapeMode.Tab:
-                    return @"\t";
-                case CharEscapeMode.VerticalTab:
-                    return @"\v";
-                default:
-                    return null;
-            }
+                CharEscapeMode.None => value.ToString(),
+                CharEscapeMode.AsciiHexadecimal => @"\x" + ((int)value).ToString("X2", CultureInfo.InvariantCulture),
+                CharEscapeMode.Backslash => @"\" + value.ToString(),
+                CharEscapeMode.Bell => @"\a",
+                CharEscapeMode.CarriageReturn => @"\r",
+                CharEscapeMode.Escape => @"\e",
+                CharEscapeMode.FormFeed => @"\f",
+                CharEscapeMode.Linefeed => @"\n",
+                CharEscapeMode.Tab => @"\t",
+                CharEscapeMode.VerticalTab => @"\v",
+                _ => null,
+            };
         }
 
         internal static CharEscapeMode GetEscapeMode(int charCode, bool inCharGroup)

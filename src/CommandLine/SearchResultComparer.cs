@@ -21,19 +21,14 @@ namespace Orang.CommandLine
 
         public static SearchResultComparer GetInstance(SortProperty property)
         {
-            switch (property)
+            return property switch
             {
-                case SortProperty.Name:
-                    return Name;
-                case SortProperty.CreationTime:
-                    return CreationTime;
-                case SortProperty.ModifiedTime:
-                    return ModifiedTime;
-                case SortProperty.Size:
-                    return Size;
-                default:
-                    throw new ArgumentException($"Unknown enum value '{property}'.", nameof(property));
-            }
+                SortProperty.Name => Name,
+                SortProperty.CreationTime => CreationTime,
+                SortProperty.ModifiedTime => ModifiedTime,
+                SortProperty.Size => Size,
+                _ => throw new ArgumentException($"Unknown enum value '{property}'.", nameof(property)),
+            };
         }
 
         private class SearchResultNameComparer : SearchResultComparer

@@ -232,28 +232,22 @@ namespace Orang
 
                     int width2 = optionValues.Max(f =>
                     {
-                        switch (f)
+                        return f switch
                         {
-                            case SimpleOptionValue enumOptionValue:
-                                return enumOptionValue.Value.Length;
-                            case KeyValuePairOptionValue keyOptionValue:
-                                return keyOptionValue.Key.Length + 1 + keyOptionValue.Value.Length;
-                            default:
-                                throw new InvalidOperationException();
-                        }
+                            SimpleOptionValue enumOptionValue => enumOptionValue.Value.Length,
+                            KeyValuePairOptionValue keyOptionValue => keyOptionValue.Key.Length + 1 + keyOptionValue.Value.Length,
+                            _ => throw new InvalidOperationException(),
+                        };
                     }) + 1;
 
                     int width3 = optionValues.Max(f =>
                     {
-                        switch (f)
+                        return f switch
                         {
-                            case SimpleOptionValue enumOptionValue:
-                                return enumOptionValue.ShortValue.Length;
-                            case KeyValuePairOptionValue keyOptionValue:
-                                return keyOptionValue.ShortKey.Length;
-                            default:
-                                throw new InvalidOperationException();
-                        }
+                            SimpleOptionValue enumOptionValue => enumOptionValue.ShortValue.Length,
+                            KeyValuePairOptionValue keyOptionValue => keyOptionValue.ShortKey.Length,
+                            _ => throw new InvalidOperationException(),
+                        };
                     }) + 1;
 
                     while (true)
@@ -319,28 +313,22 @@ namespace Orang
 
             static string GetValue(OptionValue value)
             {
-                switch (value)
+                return value switch
                 {
-                    case SimpleOptionValue enumOptionValue:
-                        return enumOptionValue.Value;
-                    case KeyValuePairOptionValue keyOptionValue:
-                        return $"{keyOptionValue.Key}={keyOptionValue.Value}";
-                    default:
-                        throw new InvalidOperationException();
-                }
+                    SimpleOptionValue enumOptionValue => enumOptionValue.Value,
+                    KeyValuePairOptionValue keyOptionValue => $"{keyOptionValue.Key}={keyOptionValue.Value}",
+                    _ => throw new InvalidOperationException(),
+                };
             }
 
             static string GetShortValue(OptionValue value)
             {
-                switch (value)
+                return value switch
                 {
-                    case SimpleOptionValue enumOptionValue:
-                        return enumOptionValue.ShortValue;
-                    case KeyValuePairOptionValue keyOptionValue:
-                        return keyOptionValue.ShortKey;
-                    default:
-                        throw new InvalidOperationException();
-                }
+                    SimpleOptionValue enumOptionValue => enumOptionValue.ShortValue,
+                    KeyValuePairOptionValue keyOptionValue => keyOptionValue.ShortKey,
+                    _ => throw new InvalidOperationException(),
+                };
             }
         }
 

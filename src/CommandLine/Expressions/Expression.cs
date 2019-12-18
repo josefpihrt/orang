@@ -175,7 +175,7 @@ namespace Orang.Expressions
                 value.Substring(index1 + 1, index2 - index1 - 1),
                 kind);
 
-            ExpressionKind GetBinaryOperatorKind(char ch)
+            static ExpressionKind GetBinaryOperatorKind(char ch)
             {
                 switch (ch)
                 {

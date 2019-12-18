@@ -248,7 +248,7 @@ namespace Orang.CommandLine
 
             return items;
 
-            List<Match> GetMatches(Match match)
+            static List<Match> GetMatches(Match match)
             {
                 List<Match> matches = ListCache<Match>.GetInstance();
 

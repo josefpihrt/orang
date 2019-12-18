@@ -113,7 +113,7 @@ namespace Orang.CommandLine
                 return stringWriter.ToString();
             }
 
-            void WriteSeparator(TextWriter writer)
+            static void WriteSeparator(TextWriter writer)
             {
                 writer.WriteLine();
                 writer.WriteLine("-----");

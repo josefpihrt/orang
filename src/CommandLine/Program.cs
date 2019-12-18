@@ -181,7 +181,7 @@ namespace Orang.CommandLine
 
             return 1;
 
-            bool IsHelpOption(string value)
+            static bool IsHelpOption(string value)
             {
                 if (value.StartsWith("--"))
                     return string.Compare(value, 2, OptionNames.Help, 0, OptionNames.Help.Length, StringComparison.Ordinal) == 0;

@@ -340,7 +340,7 @@ namespace Orang.CommandLine
 
                 return _providersByName;
 
-                ImmutableDictionary<string, OptionValueProvider> LoadProviders()
+                static ImmutableDictionary<string, OptionValueProvider> LoadProviders()
                 {
                     PropertyInfo[] fieldInfo = typeof(OptionValueProviders).GetProperties();
 

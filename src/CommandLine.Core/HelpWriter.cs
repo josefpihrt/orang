@@ -317,7 +317,7 @@ namespace Orang
                 }
             }
 
-            string GetValue(OptionValue value)
+            static string GetValue(OptionValue value)
             {
                 switch (value)
                 {
@@ -330,7 +330,7 @@ namespace Orang
                 }
             }
 
-            string GetShortValue(OptionValue value)
+            static string GetShortValue(OptionValue value)
             {
                 switch (value)
                 {

@@ -238,7 +238,7 @@ namespace Orang
                 return false;
             }
 
-            char GetChar(char ch)
+            static char GetChar(char ch)
             {
                 return ch switch
                 {

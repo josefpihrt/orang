@@ -1,0 +1,1 @@
+﻿orang find "..\..\..\..\files" -n "\w" wi p=w

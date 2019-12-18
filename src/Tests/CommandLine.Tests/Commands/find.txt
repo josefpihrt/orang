@@ -1,0 +1,2 @@
+﻿E:\Dokumenty\Visual Studio 2017\Projects\Orang\src\Tests\files\a.txt
+E:\Dokumenty\Visual Studio 2017\Projects\Orang\src\Tests\files\b.txt

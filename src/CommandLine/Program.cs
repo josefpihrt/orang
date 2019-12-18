@@ -14,7 +14,7 @@ namespace Orang.CommandLine
 {
     internal static class Program
     {
-        private static int Main(string[] args)
+        internal static int Main(string[] args)
         {
             //WriteLine($"Orang Command Line Tool version {typeof(Program).GetTypeInfo().Assembly.GetName().Version}");
             //WriteLine("Copyright (c) Josef Pihrt. All rights reserved.");
@@ -173,10 +173,6 @@ namespace Orang.CommandLine
             {
                 Out?.Dispose();
                 Out = null;
-#if DEBUG
-                if (Debugger.IsAttached)
-                    Console.ReadKey();
-#endif
             }
 
             return 1;

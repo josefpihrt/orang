@@ -53,8 +53,8 @@ namespace Orang
             string description = null,
             bool hidden = false)
         {
-            value = value ?? _lowerLetterUpperLetterRegex.Replace(name, e => e.Value.Insert(1, "-")).ToLowerInvariant();
-            shortValue = shortValue ?? value.Substring(0, 1);
+            value ??= _lowerLetterUpperLetterRegex.Replace(name, e => e.Value.Insert(1, "-")).ToLowerInvariant();
+            shortValue ??= value.Substring(0, 1);
 
             if (helpValue == null)
             {

@@ -46,7 +46,7 @@ namespace Orang
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
 
-            shortKey = shortKey ?? key.Substring(0, 1);
+            shortKey ??= key.Substring(0, 1);
 
             if (helpValue == null)
             {

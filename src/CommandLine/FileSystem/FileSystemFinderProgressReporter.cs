@@ -11,11 +11,13 @@ namespace Orang.FileSystem
         public FileSystemFinderProgressReporter(
             ProgressReportMode consoleReportMode,
             ProgressReportMode fileReportMode,
-            CommonFindCommandOptions options)
+            CommonFindCommandOptions options,
+            string indent)
         {
             ConsoleReportMode = consoleReportMode;
             FileReportMode = fileReportMode;
             Options = options;
+            Indent = indent;
         }
 
         public string BaseDirectoryPath { get; set; }
@@ -25,6 +27,8 @@ namespace Orang.FileSystem
         public ProgressReportMode FileReportMode { get; }
 
         public CommonFindCommandOptions Options { get; }
+
+        public string Indent { get; }
 
         public int SearchedDirectoryCount { get; private set; }
 
@@ -88,20 +92,15 @@ namespace Orang.FileSystem
                 }
 
                 if (FileReportMode == ProgressReportMode.Path)
-                    WritePath(value, indent: GetIndent());
+                    WritePath(value, indent: Indent);
             }
             else if (ConsoleReportMode == ProgressReportMode.Path)
             {
-                WritePath(value, indent: GetIndent(), verbosity: Verbosity.Diagnostic);
+                WritePath(value, indent: Indent, verbosity: Verbosity.Diagnostic);
             }
             else if (FileReportMode == ProgressReportMode.Path)
             {
-                WritePath(value, indent: GetIndent());
-            }
-
-            string GetIndent()
-            {
-                return (Options.DisplayRelativePath) ? Options.Indent : "";
+                WritePath(value, indent: Indent);
             }
         }
 

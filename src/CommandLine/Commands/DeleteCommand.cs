@@ -52,9 +52,7 @@ namespace Orang.CommandLine
             if (!result.IsDirectory
                 && Options.ContentFilter != null)
             {
-                string indent = (baseDirectoryPath != null && Options.DisplayRelativePath)
-                    ? Options.Indent
-                    : "";
+                string indent = GetPathIndent(baseDirectoryPath);
 
                 string input = ReadFile(result.Path, baseDirectoryPath, Options.DefaultEncoding, context, indent);
 
@@ -79,9 +77,7 @@ namespace Orang.CommandLine
             string baseDirectoryPath = null,
             ColumnWidths columnWidths = null)
         {
-            string indent = (baseDirectoryPath != null && Options.DisplayRelativePath)
-                ? Options.Indent
-                : "";
+            string indent = GetPathIndent(baseDirectoryPath);
 
             if (!Options.OmitPath)
                 WritePath(context, result, baseDirectoryPath, indent, columnWidths);

@@ -58,6 +58,8 @@ namespace Orang.CommandLine
 
         internal string DoubleIndent => _doubleIndent ?? (_doubleIndent = Indent + Indent);
 
+        internal bool IncludeBaseDirectory => Format.IncludeBaseDirectory;
+
         internal MatchOutputInfo CreateOutputInfo(string input, Match match)
         {
             if (ContentDisplayStyle != ContentDisplayStyle.ValueDetail)

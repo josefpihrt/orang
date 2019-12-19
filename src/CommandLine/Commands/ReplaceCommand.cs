@@ -125,9 +125,7 @@ namespace Orang.CommandLine
             ContentWriterOptions writerOptions,
             string baseDirectoryPath = null)
         {
-            string indent = (baseDirectoryPath != null && Options.DisplayRelativePath)
-                ? Options.Indent
-                : "";
+            string indent = GetPathIndent(baseDirectoryPath);
 
             Encoding encoding = Options.DefaultEncoding;
 
@@ -154,9 +152,7 @@ namespace Orang.CommandLine
             string baseDirectoryPath = null,
             ColumnWidths columnWidths = null)
         {
-            string indent = (baseDirectoryPath != null && Options.DisplayRelativePath)
-                ? Options.Indent
-                : "";
+            string indent = GetPathIndent(baseDirectoryPath);
 
             if (!Options.OmitPath)
                 WritePath(context, result, baseDirectoryPath, indent, columnWidths);

@@ -78,7 +78,7 @@ namespace Orang.CommandLine
                 fileReportMode = ProgressReportMode.None;
             }
 
-            var progress = new FileSystemFinderProgressReporter(consoleReportMode, fileReportMode, Options);
+            var progress = new FileSystemFinderProgressReporter(consoleReportMode, fileReportMode, Options, GetPathIndent());
 
             var context = new SearchContext(progress: progress, results: results, cancellationToken: cancellationToken);
 
@@ -174,11 +174,14 @@ namespace Orang.CommandLine
                 results = resultList;
             }
 
+            int i = 0;
+
             try
             {
                 foreach (SearchResult result in results)
                 {
                     ExecuteResult(result, context, columnWidths);
+                    i++;
 
                     if (context.State == SearchState.Canceled)
                         break;
@@ -196,6 +199,16 @@ namespace Orang.CommandLine
             {
                 OperationCanceled();
             }
+
+            if (Options.Format.FileProperties.Contains(FileProperty.Size)
+                && context.Telemetry.FilesTotalSize == 0)
+            {
+                foreach (SearchResult result in results.Take(i))
+                {
+                    if (!result.IsDirectory)
+                        context.Telemetry.FilesTotalSize += new FileInfo(result.Path).Length;
+                }
+            }
         }
 
         private void ExecuteCore(string path, SearchContext context)
@@ -206,8 +219,11 @@ namespace Orang.CommandLine
 
                 progress.BaseDirectoryPath = path;
 
-                if (Options.DisplayRelativePath)
+                if (Options.DisplayRelativePath
+                    && Options.IncludeBaseDirectory)
+                {
                     WriteLine(path, Colors.BasePath, Verbosity.Minimal);
+                }
 
                 try
                 {
@@ -358,6 +374,18 @@ namespace Orang.CommandLine
             }
 
             return result;
+        }
+
+        protected string GetPathIndent(string baseDirectoryPath)
+        {
+            return (baseDirectoryPath != null) ? GetPathIndent() : "";
+        }
+
+        private string GetPathIndent()
+        {
+            return (Options.DisplayRelativePath && Options.IncludeBaseDirectory)
+                ? Options.Indent
+                : "";
         }
 
         protected virtual void WritePath(SearchContext context, FileSystemFinderResult result, string baseDirectoryPath, string indent, ColumnWidths columnWidths)

@@ -27,10 +27,6 @@ namespace Orang.CommandLine
                     if (IsHelpOption(args[0]))
                     {
                         Console.Write(HelpProvider.GetHelpText());
-#if DEBUG
-                        if (Debugger.IsAttached)
-                            Console.ReadKey();
-#endif
                         return 0;
                     }
                 }
@@ -44,10 +40,6 @@ namespace Orang.CommandLine
                         if (command != null)
                         {
                             Console.Write(HelpProvider.GetHelpText(command));
-#if DEBUG
-                            if (Debugger.IsAttached)
-                                Console.ReadKey();
-#endif
                             return 0;
                         }
                     }

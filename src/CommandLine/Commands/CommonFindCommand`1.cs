@@ -174,11 +174,14 @@ namespace Orang.CommandLine
                 results = resultList;
             }
 
+            int i = 0;
+
             try
             {
                 foreach (SearchResult result in results)
                 {
                     ExecuteResult(result, context, columnWidths);
+                    i++;
 
                     if (context.State == SearchState.Canceled)
                         break;
@@ -195,6 +198,16 @@ namespace Orang.CommandLine
                 || context.CancellationToken.IsCancellationRequested)
             {
                 OperationCanceled();
+            }
+
+            if (Options.Format.FileProperties.Contains(FileProperty.Size)
+                && context.Telemetry.FilesTotalSize == 0)
+            {
+                foreach (SearchResult result in results.Take(i))
+                {
+                    if (!result.IsDirectory)
+                        context.Telemetry.FilesTotalSize += new FileInfo(result.Path).Length;
+                }
             }
         }
 

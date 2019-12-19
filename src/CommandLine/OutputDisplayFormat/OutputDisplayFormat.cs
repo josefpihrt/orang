@@ -17,7 +17,8 @@ namespace Orang.CommandLine
             DisplayParts displayParts = DisplayParts.None,
             IEnumerable<FileProperty> fileProperties = null,
             string indent = null,
-            string separator = null)
+            string separator = null,
+            bool includeBaseDirectory = false)
         {
             ContentDisplayStyle = contentDisplayStyle;
             PathDisplayStyle = pathDisplayStyle;
@@ -26,6 +27,7 @@ namespace Orang.CommandLine
             FileProperties = fileProperties?.ToImmutableArray() ?? ImmutableArray<FileProperty>.Empty;
             Indent = indent ?? DefaultIndent;
             Separator = separator ?? Environment.NewLine;
+            IncludeBaseDirectory = includeBaseDirectory;
         }
 
         public ContentDisplayStyle ContentDisplayStyle { get; }
@@ -41,6 +43,8 @@ namespace Orang.CommandLine
         public string Indent { get; }
 
         public string Separator { get; }
+
+        public bool IncludeBaseDirectory { get; }
 
         public bool Includes(LineDisplayOptions options) => (LineOptions & options) == options;
 

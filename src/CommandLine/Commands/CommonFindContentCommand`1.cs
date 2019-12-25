@@ -20,7 +20,14 @@ namespace Orang.CommandLine
         {
         }
 
-        public override bool CanEndProgress => true;
+        public override bool CanEndProgress
+        {
+            get
+            {
+                return !Options.OmitPath
+                    || ConsoleOut.Verbosity > Verbosity.Minimal;
+            }
+        }
 
         protected ContentWriterOptions FileWriterOptions
         {

@@ -113,7 +113,9 @@ namespace Orang.CommandLine
 
             if (context.Results != null)
             {
-                context.AddResult(result, baseDirectoryPath, match, input, encoding: encoding, writerOptions);
+                var searchResult = new ContentSearchResult(result, baseDirectoryPath, match, input, encoding, writerOptions);
+
+                context.Results.Add(searchResult);
             }
             else
             {

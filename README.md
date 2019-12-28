@@ -1,4 +1,4 @@
-# Orang <img align="left" src="images/icon.png">
+# Orang <img align="left" src="images/icon48.png">
 
 Orang is a cross-platform command-line tool for:
 
@@ -42,7 +42,6 @@ orang [command] [parameters]
 
 * [delete](docs/cli/delete-command.md)
 * [find](docs/cli/find-command.md)
-* [list-syntax](docs/cli/list-syntax-command.md)
 * [match](docs/cli/match-command.md)
 * [rename](docs/cli/rename-command.md)
 * [replace](docs/cli/replace-command.md)
@@ -78,7 +77,7 @@ The option `-d, --dry-run` gives you opportunity to see the results before you a
 
 ### Match and Replacement Side-by-Side
 
-The option `-t, --highlight` with values `[m]atch [r]eplacement` gives you opportunity to see the match and the replacement side-by-side in the output.
+The option `-t, --highlight` with values `m[atch] r[eplacement]` gives you opportunity to see the match and the replacement side-by-side in the output.
 
 ### Evaluator
 
@@ -94,7 +93,7 @@ The more complicated a pattern is, the less readable it becomes when written in 
 orang find --content "(?x)(?<=(\A|\.)\s*)\p{Ll}\w+\b"
 ```
 
-The option `[f]rom-file` gives you opportunity to store pattern in a file where it can be formatted.
+The option `f[rom-file]` gives you opportunity to store pattern in a file where it can be formatted.
 
 ```
 orang find --content "pattern.txt" from-file
@@ -108,11 +107,13 @@ Note: Replacement string can be store in a file as well.
 
 ### Sample Command
 
-Goal: Capitalize first character of a word at the beginning the text or at the beginning of a sentence.
+Goal: Capitalize first character of a word at the beginning of the text or at the beginning of a sentence.
 
-Folder 'C:/Lib' contains library 'Evaluator.dll' which contains method `M` in a type `N.C`.
+Folder `C:/Lib` contains library `Evaluator.dll` which contains method `N.C.M`.
 
 ```csharp
+using System.Text.RegularExpressions;
+
 namespace N
 {
     public static class C
@@ -125,7 +126,7 @@ namespace N
 }
 ```
 
-File 'pattern.txt' has following content:
+File `pattern.txt` has following content:
 
 ```
 (?x)      # set multiline option
@@ -144,11 +145,12 @@ orang replace ^
  --content "pattern.txt" from-file ^
  --evaluator "C:/Lib/Evaluator.dll,N.C.M" ^
  --highlight match replacement ^
+ --display path=omit summary ^
  --dry-run
 ```
 or
 ```
-orang replace -e txt -c "pattern.txt" f --evaluator "C:/Lib/Evaluator.dll,N.C.M" -t m r -d
+orang replace -e txt -c "pattern.txt" f --evaluator "C:/Lib/Evaluator.dll,N.C.M" -t m r -y p=o su -d
 ```
 
 ![Capitalize first character in a sentence](/images/CapitalizeFirstCharInSentence.png)

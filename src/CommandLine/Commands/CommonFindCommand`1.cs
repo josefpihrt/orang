@@ -137,7 +137,7 @@ namespace Orang.CommandLine
 
             if (sortOptions?.Descriptors.Any() == true)
             {
-                results = SortHelpers.SortResults(context.Results, sortOptions.Descriptors);
+                results = SortHelpers.SortResults(context.Results, sortOptions.Descriptors, Options.PathDisplayStyle);
 
                 if (sortOptions.MaxCount > 0)
                     results = results.Take(sortOptions.MaxCount);
@@ -397,14 +397,25 @@ namespace Orang.CommandLine
 
         protected void WritePath(SearchContext context, FileSystemFinderResult result, string baseDirectoryPath, string indent, ColumnWidths columnWidths, ConsoleColors matchColors)
         {
-            LogHelpers.WritePath(
-                result,
-                baseDirectoryPath,
-                relativePath: Options.DisplayRelativePath,
-                colors: Colors.Matched_Path,
-                matchColors: (Options.HighlightMatch) ? matchColors : default,
-                indent: indent,
-                verbosity: Verbosity.Minimal);
+            if (Options.PathDisplayStyle == PathDisplayStyle.Match)
+            {
+                if (ShouldLog(Verbosity.Minimal))
+                {
+                    Write(indent, Verbosity.Minimal);
+                    Write(result.Match.Value, (Options.HighlightMatch) ? matchColors : default, Verbosity.Minimal);
+                }
+            }
+            else
+            {
+                LogHelpers.WritePath(
+                    result,
+                    baseDirectoryPath,
+                    relativePath: Options.DisplayRelativePath,
+                    colors: Colors.Matched_Path,
+                    matchColors: (Options.HighlightMatch) ? matchColors : default,
+                    indent: indent,
+                    verbosity: Verbosity.Minimal);
+            }
 
             WriteProperties(context, result, columnWidths);
         }

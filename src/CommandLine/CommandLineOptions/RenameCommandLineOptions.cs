@@ -104,7 +104,7 @@ namespace Orang.CommandLine
                 indent: out string indent,
                 separator: out string separator,
                 contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider,
-                pathDisplayStyleProvider: OptionValueProviders.PathDisplayStyleProvider))
+                pathDisplayStyleProvider: OptionValueProviders.PathDisplayStyleProvider_Rename))
             {
                 return false;
             }

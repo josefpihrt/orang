@@ -12,6 +12,7 @@ namespace Orang.CommandLine
         public const string FileSystemAttributesToSkip = nameof(FileSystemAttributesToSkip);
         public const string FindHighlightOptions = nameof(FindHighlightOptions);
         public const string MatchHighlightOptions = nameof(MatchHighlightOptions);
+        public const string PathDisplayStyle_Rename = nameof(PathDisplayStyle_Rename);
         public const string PatternOptionsWithoutGroupAndNegative = nameof(PatternOptionsWithoutGroupAndNegative);
         public const string PatternOptionsWithoutGroupAndPartAndNegative = nameof(PatternOptionsWithoutGroupAndPartAndNegative);
         public const string PatternOptionsWithoutPart = nameof(PatternOptionsWithoutPart);

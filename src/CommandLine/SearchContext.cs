@@ -26,6 +26,8 @@ namespace Orang.CommandLine
 
         public List<SearchResult> Results { get; }
 
+        public Dictionary<string, long> DirectorySizeMap { get; set; }
+
         public CancellationToken CancellationToken { get; }
 
         public SearchState State { get; set; }

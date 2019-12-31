@@ -33,5 +33,7 @@ namespace Orang.CommandLine
         public TimeSpan Elapsed { get; internal set; }
 
         public long FilesTotalSize { get; internal set; }
+
+        public long MaxFileSize { get; internal set; }
     }
 }

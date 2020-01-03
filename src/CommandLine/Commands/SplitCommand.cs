@@ -44,7 +44,7 @@ namespace Orang.CommandLine
                 WriteLine(verbosity);
             }
 
-            return (count > 0) ? CommandResult.Success : CommandResult.NoSuccess;
+            return (count > 0) ? CommandResult.Success : CommandResult.NoMatch;
         }
     }
 }

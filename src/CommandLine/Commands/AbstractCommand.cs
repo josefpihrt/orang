@@ -57,7 +57,7 @@ namespace Orang.CommandLine
                 cts?.Dispose();
             }
 
-            return CommandResult.Fail;
+            return CommandResult.Canceled;
         }
 
         protected virtual void OperationCanceled(OperationCanceledException ex)

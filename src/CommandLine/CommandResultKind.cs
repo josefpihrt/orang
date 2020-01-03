@@ -7,5 +7,6 @@ namespace Orang.CommandLine
         Success = 0,
         NoMatch = 1,
         Fail = 2,
+        Canceled = 3,
     }
 }

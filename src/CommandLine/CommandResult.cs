@@ -6,9 +6,11 @@ namespace Orang.CommandLine
     {
         public static CommandResult Success { get; } = new CommandResult(CommandResultKind.Success);
 
-        public static CommandResult NoSuccess { get; } = new CommandResult(CommandResultKind.NoMatch);
+        public static CommandResult NoMatch { get; } = new CommandResult(CommandResultKind.NoMatch);
 
         public static CommandResult Fail { get; } = new CommandResult(CommandResultKind.Fail);
+
+        public static CommandResult Canceled { get; } = new CommandResult(CommandResultKind.Canceled);
 
         public CommandResult(CommandResultKind kind)
         {

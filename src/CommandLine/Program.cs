@@ -319,13 +319,18 @@ namespace Orang.CommandLine
 
         private static int GetExitCode(CommandResultKind kind)
         {
-            return kind switch
+            switch (kind)
             {
-                CommandResultKind.Success => 0,
-                CommandResultKind.NoMatch => 1,
-                CommandResultKind.Fail => 2,
-                _ => throw new InvalidOperationException($"Unknown enum value '{kind}'."),
-            };
+                case CommandResultKind.Success:
+                    return 0;
+                case CommandResultKind.NoMatch:
+                    return 1;
+                case CommandResultKind.Fail:
+                case CommandResultKind.Canceled:
+                    return 2;
+                default:
+                    throw new InvalidOperationException($"Unknown enum value '{kind}'.");
+            }
         }
     }
 }

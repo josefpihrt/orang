@@ -84,7 +84,10 @@ namespace Orang.CommandLine
 
             ExecuteCore(context);
 
-            return (context?.Telemetry.MatchingFileCount > 0) ? CommandResult.Success : CommandResult.NoSuccess;
+            if (context.State == SearchState.Canceled)
+                return CommandResult.Canceled;
+
+            return (context.Telemetry.MatchingFileCount > 0) ? CommandResult.Success : CommandResult.NoMatch;
         }
 
         protected virtual void ExecuteCore(SearchContext context)

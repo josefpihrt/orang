@@ -14,7 +14,7 @@ using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
-    internal class ReplaceCommand : CommonFindContentCommand<ReplaceCommandOptions>
+    internal class ReplaceCommand : FindCommand<ReplaceCommandOptions>
     {
         private OutputSymbols _symbols;
         private MatchEvaluator _matchEvaluator;

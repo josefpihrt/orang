@@ -914,5 +914,31 @@ namespace Orang.CommandLine
         {
             WriteError($"Option '{OptionNames.GetHelpText(optionName)}' has invalid value '{value}'. Allowed values: {helpText}.");
         }
+
+        internal static bool TryParseProperties(string ask, IEnumerable<string> name, FindCommandOptions options)
+        {
+            if (!TryParseAsEnum(ask, OptionNames.Ask, out AskMode askMode, defaultValue: AskMode.None, OptionValueProviders.AskModeProvider))
+                return false;
+
+            if (askMode == AskMode.Value
+                && ConsoleOut.Verbosity < Verbosity.Normal)
+            {
+                WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Ask)}' cannot have value '{OptionValueProviders.AskModeProvider.GetValue(nameof(AskMode.Value)).HelpValue}' when '{OptionNames.GetHelpText(OptionNames.Verbosity)}' is set to '{OptionValueProviders.VerbosityProvider.GetValue(ConsoleOut.Verbosity.ToString()).HelpValue}'.");
+                return false;
+            }
+
+            Filter nameFilter = null;
+
+            if (name.Any()
+                && !TryParseFilter(name, OptionNames.Name, out nameFilter))
+            {
+                return false;
+            }
+
+            options.AskMode = askMode;
+            options.NameFilter = nameFilter;
+
+            return true;
+        }
     }
 }

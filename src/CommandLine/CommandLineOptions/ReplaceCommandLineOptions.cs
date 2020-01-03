@@ -13,8 +13,13 @@ namespace Orang.CommandLine
     [Verb("replace", HelpText = "Searches the file system for files and replaces its content.")]
     [OptionValueProvider(nameof(Content), OptionValueProviderNames.PatternOptionsWithoutGroupAndPartAndNegative)]
     [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.ReplaceHighlightOptions)]
-    internal class ReplaceCommandLineOptions : CommonFindContentCommandLineOptions
+    internal class ReplaceCommandLineOptions : CommonFindCommandLineOptions
     {
+        [Option(longName: OptionNames.Ask,
+            HelpText = "Ask for permission after each file or value.",
+            MetaValue = MetaValues.AskMode)]
+        public string Ask { get; set; }
+
         [Option(shortName: OptionShortNames.Content, longName: OptionNames.Content,
             Required = true,
             HelpText = "Regular expression for files' content. Syntax is <PATTERN> [<PATTERN_OPTIONS>].",
@@ -35,6 +40,16 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.Input)]
         public string Input { get; set; }
 
+        [Option(shortName: OptionShortNames.MaxCount, longName: OptionNames.MaxCount,
+            HelpText = "Stop searching after specified number is reached.",
+            MetaValue = MetaValues.MaxOptions)]
+        public IEnumerable<string> MaxCount { get; set; }
+
+        [Option(shortName: OptionShortNames.Name, longName: OptionNames.Name,
+            HelpText = "Regular expression for file or directory name. Syntax is <PATTERN> [<PATTERN_OPTIONS>].",
+            MetaValue = MetaValues.Regex)]
+        public IEnumerable<string> Name { get; set; }
+
         [Option(shortName: OptionShortNames.Replacement, longName: OptionNames.Replacement,
             HelpText = "Replacement pattern. Syntax is <REPLACEMENT> [<REPLACEMENT_OPTIONS>].",
             MetaValue = MetaValues.Replacement)]
@@ -42,12 +57,15 @@ namespace Orang.CommandLine
 
         public bool TryParse(ref ReplaceCommandOptions options)
         {
-            var baseOptions = (CommonFindContentCommandOptions)options;
+            var baseOptions = (CommonFindCommandOptions)options;
 
             if (!TryParse(ref baseOptions))
                 return false;
 
             options = (ReplaceCommandOptions)baseOptions;
+
+            if (!TryParseProperties(Ask, Name, options))
+                return false;
 
             if (!TryParseAsEnumFlags(Highlight, OptionNames.Highlight, out HighlightOptions highlightOptions, defaultValue: HighlightOptions.Replacement, provider: OptionValueProviders.ReplaceHighlightOptionsProvider))
                 return false;

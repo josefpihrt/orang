@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using Orang.FileSystem;
 using static Orang.Logger;
@@ -411,7 +412,8 @@ namespace Orang.CommandLine
         protected void WritePath(SearchContext context, FileSystemFinderResult result, string baseDirectoryPath, string indent, ColumnWidths columnWidths, ConsoleColors matchColors)
         {
             if (Options.PathDisplayStyle == PathDisplayStyle.Match
-                && result.Match != null)
+                && result.Match != null
+                && !object.ReferenceEquals(result.Match, Match.Empty))
             {
                 if (ShouldLog(Verbosity.Minimal))
                 {

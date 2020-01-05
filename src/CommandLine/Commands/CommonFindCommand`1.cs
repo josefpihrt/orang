@@ -410,7 +410,8 @@ namespace Orang.CommandLine
 
         protected void WritePath(SearchContext context, FileSystemFinderResult result, string baseDirectoryPath, string indent, ColumnWidths columnWidths, ConsoleColors matchColors)
         {
-            if (Options.PathDisplayStyle == PathDisplayStyle.Match)
+            if (Options.PathDisplayStyle == PathDisplayStyle.Match
+                && result.Match != null)
             {
                 if (ShouldLog(Verbosity.Minimal))
                 {

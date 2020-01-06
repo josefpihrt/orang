@@ -35,7 +35,7 @@ namespace Orang.CommandLine
             if (!TryParseFilter(Content, OptionNames.Content, out Filter filter, provider: OptionValueProviders.PatternOptionsWithoutPartAndNegativeProvider))
                 return false;
 
-            if (!TryParseAsEnumFlags(Highlight, OptionNames.Highlight, out HighlightOptions highlightOptions, defaultValue: HighlightOptions.Match, provider: OptionValueProviders.MatchHighlightOptionsProvider))
+            if (!TryParseAsEnumFlags(Highlight, OptionNames.Highlight, out HighlightOptions highlightOptions, defaultValue: HighlightOptions.Default, provider: OptionValueProviders.MatchHighlightOptionsProvider))
                 return false;
 
             options.Filter = filter;

@@ -15,7 +15,15 @@ namespace Orang.CommandLine
         public LineContentWriter(
             string input,
             ContentWriterOptions options = null,
-            IResultStorage storage = null) : base(input, options)
+            IResultStorage storage = null) : this(input, ContentTextWriter.Default, options, storage)
+        {
+        }
+
+        public LineContentWriter(
+            string input,
+            ContentTextWriter writer,
+            ContentWriterOptions options = null,
+            IResultStorage storage = null) : base(input, writer, options)
         {
             ResultStorage = storage;
             MatchingLineCount = 0;
@@ -28,8 +36,8 @@ namespace Orang.CommandLine
             get
             {
                 return _valueWriter ?? (_valueWriter = (Options.IncludeLineNumber)
-                    ? new LineNumberValueWriter(Options.Indent, includeEndingIndent: false)
-                    : new ValueWriter(Options.Indent, includeEndingIndent: false));
+                    ? new LineNumberValueWriter(Writer, Options.Indent, includeEndingIndent: false)
+                    : new ValueWriter(Writer, Options.Indent, includeEndingIndent: false));
             }
         }
 

@@ -33,11 +33,11 @@ namespace Orang.CommandLine
                 {
                     if (Options.IncludeLineNumber)
                     {
-                        _valueWriter = new LineNumberValueWriter(Options.Indent);
+                        _valueWriter = new LineNumberValueWriter(Writer, Options.Indent);
                     }
                     else
                     {
-                        _valueWriter = new ValueWriter(Options.Indent);
+                        _valueWriter = new ValueWriter(Writer, Options.Indent);
                     }
                 }
 
@@ -45,7 +45,7 @@ namespace Orang.CommandLine
             }
         }
 
-        private ValueWriter ReplacementValueWriter => _replacementValueWriter ?? (_replacementValueWriter = new ValueWriter(Options.Indent));
+        private ValueWriter ReplacementValueWriter => _replacementValueWriter ?? (_replacementValueWriter = new ValueWriter(Writer, Options.Indent));
 
         protected override void WriteStartMatches()
         {

@@ -33,7 +33,7 @@ namespace Orang.CommandLine
                 {
                     string infoIndent = Options.Indent + new string(' ', OutputInfo?.Width ?? 0);
 
-                    _valueWriter = new ValueWriter(infoIndent);
+                    _valueWriter = new ValueWriter(Writer, infoIndent);
                 }
 
                 return _valueWriter;

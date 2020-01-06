@@ -12,7 +12,16 @@ namespace Orang.CommandLine
             string input,
             ContentWriterOptions options = null,
             IResultStorage storage = null,
-            MatchOutputInfo outputInfo = null) : base(input, options)
+            MatchOutputInfo outputInfo = null) : this(input, ContentTextWriter.Default, options, storage, outputInfo)
+        {
+        }
+
+        public ValueContentWriter(
+            string input,
+            ContentTextWriter writer,
+            ContentWriterOptions options = null,
+            IResultStorage storage = null,
+            MatchOutputInfo outputInfo = null) : base(input, writer, options)
         {
             ResultStorage = storage;
             OutputInfo = outputInfo;
@@ -30,7 +39,7 @@ namespace Orang.CommandLine
                 {
                     string infoIndent = Options.Indent + new string(' ', OutputInfo?.Width ?? 0);
 
-                    _valueWriter = new ValueWriter(infoIndent, includeEndingIndent: false);
+                    _valueWriter = new ValueWriter(Writer, infoIndent, includeEndingIndent: false);
                 }
 
                 return _valueWriter;

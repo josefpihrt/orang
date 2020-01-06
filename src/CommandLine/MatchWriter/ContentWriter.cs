@@ -12,11 +12,19 @@ namespace Orang.CommandLine
     {
         protected ContentWriter(
             string input,
+            ContentWriterOptions options) : this(input, ContentTextWriter.Default, options)
+        {
+        }
+
+        protected ContentWriter(
+            string input,
+            ContentTextWriter writer,
             ContentWriterOptions options)
         {
             Input = input;
             Options = options;
             MatchingLineCount = -1;
+            Writer = writer;
         }
 
         public string Input { get; }
@@ -27,7 +35,7 @@ namespace Orang.CommandLine
 
         public int MatchingLineCount { get; protected set; }
 
-        protected ContentTextWriter Writer => ContentTextWriter.Default;
+        protected ContentTextWriter Writer { get; }
 
         protected abstract ValueWriter ValueWriter { get; }
 
@@ -47,6 +55,24 @@ namespace Orang.CommandLine
             ContentWriterOptions options,
             IResultStorage storage,
             MatchOutputInfo outputInfo,
+            bool ask = false)
+        {
+            return CreateFind(contentDisplayStyle,
+                input,
+                options,
+                storage,
+                outputInfo,
+                ContentTextWriter.Default,
+                ask);
+        }
+
+        public static ContentWriter CreateFind(
+            ContentDisplayStyle contentDisplayStyle,
+            string input,
+            ContentWriterOptions options,
+            IResultStorage storage,
+            MatchOutputInfo outputInfo,
+            ContentTextWriter writer,
             bool ask = false)
         {
             if (ask)
@@ -71,13 +97,13 @@ namespace Orang.CommandLine
                 {
                     case ContentDisplayStyle.Value:
                     case ContentDisplayStyle.ValueDetail:
-                        return new ValueContentWriter(input, options, storage, outputInfo);
+                        return new ValueContentWriter(input, writer, options, storage, outputInfo);
                     case ContentDisplayStyle.Line:
-                        return new LineContentWriter(input, options, storage);
+                        return new LineContentWriter(input, writer, options, storage);
                     case ContentDisplayStyle.UnmatchedLines:
-                        return new UnmatchedLineWriter(input, options, storage);
+                        return new UnmatchedLineWriter(input, writer, options, storage);
                     case ContentDisplayStyle.AllLines:
-                        return new AllLinesContentWriter(input, options, storage);
+                        return new AllLinesContentWriter(input, writer, options, storage);
                     default:
                         throw new InvalidOperationException($"Unknown enum value '{contentDisplayStyle}'.");
                 }

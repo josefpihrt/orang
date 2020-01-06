@@ -24,6 +24,8 @@ namespace Orang.CommandLine
             Debug.Assert(!options.ContentFilter.IsNegative);
         }
 
+        protected override bool CanDisplaySummary => Options.Input == null;
+
         private OutputSymbols Symbols => _symbols ?? (_symbols = OutputSymbols.Create(Options.HighlightOptions));
 
         private MatchEvaluator MatchEvaluator => _matchEvaluator ?? (_matchEvaluator = Options.MatchEvaluator ?? new MatchEvaluator(f => f.Result(Options.Replacement)));

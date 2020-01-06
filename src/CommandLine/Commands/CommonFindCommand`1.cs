@@ -27,6 +27,8 @@ namespace Orang.CommandLine
 
         protected FileSystemFinderOptions FinderOptions => _finderOptions ?? (_finderOptions = CreateFinderOptions());
 
+        protected virtual bool CanDisplaySummary => true;
+
         public virtual bool CanEndProgress => !Options.OmitPath;
 
         protected virtual FileSystemFinderOptions CreateFinderOptions()
@@ -125,12 +127,15 @@ namespace Orang.CommandLine
 
             stopwatch.Stop();
 
-            if (ShouldLog(Verbosity.Detailed)
-                || Options.IncludeSummary)
+            if (CanDisplaySummary)
             {
-                context.Telemetry.Elapsed = stopwatch.Elapsed;
+                if (ShouldLog(Verbosity.Detailed)
+                    || Options.IncludeSummary)
+                {
+                    context.Telemetry.Elapsed = stopwatch.Elapsed;
 
-                WriteSummary(context.Telemetry, (Options.IncludeSummary) ? Verbosity.Minimal : Verbosity.Detailed);
+                    WriteSummary(context.Telemetry, (Options.IncludeSummary) ? Verbosity.Minimal : Verbosity.Detailed);
+                }
             }
         }
 

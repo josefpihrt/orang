@@ -8,7 +8,7 @@ using Orang.Syntax;
 namespace Orang.CommandLine
 {
     [Verb("list-syntax", HelpText = "Lists regular expression syntax.")]
-    internal class ListSyntaxCommandLineOptions : CommonListCommandLineOptions
+    internal sealed class ListSyntaxCommandLineOptions : CommonListCommandLineOptions
     {
         [Option(shortName: OptionShortNames.Section, longName: OptionNames.Section,
             HelpText = "Syntax sections to filter.",

@@ -13,7 +13,7 @@ namespace Orang.CommandLine
     [Verb("replace", HelpText = "Searches the file system for files and replaces its content.")]
     [OptionValueProvider(nameof(Content), OptionValueProviderNames.PatternOptionsWithoutGroupAndPartAndNegative)]
     [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.ReplaceHighlightOptions)]
-    internal class ReplaceCommandLineOptions : CommonFindCommandLineOptions
+    internal sealed class ReplaceCommandLineOptions : CommonFindCommandLineOptions
     {
         [Option(longName: OptionNames.Ask,
             HelpText = "Ask for permission after each file or value.",

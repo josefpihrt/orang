@@ -12,7 +12,7 @@ namespace Orang.CommandLine
     [OptionValueProvider(nameof(Content), OptionValueProviderNames.PatternOptionsWithoutPart)]
     [OptionValueProvider(nameof(Display), OptionValueProviderNames.Display_NonContent)]
     [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.DeleteHighlightOptions)]
-    internal class DeleteCommandLineOptions : CommonFindCommandLineOptions
+    internal sealed class DeleteCommandLineOptions : CommonFindCommandLineOptions
     {
         [Option(longName: OptionNames.Ask,
             HelpText = "Ask for a permission to delete file or directory.")]

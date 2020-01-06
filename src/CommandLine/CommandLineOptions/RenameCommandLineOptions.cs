@@ -16,7 +16,7 @@ namespace Orang.CommandLine
     [OptionValueProvider(nameof(Display), OptionValueProviderNames.Display_NonContent)]
     [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.RenameHighlightOptions)]
     [OptionValueProvider(nameof(Name), OptionValueProviderNames.PatternOptionsWithoutGroupAndNegative)]
-    internal class RenameCommandLineOptions : CommonFindCommandLineOptions
+    internal sealed class RenameCommandLineOptions : CommonFindCommandLineOptions
     {
         [Option(longName: OptionNames.Ask,
             HelpText = "Ask for a permission to rename file or directory.")]

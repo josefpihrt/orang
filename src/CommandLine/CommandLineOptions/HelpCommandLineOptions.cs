@@ -5,7 +5,7 @@ using CommandLine;
 namespace Orang.CommandLine
 {
     [Verb("help", HelpText = "Displays help.")]
-    internal class HelpCommandLineOptions
+    internal sealed class HelpCommandLineOptions
     {
         [Value(index: 0,
             HelpText = "Command name.",

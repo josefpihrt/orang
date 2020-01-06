@@ -2,7 +2,7 @@
 
 namespace Orang.CommandLine
 {
-    internal class HelpCommandOptions
+    internal sealed class HelpCommandOptions
     {
         internal HelpCommandOptions()
         {

@@ -52,10 +52,10 @@ namespace Orang.CommandLine
 
                 ProcessResult(result, context, directoryPath);
 
-                if (context.State == SearchState.Canceled)
+                if (context.TerminationReason == TerminationReason.Canceled)
                     break;
 
-                if (context.State == SearchState.MaxReached)
+                if (context.TerminationReason == TerminationReason.MaxReached)
                     break;
             }
         }
@@ -216,7 +216,7 @@ namespace Orang.CommandLine
                 }
                 catch (OperationCanceledException)
                 {
-                    context.State = SearchState.Canceled;
+                    context.TerminationReason = TerminationReason.Canceled;
                     return false;
                 }
             }

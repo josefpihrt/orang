@@ -8,18 +8,18 @@ using Orang.Syntax;
 namespace Orang.CommandLine
 {
     [Verb("list-syntax", HelpText = "Lists regular expression syntax.")]
-    internal class ListSyntaxCommandLineOptions : CommonListCommandLineOptions
+    internal sealed class ListSyntaxCommandLineOptions : CommonListCommandLineOptions
     {
         [Option(shortName: OptionShortNames.Section, longName: OptionNames.Section,
             HelpText = "Syntax sections to filter.",
             MetaValue = MetaValues.SyntaxSections)]
         public IEnumerable<string> Section { get; set; }
 
-        public bool TryParse(ref ListSyntaxCommandOptions options)
+        public bool TryParse(ListSyntaxCommandOptions options)
         {
             var baseOptions = (CommonListCommandOptions)options;
 
-            if (!TryParse(ref baseOptions))
+            if (!TryParse(baseOptions))
                 return false;
 
             options = (ListSyntaxCommandOptions)baseOptions;

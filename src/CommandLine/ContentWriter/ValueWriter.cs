@@ -7,23 +7,20 @@ namespace Orang.CommandLine
     internal class ValueWriter
     {
         public ValueWriter(
+            ContentTextWriter writer,
             string indent = null,
-            bool includeEndingIndent = true,
-            Verbosity verbosity = Verbosity.Normal)
+            bool includeEndingIndent = true)
         {
-            Writer = (verbosity == Verbosity.Normal) ? ContentTextWriter.Default : new ContentTextWriter(verbosity);
+            Writer = writer;
             Indent = indent;
             IncludeEndingIndent = includeEndingIndent;
-            Verbosity = verbosity;
         }
 
-        protected ContentTextWriter Writer { get; }
+        private ContentTextWriter Writer { get; }
 
         public string Indent { get; }
 
         public bool IncludeEndingIndent { get; }
-
-        public Verbosity Verbosity { get; }
 
         public void Write(string value, OutputSymbols symbols, in ConsoleColors colors = default, in ConsoleColors boundaryColors = default)
         {

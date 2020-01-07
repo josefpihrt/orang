@@ -136,7 +136,7 @@ namespace Orang.CommandLine
                     {
                         string infoIndent = Options.Indent + new string(' ', OutputInfo?.Width ?? 0);
 
-                        _valueWriter = new ValueWriter(infoIndent, includeEndingIndent: false);
+                        _valueWriter = new ValueWriter(Writer, infoIndent, includeEndingIndent: false);
                     }
 
                     return _valueWriter;
@@ -183,11 +183,11 @@ namespace Orang.CommandLine
                     {
                         if (Options.IncludeLineNumber)
                         {
-                            _valueWriter = new LineNumberValueWriter(Options.Indent, includeEndingLineNumber: false);
+                            _valueWriter = new LineNumberValueWriter(Writer, Options.Indent, includeEndingLineNumber: false);
                         }
                         else
                         {
-                            _valueWriter = new ValueWriter(Options.Indent);
+                            _valueWriter = new ValueWriter(Writer, Options.Indent);
                         }
                     }
 
@@ -195,7 +195,7 @@ namespace Orang.CommandLine
                 }
             }
 
-            private ValueWriter ReplacementValueWriter => _replacementValueWriter ?? (_replacementValueWriter = new ValueWriter(Options.Indent, includeEndingIndent: false));
+            private ValueWriter ReplacementValueWriter => _replacementValueWriter ?? (_replacementValueWriter = new ValueWriter(Writer, Options.Indent, includeEndingIndent: false));
 
             protected override void WriteStartMatches()
             {

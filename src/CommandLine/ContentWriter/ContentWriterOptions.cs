@@ -32,7 +32,7 @@ namespace Orang.CommandLine
 
         public string GroupName => GroupDefinition?.Name;
 
-        public bool HighlightMatch => (HighlightOptions & HighlightOptions.Match) != 0;
+        public bool HighlightMatch => (HighlightOptions & HighlightOptions.DefaultOrMatch) != 0;
 
         public bool HighlightReplacement => (HighlightOptions & HighlightOptions.Replacement) != 0;
 

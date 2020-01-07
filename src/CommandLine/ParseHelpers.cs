@@ -512,7 +512,7 @@ namespace Orang.CommandLine
                     ? TextHelpers.ReadLines(pattern).Where(f => f.Length > 0)
                     : pattern.Split(separator ?? ",", StringSplitOptions.RemoveEmptyEntries);
 
-                pattern = PatternBuilder.Join(values, literal: literal);
+                pattern = JoinValues(values);
             }
             else if (literal)
             {
@@ -557,6 +557,41 @@ namespace Orang.CommandLine
 
             filter = new Filter(regex, namePart, groupNumber: groupIndex, isNegative: (patternOptions & PatternOptions.Negative) != 0, predicate);
             return true;
+
+            string JoinValues(IEnumerable<string> values)
+            {
+                using (IEnumerator<string> en = values.GetEnumerator())
+                {
+                    if (en.MoveNext())
+                    {
+                        StringBuilder sb = StringBuilderCache.GetInstance();
+
+                        sb.Append((literal) ? "(?n:" : "(?:");
+
+                        while (true)
+                        {
+                            sb.Append((literal) ? "(" : "(?:");
+                            sb.Append((literal) ? RegexEscape.Escape(en.Current) : en.Current);
+                            sb.Append(")");
+
+                            if (en.MoveNext())
+                            {
+                                sb.Append("|");
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+
+                        sb.Append(")");
+
+                        return StringBuilderCache.GetStringAndFree(sb);
+                    }
+                }
+
+                return "";
+            }
         }
 
         public static bool TryParseRegex(
@@ -913,6 +948,32 @@ namespace Orang.CommandLine
         private static void WriteParseError(string value, string optionName, string helpText)
         {
             WriteError($"Option '{OptionNames.GetHelpText(optionName)}' has invalid value '{value}'. Allowed values: {helpText}.");
+        }
+
+        internal static bool TryParseProperties(string ask, IEnumerable<string> name, FindCommandOptions options)
+        {
+            if (!TryParseAsEnum(ask, OptionNames.Ask, out AskMode askMode, defaultValue: AskMode.None, OptionValueProviders.AskModeProvider))
+                return false;
+
+            if (askMode == AskMode.Value
+                && ConsoleOut.Verbosity < Verbosity.Normal)
+            {
+                WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Ask)}' cannot have value '{OptionValueProviders.AskModeProvider.GetValue(nameof(AskMode.Value)).HelpValue}' when '{OptionNames.GetHelpText(OptionNames.Verbosity)}' is set to '{OptionValueProviders.VerbosityProvider.GetValue(ConsoleOut.Verbosity.ToString()).HelpValue}'.");
+                return false;
+            }
+
+            Filter nameFilter = null;
+
+            if (name.Any()
+                && !TryParseFilter(name, OptionNames.Name, out nameFilter))
+            {
+                return false;
+            }
+
+            options.AskMode = askMode;
+            options.NameFilter = nameFilter;
+
+            return true;
         }
     }
 }

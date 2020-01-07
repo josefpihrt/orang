@@ -2,7 +2,7 @@
 
 namespace Orang.CommandLine
 {
-    internal class EscapeCommandOptions
+    internal sealed class EscapeCommandOptions
     {
         internal EscapeCommandOptions()
         {

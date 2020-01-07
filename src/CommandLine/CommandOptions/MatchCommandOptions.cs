@@ -2,7 +2,7 @@
 
 namespace Orang.CommandLine
 {
-    internal class MatchCommandOptions : RegexCommandOptions
+    internal sealed class MatchCommandOptions : RegexCommandOptions
     {
         internal MatchCommandOptions()
         {

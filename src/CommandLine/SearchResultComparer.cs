@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using Orang.FileSystem;
 
 namespace Orang.CommandLine
@@ -17,19 +16,9 @@ namespace Orang.CommandLine
 
         public static SearchResultComparer Size { get; } = new SearchResultSizeComparer();
 
-        public override abstract int Compare(SearchResult x, SearchResult y);
+        public static SearchResultComparer Match { get; } = new SearchResultMatchComparer();
 
-        public static SearchResultComparer GetInstance(SortProperty property)
-        {
-            return property switch
-            {
-                SortProperty.Name => Name,
-                SortProperty.CreationTime => CreationTime,
-                SortProperty.ModifiedTime => ModifiedTime,
-                SortProperty.Size => Size,
-                _ => throw new ArgumentException($"Unknown enum value '{property}'.", nameof(property)),
-            };
-        }
+        public override abstract int Compare(SearchResult x, SearchResult y);
 
         private class SearchResultNameComparer : SearchResultComparer
         {
@@ -131,18 +120,20 @@ namespace Orang.CommandLine
                 if (object.ReferenceEquals(x, y))
                     return 0;
 
-                if (x.IsDirectory)
-                {
-                    return (y.IsDirectory) ? Name.Compare(x, y) : -1;
-                }
-                else if (y.IsDirectory)
-                {
-                    return 1;
-                }
-                else
-                {
-                    return ((FileInfo)x.FileSystemInfo).Length.CompareTo(((FileInfo)y.FileSystemInfo).Length);
-                }
+                int diff = x.GetSize().CompareTo(y.GetSize());
+
+                if (diff != 0)
+                    return diff;
+
+                return Name.Compare(x, y);
+            }
+        }
+
+        private class SearchResultMatchComparer : SearchResultComparer
+        {
+            public override int Compare(SearchResult x, SearchResult y)
+            {
+                return string.Compare(x.Result.Match.Value, y.Result.Match.Value, StringComparison.CurrentCulture);
             }
         }
     }

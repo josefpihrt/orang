@@ -8,19 +8,21 @@ namespace Orang
     internal enum HighlightOptions
     {
         None = 0,
-        Match = 1,
-        Replacement = 1 << 1,
-        Split = 1 << 2,
-        EmptyMatch = 1 << 3,
-        EmptyReplacement = 1 << 4,
-        EmptySplit = 1 << 5,
+        Default = 1,
+        Match = 1 << 1,
+        DefaultOrMatch = Default | Match,
+        Replacement = 1 << 2,
+        Split = 1 << 3,
+        EmptyMatch = 1 << 4,
+        EmptyReplacement = 1 << 5,
+        EmptySplit = 1 << 6,
         Empty = EmptyMatch | EmptyReplacement | EmptySplit,
-        Boundary = 1 << 6,
-        Tab = 1 << 7,
-        CarriageReturn = 1 << 8,
-        Linefeed = 1 << 9,
+        Boundary = 1 << 7,
+        Tab = 1 << 8,
+        CarriageReturn = 1 << 9,
+        Linefeed = 1 << 10,
         NewLine = CarriageReturn | Linefeed,
-        Space = 1 << 10,
+        Space = 1 << 11,
         Character = Tab | CarriageReturn | Linefeed | Space
     }
 }

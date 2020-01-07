@@ -9,7 +9,7 @@ namespace Orang.CommandLine
     [Verb("match", HelpText = "Searches the input string for occurrences of the regular expression.")]
     [OptionValueProvider(nameof(Content), OptionValueProviderNames.PatternOptionsWithoutPartAndNegative)]
     [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.MatchHighlightOptions)]
-    internal class MatchCommandLineOptions : RegexCommandLineOptions
+    internal sealed class MatchCommandLineOptions : RegexCommandLineOptions
     {
         [Option(shortName: OptionShortNames.Content, longName: OptionNames.Content,
             Required = true,
@@ -23,11 +23,11 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.Num)]
         public int MaxCount { get; set; }
 
-        public bool TryParse(ref MatchCommandOptions options)
+        public bool TryParse(MatchCommandOptions options)
         {
             var baseOptions = (RegexCommandOptions)options;
 
-            if (!TryParse(ref baseOptions))
+            if (!TryParse(baseOptions))
                 return false;
 
             options = (MatchCommandOptions)baseOptions;
@@ -35,7 +35,7 @@ namespace Orang.CommandLine
             if (!TryParseFilter(Content, OptionNames.Content, out Filter filter, provider: OptionValueProviders.PatternOptionsWithoutPartAndNegativeProvider))
                 return false;
 
-            if (!TryParseAsEnumFlags(Highlight, OptionNames.Highlight, out HighlightOptions highlightOptions, defaultValue: HighlightOptions.Match, provider: OptionValueProviders.MatchHighlightOptionsProvider))
+            if (!TryParseAsEnumFlags(Highlight, OptionNames.Highlight, out HighlightOptions highlightOptions, defaultValue: HighlightOptions.Default, provider: OptionValueProviders.MatchHighlightOptionsProvider))
                 return false;
 
             options.Filter = filter;

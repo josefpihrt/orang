@@ -70,11 +70,11 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.SortOptions)]
         public IEnumerable<string> Sort { get; set; }
 
-        public bool TryParse(ref CommonFindCommandOptions options)
+        public bool TryParse(CommonFindCommandOptions options)
         {
             var baseOptions = (CommonRegexCommandOptions)options;
 
-            if (!TryParse(ref baseOptions))
+            if (!TryParse(baseOptions))
                 return false;
 
             options = (CommonFindCommandOptions)baseOptions;

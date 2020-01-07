@@ -62,11 +62,8 @@ namespace Orang.CommandLine
                 WriteCount("Directories searched", telemetry.DirectoryCount, verbosity: verbosity);
             }
 
-            if (searchTarget != SearchTarget.Directories
-                && telemetry.FilesTotalSize > 0)
-            {
+            if (telemetry.FilesTotalSize > 0)
                 WriteCount("  Files total size", telemetry.FilesTotalSize, verbosity: verbosity);
-            }
 
             if (telemetry.Elapsed != default)
                 Write($"  Elapsed Time: {telemetry.Elapsed:mm\\:ss\\.ff}", verbosity);

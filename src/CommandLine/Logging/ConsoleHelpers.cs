@@ -52,7 +52,7 @@ namespace Orang.CommandLine
             ConsoleOut.Write(question);
             ConsoleOut.Write(" (Y/N/C): ");
 
-            switch (Console.ReadLine().Trim())
+            switch (Console.ReadLine()?.Trim())
             {
                 case "y":
                 case "Y":
@@ -64,13 +64,14 @@ namespace Orang.CommandLine
                     {
                         throw new OperationCanceledException();
                     }
-                //case "n":
-                //case "N":
-                default:
+                case null:
                     {
-                        return false;
+                        ConsoleOut.WriteLine();
+                        break;
                     }
             }
+
+            return false;
         }
     }
 }

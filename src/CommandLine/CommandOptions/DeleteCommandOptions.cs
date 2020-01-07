@@ -2,7 +2,7 @@
 
 namespace Orang.CommandLine
 {
-    internal class DeleteCommandOptions : CommonFindCommandOptions
+    internal sealed class DeleteCommandOptions : CommonFindCommandOptions
     {
         internal DeleteCommandOptions()
         {

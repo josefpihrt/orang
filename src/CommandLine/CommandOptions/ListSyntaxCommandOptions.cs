@@ -5,7 +5,7 @@ using Orang.Syntax;
 
 namespace Orang.CommandLine
 {
-    internal class ListSyntaxCommandOptions : CommonListCommandOptions
+    internal sealed class ListSyntaxCommandOptions : CommonListCommandOptions
     {
         internal ListSyntaxCommandOptions()
         {

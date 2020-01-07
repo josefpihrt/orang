@@ -12,23 +12,41 @@ namespace Orang.CommandLine
     [Verb("find", HelpText = "Searches the file system for files and directories and optionally searches files' content.")]
     [OptionValueProvider(nameof(Content), OptionValueProviderNames.PatternOptionsWithoutPart)]
     [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.FindHighlightOptions)]
-    internal class FindCommandLineOptions : CommonFindContentCommandLineOptions
+    internal sealed class FindCommandLineOptions : CommonFindCommandLineOptions
     {
+        [Option(longName: OptionNames.Ask,
+            HelpText = "Ask for permission after each file or value.",
+            MetaValue = MetaValues.AskMode)]
+        public string Ask { get; set; }
+
         [Option(shortName: OptionShortNames.Content, longName: OptionNames.Content,
             HelpText = "Regular expression for files' content. Syntax is <PATTERN> [<PATTERN_OPTIONS>].",
             MetaValue = MetaValues.Regex)]
         public IEnumerable<string> Content { get; set; }
 
-        public bool TryParse(ref FindCommandOptions options)
-        {
-            var baseOptions = (CommonFindContentCommandOptions)options;
+        [Option(shortName: OptionShortNames.MaxCount, longName: OptionNames.MaxCount,
+            HelpText = "Stop searching after specified number is reached.",
+            MetaValue = MetaValues.MaxOptions)]
+        public IEnumerable<string> MaxCount { get; set; }
 
-            if (!TryParse(ref baseOptions))
+        [Option(shortName: OptionShortNames.Name, longName: OptionNames.Name,
+            HelpText = "Regular expression for file or directory name. Syntax is <PATTERN> [<PATTERN_OPTIONS>].",
+            MetaValue = MetaValues.Regex)]
+        public IEnumerable<string> Name { get; set; }
+
+        public bool TryParse(FindCommandOptions options)
+        {
+            var baseOptions = (CommonFindCommandOptions)options;
+
+            if (!TryParse(baseOptions))
                 return false;
 
             options = (FindCommandOptions)baseOptions;
 
-            if (!TryParseAsEnumFlags(Highlight, OptionNames.Highlight, out HighlightOptions highlightOptions, defaultValue: HighlightOptions.Match, provider: OptionValueProviders.FindHighlightOptionsProvider))
+            if (!TryParseProperties(Ask, Name, options))
+                return false;
+
+            if (!TryParseAsEnumFlags(Highlight, OptionNames.Highlight, out HighlightOptions highlightOptions, defaultValue: HighlightOptions.Default, provider: OptionValueProviders.FindHighlightOptionsProvider))
                 return false;
 
             Filter contentFilter = null;

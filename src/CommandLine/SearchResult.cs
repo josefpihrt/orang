@@ -10,6 +10,7 @@ namespace Orang.CommandLine
     internal class SearchResult
     {
         private FileSystemInfo _fileSystemInfo;
+        private long? _size;
 
         public SearchResult(
             FileSystemFinderResult result,
@@ -49,5 +50,12 @@ namespace Orang.CommandLine
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private string DebuggerDisplay => $"{Path}";
+
+        public long GetSize()
+        {
+            return _size ?? (_size = (IsDirectory)
+                ? FileSystemHelpers.GetDirectorySize(Path)
+                : ((FileInfo)FileSystemInfo).Length).Value;
+        }
     }
 }

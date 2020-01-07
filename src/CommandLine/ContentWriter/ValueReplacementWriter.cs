@@ -6,18 +6,18 @@ using System.Text.RegularExpressions;
 
 namespace Orang.CommandLine
 {
-    internal class LineReplacementWriter : LineContentWriter
+    internal class ValueReplacementWriter : ValueContentWriter
     {
         private readonly TextWriter _textWriter;
         private int _writerIndex;
         private ValueWriter _valueWriter;
-        private ValueWriter _replacementValueWriter;
 
-        public LineReplacementWriter(
+        public ValueReplacementWriter(
             string input,
             MatchEvaluator matchEvaluator,
             ContentWriterOptions options = null,
-            TextWriter textWriter = null) : base(input, options)
+            TextWriter textWriter = null,
+            MatchOutputInfo outputInfo = null) : base(input, options, outputInfo: outputInfo)
         {
             MatchEvaluator = matchEvaluator;
             _textWriter = textWriter;
@@ -31,21 +31,14 @@ namespace Orang.CommandLine
             {
                 if (_valueWriter == null)
                 {
-                    if (Options.IncludeLineNumber)
-                    {
-                        _valueWriter = new LineNumberValueWriter(Options.Indent, includeEndingLineNumber: false);
-                    }
-                    else
-                    {
-                        _valueWriter = new ValueWriter(Options.Indent);
-                    }
+                    string infoIndent = Options.Indent + new string(' ', OutputInfo?.Width ?? 0);
+
+                    _valueWriter = new ValueWriter(Writer, infoIndent);
                 }
 
                 return _valueWriter;
             }
         }
-
-        private ValueWriter ReplacementValueWriter => _replacementValueWriter ?? (_replacementValueWriter = new ValueWriter(Options.Indent, includeEndingIndent: false));
 
         protected override void WriteStartMatches()
         {
@@ -58,11 +51,6 @@ namespace Orang.CommandLine
         {
             if (Options.HighlightMatch)
                 base.WriteNonEmptyMatchValue(capture);
-        }
-
-        protected override void WriteNonEmptyReplacementValue(string result)
-        {
-            ReplacementValueWriter.Write(result, Symbols, ReplacementColors, ReplacementBoundaryColors);
         }
 
         protected override void WriteEndMatch(Capture capture)

@@ -279,9 +279,16 @@ namespace Orang.CommandLine
         );
 
         public static OptionValueProvider PathDisplayStyleProvider { get; } = new OptionValueProvider(MetaValues.PathDisplay,
-            SimpleOptionValue.Create(PathDisplayStyle.Full, description: "Display full path."),
-            SimpleOptionValue.Create(PathDisplayStyle.Relative, description: "Display path relatively to the base directory."),
-            SimpleOptionValue.Create(PathDisplayStyle.Omit, description: "Do not display path.")
+            OptionValues.PathDisplayStyle_Full,
+            OptionValues.PathDisplayStyle_Relative,
+            OptionValues.PathDisplayStyle_Match,
+            OptionValues.PathDisplayStyle_Omit
+        );
+
+        public static OptionValueProvider PathDisplayStyleProvider_Rename { get; } = new OptionValueProvider(OptionValueProviderNames.PathDisplayStyle_Rename,
+            OptionValues.PathDisplayStyle_Full,
+            OptionValues.PathDisplayStyle_Relative,
+            OptionValues.PathDisplayStyle_Omit
         );
 
         public static OptionValueProvider DisplayProvider { get; } = new OptionValueProvider(MetaValues.DisplayOptions,

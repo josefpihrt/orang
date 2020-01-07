@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -143,7 +142,7 @@ namespace Orang.CommandLine
                     return 0;
 
                 if (!success)
-                    return 1;
+                    return 2;
 
                 return parserResult.MapResult(
                     (DeleteCommandLineOptions options) => Delete(options),
@@ -155,7 +154,7 @@ namespace Orang.CommandLine
                     (RenameCommandLineOptions options) => Rename(options),
                     (ReplaceCommandLineOptions options) => Replace(options),
                     (SplitCommandLineOptions options) => Split(options),
-                    _ => 1);
+                    _ => 2);
             }
             catch (Exception ex)
             {
@@ -167,7 +166,7 @@ namespace Orang.CommandLine
                 Out = null;
             }
 
-            return 1;
+            return 2;
 
             static bool IsHelpOption(string value)
             {
@@ -184,148 +183,108 @@ namespace Orang.CommandLine
         {
             var options = new DeleteCommandOptions();
 
-            if (!commandLineOptions.TryParse(ref options))
-                return 1;
+            if (!commandLineOptions.TryParse(options))
+                return 2;
 
-            var command = new DeleteCommand(options);
-
-            CommandResult result = command.Execute();
-
-            return GetExitCode(result.Kind);
+            return Execute(new DeleteCommand(options));
         }
 
         private static int Escape(EscapeCommandLineOptions commandLineOptions)
         {
             var options = new EscapeCommandOptions();
 
-            if (!commandLineOptions.TryParse(ref options))
-                return 1;
+            if (!commandLineOptions.TryParse(options))
+                return 2;
 
-            var command = new EscapeCommand(options);
-
-            CommandResult result = command.Execute();
-
-            return GetExitCode(result.Kind);
+            return Execute(new EscapeCommand(options));
         }
 
         private static int Find(FindCommandLineOptions commandLineOptions)
         {
             var options = new FindCommandOptions();
 
-            if (!commandLineOptions.TryParse(ref options))
-                return 1;
+            if (!commandLineOptions.TryParse(options))
+                return 2;
 
-            CommandResult result;
-
-            if (options.ContentFilter != null)
-            {
-                var command = new FindContentCommand(options);
-
-                result = command.Execute();
-            }
-            else
-            {
-                var command = new FindCommand(options);
-
-                result = command.Execute();
-            }
-
-            return GetExitCode(result.Kind);
+            return Execute(new FindCommand<FindCommandOptions>(options));
         }
 
         private static int Help(HelpCommandLineOptions commandLineOptions)
         {
             var options = new HelpCommandOptions();
 
-            if (!commandLineOptions.TryParse(ref options))
-                return 1;
+            if (!commandLineOptions.TryParse(options))
+                return 2;
 
-            var command = new HelpCommand(options);
-
-            CommandResult result = command.Execute();
-
-            return GetExitCode(result.Kind);
+            return Execute(new HelpCommand(options));
         }
 
         private static int ListSyntax(ListSyntaxCommandLineOptions commandLineOptions)
         {
             var options = new ListSyntaxCommandOptions();
 
-            if (!commandLineOptions.TryParse(ref options))
-                return 1;
+            if (!commandLineOptions.TryParse(options))
+                return 2;
 
-            var command = new ListSyntaxCommand(options);
-
-            CommandResult result = command.Execute();
-
-            return GetExitCode(result.Kind);
+            return Execute(new ListSyntaxCommand(options));
         }
 
         private static int Match(MatchCommandLineOptions commandLineOptions)
         {
             var options = new MatchCommandOptions();
 
-            if (!commandLineOptions.TryParse(ref options))
-                return 1;
+            if (!commandLineOptions.TryParse(options))
+                return 2;
 
-            var command = new MatchCommand(options);
-
-            CommandResult result = command.Execute();
-
-            return GetExitCode(result.Kind);
+            return Execute(new MatchCommand(options));
         }
 
         private static int Rename(RenameCommandLineOptions commandLineOptions)
         {
             var options = new RenameCommandOptions();
 
-            if (!commandLineOptions.TryParse(ref options))
-                return 1;
+            if (!commandLineOptions.TryParse(options))
+                return 2;
 
-            var command = new RenameCommand(options);
-
-            CommandResult result = command.Execute();
-
-            return GetExitCode(result.Kind);
+            return Execute(new RenameCommand(options));
         }
 
         private static int Replace(ReplaceCommandLineOptions commandLineOptions)
         {
             var options = new ReplaceCommandOptions();
 
-            if (!commandLineOptions.TryParse(ref options))
-                return 1;
+            if (!commandLineOptions.TryParse(options))
+                return 2;
 
-            var command = new ReplaceCommand(options);
-
-            CommandResult result = command.Execute();
-
-            return GetExitCode(result.Kind);
+            return Execute(new ReplaceCommand(options));
         }
 
         private static int Split(SplitCommandLineOptions commandLineOptions)
         {
             var options = new SplitCommandOptions();
 
-            if (!commandLineOptions.TryParse(ref options))
-                return 1;
+            if (!commandLineOptions.TryParse(options))
+                return 2;
 
-            var command = new SplitCommand(options);
-
-            CommandResult result = command.Execute();
-
-            return GetExitCode(result.Kind);
+            return Execute(new SplitCommand(options));
         }
 
-        private static int GetExitCode(CommandResultKind kind)
+        private static int Execute(AbstractCommand command)
         {
-            return kind switch
+            CommandResult result = command.Execute();
+
+            switch (result)
             {
-                CommandResultKind.Success => 0,
-                CommandResultKind.NoMatch => 1,
-                CommandResultKind.Fail => 2,
-                _ => throw new InvalidOperationException($"Unknown enum value '{kind}'."),
-            };
+                case CommandResult.Success:
+                    return 0;
+                case CommandResult.NoMatch:
+                    return 1;
+                case CommandResult.Fail:
+                case CommandResult.Canceled:
+                    return 2;
+                default:
+                    throw new InvalidOperationException($"Unknown enum value '{result}'.");
+            }
         }
     }
 }

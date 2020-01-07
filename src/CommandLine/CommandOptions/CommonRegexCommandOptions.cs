@@ -16,7 +16,7 @@ namespace Orang.CommandLine
 
         public HighlightOptions HighlightOptions { get; internal set; }
 
-        public bool HighlightMatch => (HighlightOptions & HighlightOptions.Match) != 0;
+        public bool HighlightMatch => (HighlightOptions & HighlightOptions.DefaultOrMatch) != 0;
 
         public bool HighlightReplacement => (HighlightOptions & HighlightOptions.Replacement) != 0;
     }

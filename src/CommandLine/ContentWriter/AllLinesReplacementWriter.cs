@@ -6,18 +6,18 @@ using System.Text.RegularExpressions;
 
 namespace Orang.CommandLine
 {
-    internal class ValueReplacementWriter : ValueContentWriter
+    internal class AllLinesReplacementWriter : AllLinesContentWriter
     {
         private readonly TextWriter _textWriter;
         private int _writerIndex;
         private ValueWriter _valueWriter;
+        private ValueWriter _replacementValueWriter;
 
-        public ValueReplacementWriter(
+        public AllLinesReplacementWriter(
             string input,
             MatchEvaluator matchEvaluator,
             ContentWriterOptions options = null,
-            TextWriter textWriter = null,
-            MatchOutputInfo outputInfo = null) : base(input, options, outputInfo: outputInfo)
+            TextWriter textWriter = null) : base(input, options)
         {
             MatchEvaluator = matchEvaluator;
             _textWriter = textWriter;
@@ -31,14 +31,21 @@ namespace Orang.CommandLine
             {
                 if (_valueWriter == null)
                 {
-                    string infoIndent = Options.Indent + new string(' ', OutputInfo?.Width ?? 0);
-
-                    _valueWriter = new ValueWriter(infoIndent);
+                    if (Options.IncludeLineNumber)
+                    {
+                        _valueWriter = new LineNumberValueWriter(Writer, Options.Indent);
+                    }
+                    else
+                    {
+                        _valueWriter = new ValueWriter(Writer, Options.Indent);
+                    }
                 }
 
                 return _valueWriter;
             }
         }
+
+        private ValueWriter ReplacementValueWriter => _replacementValueWriter ?? (_replacementValueWriter = new ValueWriter(Writer, Options.Indent));
 
         protected override void WriteStartMatches()
         {
@@ -50,7 +57,25 @@ namespace Orang.CommandLine
         protected override void WriteNonEmptyMatchValue(Capture capture)
         {
             if (Options.HighlightMatch)
+            {
                 base.WriteNonEmptyMatchValue(capture);
+            }
+            else if (Options.IncludeLineNumber)
+            {
+                ((LineNumberValueWriter)ValueWriter).LineNumber += TextHelpers.CountLines(Input, capture.Index, capture.Length);
+            }
+        }
+
+        protected override void WriteNonEmptyReplacementValue(string result)
+        {
+            if (Options.IncludeLineNumber)
+            {
+                ReplacementValueWriter.Write(result, Symbols, ReplacementColors, ReplacementBoundaryColors);
+            }
+            else
+            {
+                base.WriteNonEmptyReplacementValue(result);
+            }
         }
 
         protected override void WriteEndMatch(Capture capture)

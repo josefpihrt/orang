@@ -12,7 +12,7 @@ namespace Orang.CommandLine
     [OptionValueProvider(nameof(Content), OptionValueProviderNames.PatternOptionsWithoutPart)]
     [OptionValueProvider(nameof(Display), OptionValueProviderNames.Display_NonContent)]
     [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.DeleteHighlightOptions)]
-    internal class DeleteCommandLineOptions : CommonFindCommandLineOptions
+    internal sealed class DeleteCommandLineOptions : CommonFindCommandLineOptions
     {
         [Option(longName: OptionNames.Ask,
             HelpText = "Ask for a permission to delete file or directory.")]
@@ -46,16 +46,16 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.Regex)]
         public IEnumerable<string> Name { get; set; }
 
-        public bool TryParse(ref DeleteCommandOptions options)
+        public bool TryParse(DeleteCommandOptions options)
         {
             var baseOptions = (CommonFindCommandOptions)options;
 
-            if (!TryParse(ref baseOptions))
+            if (!TryParse(baseOptions))
                 return false;
 
             options = (DeleteCommandOptions)baseOptions;
 
-            if (!TryParseAsEnumFlags(Highlight, OptionNames.Highlight, out HighlightOptions highlightOptions, defaultValue: HighlightOptions.Match, provider: OptionValueProviders.DeleteHighlightOptionsProvider))
+            if (!TryParseAsEnumFlags(Highlight, OptionNames.Highlight, out HighlightOptions highlightOptions, defaultValue: HighlightOptions.Default, provider: OptionValueProviders.DeleteHighlightOptionsProvider))
                 return false;
 
             if (!TryParseFilter(Name, OptionNames.Name, out Filter nameFilter))

@@ -212,7 +212,7 @@ namespace Orang.CommandLine
 
         private class OutputValueWriter : ValueWriter
         {
-            public OutputValueWriter(string indent, HighlightOptions highlightOptions) : base(indent, includeEndingIndent: false, Verbosity.Quiet)
+            public OutputValueWriter(string indent, HighlightOptions highlightOptions) : base(new ContentTextWriter(Verbosity.Minimal), indent, includeEndingIndent: false)
             {
                 HighlightOptions = highlightOptions;
             }
@@ -221,12 +221,17 @@ namespace Orang.CommandLine
 
             public void WriteMatch(string value, OutputSymbols symbols)
             {
+                WriteMatch(value, symbols, (HighlightOptions & HighlightOptions.Match) != 0);
+            }
+
+            public void WriteMatch(string value, OutputSymbols symbols, bool highlightMatch)
+            {
                 if (value.Length > 0)
                 {
                     Write(
                         value,
                         symbols,
-                        colors: ((HighlightOptions & HighlightOptions.Match) != 0) ? Colors.Match : default,
+                        colors: (highlightMatch) ? Colors.Match : default,
                         boundaryColors: ((HighlightOptions & HighlightOptions.Boundary) != 0) ? Colors.MatchBoundary : default);
                 }
                 else if ((HighlightOptions & HighlightOptions.EmptyMatch) != 0)

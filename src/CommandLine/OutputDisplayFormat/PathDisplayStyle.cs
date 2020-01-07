@@ -6,6 +6,7 @@ namespace Orang.CommandLine
     {
         Full = 0,
         Relative = 1,
-        Omit = 2
+        Match = 2,
+        Omit = 3,
     }
 }

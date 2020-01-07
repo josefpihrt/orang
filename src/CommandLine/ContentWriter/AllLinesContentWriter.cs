@@ -4,23 +4,28 @@ using System.Text.RegularExpressions;
 
 namespace Orang.CommandLine
 {
-    internal class ValueContentWriter : ContentWriter
+    internal class AllLinesContentWriter : ContentWriter
     {
+        private int _lastPos;
         private ValueWriter _valueWriter;
 
-        public ValueContentWriter(
+        public AllLinesContentWriter(
             string input,
             ContentWriterOptions options = null,
-            IResultStorage storage = null,
-            MatchOutputInfo outputInfo = null) : base(input, options)
+            IResultStorage storage = null) : this(input, ContentTextWriter.Default, options, storage)
+        {
+        }
+
+        public AllLinesContentWriter(
+            string input,
+            ContentTextWriter writer,
+            ContentWriterOptions options = null,
+            IResultStorage storage = null) : base(input, writer, options)
         {
             ResultStorage = storage;
-            OutputInfo = outputInfo;
         }
 
         public IResultStorage ResultStorage { get; }
-
-        public MatchOutputInfo OutputInfo { get; }
 
         protected override ValueWriter ValueWriter
         {
@@ -28,9 +33,14 @@ namespace Orang.CommandLine
             {
                 if (_valueWriter == null)
                 {
-                    string infoIndent = Options.Indent + new string(' ', OutputInfo?.Width ?? 0);
-
-                    _valueWriter = new ValueWriter(infoIndent, includeEndingIndent: false);
+                    if (Options.IncludeLineNumber)
+                    {
+                        _valueWriter = new LineNumberValueWriter(Writer, Options.Indent);
+                    }
+                    else
+                    {
+                        _valueWriter = new ValueWriter(Writer, Options.Indent);
+                    }
                 }
 
                 return _valueWriter;
@@ -39,38 +49,30 @@ namespace Orang.CommandLine
 
         protected override void WriteStartMatches()
         {
+            _lastPos = 0;
+
+            Write(Options.Indent);
+
+            if (Options.IncludeLineNumber)
+                WriteLineNumber(1);
+
+            ResultStorage?.Add(Input);
         }
 
         protected override void WriteStartMatch(Capture capture)
         {
-            ResultStorage?.Add(capture.Value);
+            int index = capture.Index;
 
-            if (MatchCount == 0
-                || Options.Separator == "\n"
-                || Options.Separator == "\r\n")
-            {
-                Write(Options.Indent);
-            }
-
-            if (OutputInfo != null)
-                Write(OutputInfo.GetText(capture, MatchCount + 1, groupName: Options.GroupName, captureNumber: -1));
+            ValueWriter.Write(Input, _lastPos, index - _lastPos, symbols: null);
         }
 
         protected override void WriteEndMatch(Capture capture)
         {
+            _lastPos = capture.Index + capture.Length;
         }
 
         protected override void WriteMatchSeparator()
         {
-            if (Options.Separator != null)
-            {
-                Write(Options.Separator);
-            }
-            else
-            {
-                WriteLine();
-                Write(Options.Indent);
-            }
         }
 
         protected override void WriteStartReplacement(Match match, string result)
@@ -83,6 +85,7 @@ namespace Orang.CommandLine
 
         protected override void WriteEndMatches()
         {
+            ValueWriter.Write(Input, _lastPos, Input.Length - _lastPos, symbols: null);
             WriteLine();
         }
 

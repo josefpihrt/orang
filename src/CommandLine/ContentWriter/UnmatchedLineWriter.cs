@@ -13,7 +13,15 @@ namespace Orang.CommandLine
         public UnmatchedLineWriter(
             string input,
             ContentWriterOptions options = null,
-            IResultStorage storage = null) : base(input, options)
+            IResultStorage storage = null) : this(input, ContentTextWriter.Default, options, storage)
+        {
+        }
+
+        public UnmatchedLineWriter(
+            string input,
+            ContentTextWriter writer,
+            ContentWriterOptions options = null,
+            IResultStorage storage = null) : base(input, writer, options)
         {
             ResultStorage = storage;
             MatchingLineCount = 0;

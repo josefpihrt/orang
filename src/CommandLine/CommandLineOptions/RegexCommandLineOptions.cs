@@ -22,11 +22,11 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.Input)]
         public string Input { get; set; }
 
-        public bool TryParse(ref RegexCommandOptions options)
+        public bool TryParse(RegexCommandOptions options)
         {
             var baseOptions = (CommonRegexCommandOptions)options;
 
-            if (!TryParse(ref baseOptions))
+            if (!TryParse(baseOptions))
                 return false;
 
             options = (RegexCommandOptions)baseOptions;

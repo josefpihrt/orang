@@ -2,10 +2,10 @@
 
 namespace Orang.CommandLine
 {
-    internal enum CommandResultKind
+    internal enum TerminationReason
     {
-        Success = 0,
-        NoMatch = 1,
-        Fail = 2,
+        None,
+        Canceled,
+        MaxReached
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Orang.CommandLine
 {
-    internal class SplitCommandOptions : RegexCommandOptions
+    internal sealed class SplitCommandOptions : RegexCommandOptions
     {
         internal SplitCommandOptions()
         {

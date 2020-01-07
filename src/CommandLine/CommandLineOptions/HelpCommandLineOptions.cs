@@ -5,7 +5,7 @@ using CommandLine;
 namespace Orang.CommandLine
 {
     [Verb("help", HelpText = "Displays help.")]
-    internal class HelpCommandLineOptions
+    internal sealed class HelpCommandLineOptions
     {
         [Value(index: 0,
             HelpText = "Command name.",
@@ -20,7 +20,7 @@ namespace Orang.CommandLine
             HelpText = "Display full manual.")]
         public bool Manual { get; set; }
 
-        public bool TryParse(ref HelpCommandOptions options)
+        public bool TryParse(HelpCommandOptions options)
         {
             options.Command = Command;
             options.IncludeValues = Values;

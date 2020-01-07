@@ -17,7 +17,7 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.Highlight)]
         public IEnumerable<string> Highlight { get; set; }
 
-        public bool TryParse(ref CommonRegexCommandOptions options)
+        public bool TryParse(CommonRegexCommandOptions options)
         {
             return true;
         }

@@ -11,7 +11,7 @@ namespace Orang.CommandLine
             MetaValue = "<FILTER>")]
         public string Filter { get; set; }
 
-        public bool TryParse(ref CommonListCommandOptions options)
+        public bool TryParse(CommonListCommandOptions options)
         {
             options.Filter = Filter;
 

@@ -52,11 +52,11 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.Replacement)]
         public IEnumerable<string> Replacement { get; set; }
 
-        public bool TryParse(ref RenameCommandOptions options)
+        public bool TryParse(RenameCommandOptions options)
         {
             var baseOptions = (CommonFindCommandOptions)options;
 
-            if (!TryParse(ref baseOptions))
+            if (!TryParse(baseOptions))
                 return false;
 
             options = (RenameCommandOptions)baseOptions;

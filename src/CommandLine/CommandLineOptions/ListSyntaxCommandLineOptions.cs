@@ -15,11 +15,11 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.SyntaxSections)]
         public IEnumerable<string> Section { get; set; }
 
-        public bool TryParse(ref ListSyntaxCommandOptions options)
+        public bool TryParse(ListSyntaxCommandOptions options)
         {
             var baseOptions = (CommonListCommandOptions)options;
 
-            if (!TryParse(ref baseOptions))
+            if (!TryParse(baseOptions))
                 return false;
 
             options = (ListSyntaxCommandOptions)baseOptions;

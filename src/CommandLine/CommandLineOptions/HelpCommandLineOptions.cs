@@ -20,7 +20,7 @@ namespace Orang.CommandLine
             HelpText = "Display full manual.")]
         public bool Manual { get; set; }
 
-        public bool TryParse(ref HelpCommandOptions options)
+        public bool TryParse(HelpCommandOptions options)
         {
             options.Command = Command;
             options.IncludeValues = Values;

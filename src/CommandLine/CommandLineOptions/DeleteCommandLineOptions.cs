@@ -46,11 +46,11 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.Regex)]
         public IEnumerable<string> Name { get; set; }
 
-        public bool TryParse(ref DeleteCommandOptions options)
+        public bool TryParse(DeleteCommandOptions options)
         {
             var baseOptions = (CommonFindCommandOptions)options;
 
-            if (!TryParse(ref baseOptions))
+            if (!TryParse(baseOptions))
                 return false;
 
             options = (DeleteCommandOptions)baseOptions;

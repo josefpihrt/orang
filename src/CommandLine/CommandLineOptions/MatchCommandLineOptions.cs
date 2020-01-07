@@ -23,11 +23,11 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.Num)]
         public int MaxCount { get; set; }
 
-        public bool TryParse(ref MatchCommandOptions options)
+        public bool TryParse(MatchCommandOptions options)
         {
             var baseOptions = (RegexCommandOptions)options;
 
-            if (!TryParse(ref baseOptions))
+            if (!TryParse(baseOptions))
                 return false;
 
             options = (MatchCommandOptions)baseOptions;

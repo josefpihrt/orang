@@ -20,7 +20,7 @@ namespace Orang.CommandLine
             HelpText = "Text is a replacement string.")]
         public bool Replacement { get; set; }
 
-        public bool TryParse(ref EscapeCommandOptions options)
+        public bool TryParse(EscapeCommandOptions options)
         {
             string input = Input;
 

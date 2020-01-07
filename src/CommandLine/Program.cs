@@ -183,7 +183,7 @@ namespace Orang.CommandLine
         {
             var options = new DeleteCommandOptions();
 
-            if (!commandLineOptions.TryParse(ref options))
+            if (!commandLineOptions.TryParse(options))
                 return 2;
 
             return Execute(new DeleteCommand(options));
@@ -193,7 +193,7 @@ namespace Orang.CommandLine
         {
             var options = new EscapeCommandOptions();
 
-            if (!commandLineOptions.TryParse(ref options))
+            if (!commandLineOptions.TryParse(options))
                 return 2;
 
             return Execute(new EscapeCommand(options));
@@ -203,7 +203,7 @@ namespace Orang.CommandLine
         {
             var options = new FindCommandOptions();
 
-            if (!commandLineOptions.TryParse(ref options))
+            if (!commandLineOptions.TryParse(options))
                 return 2;
 
             return Execute(new FindCommand<FindCommandOptions>(options));
@@ -213,7 +213,7 @@ namespace Orang.CommandLine
         {
             var options = new HelpCommandOptions();
 
-            if (!commandLineOptions.TryParse(ref options))
+            if (!commandLineOptions.TryParse(options))
                 return 2;
 
             return Execute(new HelpCommand(options));
@@ -223,7 +223,7 @@ namespace Orang.CommandLine
         {
             var options = new ListSyntaxCommandOptions();
 
-            if (!commandLineOptions.TryParse(ref options))
+            if (!commandLineOptions.TryParse(options))
                 return 2;
 
             return Execute(new ListSyntaxCommand(options));
@@ -233,7 +233,7 @@ namespace Orang.CommandLine
         {
             var options = new MatchCommandOptions();
 
-            if (!commandLineOptions.TryParse(ref options))
+            if (!commandLineOptions.TryParse(options))
                 return 2;
 
             return Execute(new MatchCommand(options));
@@ -243,7 +243,7 @@ namespace Orang.CommandLine
         {
             var options = new RenameCommandOptions();
 
-            if (!commandLineOptions.TryParse(ref options))
+            if (!commandLineOptions.TryParse(options))
                 return 2;
 
             return Execute(new RenameCommand(options));
@@ -253,7 +253,7 @@ namespace Orang.CommandLine
         {
             var options = new ReplaceCommandOptions();
 
-            if (!commandLineOptions.TryParse(ref options))
+            if (!commandLineOptions.TryParse(options))
                 return 2;
 
             return Execute(new ReplaceCommand(options));
@@ -263,7 +263,7 @@ namespace Orang.CommandLine
         {
             var options = new SplitCommandOptions();
 
-            if (!commandLineOptions.TryParse(ref options))
+            if (!commandLineOptions.TryParse(options))
                 return 2;
 
             return Execute(new SplitCommand(options));

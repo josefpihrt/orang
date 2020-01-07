@@ -512,7 +512,7 @@ namespace Orang.CommandLine
                     ? TextHelpers.ReadLines(pattern).Where(f => f.Length > 0)
                     : pattern.Split(separator ?? ",", StringSplitOptions.RemoveEmptyEntries);
 
-                pattern = PatternBuilder.Join(values, literal: literal);
+                pattern = JoinValues(values);
             }
             else if (literal)
             {
@@ -557,6 +557,41 @@ namespace Orang.CommandLine
 
             filter = new Filter(regex, namePart, groupNumber: groupIndex, isNegative: (patternOptions & PatternOptions.Negative) != 0, predicate);
             return true;
+
+            string JoinValues(IEnumerable<string> values)
+            {
+                using (IEnumerator<string> en = values.GetEnumerator())
+                {
+                    if (en.MoveNext())
+                    {
+                        StringBuilder sb = StringBuilderCache.GetInstance();
+
+                        sb.Append((literal) ? "(?n:" : "(?:");
+
+                        while (true)
+                        {
+                            sb.Append((literal) ? "(" : "(?:");
+                            sb.Append((literal) ? RegexEscape.Escape(en.Current) : en.Current);
+                            sb.Append(")");
+
+                            if (en.MoveNext())
+                            {
+                                sb.Append("|");
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+
+                        sb.Append(")");
+
+                        return StringBuilderCache.GetStringAndFree(sb);
+                    }
+                }
+
+                return "";
+            }
         }
 
         public static bool TryParseRegex(

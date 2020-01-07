@@ -30,7 +30,7 @@ namespace Orang.CommandLine
 
         public CancellationToken CancellationToken { get; }
 
-        public SearchState State { get; set; }
+        public TerminationReason TerminationReason { get; set; }
 
         public void AddResult(FileSystemFinderResult result, string baseDirectoryPath)
         {

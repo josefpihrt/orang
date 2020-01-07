@@ -2,7 +2,7 @@
 
 namespace Orang.CommandLine
 {
-    internal enum SearchState
+    internal enum TerminationReason
     {
         None,
         Canceled,

@@ -87,7 +87,7 @@ namespace Orang.CommandLine
 
             ExecuteCore(context);
 
-            if (context.State == SearchState.Canceled)
+            if (context.TerminationReason == TerminationReason.Canceled)
                 return CommandResult.Canceled;
 
             return (context.Telemetry.MatchingFileCount > 0) ? CommandResult.Success : CommandResult.NoMatch;
@@ -101,10 +101,10 @@ namespace Orang.CommandLine
             {
                 ExecuteCore(path, context);
 
-                if (context.State == SearchState.MaxReached)
+                if (context.TerminationReason == TerminationReason.MaxReached)
                     break;
 
-                if (context.State == SearchState.Canceled
+                if (context.TerminationReason == TerminationReason.Canceled
                     || context.CancellationToken.IsCancellationRequested)
                 {
                     OperationCanceled();
@@ -205,7 +205,7 @@ namespace Orang.CommandLine
                     ExecuteResult(result, context, columnWidths);
                     i++;
 
-                    if (context.State == SearchState.Canceled)
+                    if (context.TerminationReason == TerminationReason.Canceled)
                         break;
 
                     context.CancellationToken.ThrowIfCancellationRequested();
@@ -213,10 +213,10 @@ namespace Orang.CommandLine
             }
             catch (OperationCanceledException)
             {
-                context.State = SearchState.Canceled;
+                context.TerminationReason = TerminationReason.Canceled;
             }
 
-            if (context.State == SearchState.Canceled
+            if (context.TerminationReason == TerminationReason.Canceled
                 || context.CancellationToken.IsCancellationRequested)
             {
                 OperationCanceled();
@@ -250,7 +250,7 @@ namespace Orang.CommandLine
                 }
                 catch (OperationCanceledException)
                 {
-                    context.State = SearchState.Canceled;
+                    context.TerminationReason = TerminationReason.Canceled;
                 }
 
                 context.Telemetry.SearchedDirectoryCount = progress.SearchedDirectoryCount;
@@ -273,7 +273,7 @@ namespace Orang.CommandLine
                 }
                 catch (OperationCanceledException)
                 {
-                    context.State = SearchState.Canceled;
+                    context.TerminationReason = TerminationReason.Canceled;
                 }
             }
             else
@@ -308,7 +308,7 @@ namespace Orang.CommandLine
             }
 
             if (Options.MaxMatchingFiles == context.Telemetry.MatchingFileCount + context.Telemetry.MatchingDirectoryCount)
-                context.State = SearchState.MaxReached;
+                context.TerminationReason = TerminationReason.MaxReached;
 
             if (context.Results != null)
             {

@@ -113,10 +113,10 @@ namespace Orang.CommandLine
             {
                 ProcessResult(result, context, DirectoryWriterOptions, directoryPath);
 
-                if (context.State == SearchState.Canceled)
+                if (context.TerminationReason == TerminationReason.Canceled)
                     break;
 
-                if (context.State == SearchState.MaxReached)
+                if (context.TerminationReason == TerminationReason.MaxReached)
                     break;
             }
         }
@@ -281,7 +281,7 @@ namespace Orang.CommandLine
 
                 if (Options.AskMode == AskMode.File)
                 {
-                    if (context.State == SearchState.Canceled)
+                    if (context.TerminationReason == TerminationReason.Canceled)
                     {
                         fileReplacementCount = 0;
                     }
@@ -305,7 +305,7 @@ namespace Orang.CommandLine
                         }
                         catch (OperationCanceledException)
                         {
-                            context.State = SearchState.Canceled;
+                            context.TerminationReason = TerminationReason.Canceled;
                             fileReplacementCount = 0;
                         }
                     }

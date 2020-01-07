@@ -273,17 +273,17 @@ namespace Orang.CommandLine
         {
             CommandResult result = command.Execute();
 
-            switch (result.Kind)
+            switch (result)
             {
-                case CommandResultKind.Success:
+                case CommandResult.Success:
                     return 0;
-                case CommandResultKind.NoMatch:
+                case CommandResult.NoMatch:
                     return 1;
-                case CommandResultKind.Fail:
-                case CommandResultKind.Canceled:
+                case CommandResult.Fail:
+                case CommandResult.Canceled:
                     return 2;
                 default:
-                    throw new InvalidOperationException($"Unknown enum value '{result.Kind}'.");
+                    throw new InvalidOperationException($"Unknown enum value '{result}'.");
             }
         }
     }

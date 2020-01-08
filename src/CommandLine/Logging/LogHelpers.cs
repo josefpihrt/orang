@@ -30,7 +30,7 @@ namespace Orang.CommandLine
 
             if (!string.IsNullOrEmpty(path)
                 && !string.IsNullOrEmpty(message)
-                && !message.Contains(path, StringComparison.OrdinalIgnoreCase))
+                && !message.Contains(path, FileSystemHelpers.Comparison))
             {
                 Write($"{indent}PATH: ", colors, verbosity);
                 WritePath(path, basePath, relativePath: relativePath, colors: colors, verbosity: verbosity);
@@ -279,7 +279,7 @@ namespace Orang.CommandLine
 
             Write(indent, verbosity);
 
-            if (string.Equals(path, basePath, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(path, basePath, FileSystemHelpers.Comparison))
             {
                 Debug.Assert(matchIndex == -1);
                 Write((relativePath) ? "." : path, colors, verbosity);
@@ -290,7 +290,7 @@ namespace Orang.CommandLine
 
             if (basePath != null
                 && path.Length > basePath.Length
-                && path.StartsWith(basePath, StringComparison.OrdinalIgnoreCase))
+                && path.StartsWith(basePath, FileSystemHelpers.Comparison))
             {
                 startIndex = basePath.Length;
 

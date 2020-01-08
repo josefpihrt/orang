@@ -30,7 +30,7 @@ namespace Orang.CommandLine
         {
             foreach (FileSystemFinderResult result in Find(directoryPath, context, notifyDirectoryChanged: this))
             {
-                Debug.Assert(result.Path.StartsWith(directoryPath, StringComparison.OrdinalIgnoreCase), $"{directoryPath}\r\n{result.Path}");
+                Debug.Assert(result.Path.StartsWith(directoryPath, FileSystemHelpers.Comparison), $"{directoryPath}\r\n{result.Path}");
 
                 ProcessResult(result, context, directoryPath);
 
@@ -47,7 +47,7 @@ namespace Orang.CommandLine
             SearchContext context,
             string baseDirectoryPath = null)
         {
-            Debug.Assert(baseDirectoryPath == null || result.Path.StartsWith(baseDirectoryPath, StringComparison.OrdinalIgnoreCase), $"{baseDirectoryPath}\r\n{result.Path}");
+            Debug.Assert(baseDirectoryPath == null || result.Path.StartsWith(baseDirectoryPath, FileSystemHelpers.Comparison), $"{baseDirectoryPath}\r\n{result.Path}");
 
             if (!result.IsDirectory
                 && Options.ContentFilter != null)

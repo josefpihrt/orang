@@ -1,9 +1,10 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using Orang.CommandLine;
 
@@ -24,6 +25,28 @@ namespace Orang.FileSystem
             IgnoreInaccessible = true,
             RecurseSubdirectories = true,
         };
+
+        public static bool IsCaseSensitive { get; } = GetIsCaseSensitive();
+
+        public static StringComparer Comparer { get; } = (IsCaseSensitive) ? StringComparer.CurrentCulture : StringComparer.CurrentCultureIgnoreCase;
+
+        public static StringComparison Comparison { get; } = (IsCaseSensitive) ? StringComparison.CurrentCulture : StringComparison.CurrentCultureIgnoreCase;
+
+        private static bool GetIsCaseSensitive()
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                return false;
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                return true;
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                return true;
+
+            Debug.Fail(RuntimeInformation.OSDescription);
+
+            return true;
+        }
 
         internal static int IndexOfDirectorySeparator(string path, int start)
         {

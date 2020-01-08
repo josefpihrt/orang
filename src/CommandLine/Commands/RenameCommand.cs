@@ -48,7 +48,7 @@ namespace Orang.CommandLine
         {
             foreach (FileSystemFinderResult result in Find(directoryPath, context, notifyDirectoryChanged: this))
             {
-                Debug.Assert(result.Path.StartsWith(directoryPath, StringComparison.OrdinalIgnoreCase), $"{directoryPath}\r\n{result.Path}");
+                Debug.Assert(result.Path.StartsWith(directoryPath, FileSystemHelpers.Comparison), $"{directoryPath}\r\n{result.Path}");
 
                 ProcessResult(result, context, directoryPath);
 
@@ -127,7 +127,7 @@ namespace Orang.CommandLine
 
             if (Options.DisplayRelativePath
                 && baseDirectoryPath != null
-                && path.StartsWith(baseDirectoryPath, StringComparison.OrdinalIgnoreCase))
+                && path.StartsWith(baseDirectoryPath, FileSystemHelpers.Comparison))
             {
                 indentCount -= baseDirectoryPath.Length;
 

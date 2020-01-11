@@ -82,7 +82,7 @@ namespace Orang.CommandLine
             if (!Options.OmitPath)
                 WritePath(context, result, baseDirectoryPath, indent, columnWidths);
 
-            bool success = false;
+            bool deleted = false;
 
             if (!Options.DryRun
                 && (!Options.Ask || AskToDelete()))
@@ -96,16 +96,7 @@ namespace Orang.CommandLine
                         filesOnly: Options.FilesOnly,
                         directoriesOnly: Options.DirectoriesOnly);
 
-                    if (result.IsDirectory)
-                    {
-                        context.Telemetry.ProcessedDirectoryCount++;
-                    }
-                    else
-                    {
-                        context.Telemetry.ProcessedFileCount++;
-                    }
-
-                    success = true;
+                    deleted = true;
                 }
                 catch (Exception ex) when (ex is IOException
                     || ex is UnauthorizedAccessException)
@@ -114,8 +105,20 @@ namespace Orang.CommandLine
                 }
             }
 
+            if (Options.DryRun || deleted)
+            {
+                if (result.IsDirectory)
+                {
+                    context.Telemetry.ProcessedDirectoryCount++;
+                }
+                else
+                {
+                    context.Telemetry.ProcessedFileCount++;
+                }
+            }
+
             if (result.IsDirectory
-                && success)
+                && deleted)
             {
                 OnDirectoryChanged(new DirectoryChangedEventArgs(result.Path, null));
             }
@@ -153,7 +156,7 @@ namespace Orang.CommandLine
                 ? "Deleted directories content"
                 : "Deleted directories";
 
-            WriteProcessedFilesAndDirectories(telemetry, Options.SearchTarget, filesTitle, directoriesTitle, verbosity);
+            WriteProcessedFilesAndDirectories(telemetry, Options.SearchTarget, filesTitle, directoriesTitle, Options.DryRun, verbosity);
         }
     }
 }

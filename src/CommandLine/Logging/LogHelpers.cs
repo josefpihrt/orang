@@ -76,6 +76,7 @@ namespace Orang.CommandLine
             SearchTarget searchTarget,
             string processedFilesTitle,
             string processedDirectoriesTitle,
+            bool dryRun,
             Verbosity verbosity = Verbosity.Detailed)
         {
             if (!ShouldLog(verbosity))
@@ -99,28 +100,32 @@ namespace Orang.CommandLine
             int width3 = Math.Max(directoriesTitle.Length, processedDirectoriesTitle.Length);
             int width4 = Math.Max(matchingDirectoryCount.Length, processedDirectoryCount.Length);
 
+            ConsoleColors colors = Colors.Message_OK;
+
             if (files)
-                WriteCount(filesTitle, matchingFileCount, width1, width2, Colors.Message_OK, verbosity);
+                WriteCount(filesTitle, matchingFileCount, width1, width2, colors, verbosity);
 
             if (directories)
             {
                 if (files)
-                    Write("  ", Colors.Message_Change, verbosity);
+                    Write("  ", colors, verbosity);
 
-                WriteCount(directoriesTitle, matchingDirectoryCount, width3, width4, Colors.Message_OK, verbosity);
+                WriteCount(directoriesTitle, matchingDirectoryCount, width3, width4, colors, verbosity);
             }
 
             WriteLine(verbosity);
 
+            colors = (dryRun) ? Colors.Message_DryRun : Colors.Message_Change;
+
             if (files)
-                WriteCount(processedFilesTitle, processedFileCount, width1, width2, Colors.Message_Change, verbosity);
+                WriteCount(processedFilesTitle, processedFileCount, width1, width2, colors, verbosity);
 
             if (directories)
             {
                 if (files)
-                    Write("  ", Colors.Message_Change, verbosity);
+                    Write("  ", colors, verbosity);
 
-                WriteCount(processedDirectoriesTitle, processedDirectoryCount, width3, width4, Colors.Message_Change, verbosity);
+                WriteCount(processedDirectoriesTitle, processedDirectoryCount, width3, width4, colors, verbosity);
             }
 
             WriteLine(verbosity);

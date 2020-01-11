@@ -316,13 +316,10 @@ namespace Orang.CommandLine
                         Options.AskMode = AskMode.None;
                 }
 
-                if (!Options.DryRun)
-                {
-                    telemetry.ProcessedMatchCount += fileReplacementCount;
+                telemetry.ProcessedMatchCount += fileReplacementCount;
 
-                    if (fileReplacementCount > 0)
-                        telemetry.ProcessedFileCount++;
-                }
+                if (fileReplacementCount > 0)
+                    telemetry.ProcessedFileCount++;
             }
             catch (Exception ex) when (ex is IOException
                 || ex is UnauthorizedAccessException)
@@ -362,24 +359,28 @@ namespace Orang.CommandLine
             int width3 = Math.Max(matchingFilesTitle.Length, replacedFilesTitle.Length);
             int width4 = Math.Max(matchingFileCount.Length, processedFileCount.Length);
 
-            WriteCount(matchesTitle, matchCount, width1, width2, Colors.Message_OK, verbosity);
-            Write("  ", Colors.Message_OK, verbosity);
+            ConsoleColors colors = Colors.Message_OK;
+
+            WriteCount(matchesTitle, matchCount, width1, width2, colors, verbosity);
+            Write("  ", colors, verbosity);
 
             int matchingLinesWidth = 0;
             if (telemetry.MatchingLineCount >= 0)
             {
-                matchingLinesWidth += WriteCount("Matching lines", telemetry.MatchingLineCount, Colors.Message_OK, verbosity);
-                Write("  ", Colors.Message_OK, verbosity);
+                matchingLinesWidth += WriteCount("Matching lines", telemetry.MatchingLineCount, colors, verbosity);
+                Write("  ", colors, verbosity);
                 matchingLinesWidth += 2;
             }
 
-            WriteCount(matchingFilesTitle, matchingFileCount, width3, width4, Colors.Message_OK, verbosity);
+            WriteCount(matchingFilesTitle, matchingFileCount, width3, width4, colors, verbosity);
             WriteLine(verbosity);
 
-            WriteCount(replacementsTitle, processedMatchCount, width1, width2, Colors.Message_Change, verbosity);
-            Write("  ", Colors.Message_Change, verbosity);
-            Write(' ', matchingLinesWidth, Colors.Message_Change, verbosity);
-            WriteCount(replacedFilesTitle, processedFileCount, width3, width4, Colors.Message_Change, verbosity);
+            colors = (Options.DryRun) ? Colors.Message_DryRun : Colors.Message_Change;
+
+            WriteCount(replacementsTitle, processedMatchCount, width1, width2, colors, verbosity);
+            Write("  ", colors, verbosity);
+            Write(' ', matchingLinesWidth, colors, verbosity);
+            WriteCount(replacedFilesTitle, processedFileCount, width3, width4, colors, verbosity);
 
             WriteLine(verbosity);
         }

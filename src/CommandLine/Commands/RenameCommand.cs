@@ -122,7 +122,7 @@ namespace Orang.CommandLine
             if (string.Equals(path, newPath, StringComparison.Ordinal))
                 return;
 
-            bool success = false;
+            bool renamed = false;
 
             if (!Options.DryRun
                 && (!Options.Ask || AskToRename()))
@@ -138,16 +138,7 @@ namespace Orang.CommandLine
                         File.Move(path, newPath);
                     }
 
-                    if (result.IsDirectory)
-                    {
-                        context.Telemetry.ProcessedDirectoryCount++;
-                    }
-                    else
-                    {
-                        context.Telemetry.ProcessedFileCount++;
-                    }
-
-                    success = true;
+                    renamed = true;
                 }
                 catch (Exception ex) when (ex is IOException
                     || ex is UnauthorizedAccessException)
@@ -156,8 +147,20 @@ namespace Orang.CommandLine
                 }
             }
 
+            if (Options.DryRun || renamed)
+            {
+                if (result.IsDirectory)
+                {
+                    context.Telemetry.ProcessedDirectoryCount++;
+                }
+                else
+                {
+                    context.Telemetry.ProcessedFileCount++;
+                }
+            }
+
             if (result.IsDirectory
-                && success)
+                && renamed)
             {
                 OnDirectoryChanged(new DirectoryChangedEventArgs(path, newPath));
             }
@@ -254,7 +257,7 @@ namespace Orang.CommandLine
         protected override void WriteSummary(SearchTelemetry telemetry, Verbosity verbosity)
         {
             WriteSearchedFilesAndDirectories(telemetry, Options.SearchTarget, verbosity);
-            WriteProcessedFilesAndDirectories(telemetry, Options.SearchTarget, "Renamed files", "Renamed directories", verbosity);
+            WriteProcessedFilesAndDirectories(telemetry, Options.SearchTarget, "Renamed files", "Renamed directories", Options.DryRun, verbosity);
         }
     }
 }

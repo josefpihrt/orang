@@ -211,7 +211,7 @@ namespace Orang.CommandLine
             string path = result.Path;
             int matchIndex = result.Index;
 
-            (int startIndex, bool isWritten) = WritePathImpl(path, basePath, relativePath, colors, matchColors, matchIndex, indent, verbosity);
+            (int startIndex, bool isWritten) = WritePathImpl(path, basePath, relativePath, colors, stopAtMatch: !matchColors.IsDefault, matchIndex, indent, verbosity);
 
             if (!isWritten)
             {
@@ -230,13 +230,14 @@ namespace Orang.CommandLine
             bool relativePath,
             in ConsoleColors colors,
             in ConsoleColors matchColors,
+            in ConsoleColors replaceColors,
             string indent,
             Verbosity verbosity = Verbosity.Quiet)
         {
             string path = result.Path;
             int matchIndex = result.Part.Index + result.Index;
 
-            (int startIndex, bool isWritten) = WritePathImpl(path, basePath, relativePath, colors, matchColors, matchIndex, indent, verbosity);
+            (int startIndex, bool isWritten) = WritePathImpl(path, basePath, relativePath, colors, stopAtMatch: true, matchIndex, indent, verbosity);
 
             if (!isWritten)
             {
@@ -245,7 +246,12 @@ namespace Orang.CommandLine
                     Match match = item.Match;
 
                     Write(path, startIndex, result.Part.Index + match.Index - startIndex);
-                    Write(match.Value, matchColors);
+
+                    if (!matchColors.IsDefault)
+                        Write(match.Value, matchColors);
+
+                    Write(item.Value, replaceColors);
+
                     startIndex = result.Part.Index + match.Index + match.Length;
                 }
 
@@ -269,7 +275,7 @@ namespace Orang.CommandLine
             string basePath,
             bool relativePath,
             in ConsoleColors colors,
-            in ConsoleColors matchColors = default,
+            bool stopAtMatch = false,
             int matchIndex = -1,
             string indent = null,
             Verbosity verbosity = Verbosity.Quiet)
@@ -299,7 +305,7 @@ namespace Orang.CommandLine
             }
 
             if (matchIndex >= 0
-                && !matchColors.IsDefault)
+                && stopAtMatch)
             {
                 if (matchIndex < startIndex)
                 {

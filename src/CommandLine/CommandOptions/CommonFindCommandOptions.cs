@@ -16,7 +16,7 @@ namespace Orang.CommandLine
         {
         }
 
-        public ImmutableArray<string> Paths { get; internal set; }
+        public ImmutableArray<PathInfo> Paths { get; internal set; }
 
         public Filter NameFilter { get; internal set; }
 

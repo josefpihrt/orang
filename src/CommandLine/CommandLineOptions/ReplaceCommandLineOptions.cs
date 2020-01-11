@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Text.RegularExpressions;
 using CommandLine;
+using Orang.FileSystem;
 using static Orang.CommandLine.ParseHelpers;
 using static Orang.Logger;
 
@@ -158,7 +159,7 @@ namespace Orang.CommandLine
             return true;
         }
 
-        protected override bool TryParsePaths(out ImmutableArray<string> paths)
+        protected override bool TryParsePaths(out ImmutableArray<PathInfo> paths)
         {
             if (Path.Any()
                 && Input != null)

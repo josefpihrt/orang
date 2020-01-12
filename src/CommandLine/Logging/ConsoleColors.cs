@@ -6,7 +6,7 @@ using System.Diagnostics;
 namespace Orang
 {
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    internal readonly struct ConsoleColors
+    internal readonly struct ConsoleColors : IEquatable<ConsoleColors>
     {
         public ConsoleColors(ConsoleColor? foreground)
             : this(foreground, null)
@@ -27,5 +27,32 @@ namespace Orang
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private string DebuggerDisplay => $"{((Foreground != null) ? Foreground.ToString() : "None")}  {((Background != null) ? Background.ToString() : "None")}";
+
+        public override bool Equals(object obj)
+        {
+            return obj is ConsoleColors colors
+                && Equals(colors);
+        }
+
+        public bool Equals(ConsoleColors other)
+        {
+            return Foreground == other.Foreground
+                && Background == other.Background;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Foreground, Background);
+        }
+
+        public static bool operator ==(ConsoleColors left, ConsoleColors right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(ConsoleColors left, ConsoleColors right)
+        {
+            return !(left == right);
+        }
     }
 }

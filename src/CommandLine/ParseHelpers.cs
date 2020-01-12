@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -476,10 +477,8 @@ namespace Orang.CommandLine
         {
             filter = null;
 
-            if (!TryParseRegexOptions(options, optionName, out RegexOptions regexOptions, out PatternOptions patternOptions, provider))
+            if (!TryParseRegexOptions(options, optionName, out RegexOptions regexOptions, out PatternOptions patternOptions, includedPatternOptions, provider))
                 return false;
-
-            patternOptions |= includedPatternOptions;
 
             switch (patternOptions & (PatternOptions.WholeWord | PatternOptions.WholeLine | PatternOptions.WholeInput))
             {
@@ -618,22 +617,31 @@ namespace Orang.CommandLine
             }
         }
 
-        public static bool TryParseRegexOptions(IEnumerable<string> options, string optionsParameterName, out RegexOptions regexOptions)
-        {
-            return TryParseAsEnumFlags(options, optionsParameterName, out regexOptions, provider: OptionValueProviders.RegexOptionsProvider);
-        }
-
         internal static bool TryParseRegexOptions(
             IEnumerable<string> options,
             string optionsParameterName,
             out RegexOptions regexOptions,
             out PatternOptions patternOptions,
+            PatternOptions includedPatternOptions = PatternOptions.None,
             OptionValueProvider provider = null)
         {
             regexOptions = RegexOptions.None;
 
             if (!TryParseAsEnumFlags(options, optionsParameterName, out patternOptions, provider: provider ?? OptionValueProviders.PatternOptionsProvider))
                 return false;
+
+            Debug.Assert((patternOptions & (PatternOptions.CaseSensitive | PatternOptions.IgnoreCase)) != (PatternOptions.CaseSensitive | PatternOptions.IgnoreCase));
+
+            if ((patternOptions & PatternOptions.CaseSensitive) != 0)
+            {
+                includedPatternOptions &= ~PatternOptions.IgnoreCase;
+            }
+            else if ((patternOptions & PatternOptions.IgnoreCase) != 0)
+            {
+                includedPatternOptions &= ~PatternOptions.CaseSensitive;
+            }
+
+            patternOptions |= includedPatternOptions;
 
             if ((patternOptions & PatternOptions.Compiled) != 0)
                 regexOptions |= RegexOptions.Compiled;

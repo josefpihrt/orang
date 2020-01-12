@@ -24,5 +24,6 @@ namespace Orang.CommandLine
         WholeInput = 1 << 13,
         WholeLine = 1 << 14,
         WholeWord = 1 << 15,
+        CaseSensitive = 1 << 16,
     }
 }

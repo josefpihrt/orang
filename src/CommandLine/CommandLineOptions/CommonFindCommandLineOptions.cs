@@ -38,7 +38,7 @@ namespace Orang.CommandLine
         public string Encoding { get; set; }
 
         [Option(shortName: OptionShortNames.Extension, longName: OptionNames.Extension,
-            HelpText = "A filter for file extensions. Syntax is EXT1[,EXT2,...] [<EXTENSION_OPTIONS>].",
+            HelpText = "A filter for file extensions (case-insensitive by default). Syntax is EXT1[,EXT2,...] [<EXTENSION_OPTIONS>].",
             MetaValue = MetaValues.ExtensionFilter)]
         public IEnumerable<string> Extension { get; set; }
 
@@ -111,7 +111,7 @@ namespace Orang.CommandLine
                     out extensionFilter,
                     provider: OptionValueProviders.ExtensionOptionsProvider,
                     defaultNamePart: NamePartKind.Extension,
-                    includedPatternOptions: PatternOptions.List | PatternOptions.WholeInput))
+                    includedPatternOptions: PatternOptions.List | PatternOptions.WholeInput | PatternOptions.IgnoreCase))
             {
                 return false;
             }

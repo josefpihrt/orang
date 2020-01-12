@@ -54,9 +54,9 @@ namespace Orang.CommandLine
         );
 
         public static OptionValueProvider ExtensionOptionsProvider { get; } = new OptionValueProvider(MetaValues.ExtensionOptions,
+            OptionValues.PatternOptions_CaseSensitive,
             OptionValues.PatternOptions_CultureInvariant,
             OptionValues.PatternOptions_FromFile,
-            OptionValues.PatternOptions_IgnoreCase,
             OptionValues.ListSeparator,
             OptionValues.PatternOptions_Literal,
             OptionValues.PatternOptions_Negative,

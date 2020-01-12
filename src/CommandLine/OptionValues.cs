@@ -8,6 +8,7 @@ namespace Orang.CommandLine
         public static readonly SimpleOptionValue PathDisplayStyle_Relative = SimpleOptionValue.Create(PathDisplayStyle.Relative, description: "Display path relatively to the base directory.");
         public static readonly SimpleOptionValue PathDisplayStyle_Match = SimpleOptionValue.Create(PathDisplayStyle.Match, description: "Display only match.");
         public static readonly SimpleOptionValue PathDisplayStyle_Omit = SimpleOptionValue.Create(PathDisplayStyle.Omit, description: "Do not display path.");
+        public static readonly SimpleOptionValue PatternOptions_CaseSensitive = SimpleOptionValue.Create(PatternOptions.CaseSensitive, shortValue: "cs", helpValue: "c[ase-]s[ensitive]", description: "Use case-sensitive matching.");
         public static readonly SimpleOptionValue PatternOptions_Compiled = SimpleOptionValue.Create(PatternOptions.Compiled, shortValue: "", description: "Compile the regular expression to an assembly.");
         public static readonly SimpleOptionValue PatternOptions_CultureInvariant = SimpleOptionValue.Create(PatternOptions.CultureInvariant, shortValue: "ci", helpValue: "c[ulture-]i[nvariant]", description: "Ignore cultural differences between languages.");
         public static readonly SimpleOptionValue PatternOptions_ECMAScript = SimpleOptionValue.Create(PatternOptions.ECMAScript, value: "ecma-script", shortValue: "es", helpValue: "e[cma-]s[cript]", description: "Enable ECMAScript-compliant behavior for the expression.");

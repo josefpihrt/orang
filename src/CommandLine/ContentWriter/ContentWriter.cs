@@ -113,7 +113,7 @@ namespace Orang.CommandLine
         public static ContentWriter CreateReplace(
             ContentDisplayStyle contentDisplayStyle,
             string input,
-            MatchEvaluator evaluator,
+            ReplaceOptions replaceOptions,
             ContentWriterOptions options,
             TextWriter textWriter = null,
             MatchOutputInfo outputInfo = null)
@@ -122,11 +122,11 @@ namespace Orang.CommandLine
             {
                 case ContentDisplayStyle.Value:
                 case ContentDisplayStyle.ValueDetail:
-                    return new ValueReplacementWriter(input, evaluator, options, textWriter, outputInfo);
+                    return new ValueReplacementWriter(input, replaceOptions, options, textWriter, outputInfo);
                 case ContentDisplayStyle.Line:
-                    return new LineReplacementWriter(input, evaluator, options, textWriter);
+                    return new LineReplacementWriter(input, replaceOptions, options, textWriter);
                 case ContentDisplayStyle.AllLines:
-                    return new AllLinesReplacementWriter(input, evaluator, options, textWriter);
+                    return new AllLinesReplacementWriter(input, replaceOptions, options, textWriter);
                 case ContentDisplayStyle.UnmatchedLines:
                     throw new NotSupportedException($"Value '{contentDisplayStyle}' is not supported.");
                 default:

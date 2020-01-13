@@ -15,15 +15,15 @@ namespace Orang.CommandLine
 
         public LineReplacementWriter(
             string input,
-            MatchEvaluator matchEvaluator,
+            ReplaceOptions replaceOptions,
             ContentWriterOptions options = null,
             TextWriter textWriter = null) : base(input, options)
         {
-            MatchEvaluator = matchEvaluator;
+            ReplaceOptions = replaceOptions;
             _textWriter = textWriter;
         }
 
-        public MatchEvaluator MatchEvaluator { get; }
+        public ReplaceOptions ReplaceOptions { get; }
 
         protected override ValueWriter ValueWriter
         {
@@ -69,7 +69,7 @@ namespace Orang.CommandLine
         {
             var match = (Match)capture;
 
-            string result = MatchEvaluator(match);
+            string result = ReplaceOptions.Replace(match);
 
             WriteReplacement(match, result);
 

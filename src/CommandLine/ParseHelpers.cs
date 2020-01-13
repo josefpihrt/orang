@@ -174,6 +174,45 @@ namespace Orang.CommandLine
             }
         }
 
+        public static bool TryParseReplaceOptions(
+            IEnumerable<string> values,
+            string optionName,
+            string replacement,
+            MatchEvaluator matchEvaluator,
+            out ReplaceOptions replaceOptions)
+        {
+            replaceOptions = null;
+            var replaceFlags = ReplaceFlags.None;
+
+            if (values != null
+                && !TryParseAsEnumFlags(values, optionName, out replaceFlags, provider: OptionValueProviders.ReplaceFlagsProvider))
+            {
+                return false;
+            }
+
+            var functions = ReplaceFunctions.None;
+
+            if ((replaceFlags & ReplaceFlags.TrimStart) != 0)
+                functions |= ReplaceFunctions.TrimStart;
+
+            if ((replaceFlags & ReplaceFlags.TrimEnd) != 0)
+                functions |= ReplaceFunctions.TrimEnd;
+
+            if ((replaceFlags & ReplaceFlags.ToLower) != 0)
+                functions |= ReplaceFunctions.ToLower;
+
+            if ((replaceFlags & ReplaceFlags.ToUpper) != 0)
+                functions |= ReplaceFunctions.ToUpper;
+
+            replaceOptions = new ReplaceOptions(
+                replacement: replacement,
+                matchEvaluator: matchEvaluator,
+                functions: functions,
+                cultureInvariant: (replaceFlags & ReplaceFlags.CultureInvariant) != 0);
+
+            return true;
+        }
+
         public static bool TryParseDisplay(
             IEnumerable<string> values,
             string optionName,

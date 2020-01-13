@@ -188,7 +188,7 @@ namespace Orang.CommandLine
 
             foreach (Match match in matches)
             {
-                string value = Options.MatchEvaluator?.Invoke(match) ?? match.Result(Options.Replacement);
+                string value = Options.ReplaceOptions.Replace(match);
 
                 items.Add(new ReplaceItem(match, value, match.Index + offset));
 

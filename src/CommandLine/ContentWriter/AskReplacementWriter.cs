@@ -14,15 +14,15 @@ namespace Orang.CommandLine
 
         protected AskReplacementWriter(
             string input,
-            MatchEvaluator matchEvaluator,
+            ReplaceOptions replaceOptions,
             Lazy<TextWriter> lazyWriter,
             ContentWriterOptions options) : base(input, options)
         {
-            MatchEvaluator = matchEvaluator;
+            ReplaceOptions = replaceOptions;
             _lazyWriter = lazyWriter;
         }
 
-        public MatchEvaluator MatchEvaluator { get; }
+        public ReplaceOptions ReplaceOptions { get; }
 
         public int ReplacementCount { get; private set; }
 
@@ -31,7 +31,7 @@ namespace Orang.CommandLine
         public static AskReplacementWriter Create(
             ContentDisplayStyle contentDisplayStyle,
             string input,
-            MatchEvaluator matchEvaluator,
+            ReplaceOptions replaceOptions,
             Lazy<TextWriter> lazyWriter,
             ContentWriterOptions options,
             MatchOutputInfo outputInfo)
@@ -40,9 +40,9 @@ namespace Orang.CommandLine
             {
                 case ContentDisplayStyle.Value:
                 case ContentDisplayStyle.ValueDetail:
-                    return new AskValueReplacementWriter(input, matchEvaluator, lazyWriter, options, outputInfo);
+                    return new AskValueReplacementWriter(input, replaceOptions, lazyWriter, options, outputInfo);
                 case ContentDisplayStyle.Line:
-                    return new AskLineReplacementWriter(input, matchEvaluator, lazyWriter, options);
+                    return new AskLineReplacementWriter(input, replaceOptions, lazyWriter, options);
                 case ContentDisplayStyle.UnmatchedLines:
                 case ContentDisplayStyle.AllLines:
                     throw new InvalidOperationException();
@@ -88,7 +88,7 @@ namespace Orang.CommandLine
         {
             var match = (Match)capture;
 
-            string result = MatchEvaluator(match);
+            string result = ReplaceOptions.Replace(match);
 
             WriteReplacement(match, result);
         }
@@ -118,10 +118,10 @@ namespace Orang.CommandLine
         {
             public AskValueReplacementWriter(
                 string input,
-                MatchEvaluator matchEvaluator,
+                ReplaceOptions replaceOptions,
                 Lazy<TextWriter> lazyWriter,
                 ContentWriterOptions options,
-                MatchOutputInfo outputInfo) : base(input, matchEvaluator, lazyWriter, options)
+                MatchOutputInfo outputInfo) : base(input, replaceOptions, lazyWriter, options)
             {
                 OutputInfo = outputInfo;
             }
@@ -168,9 +168,9 @@ namespace Orang.CommandLine
 
             public AskLineReplacementWriter(
                 string input,
-                MatchEvaluator matchEvaluator,
+                ReplaceOptions replaceOptions,
                 Lazy<TextWriter> lazyWriter,
-                ContentWriterOptions options) : base(input, matchEvaluator, lazyWriter, options)
+                ContentWriterOptions options) : base(input, replaceOptions, lazyWriter, options)
             {
                 MatchingLineCount = 0;
             }

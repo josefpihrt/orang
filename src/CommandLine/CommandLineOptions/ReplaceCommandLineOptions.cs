@@ -46,6 +46,11 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.MaxOptions)]
         public IEnumerable<string> MaxCount { get; set; }
 
+        [Option(longName: OptionNames.Modify,
+            HelpText = "Functions to modify result.",
+            MetaValue = MetaValues.ReplaceModify)]
+        public IEnumerable<string> Modify { get; set; }
+
         [Option(shortName: OptionShortNames.Name, longName: OptionNames.Name,
             HelpText = "Regular expression for file or directory name. Syntax is <PATTERN> [<PATTERN_OPTIONS>].",
             MetaValue = MetaValues.Regex)]
@@ -85,6 +90,9 @@ namespace Orang.CommandLine
                 WriteError($"Options '{OptionNames.GetHelpText(OptionNames.Replacement)}' and '{OptionNames.GetHelpText(OptionNames.Evaluator)}' cannot be set both at the same time.");
                 return false;
             }
+
+            if (!TryParseReplaceOptions(Modify, OptionNames.Modify, replacement, matchEvaluator, out ReplaceOptions replaceOptions))
+                return false;
 
             if (!TryParseMaxCount(MaxCount, out int maxMatchesInFile, out int maxMatches, out int maxMatchingFiles))
                 return false;
@@ -148,8 +156,7 @@ namespace Orang.CommandLine
 
             options.HighlightOptions = highlightOptions;
             options.ContentFilter = contentFilter;
-            options.Replacement = replacement ?? "";
-            options.MatchEvaluator = matchEvaluator;
+            options.ReplaceOptions = replaceOptions;
             options.Input = Input;
             options.DryRun = DryRun;
             options.MaxMatchesInFile = maxMatchesInFile;

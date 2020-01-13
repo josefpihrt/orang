@@ -111,7 +111,7 @@ namespace Orang.CommandLine
                     out extensionFilter,
                     provider: OptionValueProviders.ExtensionOptionsProvider,
                     defaultNamePart: NamePartKind.Extension,
-                    includedPatternOptions: PatternOptions.List | PatternOptions.WholeInput | PatternOptions.IgnoreCase))
+                    includedPatternOptions: PatternOptions.List | PatternOptions.Equals | PatternOptions.IgnoreCase))
             {
                 return false;
             }

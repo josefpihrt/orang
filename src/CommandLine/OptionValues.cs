@@ -12,6 +12,8 @@ namespace Orang.CommandLine
         public static readonly SimpleOptionValue PatternOptions_Compiled = SimpleOptionValue.Create(PatternOptions.Compiled, shortValue: "", description: "Compile the regular expression to an assembly.");
         public static readonly SimpleOptionValue PatternOptions_CultureInvariant = SimpleOptionValue.Create(PatternOptions.CultureInvariant, shortValue: "ci", helpValue: "c[ulture-]i[nvariant]", description: "Ignore cultural differences between languages.");
         public static readonly SimpleOptionValue PatternOptions_ECMAScript = SimpleOptionValue.Create(PatternOptions.ECMAScript, value: "ecma-script", shortValue: "es", helpValue: "e[cma-]s[cript]", description: "Enable ECMAScript-compliant behavior for the expression.");
+        public static readonly SimpleOptionValue PatternOptions_EndsWith = SimpleOptionValue.Create(PatternOptions.EndsWith, shortValue: "ew", helpValue: "e[nds-]w[ith]", description: "Pattern should match from the end of the input string.");
+        public static readonly SimpleOptionValue PatternOptions_Equals = SimpleOptionValue.Create(PatternOptions.Equals, description: "Pattern should match whole input string.");
         public static readonly SimpleOptionValue PatternOptions_ExplicitCapture = SimpleOptionValue.Create(PatternOptions.ExplicitCapture, shortValue: "n", description: "Do not capture unnamed groups.");
         public static readonly SimpleOptionValue PatternOptions_FromFile = SimpleOptionValue.Create(PatternOptions.FromFile, description: "Load pattern from a file.");
         public static readonly SimpleOptionValue PatternOptions_IgnoreCase = SimpleOptionValue.Create(PatternOptions.IgnoreCase, description: "Use case-insensitive matching.");
@@ -22,7 +24,7 @@ namespace Orang.CommandLine
         public static readonly SimpleOptionValue PatternOptions_Negative = SimpleOptionValue.Create(PatternOptions.Negative, shortValue: "ne", description: "Search succeeds if the regular expression does not match.");
         public static readonly SimpleOptionValue PatternOptions_RightToLeft = SimpleOptionValue.Create(PatternOptions.RightToLeft, description: "Specifies that the search will be from right to left.");
         public static readonly SimpleOptionValue PatternOptions_Singleline = SimpleOptionValue.Create(PatternOptions.Singleline, description: "The period (.) matches every character (instead of every character except \\n).");
-        public static readonly SimpleOptionValue PatternOptions_WholeInput = SimpleOptionValue.Create(PatternOptions.WholeInput, shortValue: "wi", helpValue: "w[hole-]i[nput]", description: "Pattern should match whole input string.");
+        public static readonly SimpleOptionValue PatternOptions_StartsWith = SimpleOptionValue.Create(PatternOptions.StartsWith, shortValue: "sw", helpValue: "s[tarts-]w[ith]", description: "Pattern should match from the start of the input string.");
         public static readonly SimpleOptionValue PatternOptions_WholeLine = SimpleOptionValue.Create(PatternOptions.WholeLine, shortValue: "wl", helpValue: "w[hole-]l[ine]", description: "Pattern should match whole line.");
         public static readonly SimpleOptionValue PatternOptions_WholeWord = SimpleOptionValue.Create(PatternOptions.WholeWord, description: "Pattern should match whole word.");
         public static readonly SimpleOptionValue Display_Count = SimpleOptionValue.Create("Count", description: "Include number of matches in file.");

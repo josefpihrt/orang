@@ -480,18 +480,17 @@ namespace Orang.CommandLine
             if (!TryParseRegexOptions(options, optionName, out RegexOptions regexOptions, out PatternOptions patternOptions, includedPatternOptions, provider))
                 return false;
 
-            switch (patternOptions & (PatternOptions.WholeWord | PatternOptions.WholeLine | PatternOptions.WholeInput))
+            switch (patternOptions & (PatternOptions.WholeWord | PatternOptions.WholeLine))
             {
                 case PatternOptions.None:
                 case PatternOptions.WholeWord:
                 case PatternOptions.WholeLine:
-                case PatternOptions.WholeInput:
                     {
                         break;
                     }
                 default:
                     {
-                        WriteError($"Values '{OptionValueProviders.PatternOptionsProvider.GetValue(nameof(PatternOptions.WholeWord)).HelpValue}', '{OptionValueProviders.PatternOptionsProvider.GetValue(nameof(PatternOptions.WholeLine)).HelpValue}' and '{OptionValueProviders.PatternOptionsProvider.GetValue(nameof(PatternOptions.WholeInput)).HelpValue}' cannot be combined.");
+                        WriteError($"Values '{OptionValueProviders.PatternOptionsProvider.GetValue(nameof(PatternOptions.WholeWord)).HelpValue}' and '{OptionValueProviders.PatternOptionsProvider.GetValue(nameof(PatternOptions.WholeLine)).HelpValue}' cannot be combined.");
                         return false;
                     }
             }
@@ -526,9 +525,18 @@ namespace Orang.CommandLine
             {
                 pattern = @"(?:\A|(?<=\n))(?:" + pattern + @")(?:\z|(?=\r?\n))";
             }
-            else if ((patternOptions & PatternOptions.WholeInput) != 0)
+
+            if ((patternOptions & PatternOptions.Equals) == PatternOptions.Equals)
             {
                 pattern = @"\A(?:" + pattern + @")\z";
+            }
+            else if ((patternOptions & PatternOptions.StartsWith) != 0)
+            {
+                pattern = @"\A(?:" + pattern + ")";
+            }
+            else if ((patternOptions & PatternOptions.EndsWith) != 0)
+            {
+                pattern = "(?:" + pattern + @")\z";
             }
 
             if (!TryParseRegex(pattern, regexOptions, matchTimeout, optionName, out Regex regex))

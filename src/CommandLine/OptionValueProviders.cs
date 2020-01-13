@@ -18,6 +18,8 @@ namespace Orang.CommandLine
             OptionValues.PatternOptions_Compiled,
             OptionValues.PatternOptions_CultureInvariant,
             OptionValues.PatternOptions_ECMAScript,
+            OptionValues.PatternOptions_EndsWith,
+            OptionValues.PatternOptions_Equals,
             OptionValues.PatternOptions_ExplicitCapture,
             OptionValues.PatternOptions_FromFile,
             OptionValues.Group,
@@ -32,8 +34,8 @@ namespace Orang.CommandLine
             OptionValues.Part,
             OptionValues.PatternOptions_RightToLeft,
             OptionValues.PatternOptions_Singleline,
+            OptionValues.PatternOptions_StartsWith,
             OptionValues.Timeout,
-            OptionValues.PatternOptions_WholeInput,
             OptionValues.PatternOptions_WholeLine,
             OptionValues.PatternOptions_WholeWord
         );

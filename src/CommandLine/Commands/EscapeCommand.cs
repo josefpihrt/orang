@@ -5,14 +5,11 @@ using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
-    internal class EscapeCommand : AbstractCommand
+    internal class EscapeCommand : AbstractCommand<EscapeCommandOptions>
     {
-        public EscapeCommand(EscapeCommandOptions options)
+        public EscapeCommand(EscapeCommandOptions options) : base(options)
         {
-            Options = options;
         }
-
-        public EscapeCommandOptions Options { get; }
 
         protected override CommandResult ExecuteCore(CancellationToken cancellationToken = default)
         {

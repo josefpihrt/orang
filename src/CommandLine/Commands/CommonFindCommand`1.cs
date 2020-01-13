@@ -14,16 +14,13 @@ using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
-    internal abstract class CommonFindCommand<TOptions> : AbstractCommand where TOptions : CommonFindCommandOptions
+    internal abstract class CommonFindCommand<TOptions> : AbstractCommand<TOptions> where TOptions : CommonFindCommandOptions
     {
-        protected CommonFindCommand(TOptions options)
+        protected CommonFindCommand(TOptions options) : base(options)
         {
-            Options = options;
         }
 
         private FileSystemFinderOptions _finderOptions;
-
-        public TOptions Options { get; }
 
         protected FileSystemFinderOptions FinderOptions => _finderOptions ?? (_finderOptions = CreateFinderOptions());
 

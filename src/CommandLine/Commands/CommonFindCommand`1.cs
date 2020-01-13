@@ -14,16 +14,13 @@ using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
-    internal abstract class CommonFindCommand<TOptions> : AbstractCommand where TOptions : CommonFindCommandOptions
+    internal abstract class CommonFindCommand<TOptions> : AbstractCommand<TOptions> where TOptions : CommonFindCommandOptions
     {
-        protected CommonFindCommand(TOptions options)
+        protected CommonFindCommand(TOptions options) : base(options)
         {
-            Options = options;
         }
 
         private FileSystemFinderOptions _finderOptions;
-
-        public TOptions Options { get; }
 
         protected FileSystemFinderOptions FinderOptions => _finderOptions ?? (_finderOptions = CreateFinderOptions());
 
@@ -97,9 +94,9 @@ namespace Orang.CommandLine
         {
             Stopwatch stopwatch = Stopwatch.StartNew();
 
-            foreach (string path in Options.Paths)
+            foreach (PathInfo pathInfo in Options.Paths)
             {
-                ExecuteCore(path, context);
+                ExecuteCore(pathInfo.Path, context);
 
                 if (context.TerminationReason == TerminationReason.MaxReached)
                     break;
@@ -134,7 +131,7 @@ namespace Orang.CommandLine
                 {
                     context.Telemetry.Elapsed = stopwatch.Elapsed;
 
-                    WriteSummary(context.Telemetry, (Options.IncludeSummary) ? Verbosity.Minimal : Verbosity.Detailed);
+                    WriteSummary(context.Telemetry, (Options.IncludeSummary) ? Verbosity.Quiet : Verbosity.Detailed);
                 }
             }
         }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using CommandLine;
+using Orang.FileSystem;
 using static Orang.CommandLine.ParseHelpers;
 
 namespace Orang.CommandLine
@@ -41,7 +42,6 @@ namespace Orang.CommandLine
         public int MaxCount { get; set; }
 
         [Option(shortName: OptionShortNames.Name, longName: OptionNames.Name,
-            Required = true,
             HelpText = "Regular expression for file or directory name. Syntax is <PATTERN> [<PATTERN_OPTIONS>].",
             MetaValue = MetaValues.Regex)]
         public IEnumerable<string> Name { get; set; }
@@ -58,8 +58,21 @@ namespace Orang.CommandLine
             if (!TryParseAsEnumFlags(Highlight, OptionNames.Highlight, out HighlightOptions highlightOptions, defaultValue: HighlightOptions.Default, provider: OptionValueProviders.DeleteHighlightOptionsProvider))
                 return false;
 
-            if (!TryParseFilter(Name, OptionNames.Name, out Filter nameFilter))
+            Filter nameFilter = null;
+
+            if (Name.Any()
+                && !TryParseFilter(Name, OptionNames.Name, out nameFilter))
+            {
                 return false;
+            }
+
+            if (nameFilter == null
+                && options.Paths.Length == 1
+                && options.Paths[0].Origin == PathOrigin.CurrentDirectory)
+            {
+                Logger.WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Name)}' is required when no path is specified (i.e. current directory is used).");
+                return false;
+            }
 
             Filter contentFilter = null;
 

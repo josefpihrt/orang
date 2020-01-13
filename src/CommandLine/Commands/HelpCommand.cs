@@ -5,14 +5,11 @@ using System.Threading;
 
 namespace Orang.CommandLine
 {
-    internal class HelpCommand : AbstractCommand
+    internal class HelpCommand : AbstractCommand<HelpCommandOptions>
     {
-        public HelpCommand(HelpCommandOptions options)
+        public HelpCommand(HelpCommandOptions options) : base(options)
         {
-            Options = options;
         }
-
-        public HelpCommandOptions Options { get; }
 
         protected override CommandResult ExecuteCore(CancellationToken cancellationToken = default)
         {

@@ -48,7 +48,7 @@ namespace Orang.CommandLine
         {
             foreach (FileSystemFinderResult result in Find(directoryPath, context, notifyDirectoryChanged: this))
             {
-                Debug.Assert(result.Path.StartsWith(directoryPath, StringComparison.OrdinalIgnoreCase), $"{directoryPath}\r\n{result.Path}");
+                Debug.Assert(result.Path.StartsWith(directoryPath, FileSystemHelpers.Comparison), $"{directoryPath}\r\n{result.Path}");
 
                 ProcessResult(result, context, directoryPath);
 
@@ -106,69 +106,23 @@ namespace Orang.CommandLine
                     relativePath: Options.DisplayRelativePath,
                     colors: Colors.Matched_Path,
                     matchColors: (Options.HighlightMatch) ? Colors.Match : default,
+                    replaceColors: (Options.HighlightReplacement) ? Colors.Replacement : default,
                     indent: indent,
                     verbosity: Verbosity.Minimal);
 
                 WriteProperties(context, result, columnWidths);
-
                 WriteLine(Verbosity.Minimal);
             }
 
             string path = result.Path;
-            NamePart part = result.Part;
-
             string newPath = GetNewPath(result, replaceItems);
-
-            bool noChange = string.Equals(path, newPath, StringComparison.Ordinal);
-
-            int fileNameIndex = part.GetFileNameIndex();
-
-            int indentCount = fileNameIndex;
-
-            if (Options.DisplayRelativePath
-                && baseDirectoryPath != null
-                && path.StartsWith(baseDirectoryPath, StringComparison.OrdinalIgnoreCase))
-            {
-                indentCount -= baseDirectoryPath.Length;
-
-                if (fileNameIndex > 0
-                    && FileSystemHelpers.IsDirectorySeparator(path[fileNameIndex - 1]))
-                {
-                    indentCount--;
-                }
-            }
-
-            indentCount += indent?.Length ?? 0;
-
-            if (!Options.OmitPath)
-            {
-                Write(' ', indentCount);
-                Write(path, fileNameIndex, part.Index - fileNameIndex);
-
-                int lastPos = part.Index;
-
-                foreach (ReplaceItem item in replaceItems)
-                {
-                    Write(path, lastPos, part.Index + item.Match.Index - lastPos);
-                    Write(item.Value, (Options.HighlightReplacement) ? Colors.Replacement : default);
-                    lastPos = part.Index + item.Match.Index + item.Match.Length;
-                }
-
-                Write(path, lastPos, part.EndIndex - lastPos);
-                Write(path, part.EndIndex, path.Length - part.EndIndex);
-
-                if (noChange)
-                    Write(" NO CHANGE", Colors.Message_Warning);
-
-                WriteLine();
-            }
 
             ListCache<ReplaceItem>.Free(replaceItems);
 
-            if (noChange)
+            if (string.Equals(path, newPath, StringComparison.Ordinal))
                 return;
 
-            bool success = false;
+            bool renamed = false;
 
             if (!Options.DryRun
                 && (!Options.Ask || AskToRename()))
@@ -184,16 +138,7 @@ namespace Orang.CommandLine
                         File.Move(path, newPath);
                     }
 
-                    if (result.IsDirectory)
-                    {
-                        context.Telemetry.ProcessedDirectoryCount++;
-                    }
-                    else
-                    {
-                        context.Telemetry.ProcessedFileCount++;
-                    }
-
-                    success = true;
+                    renamed = true;
                 }
                 catch (Exception ex) when (ex is IOException
                     || ex is UnauthorizedAccessException)
@@ -202,8 +147,20 @@ namespace Orang.CommandLine
                 }
             }
 
+            if (Options.DryRun || renamed)
+            {
+                if (result.IsDirectory)
+                {
+                    context.Telemetry.ProcessedDirectoryCount++;
+                }
+                else
+                {
+                    context.Telemetry.ProcessedFileCount++;
+                }
+            }
+
             if (result.IsDirectory
-                && success)
+                && renamed)
             {
                 OnDirectoryChanged(new DirectoryChangedEventArgs(path, newPath));
             }
@@ -231,7 +188,7 @@ namespace Orang.CommandLine
 
             foreach (Match match in matches)
             {
-                string value = Options.MatchEvaluator?.Invoke(match) ?? match.Result(Options.Replacement);
+                string value = Options.ReplaceOptions.Replace(match);
 
                 items.Add(new ReplaceItem(match, value, match.Index + offset));
 
@@ -300,7 +257,7 @@ namespace Orang.CommandLine
         protected override void WriteSummary(SearchTelemetry telemetry, Verbosity verbosity)
         {
             WriteSearchedFilesAndDirectories(telemetry, Options.SearchTarget, verbosity);
-            WriteProcessedFilesAndDirectories(telemetry, Options.SearchTarget, "Renamed files", "Renamed directories", verbosity);
+            WriteProcessedFilesAndDirectories(telemetry, Options.SearchTarget, "Renamed files", "Renamed directories", Options.DryRun, verbosity);
         }
     }
 }

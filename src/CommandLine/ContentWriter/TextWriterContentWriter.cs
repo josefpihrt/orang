@@ -13,15 +13,15 @@ namespace Orang.CommandLine
 
         public TextWriterContentWriter(
             string input,
-            MatchEvaluator matchEvaluator,
+            ReplaceOptions replaceOptions,
             TextWriter textWriter,
             ContentWriterOptions options = null) : base(input, options)
         {
-            MatchEvaluator = matchEvaluator;
+            ReplaceOptions = replaceOptions;
             _textWriter = textWriter;
         }
 
-        public MatchEvaluator MatchEvaluator { get; }
+        public ReplaceOptions ReplaceOptions { get; }
 
         protected override ValueWriter ValueWriter => throw new NotSupportedException();
 
@@ -38,7 +38,7 @@ namespace Orang.CommandLine
         {
             _textWriter.Write(Input.AsSpan(_writerIndex, capture.Index - _writerIndex));
 
-            string result = MatchEvaluator((Match)capture);
+            string result = ReplaceOptions.Replace((Match)capture);
 
             _textWriter.Write(result);
 

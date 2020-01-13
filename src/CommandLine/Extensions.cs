@@ -25,7 +25,7 @@ namespace Orang
 
             int startIndex = 0;
 
-            if (string.Equals(path, basePath, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(path, basePath, FileSystemHelpers.Comparison))
             {
                 writer.Write((relativePath) ? "." : path, verbosity);
                 return;
@@ -33,7 +33,7 @@ namespace Orang
 
             if (basePath != null
                 && path.Length > basePath.Length
-                && path.StartsWith(basePath, StringComparison.OrdinalIgnoreCase))
+                && path.StartsWith(basePath, FileSystemHelpers.Comparison))
             {
                 startIndex = basePath.Length;
 

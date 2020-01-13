@@ -2,7 +2,7 @@
 
 namespace Orang.CommandLine
 {
-    internal abstract class CommonRegexCommandOptions
+    internal abstract class CommonRegexCommandOptions : AbstractCommandOptions
     {
         internal CommonRegexCommandOptions()
         {

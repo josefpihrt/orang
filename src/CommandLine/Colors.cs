@@ -17,6 +17,7 @@ namespace Orang
         public static ConsoleColors Matched_Path { get; } = new ConsoleColors(ConsoleColor.Cyan);
         public static ConsoleColors Message_OK { get; } = new ConsoleColors(ConsoleColor.Green);
         public static ConsoleColors Message_Change { get; } = new ConsoleColors(ConsoleColor.Cyan);
+        public static ConsoleColors Message_DryRun { get; } = new ConsoleColors(ConsoleColor.DarkGray);
         public static ConsoleColors Message_Warning { get; } = new ConsoleColors(ConsoleColor.Yellow);
         public static ConsoleColors Path_Progress { get; } = new ConsoleColors(ConsoleColor.DarkGray);
         public static ConsoleColors Replacement { get; } = new ConsoleColors(ConsoleColor.Black, ConsoleColor.Cyan);

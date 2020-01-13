@@ -27,6 +27,7 @@ namespace Orang.CommandLine
         public const string RegexOptions = "<REGEX_OPTIONS>";
         public const string Replacement = "<REPLACEMENT>";
         public const string ReplacementOptions = "<REPLACEMENT_OPTIONS>";
+        public const string ReplaceModify = "<REPLACE_MODIFY>";
         public const string SyntaxSections = "<SYNTAX_SECTIONS>";
         public const string Verbosity = "<VERBOSITY>";
     }

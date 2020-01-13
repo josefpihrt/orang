@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -171,6 +172,45 @@ namespace Orang.CommandLine
             {
                 (descriptors ?? (descriptors = new List<SortDescriptor>())).Add(new SortDescriptor(p, d));
             }
+        }
+
+        public static bool TryParseReplaceOptions(
+            IEnumerable<string> values,
+            string optionName,
+            string replacement,
+            MatchEvaluator matchEvaluator,
+            out ReplaceOptions replaceOptions)
+        {
+            replaceOptions = null;
+            var replaceFlags = ReplaceFlags.None;
+
+            if (values != null
+                && !TryParseAsEnumFlags(values, optionName, out replaceFlags, provider: OptionValueProviders.ReplaceFlagsProvider))
+            {
+                return false;
+            }
+
+            var functions = ReplaceFunctions.None;
+
+            if ((replaceFlags & ReplaceFlags.TrimStart) != 0)
+                functions |= ReplaceFunctions.TrimStart;
+
+            if ((replaceFlags & ReplaceFlags.TrimEnd) != 0)
+                functions |= ReplaceFunctions.TrimEnd;
+
+            if ((replaceFlags & ReplaceFlags.ToLower) != 0)
+                functions |= ReplaceFunctions.ToLower;
+
+            if ((replaceFlags & ReplaceFlags.ToUpper) != 0)
+                functions |= ReplaceFunctions.ToUpper;
+
+            replaceOptions = new ReplaceOptions(
+                replacement: replacement,
+                matchEvaluator: matchEvaluator,
+                functions: functions,
+                cultureInvariant: (replaceFlags & ReplaceFlags.CultureInvariant) != 0);
+
+            return true;
         }
 
         public static bool TryParseDisplay(
@@ -476,23 +516,20 @@ namespace Orang.CommandLine
         {
             filter = null;
 
-            if (!TryParseRegexOptions(options, optionName, out RegexOptions regexOptions, out PatternOptions patternOptions, provider))
+            if (!TryParseRegexOptions(options, optionName, out RegexOptions regexOptions, out PatternOptions patternOptions, includedPatternOptions, provider))
                 return false;
 
-            patternOptions |= includedPatternOptions;
-
-            switch (patternOptions & (PatternOptions.WholeWord | PatternOptions.WholeLine | PatternOptions.WholeInput))
+            switch (patternOptions & (PatternOptions.WholeWord | PatternOptions.WholeLine))
             {
                 case PatternOptions.None:
                 case PatternOptions.WholeWord:
                 case PatternOptions.WholeLine:
-                case PatternOptions.WholeInput:
                     {
                         break;
                     }
                 default:
                     {
-                        WriteError($"Values '{OptionValueProviders.PatternOptionsProvider.GetValue(nameof(PatternOptions.WholeWord)).HelpValue}', '{OptionValueProviders.PatternOptionsProvider.GetValue(nameof(PatternOptions.WholeLine)).HelpValue}' and '{OptionValueProviders.PatternOptionsProvider.GetValue(nameof(PatternOptions.WholeInput)).HelpValue}' cannot be combined.");
+                        WriteError($"Values '{OptionValueProviders.PatternOptionsProvider.GetValue(nameof(PatternOptions.WholeWord)).HelpValue}' and '{OptionValueProviders.PatternOptionsProvider.GetValue(nameof(PatternOptions.WholeLine)).HelpValue}' cannot be combined.");
                         return false;
                     }
             }
@@ -527,9 +564,18 @@ namespace Orang.CommandLine
             {
                 pattern = @"(?:\A|(?<=\n))(?:" + pattern + @")(?:\z|(?=\r?\n))";
             }
-            else if ((patternOptions & PatternOptions.WholeInput) != 0)
+
+            if ((patternOptions & PatternOptions.Equals) == PatternOptions.Equals)
             {
                 pattern = @"\A(?:" + pattern + @")\z";
+            }
+            else if ((patternOptions & PatternOptions.StartsWith) != 0)
+            {
+                pattern = @"\A(?:" + pattern + ")";
+            }
+            else if ((patternOptions & PatternOptions.EndsWith) != 0)
+            {
+                pattern = "(?:" + pattern + @")\z";
             }
 
             if (!TryParseRegex(pattern, regexOptions, matchTimeout, optionName, out Regex regex))
@@ -618,22 +664,31 @@ namespace Orang.CommandLine
             }
         }
 
-        public static bool TryParseRegexOptions(IEnumerable<string> options, string optionsParameterName, out RegexOptions regexOptions)
-        {
-            return TryParseAsEnumFlags(options, optionsParameterName, out regexOptions, provider: OptionValueProviders.RegexOptionsProvider);
-        }
-
         internal static bool TryParseRegexOptions(
             IEnumerable<string> options,
             string optionsParameterName,
             out RegexOptions regexOptions,
             out PatternOptions patternOptions,
+            PatternOptions includedPatternOptions = PatternOptions.None,
             OptionValueProvider provider = null)
         {
             regexOptions = RegexOptions.None;
 
             if (!TryParseAsEnumFlags(options, optionsParameterName, out patternOptions, provider: provider ?? OptionValueProviders.PatternOptionsProvider))
                 return false;
+
+            Debug.Assert((patternOptions & (PatternOptions.CaseSensitive | PatternOptions.IgnoreCase)) != (PatternOptions.CaseSensitive | PatternOptions.IgnoreCase));
+
+            if ((patternOptions & PatternOptions.CaseSensitive) != 0)
+            {
+                includedPatternOptions &= ~PatternOptions.IgnoreCase;
+            }
+            else if ((patternOptions & PatternOptions.IgnoreCase) != 0)
+            {
+                includedPatternOptions &= ~PatternOptions.CaseSensitive;
+            }
+
+            patternOptions |= includedPatternOptions;
 
             if ((patternOptions & PatternOptions.Compiled) != 0)
                 regexOptions |= RegexOptions.Compiled;

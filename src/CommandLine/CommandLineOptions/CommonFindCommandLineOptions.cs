@@ -38,7 +38,7 @@ namespace Orang.CommandLine
         public string Encoding { get; set; }
 
         [Option(shortName: OptionShortNames.Extension, longName: OptionNames.Extension,
-            HelpText = "A filter for file extensions. Syntax is EXT1[,EXT2,...] [<EXTENSION_OPTIONS>].",
+            HelpText = "A filter for file extensions (case-insensitive by default). Syntax is EXT1[,EXT2,...] [<EXTENSION_OPTIONS>].",
             MetaValue = MetaValues.ExtensionFilter)]
         public IEnumerable<string> Extension { get; set; }
 
@@ -79,7 +79,7 @@ namespace Orang.CommandLine
 
             options = (CommonFindCommandOptions)baseOptions;
 
-            if (!TryParsePaths(out ImmutableArray<string> paths))
+            if (!TryParsePaths(out ImmutableArray<PathInfo> paths))
                 return false;
 
             if (!TryParseAsEnumFlags(Attributes, OptionNames.Attributes, out FileSystemAttributes attributes, provider: OptionValueProviders.FileSystemAttributesProvider))
@@ -111,7 +111,7 @@ namespace Orang.CommandLine
                     out extensionFilter,
                     provider: OptionValueProviders.ExtensionOptionsProvider,
                     defaultNamePart: NamePartKind.Extension,
-                    includedPatternOptions: PatternOptions.List | PatternOptions.WholeInput))
+                    includedPatternOptions: PatternOptions.List | PatternOptions.Equals | PatternOptions.IgnoreCase))
             {
                 return false;
             }
@@ -155,17 +155,17 @@ namespace Orang.CommandLine
             return true;
         }
 
-        protected virtual bool TryParsePaths(out ImmutableArray<string> paths)
+        protected virtual bool TryParsePaths(out ImmutableArray<PathInfo> paths)
         {
-            paths = ImmutableArray<string>.Empty;
+            paths = ImmutableArray<PathInfo>.Empty;
 
             if (Path.Any()
-                && !TryEnsureFullPath(Path, out paths))
+                && !TryEnsureFullPath(Path, PathOrigin.Argument, out paths))
             {
                 return false;
             }
 
-            ImmutableArray<string> pathsFromFile = ImmutableArray<string>.Empty;
+            ImmutableArray<PathInfo> pathsFromFile = ImmutableArray<PathInfo>.Empty;
 
             if (PathsFrom != null)
             {
@@ -174,7 +174,7 @@ namespace Orang.CommandLine
 
                 IEnumerable<string> lines = TextHelpers.ReadLines(content).Where(f => !string.IsNullOrWhiteSpace(f));
 
-                if (!TryEnsureFullPath(lines, out pathsFromFile))
+                if (!TryEnsureFullPath(lines, PathOrigin.File, out pathsFromFile))
                     return false;
 
                 paths = paths.AddRange(pathsFromFile);
@@ -182,16 +182,33 @@ namespace Orang.CommandLine
 
             if (Console.IsInputRedirected)
             {
-                ImmutableArray<string> pathsFromInput = ConsoleHelpers.ReadRedirectedInputAsLines()
+                ImmutableArray<PathInfo> pathsFromInput = ConsoleHelpers.ReadRedirectedInputAsLines()
                    .Where(f => !string.IsNullOrEmpty(f))
+                   .Select(f => new PathInfo(f, PathOrigin.RedirectedInput))
                    .ToImmutableArray();
 
                 paths = paths.AddRange(pathsFromInput);
             }
 
             if (paths.IsEmpty)
-                paths = ImmutableArray.Create(Environment.CurrentDirectory);
+                paths = ImmutableArray.Create(new PathInfo(Environment.CurrentDirectory, PathOrigin.CurrentDirectory));
 
+            return true;
+        }
+
+        private static bool TryEnsureFullPath(IEnumerable<string> paths, PathOrigin kind, out ImmutableArray<PathInfo> fullPaths)
+        {
+            ImmutableArray<PathInfo>.Builder builder = ImmutableArray.CreateBuilder<PathInfo>();
+
+            foreach (string path in paths)
+            {
+                if (!ParseHelpers.TryEnsureFullPath(path, out string fullPath))
+                    return false;
+
+                builder.Add(new PathInfo(fullPath, kind));
+            }
+
+            fullPaths = builder.ToImmutableArray();
             return true;
         }
 

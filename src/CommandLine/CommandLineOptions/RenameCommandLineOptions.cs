@@ -41,6 +41,11 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.Num)]
         public int MaxCount { get; set; }
 
+        [Option(longName: OptionNames.Modify,
+            HelpText = "Functions to modify result.",
+            MetaValue = MetaValues.ReplaceModify)]
+        public IEnumerable<string> Modify { get; set; }
+
         [Option(shortName: OptionShortNames.Name, longName: OptionNames.Name,
             Required = true,
             HelpText = "Regular expression for file or directory name. Syntax is <PATTERN> [<PATTERN_OPTIONS>].",
@@ -61,7 +66,7 @@ namespace Orang.CommandLine
 
             options = (RenameCommandOptions)baseOptions;
 
-            if (!TryParseAsEnumFlags(Highlight, OptionNames.Highlight, out HighlightOptions highlightOptions, defaultValue: HighlightOptions.Default | HighlightOptions.Replacement, provider: OptionValueProviders.RenameHighlightOptionsProvider))
+            if (!TryParseAsEnumFlags(Highlight, OptionNames.Highlight, out HighlightOptions highlightOptions, defaultValue: HighlightOptions.Replacement, provider: OptionValueProviders.RenameHighlightOptionsProvider))
                 return false;
 
             if (!TryParseFilter(Name, OptionNames.Name, out Filter nameFilter, provider: OptionValueProviders.PatternOptionsWithoutGroupAndNegativeProvider))
@@ -92,6 +97,9 @@ namespace Orang.CommandLine
                 WriteError($"Options '{OptionNames.GetHelpText(OptionNames.Replacement)}' and '{OptionNames.GetHelpText(OptionNames.Evaluator)}' cannot be set both at the same time.");
                 return false;
             }
+
+            if (!TryParseReplaceOptions(Modify, OptionNames.Modify, replacement, matchEvaluator, out ReplaceOptions replaceOptions))
+                return false;
 
             if (!TryParseDisplay(
                 values: Display,
@@ -127,12 +135,11 @@ namespace Orang.CommandLine
 
             options.HighlightOptions = highlightOptions;
             options.SearchTarget = GetSearchTarget();
-            options.Replacement = replacement ?? "";
+            options.ReplaceOptions = replaceOptions;
             options.Ask = Ask;
             options.DryRun = DryRun;
             options.NameFilter = nameFilter;
             options.ContentFilter = contentFilter;
-            options.MatchEvaluator = matchEvaluator;
             options.MaxMatchingFiles = MaxCount;
 
             return true;

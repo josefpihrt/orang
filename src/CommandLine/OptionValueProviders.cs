@@ -18,6 +18,8 @@ namespace Orang.CommandLine
             OptionValues.PatternOptions_Compiled,
             OptionValues.PatternOptions_CultureInvariant,
             OptionValues.PatternOptions_ECMAScript,
+            OptionValues.PatternOptions_EndsWith,
+            OptionValues.PatternOptions_Equals,
             OptionValues.PatternOptions_ExplicitCapture,
             OptionValues.PatternOptions_FromFile,
             OptionValues.Group,
@@ -32,8 +34,8 @@ namespace Orang.CommandLine
             OptionValues.Part,
             OptionValues.PatternOptions_RightToLeft,
             OptionValues.PatternOptions_Singleline,
+            OptionValues.PatternOptions_StartsWith,
             OptionValues.Timeout,
-            OptionValues.PatternOptions_WholeInput,
             OptionValues.PatternOptions_WholeLine,
             OptionValues.PatternOptions_WholeWord
         );
@@ -54,9 +56,9 @@ namespace Orang.CommandLine
         );
 
         public static OptionValueProvider ExtensionOptionsProvider { get; } = new OptionValueProvider(MetaValues.ExtensionOptions,
+            OptionValues.PatternOptions_CaseSensitive,
             OptionValues.PatternOptions_CultureInvariant,
             OptionValues.PatternOptions_FromFile,
-            OptionValues.PatternOptions_IgnoreCase,
             OptionValues.ListSeparator,
             OptionValues.PatternOptions_Literal,
             OptionValues.PatternOptions_Negative,
@@ -336,6 +338,15 @@ namespace Orang.CommandLine
             OptionValues.FileProperty_CreationTime,
             OptionValues.FileProperty_ModifiedTime,
             OptionValues.FileProperty_Size
+        );
+
+        public static OptionValueProvider ReplaceFlagsProvider { get; } = new OptionValueProvider(MetaValues.ReplaceModify,
+            SimpleOptionValue.Create(ReplaceFlags.CultureInvariant, shortValue: "ci", description: "Ignore cultural differences between languages."),
+            SimpleOptionValue.Create(ReplaceFlags.ToLower, shortValue: "tl", description: "Convert value to lowercase."),
+            SimpleOptionValue.Create(ReplaceFlags.ToUpper, shortValue: "tu", description: "Convert value to uppercase."),
+            SimpleOptionValue.Create(ReplaceFlags.Trim, description: "Trim leading and trailing white-space."),
+            SimpleOptionValue.Create(ReplaceFlags.TrimEnd, shortValue: "te", description: "Trim trailing white-space."),
+            SimpleOptionValue.Create(ReplaceFlags.TrimStart, shortValue: "ts", description: "Trim leading white-space.")
         );
 
         public static ImmutableDictionary<string, OptionValueProvider> ProvidersByName

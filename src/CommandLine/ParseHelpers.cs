@@ -174,6 +174,113 @@ namespace Orang.CommandLine
             }
         }
 
+        public static bool TryParseModifyOptions(
+            IEnumerable<string> values,
+            string optionName,
+            out ModifyOptions modifyOptions,
+            out bool aggregateOnly)
+        {
+            modifyOptions = null;
+            aggregateOnly = false;
+
+            var sortProperty = ValueSortProperty.None;
+            List<string> options = null;
+
+            foreach (string value in values)
+            {
+                int index = value.IndexOf('=');
+
+                if (index >= 0)
+                {
+                    string key = value.Substring(0, index);
+                    string value2 = value.Substring(index + 1);
+
+                    if (OptionValues.SortBy.IsKeyOrShortKey(key))
+                    {
+                        if (!TryParseAsEnum(value2, optionName, out sortProperty, provider: OptionValueProviders.ValueSortPropertyProvider))
+                            return false;
+                    }
+                    else
+                    {
+                        string helpText = OptionValueProviders.ModifyFlagsProvider.GetHelpText();
+                        WriteError($"Option '{OptionNames.GetHelpText(optionName)}' has invalid value '{value}'. Allowed values: {helpText}.");
+                        return false;
+                    }
+                }
+                else
+                {
+                    (options ?? (options = new List<string>())).Add(value);
+                }
+            }
+
+            var modifyFlags = ModifyFlags.None;
+
+            if (options != null
+                && !TryParseAsEnumFlags(options, optionName, out modifyFlags, provider: OptionValueProviders.ModifyFlagsProvider))
+            {
+                return false;
+            }
+
+            if ((modifyFlags & ModifyFlags.ExceptIntersect) == ModifyFlags.ExceptIntersect)
+            {
+                WriteError($"Values '{OptionValues.ModifyFlags_Except.HelpValue}' and '{OptionValues.ModifyFlags_Intersect.HelpValue}' cannot be use both at the same time.");
+                return false;
+            }
+
+            var functions = ModifyFunctions.None;
+
+            if ((modifyFlags & ModifyFlags.Distinct) != 0)
+                functions |= ModifyFunctions.Distinct;
+
+            if ((modifyFlags & ModifyFlags.Ascending) != 0)
+                functions |= ModifyFunctions.Sort;
+
+            if ((modifyFlags & ModifyFlags.Descending) != 0)
+                functions |= ModifyFunctions.SortDescending;
+
+            if ((modifyFlags & ModifyFlags.Except) != 0)
+                functions |= ModifyFunctions.Except;
+
+            if ((modifyFlags & ModifyFlags.Intersect) != 0)
+                functions |= ModifyFunctions.Intersect;
+
+            if ((modifyFlags & ModifyFlags.RemoveEmpty) != 0)
+                functions |= ModifyFunctions.RemoveEmpty;
+
+            if ((modifyFlags & ModifyFlags.RemoveWhiteSpace) != 0)
+                functions |= ModifyFunctions.RemoveWhiteSpace;
+
+            if ((modifyFlags & ModifyFlags.TrimStart) != 0)
+                functions |= ModifyFunctions.TrimStart;
+
+            if ((modifyFlags & ModifyFlags.TrimEnd) != 0)
+                functions |= ModifyFunctions.TrimEnd;
+
+            if ((modifyFlags & ModifyFlags.ToLower) != 0)
+                functions |= ModifyFunctions.ToLower;
+
+            if ((modifyFlags & ModifyFlags.ToUpper) != 0)
+                functions |= ModifyFunctions.ToUpper;
+
+            aggregateOnly = (modifyFlags & ModifyFlags.AggregateOnly) != 0;
+
+            if (modifyFlags != ModifyFlags.None)
+            {
+                modifyOptions = new ModifyOptions(
+                    functions: functions,
+                    aggregate: (modifyFlags & ModifyFlags.Aggregate) != 0 || aggregateOnly,
+                    ignoreCase: (modifyFlags & ModifyFlags.IgnoreCase) != 0,
+                    cultureInvariant: (modifyFlags & ModifyFlags.CultureInvariant) != 0,
+                    sortProperty: sortProperty);
+            }
+            else
+            {
+                modifyOptions = ModifyOptions.Default;
+            }
+
+            return true;
+        }
+
         public static bool TryParseReplaceOptions(
             IEnumerable<string> values,
             string optionName,

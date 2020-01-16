@@ -36,7 +36,7 @@ namespace Orang.CommandLine
                 WriteLine(verbosity);
 
                 WriteCount(
-                    "Splits",
+                    (Options.ContentDisplayStyle == ContentDisplayStyle.Value && Options.ModifyOptions.HasAnyFunction) ? "Values" : "Splits",
                     count,
                     Colors.Message_OK,
                     verbosity);

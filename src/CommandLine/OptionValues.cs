@@ -4,6 +4,8 @@ namespace Orang.CommandLine
 {
     internal static class OptionValues
     {
+        public static readonly SimpleOptionValue ModifyFlags_Except = SimpleOptionValue.Create(ModifyFlags.Except, shortValue: "e", description: "Return values from first file except values from second file.");
+        public static readonly SimpleOptionValue ModifyFlags_Intersect = SimpleOptionValue.Create(ModifyFlags.Intersect, shortValue: "", description: "Return values that were found in all files.");
         public static readonly SimpleOptionValue PathDisplayStyle_Full = SimpleOptionValue.Create(PathDisplayStyle.Full, description: "Display full path.");
         public static readonly SimpleOptionValue PathDisplayStyle_Relative = SimpleOptionValue.Create(PathDisplayStyle.Relative, description: "Display path relatively to the base directory.");
         public static readonly SimpleOptionValue PathDisplayStyle_Match = SimpleOptionValue.Create(PathDisplayStyle.Match, description: "Display only match.");
@@ -35,6 +37,11 @@ namespace Orang.CommandLine
         public static readonly SimpleOptionValue Display_Summary = SimpleOptionValue.Create("Summary", shortValue: "su", description: "Include summary.");
         public static readonly SimpleOptionValue Display_TrimLine = SimpleOptionValue.Create("TrimLine", description: "Trim leading and trailing white-space from a line.");
         public static readonly SimpleOptionValue Output_Append = SimpleOptionValue.Create("Append", description: "If the file exists output will be appended to the end of the file.");
+        public static readonly SimpleOptionValue ToLower = SimpleOptionValue.Create(ReplaceFlags.ToLower, shortValue: "tl", description: "Convert value to lowercase.");
+        public static readonly SimpleOptionValue ToUpper = SimpleOptionValue.Create(ReplaceFlags.ToUpper, shortValue: "tu", description: "Convert value to uppercase.");
+        public static readonly SimpleOptionValue Trim = SimpleOptionValue.Create(ReplaceFlags.Trim, description: "Trim leading and trailing white-space.");
+        public static readonly SimpleOptionValue TrimEnd = SimpleOptionValue.Create(ReplaceFlags.TrimEnd, shortValue: "te", description: "Trim trailing white-space.");
+        public static readonly SimpleOptionValue TrimStart = SimpleOptionValue.Create(ReplaceFlags.TrimStart, shortValue: "ts", description: "Trim leading white-space.");
 
         public static readonly KeyValuePairOptionValue Display_Content = KeyValuePairOptionValue.Create("content", MetaValues.ContentDisplay, shortKey: "c");
         public static readonly KeyValuePairOptionValue Display_Indent = KeyValuePairOptionValue.Create("indent", "<INDENT>", shortKey: "", description: "Indentation for a list of results. Default indentation are 2 spaces.");
@@ -51,6 +58,7 @@ namespace Orang.CommandLine
         public static readonly KeyValuePairOptionValue MaxMatches = KeyValuePairOptionValue.Create("matches", "<NUM>", description: "Stop searching after <NUM> matches.");
         public static readonly KeyValuePairOptionValue MaxMatchingFiles = KeyValuePairOptionValue.Create("matching-files", "<NUM>", shortKey: "mf", helpValue: "m[atching-]f[iles]", description: "Stop searching after <NUM> matching files.");
         public static readonly KeyValuePairOptionValue Part = KeyValuePairOptionValue.Create("part", MetaValues.NamePart, shortKey: "p", description: "The part of a file or a directory name that should be matched.");
+        public static readonly KeyValuePairOptionValue SortBy = KeyValuePairOptionValue.Create("sort-by", MetaValues.SortProperty, shortKey: "", description: "");
         public static readonly KeyValuePairOptionValue Timeout = KeyValuePairOptionValue.Create("timeout", "<NUM>", shortKey: "", description: "Match time-out interval in seconds.");
         public static readonly KeyValuePairOptionValue Verbosity = KeyValuePairOptionValue.Create("verbosity", MetaValues.Verbosity, shortKey: "v");
     }

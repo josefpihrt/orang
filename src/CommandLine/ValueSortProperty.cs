@@ -2,12 +2,9 @@
 
 namespace Orang.CommandLine
 {
-    internal interface IResultStorage
+    internal enum ValueSortProperty
     {
-        void Add(string value);
-
-        void Add(string value, int start, int length);
-
-        int Count { get; }
+        None = 0,
+        Length = 1,
     }
 }

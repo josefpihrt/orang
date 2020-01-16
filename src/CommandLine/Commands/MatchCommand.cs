@@ -35,12 +35,20 @@ namespace Orang.CommandLine
                 WriteGroups(matchData.GroupDefinitions, verbosity: verbosity);
                 WriteLine(verbosity);
 
-                WriteCount("Matches", matchData.Count, Colors.Message_OK, verbosity);
-
-                if (count != matchData.Count)
+                if (Options.ContentDisplayStyle == ContentDisplayStyle.Value
+                    && Options.ModifyOptions.HasAnyFunction)
                 {
-                    Write("  ", Colors.Message_OK, verbosity);
-                    WriteCount("Captures", count, Colors.Message_OK, verbosity);
+                    WriteCount("Values", count, Colors.Message_OK, verbosity);
+                }
+                else
+                {
+                    WriteCount("Matches", matchData.Count, Colors.Message_OK, verbosity);
+
+                    if (count != matchData.Count)
+                    {
+                        Write("  ", Colors.Message_OK, verbosity);
+                        WriteCount("Captures", count, Colors.Message_OK, verbosity);
+                    }
                 }
 
                 WriteLine(verbosity);

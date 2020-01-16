@@ -46,52 +46,95 @@ namespace Orang.CommandLine
                     indent = new string(' ', outputInfo.Width);
                 }
 
-                var valueWriter = new OutputValueWriter(indent, HighlightOptions);
-                bool addSeparator = false;
-                int captureCount = 0;
+                int count = 0;
 
-                for (int i = 0; i < matchItems.Count; i++)
+                if (options.ModifyOptions.HasAnyFunction)
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    MatchItem matchItem = matchItems[i];
-                    bool omitMatchInfo = false;
-
-                    foreach (GroupItem groupItem in matchItem.GroupItems
+                    using (IEnumerator<string> en = matchItems
+                        .SelectMany(f => f.GroupItems)
                         .Where(f => (groupNumber >= 0) ? groupNumber == f.Number : true)
                         .OrderBy(f => f.Index)
-                        .ThenBy(f => f.Number))
+                        .ThenBy(f => f.Number)
+                        .SelectMany(f => f.CaptureItems)
+                        .Select(f => f.Value)
+                        .Modify(options.ModifyOptions)
+                        .GetEnumerator())
                     {
-                        bool omitGroupInfo = false;
-
-                        for (int j = 0; j < groupItem.CaptureItems.Count; j++)
+                        if (en.MoveNext())
                         {
-                            CaptureItem captureItem = groupItem.CaptureItems[j];
+                            var valueWriter = new OutputValueWriter(indent, HighlightOptions);
 
-                            if (addSeparator)
-                                Write((addDetails) ? Environment.NewLine : options.Separator);
-
-                            if (addDetails)
+                            while (true)
                             {
-                                Write(outputInfo!.GetText(
-                                    captureItem,
-                                    i + 1,
-                                    j + 1,
-                                    omitMatchInfo,
-                                    omitGroupInfo));
+                                cancellationToken.ThrowIfCancellationRequested();
+
+                                valueWriter.WriteMatch(en.Current, symbols, (HighlightOptions & HighlightOptions.Match) != 0);
+
+                                count++;
+
+                                if (en.MoveNext())
+                                {
+                                    Write(options.Separator);
+                                }
+                                else
+                                {
+                                    break;
+                                }
                             }
-
-                            valueWriter.WriteMatch(captureItem.Value, symbols);
-
-                            omitMatchInfo = true;
-                            omitGroupInfo = true;
-                            addSeparator = true;
-                            captureCount++;
                         }
                     }
-                }
 
-                return captureCount;
+                    return count;
+                }
+                else
+                {
+                    var valueWriter = new OutputValueWriter(indent, HighlightOptions);
+                    bool addSeparator = false;
+                    int captureCount = 0;
+
+                    for (int i = 0; i < matchItems.Count; i++)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+
+                        MatchItem matchItem = matchItems[i];
+                        bool omitMatchInfo = false;
+
+                        foreach (GroupItem groupItem in matchItem.GroupItems
+                            .Where(f => (groupNumber >= 0) ? groupNumber == f.Number : true)
+                            .OrderBy(f => f.Index)
+                            .ThenBy(f => f.Number))
+                        {
+                            bool omitGroupInfo = false;
+
+                            for (int j = 0; j < groupItem.CaptureItems.Count; j++)
+                            {
+                                CaptureItem captureItem = groupItem.CaptureItems[j];
+
+                                if (addSeparator)
+                                    Write((addDetails) ? Environment.NewLine : options.Separator);
+
+                                if (addDetails)
+                                {
+                                    Write(outputInfo!.GetText(
+                                        captureItem,
+                                        i + 1,
+                                        j + 1,
+                                        omitMatchInfo,
+                                        omitGroupInfo));
+                                }
+
+                                valueWriter.WriteMatch(captureItem.Value, symbols);
+
+                                omitMatchInfo = true;
+                                omitGroupInfo = true;
+                                addSeparator = true;
+                                captureCount++;
+                            }
+                        }
+                    }
+
+                    return captureCount;
+                }
             }
             else if (options.ContentDisplayStyle == ContentDisplayStyle.AllLines)
             {
@@ -137,40 +180,78 @@ namespace Orang.CommandLine
             if (options.ContentDisplayStyle == ContentDisplayStyle.Value
                 || options.ContentDisplayStyle == ContentDisplayStyle.ValueDetail)
             {
-                bool addDetails = options.ContentDisplayStyle == ContentDisplayStyle.ValueDetail;
-                SplitOutputInfo outputInfo = null;
-                string indent = null;
-
-                if (addDetails)
+                if (options.ModifyOptions.HasAnyFunction)
                 {
-                    outputInfo = SplitOutputInfo.Create(splitData);
-                    indent = new string(' ', outputInfo.Width);
-                }
+                    int count = 0;
 
-                using (IEnumerator<SplitItem> en = splitData.Items.GetEnumerator())
-                {
-                    if (en.MoveNext())
+                    using (IEnumerator<string> en = splitData.Items
+                        .Select(f => f.Value)
+                        .Modify(options.ModifyOptions)
+                        .GetEnumerator())
                     {
-                        var valueWriter = new OutputValueWriter(indent, HighlightOptions);
-
-                        while (true)
+                        if (en.MoveNext())
                         {
-                            cancellationToken.ThrowIfCancellationRequested();
+                            var valueWriter = new OutputValueWriter(null, HighlightOptions);
 
-                            SplitItem item = en.Current;
-
-                            if (addDetails)
-                                Write(outputInfo!.GetText(item));
-
-                            valueWriter.WriteSplit(item.Value, symbols, splitColors, boundaryColors);
-
-                            if (en.MoveNext())
+                            while (true)
                             {
-                                Write((addDetails) ? Environment.NewLine : options.Separator);
+                                cancellationToken.ThrowIfCancellationRequested();
+
+                                valueWriter.WriteSplit(en.Current, symbols, splitColors, boundaryColors);
+
+                                count++;
+
+                                if (en.MoveNext())
+                                {
+                                    Write(options.Separator);
+                                }
+                                else
+                                {
+                                    break;
+                                }
                             }
-                            else
+                        }
+                    }
+
+                    return count;
+                }
+                else
+                {
+                    bool addDetails = options.ContentDisplayStyle == ContentDisplayStyle.ValueDetail;
+                    SplitOutputInfo outputInfo = null;
+                    string indent = null;
+
+                    if (addDetails)
+                    {
+                        outputInfo = SplitOutputInfo.Create(splitData);
+                        indent = new string(' ', outputInfo.Width);
+                    }
+
+                    using (IEnumerator<SplitItem> en = splitData.Items.GetEnumerator())
+                    {
+                        if (en.MoveNext())
+                        {
+                            var valueWriter = new OutputValueWriter(indent, HighlightOptions);
+
+                            while (true)
                             {
-                                break;
+                                cancellationToken.ThrowIfCancellationRequested();
+
+                                SplitItem item = en.Current;
+
+                                if (addDetails)
+                                    Write(outputInfo!.GetText(item));
+
+                                valueWriter.WriteSplit(item.Value, symbols, splitColors, boundaryColors);
+
+                                if (en.MoveNext())
+                                {
+                                    Write((addDetails) ? Environment.NewLine : options.Separator);
+                                }
+                                else
+                                {
+                                    break;
+                                }
                             }
                         }
                     }

@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -18,6 +19,10 @@ namespace Orang.CommandLine
         private OutputSymbols _symbols;
         private ContentWriterOptions _fileWriterOptions;
         private ContentWriterOptions _directoryWriterOptions;
+        private IResultStorage _storage;
+        private List<int> _storageIndexes;
+        private IResultStorage _fileStorage;
+        private List<string> _fileValues;
 
         public FindCommand(TOptions options) : base(options)
         {
@@ -102,7 +107,23 @@ namespace Orang.CommandLine
             if (ConsoleOut.Verbosity >= Verbosity.Minimal)
                 _askMode = Options.AskMode;
 
+            bool aggregate = (Options.ModifyOptions.Functions & ModifyFunctions.ExceptIntersect) != 0
+                || (Options.ModifyOptions.Aggregate
+                    && (Options.ModifyOptions.Modify != null
+                        || (Options.ModifyOptions.Functions & ModifyFunctions.Enumerable) != 0));
+
+            if (aggregate)
+            {
+                _storage = new ListResultStorage();
+
+                if ((Options.ModifyOptions.Functions & ModifyFunctions.ExceptIntersect) != 0)
+                    _storageIndexes = new List<int>();
+            }
+
             base.ExecuteCore(context);
+
+            if (aggregate)
+                WriteAggregatedValues();
         }
 
         protected override void ExecuteFile(string filePath, SearchContext context)
@@ -286,12 +307,35 @@ namespace Orang.CommandLine
 
                 GetGroups(match, writerOptions.GroupNumber, context, isPathWritten: !Options.OmitPath, predicate: ContentFilter.Predicate, groups: groups);
 
-                if (Options.AskMode == AskMode.Value
+                bool hasAnyFunction = Options.ModifyOptions.HasAnyFunction;
+
+                if (hasAnyFunction
+                    || Options.AskMode == AskMode.Value
                     || ShouldLog(Verbosity.Normal))
                 {
-                    MatchOutputInfo outputInfo = Options.CreateOutputInfo(input, match);
+                    if (hasAnyFunction)
+                    {
+                        if (_fileValues == null)
+                        {
+                            _fileValues = new List<string>();
+                        }
+                        else
+                        {
+                            _fileValues.Clear();
+                        }
 
-                    contentWriter = ContentWriter.CreateFind(Options.ContentDisplayStyle, input, writerOptions, default(IResultStorage), outputInfo, ask: _askMode == AskMode.Value);
+                        if (_fileStorage == null)
+                            _fileStorage = new ListResultStorage(_fileValues);
+                    }
+
+                    contentWriter = ContentWriter.CreateFind(
+                        contentDisplayStyle: Options.ContentDisplayStyle,
+                        input: input,
+                        options: writerOptions,
+                        storage: (hasAnyFunction) ? _fileStorage : _storage,
+                        outputInfo: Options.CreateOutputInfo(input, match),
+                        writer: (hasAnyFunction) ? null : ContentTextWriter.Default,
+                        ask: _askMode == AskMode.Value);
                 }
                 else
                 {
@@ -300,14 +344,36 @@ namespace Orang.CommandLine
 
                 WriteMatches(contentWriter, groups, context);
 
-                telemetry.MatchCount += contentWriter.MatchCount;
-
-                if (contentWriter.MatchingLineCount >= 0)
+                if (hasAnyFunction)
                 {
-                    if (telemetry.MatchingLineCount == -1)
-                        telemetry.MatchingLineCount = 0;
+                    ConsoleColors colors = (Options.HighlightMatch) ? Colors.Match : default;
+                    ConsoleColors boundaryColors = (Options.HighlightBoundary) ? Colors.MatchBoundary : default;
 
-                    telemetry.MatchingLineCount += contentWriter.MatchingLineCount;
+                    var valueWriter = new ValueWriter(ContentTextWriter.Default, writerOptions.Indent, includeEndingIndent: false);
+
+                    foreach (string value in _fileValues.Modify(Options.ModifyOptions))
+                    {
+                        Write(writerOptions.Indent, Verbosity.Normal);
+                        valueWriter.Write(value, Symbols, colors, boundaryColors);
+                        WriteLine(Verbosity.Normal);
+
+                        _storage?.Add(value);
+                        telemetry.MatchCount++;
+                    }
+
+                    _storageIndexes?.Add(_storage!.Count);
+                }
+                else
+                {
+                    telemetry.MatchCount += contentWriter.MatchCount;
+
+                    if (contentWriter.MatchingLineCount >= 0)
+                    {
+                        if (telemetry.MatchingLineCount == -1)
+                            telemetry.MatchingLineCount = 0;
+
+                        telemetry.MatchingLineCount += contentWriter.MatchingLineCount;
+                    }
                 }
 
                 if (_askMode == AskMode.Value)
@@ -545,6 +611,96 @@ namespace Orang.CommandLine
             else
             {
                 base.WritePath(context, result, baseDirectoryPath, indent, columnWidths);
+            }
+        }
+
+        private void WriteAggregatedValues()
+        {
+            int count = 0;
+            ModifyOptions modifyOptions = Options.ModifyOptions;
+            List<string> allValues = ((ListResultStorage)_storage).Values;
+
+            if (_storageIndexes?.Count > 1)
+            {
+                Debug.Assert((modifyOptions.Functions & ModifyFunctions.ExceptIntersect) != 0, modifyOptions.Functions.ToString());
+
+                if ((modifyOptions.Functions & ModifyFunctions.Except) != 0)
+                {
+                    if (_storageIndexes.Count > 2)
+                        throw new InvalidOperationException("'Except' operation cannot be applied on more than two files.");
+
+                    int index = _storageIndexes[0];
+
+                    allValues = allValues
+                        .Take(index)
+                        .Except(GetRange(index, allValues.Count))
+                        .ToList();
+                }
+                else if ((modifyOptions.Functions & ModifyFunctions.Intersect) != 0)
+                {
+                    allValues = Intersect();
+                }
+            }
+
+            using (IEnumerator<string> en = allValues
+                .Modify(modifyOptions, filter: ModifyFunctions.Enumerable)
+                .GetEnumerator())
+            {
+                if (en.MoveNext())
+                {
+                    OutputSymbols symbols = OutputSymbols.Create(Options.HighlightOptions);
+                    ConsoleColors colors = ((Options.HighlightOptions & HighlightOptions.Match) != 0) ? Colors.Match : default;
+                    ConsoleColors boundaryColors = (Options.HighlightBoundary) ? Colors.MatchBoundary : default;
+                    var valueWriter = new ValueWriter(new ContentTextWriter(Verbosity.Minimal), includeEndingIndent: false);
+
+                    ConsoleOut.WriteLineIf(ShouldWriteLine(ConsoleOut.Verbosity));
+                    Out?.WriteLineIf(ShouldWriteLine(Out.Verbosity));
+
+                    do
+                    {
+                        valueWriter.Write(en.Current, symbols, colors, boundaryColors);
+                        WriteLine(Verbosity.Minimal);
+                        count++;
+
+                    } while (en.MoveNext());
+
+                    if (ShouldLog(Verbosity.Detailed)
+                        || Options.IncludeSummary)
+                    {
+                        WriteLine(Verbosity.Minimal);
+                        WriteCount("Values", count, verbosity: Verbosity.Minimal);
+                        WriteLine(Verbosity.Minimal);
+                    }
+                }
+            }
+
+            List<string> Intersect()
+            {
+                var list = new List<string>(GetRange(0, _storageIndexes[0]));
+
+                for (int i = 1; i < _storageIndexes.Count; i++)
+                {
+                    IEnumerable<string> second = GetRange(_storageIndexes[i - 1], _storageIndexes[i]);
+
+                    list = list.Intersect(second, modifyOptions.StringComparer).ToList();
+                }
+
+                return list;
+            }
+
+            IEnumerable<string> GetRange(int start, int end)
+            {
+                for (int i = start; i < end; i++)
+                    yield return allValues[i];
+            }
+
+            bool ShouldWriteLine(Verbosity verbosity)
+            {
+                if (verbosity > Verbosity.Minimal)
+                    return true;
+
+                return verbosity == Verbosity.Minimal
+                    && (Options.PathDisplayStyle != PathDisplayStyle.Omit || Options.IncludeSummary);
             }
         }
 

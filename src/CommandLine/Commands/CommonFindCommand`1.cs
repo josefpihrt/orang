@@ -54,6 +54,20 @@ namespace Orang.CommandLine
                 ? new List<SearchResult>()
                 : null;
 
+            ProgressReporter progress = CreateProgressReporter();
+
+            var context = new SearchContext(progress: progress, results: results, cancellationToken: cancellationToken);
+
+            ExecuteCore(context);
+
+            if (context.TerminationReason == TerminationReason.Canceled)
+                return CommandResult.Canceled;
+
+            return (context.Telemetry.MatchingFileCount > 0) ? CommandResult.Success : CommandResult.NoMatch;
+        }
+
+        private ProgressReporter CreateProgressReporter()
+        {
             ProgressReportMode consoleReportMode;
             if (ConsoleOut.ShouldWrite(Verbosity.Diagnostic))
             {
@@ -78,16 +92,19 @@ namespace Orang.CommandLine
                 fileReportMode = ProgressReportMode.None;
             }
 
-            var progress = new FileSystemFinderProgressReporter(consoleReportMode, fileReportMode, Options, GetPathIndent());
+            if (fileReportMode == ProgressReportMode.None)
+            {
+                if (consoleReportMode == ProgressReportMode.None)
+                {
+                    return (ShouldWriteSummary()) ? new ProgressReporter() : null;
+                }
+                else if (consoleReportMode == ProgressReportMode.Dot)
+                {
+                    return new DotProgressReporter();
+                }
+            }
 
-            var context = new SearchContext(progress: progress, results: results, cancellationToken: cancellationToken);
-
-            ExecuteCore(context);
-
-            if (context.TerminationReason == TerminationReason.Canceled)
-                return CommandResult.Canceled;
-
-            return (context.Telemetry.MatchingFileCount > 0) ? CommandResult.Success : CommandResult.NoMatch;
+            return new DiagnosticProgressReporter(consoleReportMode, fileReportMode, Options, GetPathIndent());
         }
 
         protected virtual void ExecuteCore(SearchContext context)
@@ -124,16 +141,33 @@ namespace Orang.CommandLine
 
             stopwatch.Stop();
 
+            if (ShouldWriteSummary())
+            {
+                if (context.Progress != null)
+                {
+                    context.Telemetry.SearchedDirectoryCount = context.Progress.SearchedDirectoryCount;
+                    context.Telemetry.FileCount += context.Progress.FileCount;
+                    context.Telemetry.DirectoryCount = context.Progress.DirectoryCount;
+                }
+
+                context.Telemetry.Elapsed = stopwatch.Elapsed;
+
+                WriteSummary(context.Telemetry, (Options.IncludeSummary) ? Verbosity.Quiet : Verbosity.Detailed);
+            }
+        }
+
+        private bool ShouldWriteSummary()
+        {
             if (CanDisplaySummary)
             {
                 if (ShouldLog(Verbosity.Detailed)
                     || Options.IncludeSummary)
                 {
-                    context.Telemetry.Elapsed = stopwatch.Elapsed;
-
-                    WriteSummary(context.Telemetry, (Options.IncludeSummary) ? Verbosity.Quiet : Verbosity.Detailed);
+                    return true;
                 }
             }
+
+            return false;
         }
 
         private void ExecuteResults(SearchContext context)
@@ -231,9 +265,9 @@ namespace Orang.CommandLine
         {
             if (Directory.Exists(path))
             {
-                FileSystemFinderProgressReporter progress = context.Progress;
+                ProgressReporter progress = context.Progress;
 
-                progress.BaseDirectoryPath = path;
+                progress?.SetBaseDirectoryPath(path);
 
                 if (Options.DisplayRelativePath
                     && Options.IncludeBaseDirectory)
@@ -250,17 +284,13 @@ namespace Orang.CommandLine
                     context.TerminationReason = TerminationReason.Canceled;
                 }
 
-                context.Telemetry.SearchedDirectoryCount = progress.SearchedDirectoryCount;
-                context.Telemetry.FileCount = progress.FileCount;
-                context.Telemetry.DirectoryCount = progress.DirectoryCount;
-
-                if (progress.ProgressReported)
+                if (progress?.ProgressReported == true)
                 {
                     ConsoleOut.WriteLine();
                     progress.ProgressReported = false;
                 }
 
-                progress.BaseDirectoryPath = null;
+                progress?.SetBaseDirectoryPath(null);
             }
             else if (File.Exists(path))
             {
@@ -374,7 +404,7 @@ namespace Orang.CommandLine
             return results;
         }
 
-        protected FileSystemFinderResult? MatchFile(string filePath, FileSystemFinderProgressReporter progress = null)
+        protected FileSystemFinderResult? MatchFile(string filePath, ProgressReporter progress = null)
         {
             FileSystemFinderResult? result = FileSystemFinder.MatchFile(
                 filePath,

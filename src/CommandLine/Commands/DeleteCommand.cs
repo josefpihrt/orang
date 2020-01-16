@@ -20,7 +20,7 @@ namespace Orang.CommandLine
         {
             context.Telemetry.FileCount++;
 
-            FileSystemFinderResult? maybeResult = MatchFile(filePath);
+            FileSystemFinderResult? maybeResult = MatchFile(filePath, context.Progress);
 
             if (maybeResult != null)
                 ProcessResult(maybeResult.Value, context);

@@ -25,3 +25,21 @@ orang rename ^
 ```
 
 Note: Syntax `--replacement ""` or `-r ""` can be omitted.
+
+### Sample
+
+Normalize file extensions to lowercase.
+
+#### Syntax
+
+```
+orang rename --name ".*" equals part=extension ^
+ --modify to-lower
+```
+
+#### Short Syntax
+
+```
+orang rename -n ".*" e p=e ^
+ --modify tl
+```

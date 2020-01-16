@@ -34,7 +34,7 @@ namespace Orang.CommandLine
             {
                 Write($"{indent}PATH: ", colors, verbosity);
                 WritePath(path, basePath, relativePath: relativePath, colors: colors, verbosity: verbosity);
-                WriteLine();
+                WriteLine(verbosity);
             }
 #if DEBUG
             WriteLine($"{indent}STACK TRACE:");

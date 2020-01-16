@@ -373,6 +373,21 @@ namespace Orang.CommandLine
             OptionValues.TrimStart
         );
 
+        public static OptionValueProvider ConflictResolutionProvider { get; } = new OptionValueProvider(MetaValues.ConflictResolution,
+            OptionValues.ConflictResolution_Ask,
+            OptionValues.ConflictResolution_Overwrite,
+            OptionValues.ConflictResolution_Rename,
+            OptionValues.ConflictResolution_Skip
+        );
+
+        public static OptionValueProvider FileCompareOptionsProvider { get; } = new OptionValueProvider(MetaValues.CompareOptions,
+            SimpleOptionValue.Create(FileCompareOptions.None, description: "Compare files only by name."),
+            SimpleOptionValue.Create(FileCompareOptions.Attributes, description: "Compare file attributes."),
+            SimpleOptionValue.Create(FileCompareOptions.Content, description: "Compare file content."),
+            SimpleOptionValue.Create(FileCompareOptions.ModifiedTime, shortValue: "mt", helpValue: "m[odified-]t[ime]", description: "Compare time a file was last modified."),
+            SimpleOptionValue.Create(FileCompareOptions.Size, description: "Compare file size.")
+        );
+
         public static ImmutableDictionary<string, OptionValueProvider> ProvidersByName
         {
             get

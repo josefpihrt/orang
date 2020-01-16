@@ -1,5 +1,7 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Orang.FileSystem;
+
 namespace Orang.CommandLine
 {
     internal static class OptionValues
@@ -37,6 +39,10 @@ namespace Orang.CommandLine
         public static readonly SimpleOptionValue Display_Summary = SimpleOptionValue.Create("Summary", shortValue: "su", description: "Include summary.");
         public static readonly SimpleOptionValue Display_TrimLine = SimpleOptionValue.Create("TrimLine", description: "Trim leading and trailing white-space from a line.");
         public static readonly SimpleOptionValue Output_Append = SimpleOptionValue.Create("Append", description: "If the file exists output will be appended to the end of the file.");
+        public static readonly SimpleOptionValue ConflictResolution_Ask = SimpleOptionValue.Create(ConflictResolution.Ask, description: "Ask when a file or already exists.");
+        public static readonly SimpleOptionValue ConflictResolution_Overwrite = SimpleOptionValue.Create(ConflictResolution.Overwrite, description: "Overwrite a file when it already exists.");
+        public static readonly SimpleOptionValue ConflictResolution_Rename = SimpleOptionValue.Create(ConflictResolution.Rename, description: "Create new file name if it already exists.");
+        public static readonly SimpleOptionValue ConflictResolution_Skip = SimpleOptionValue.Create(ConflictResolution.Skip, description: "Do not copy or move a file if it already exists.");
         public static readonly SimpleOptionValue ToLower = SimpleOptionValue.Create(ReplaceFlags.ToLower, shortValue: "tl", description: "Convert value to lowercase.");
         public static readonly SimpleOptionValue ToUpper = SimpleOptionValue.Create(ReplaceFlags.ToUpper, shortValue: "tu", description: "Convert value to uppercase.");
         public static readonly SimpleOptionValue Trim = SimpleOptionValue.Create(ReplaceFlags.Trim, description: "Trim leading and trailing white-space.");

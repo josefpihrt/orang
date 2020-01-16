@@ -56,7 +56,7 @@ namespace Orang.CommandLine
 
             ProgressReporter progress = CreateProgressReporter();
 
-            var context = new SearchContext(progress: progress, results: results, cancellationToken: cancellationToken);
+            var context = new SearchContext(new SearchTelemetry(), progress: progress, results: results, cancellationToken: cancellationToken);
 
             ExecuteCore(context);
 

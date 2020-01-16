@@ -13,6 +13,7 @@ namespace Orang.CommandLine
         public const string Ask = "ask";
         public const string Attributes = "attributes";
         public const string AttributesToSkip = "attributes-to-skip";
+        public const string Compare = "compare";
         public const string Content = "content";
         public const string ContentOnly = "content-only";
         public const string Display = "display";
@@ -21,6 +22,7 @@ namespace Orang.CommandLine
         public const string Evaluator = "evaluator";
         public const string Extension = "extension";
         public const string Filter = "filter";
+        public const string Flat = "flat";
         public const string Help = "help";
         public const string Highlight = "highlight";
         public const string CharGroup = "char-group";
@@ -33,6 +35,7 @@ namespace Orang.CommandLine
         public const string Name = "name";
         public const string NoGroups = "no-groups";
         public const string NoRecurse = "no-recurse";
+        public const string Conflict = "conflict";
         public const string Options = "options";
         public const string Output = "output";
         public const string PathsFrom = "paths-from";
@@ -41,6 +44,7 @@ namespace Orang.CommandLine
         public const string Replacement = "replacement";
         public const string Section = "section";
         public const string Sort = "sort";
+        public const string Target = "target";
         public const string Timeout = "timeout";
         public const string Values = "values";
         public const string Verbosity = "verbosity";

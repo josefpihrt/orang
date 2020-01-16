@@ -22,6 +22,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{3A93F055-6756-4074-8F4C-E8858963604C}"
 	ProjectSection(SolutionItems) = preProject
 		..\docs\cli\AllowedValues.md = ..\docs\cli\AllowedValues.md
+		..\docs\cli\copy-command.md = ..\docs\cli\copy-command.md
 		..\docs\cli\delete-command.md = ..\docs\cli\delete-command.md
 		..\docs\cli\escape-command.md = ..\docs\cli\escape-command.md
 		..\docs\cli\find-command.md = ..\docs\cli\find-command.md
@@ -29,6 +30,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{3A93F055-6
 		..\docs\cli\HowTo.md = ..\docs\cli\HowTo.md
 		..\docs\cli\list-syntax-command.md = ..\docs\cli\list-syntax-command.md
 		..\docs\cli\match-command.md = ..\docs\cli\match-command.md
+		..\docs\cli\move-command.md = ..\docs\cli\move-command.md
 		..\docs\cli\README.md = ..\docs\cli\README.md
 		..\docs\cli\rename-command.md = ..\docs\cli\rename-command.md
 		..\docs\cli\replace-command.md = ..\docs\cli\replace-command.md

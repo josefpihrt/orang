@@ -12,7 +12,7 @@ namespace Orang.CommandLine
     [Verb("find", HelpText = "Searches the file system for files and directories and optionally searches files' content.")]
     [OptionValueProvider(nameof(Content), OptionValueProviderNames.PatternOptionsWithoutPart)]
     [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.FindHighlightOptions)]
-    internal sealed class FindCommandLineOptions : CommonFindCommandLineOptions
+    internal class FindCommandLineOptions : CommonFindCommandLineOptions
     {
         [Option(longName: OptionNames.Ask,
             HelpText = "Ask for permission after each file or value.",

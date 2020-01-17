@@ -36,7 +36,7 @@ namespace Orang.CommandLine
 
             options = (SplitCommandOptions)baseOptions;
 
-            if (!TryParseFilter(Content, OptionNames.Content, out Filter filter, provider: OptionValueProviders.PatternOptionsWithoutGroupAndPartAndNegativeProvider))
+            if (!FilterParser.TryParse(Content, OptionNames.Content, OptionValueProviders.PatternOptionsWithoutGroupAndPartAndNegativeProvider, out Filter filter))
                 return false;
 
             if (!TryParseAsEnumFlags(Highlight, OptionNames.Highlight, out HighlightOptions highlightOptions, defaultValue: HighlightOptions.Split, provider: OptionValueProviders.SplitHighlightOptionsProvider))

@@ -58,13 +58,8 @@ namespace Orang.CommandLine
             if (!TryParseAsEnumFlags(Highlight, OptionNames.Highlight, out HighlightOptions highlightOptions, defaultValue: HighlightOptions.Default, provider: OptionValueProviders.DeleteHighlightOptionsProvider))
                 return false;
 
-            Filter nameFilter = null;
-
-            if (Name.Any()
-                && !TryParseFilter(Name, OptionNames.Name, out nameFilter))
-            {
+            if (!FilterParser.TryParse(Name, OptionNames.Name, OptionValueProviders.PatternOptionsProvider, out Filter nameFilter, allowNull: true))
                 return false;
-            }
 
             if (nameFilter == null
                 && options.Paths.Length == 1
@@ -74,13 +69,8 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            Filter contentFilter = null;
-
-            if (Content.Any()
-                && !TryParseFilter(Content, OptionNames.Content, out contentFilter))
-            {
+            if (!FilterParser.TryParse(Content, OptionNames.Content, OptionValueProviders.PatternOptionsProvider, out Filter contentFilter, allowNull: true))
                 return false;
-            }
 
             if (!TryParseDisplay(
                 values: Display,

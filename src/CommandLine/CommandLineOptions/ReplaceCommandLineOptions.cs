@@ -76,7 +76,7 @@ namespace Orang.CommandLine
             if (!TryParseAsEnumFlags(Highlight, OptionNames.Highlight, out HighlightOptions highlightOptions, defaultValue: HighlightOptions.Replacement, provider: OptionValueProviders.ReplaceHighlightOptionsProvider))
                 return false;
 
-            if (!TryParseFilter(Content, OptionNames.Content, out Filter contentFilter, provider: OptionValueProviders.PatternOptionsWithoutGroupAndPartAndNegativeProvider))
+            if (!FilterParser.TryParse(Content, OptionNames.Content, OptionValueProviders.PatternOptionsWithoutGroupAndPartAndNegativeProvider, out Filter contentFilter))
                 return false;
 
             if (!TryParseReplacement(Replacement, out string replacement))

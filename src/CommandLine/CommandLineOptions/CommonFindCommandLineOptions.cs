@@ -94,24 +94,17 @@ namespace Orang.CommandLine
             if (!TryParseSortOptions(Sort, OptionNames.Sort, out SortOptions sortOptions))
                 return false;
 
-            Filter directoryFilter = null;
-
-            if (IncludeDirectory.Any()
-                && !TryParseFilter(IncludeDirectory, OptionNames.IncludeDirectory, out directoryFilter))
-            {
+            if (!FilterParser.TryParse(IncludeDirectory, OptionNames.IncludeDirectory, OptionValueProviders.PatternOptionsProvider, out Filter directoryFilter, allowNull: true))
                 return false;
-            }
 
-            Filter extensionFilter = null;
-
-            if (Extension.Any()
-                && !TryParseFilter(
-                    Extension,
-                    OptionNames.Extension,
-                    out extensionFilter,
-                    provider: OptionValueProviders.ExtensionOptionsProvider,
-                    defaultNamePart: NamePartKind.Extension,
-                    includedPatternOptions: PatternOptions.List | PatternOptions.Equals | PatternOptions.IgnoreCase))
+            if (!FilterParser.TryParse(
+                Extension,
+                OptionNames.Extension,
+                OptionValueProviders.ExtensionOptionsProvider,
+                out Filter extensionFilter,
+                allowNull: true,
+                defaultNamePart: NamePartKind.Extension,
+                includedPatternOptions: PatternOptions.List | PatternOptions.Equals | PatternOptions.IgnoreCase))
             {
                 return false;
             }

@@ -54,13 +54,8 @@ namespace Orang.CommandLine
             if (!TryParseAsEnumFlags(Highlight, OptionNames.Highlight, out HighlightOptions highlightOptions, defaultValue: HighlightOptions.Default, provider: OptionValueProviders.FindHighlightOptionsProvider))
                 return false;
 
-            Filter contentFilter = null;
-
-            if (Content.Any()
-                && !TryParseFilter(Content, OptionNames.Content, out contentFilter, provider: OptionValueProviders.PatternOptionsWithoutPartProvider))
-            {
+            if (!FilterParser.TryParse(Content, OptionNames.Content, OptionValueProviders.PatternOptionsWithoutPartProvider, out Filter contentFilter, allowNull: true))
                 return false;
-            }
 
             if (!TryParseDisplay(
                 values: Display,

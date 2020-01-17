@@ -109,7 +109,7 @@ namespace Orang.CommandLine
 
             bool aggregate = (Options.ModifyOptions.Functions & ModifyFunctions.ExceptIntersect) != 0
                 || (Options.ModifyOptions.Aggregate
-                    && (Options.ModifyOptions.Modify != null
+                    && (Options.ModifyOptions.Method != null
                         || (Options.ModifyOptions.Functions & ModifyFunctions.Enumerable) != 0));
 
             if (aggregate)

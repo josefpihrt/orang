@@ -2,9 +2,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 using Orang.CommandLine;
 
@@ -58,74 +56,7 @@ namespace Orang
             ModifyOptions options,
             ModifyFunctions? filter = null)
         {
-            ModifyFunctions functions = options.Functions;
-
-            if (filter != null)
-                functions &= filter.Value;
-
-            StringComparer comparer = options.StringComparer;
-
-            bool trimStart = (functions & ModifyFunctions.TrimStart) != 0;
-            bool trimEnd = (functions & ModifyFunctions.TrimEnd) != 0;
-
-            if (trimStart && trimEnd)
-            {
-                values = values.Select(f => f.Trim());
-            }
-            else if (trimStart)
-            {
-                values = values.Select(f => f.TrimStart());
-            }
-            else if (trimEnd)
-            {
-                values = values.Select(f => f.TrimEnd());
-            }
-
-            if ((functions & ModifyFunctions.RemoveEmpty) != 0)
-                values = values.Where(f => !string.IsNullOrEmpty(f));
-
-            if ((functions & ModifyFunctions.RemoveWhiteSpace) != 0)
-                values = values.Where(f => !string.IsNullOrWhiteSpace(f));
-
-            if ((functions & ModifyFunctions.ToLower) != 0)
-            {
-                values = values.Select(f => f.ToLower((options.CultureInvariant) ? CultureInfo.InvariantCulture : CultureInfo.CurrentCulture));
-            }
-            else if ((functions & ModifyFunctions.ToUpper) != 0)
-            {
-                values = values.Select(f => f.ToUpper((options.CultureInvariant) ? CultureInfo.InvariantCulture : CultureInfo.CurrentCulture));
-            }
-
-            if (options.Modify != null)
-                values = options.Modify(values);
-
-            if ((functions & ModifyFunctions.Distinct) != 0)
-                values = values.Distinct(comparer);
-
-            if ((functions & ModifyFunctions.Sort) != 0)
-            {
-                if (options.SortProperty == ValueSortProperty.Length)
-                {
-                    return values.OrderBy(f => f.Length);
-                }
-                else
-                {
-                    return values.OrderBy(f => f, comparer);
-                }
-            }
-            else if ((functions & ModifyFunctions.SortDescending) != 0)
-            {
-                if (options.SortProperty == ValueSortProperty.Length)
-                {
-                    return values.OrderByDescending(f => f.Length);
-                }
-                else
-                {
-                    return values.OrderByDescending(f => f, comparer);
-                }
-            }
-
-            return values;
+            return options.Modify(values, filter);
         }
 
         public static int GetDigitCount(this int value)

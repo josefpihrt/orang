@@ -97,7 +97,12 @@ namespace Orang.CommandLine
 
             List<ReplaceItem> replaceItems = GetReplaceItems(result, context.CancellationToken);
 
-            if (!Options.OmitPath)
+            string path = result.Path;
+            string newPath = GetNewPath(result, replaceItems);
+            bool changed = !string.Equals(path, newPath, StringComparison.Ordinal);
+
+            if (!Options.OmitPath
+                && changed)
             {
                 LogHelpers.WritePath(
                     result,
@@ -114,12 +119,9 @@ namespace Orang.CommandLine
                 WriteLine(Verbosity.Minimal);
             }
 
-            string path = result.Path;
-            string newPath = GetNewPath(result, replaceItems);
-
             ListCache<ReplaceItem>.Free(replaceItems);
 
-            if (string.Equals(path, newPath, StringComparison.Ordinal))
+            if (!changed)
                 return;
 
             bool renamed = false;

@@ -797,6 +797,37 @@ namespace Orang.CommandLine
             return false;
         }
 
+        public static bool TryParseChar(string value, out char result)
+        {
+            if (value.Length == 2
+                && value[0] == '\\'
+                && value[1] >= 48
+                && value[1] <= 57)
+            {
+                result = value[1];
+                return true;
+            }
+
+            if (int.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out int charCode))
+            {
+                if (charCode < 0 || charCode > 0xFFFF)
+                {
+                    WriteError("Value must be in range from 0 to 65535.");
+                    result = default;
+                    return false;
+                }
+
+                result = (char)charCode;
+            }
+            else if (!char.TryParse(value, out result))
+            {
+                WriteError($"Could not parse '{value}' as character value.");
+                return false;
+            }
+
+            return true;
+        }
+
         public static bool TryEnsureFullPath(IEnumerable<string> paths, out ImmutableArray<string> fullPaths)
         {
             ImmutableArray<string>.Builder builder = ImmutableArray.CreateBuilder<string>();

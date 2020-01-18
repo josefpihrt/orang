@@ -4,17 +4,18 @@ namespace Orang.Syntax
 {
     public enum SyntaxSection
     {
-        AlternationConstructs = 0,
-        Anchors = 1,
-        BackreferenceConstructs = 2,
-        GroupingConstructs = 3,
-        CharacterClasses = 4,
-        CharacterEscapes = 5,
-        Miscellaneous = 6,
-        Options = 7,
-        Quantifiers = 8,
-        Substitutions = 9,
-        GeneralCategories = 10,
-        NamedBlocks = 11
+        None = 0,
+        AlternationConstructs = 1,
+        Anchors = 2,
+        BackreferenceConstructs = 3,
+        GroupingConstructs = 4,
+        CharacterClasses = 5,
+        CharacterEscapes = 6,
+        Miscellaneous = 7,
+        Options = 8,
+        Quantifiers = 9,
+        Substitutions = 10,
+        GeneralCategories = 11,
+        NamedBlocks = 12
     }
 }

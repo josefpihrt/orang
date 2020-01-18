@@ -215,8 +215,12 @@ namespace Orang
 
             void Append(string caption, string value, int width)
             {
-                sb.Append(caption);
-                sb.Append(PrefixSeparator);
+                if (caption.Length > 0)
+                {
+                    sb.Append(caption);
+                    sb.Append(PrefixSeparator);
+                }
+
                 sb.Append(value);
                 sb.Append(' ', width - value.Length);
                 sb.Append(ItemSeparator);
@@ -224,8 +228,12 @@ namespace Orang
 
             void AppendNumber(string caption, int number, int width)
             {
-                sb.Append(caption);
-                sb.Append(PrefixSeparator);
+                if (caption.Length > 0)
+                {
+                    sb.Append(caption);
+                    sb.Append(PrefixSeparator);
+                }
+
                 sb.Append(' ', width - number.GetDigitCount());
                 sb.Append(number);
                 sb.Append(ItemSeparator);

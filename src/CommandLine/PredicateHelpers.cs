@@ -9,7 +9,7 @@ namespace Orang.CommandLine
 {
     internal static class PredicateHelpers
     {
-        public static Func<Group, bool> GetLengthPredicate(Expression expression)
+        public static Func<Capture, bool> GetLengthPredicate(Expression expression)
         {
             if (expression.Kind == ExpressionKind.IntervalExpression)
             {

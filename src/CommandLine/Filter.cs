@@ -17,7 +17,7 @@ namespace Orang
             NamePartKind namePart = NamePartKind.Name,
             int groupNumber = -1,
             bool isNegative = false,
-            Func<Group, bool> predicate = null)
+            Func<Capture, bool> predicate = null)
         {
             Regex = regex ?? throw new ArgumentNullException(nameof(regex));
 
@@ -37,7 +37,7 @@ namespace Orang
 
         public NamePartKind NamePart { get; }
 
-        public Func<Group, bool> Predicate { get; }
+        public Func<Capture, bool> Predicate { get; }
 
         public string GroupName => Regex.GroupNameFromNumber(GroupNumber);
 

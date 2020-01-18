@@ -45,7 +45,7 @@ namespace Orang.CommandLine
             string groupName = null;
             NamePartKind namePart = defaultNamePart;
             string separator = null;
-            Func<Group, bool> predicate = null;
+            Func<Capture, bool> predicate = null;
 
             List<string> options = null;
 

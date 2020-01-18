@@ -51,13 +51,13 @@ namespace Orang.CommandLine
             if (match.Success)
             {
                 ContentWriter contentWriter = null;
-                List<Group> groups = null;
+                List<Capture> groups = null;
 
                 try
                 {
-                    groups = ListCache<Group>.GetInstance();
+                    groups = ListCache<Capture>.GetInstance();
 
-                    maxReason = GetGroups(match, FileWriterOptions.GroupNumber, context, isPathWritten: false, predicate: Options.ContentFilter.Predicate, groups: groups);
+                    maxReason = GetCaptures(match, FileWriterOptions.GroupNumber, context, isPathWritten: false, predicate: Options.ContentFilter.Predicate, captures: groups);
 
                     if (ShouldLog(Verbosity.Normal))
                     {
@@ -78,7 +78,7 @@ namespace Orang.CommandLine
                     contentWriter?.Dispose();
 
                     if (groups != null)
-                        ListCache<Group>.Free(groups);
+                        ListCache<Capture>.Free(groups);
                 }
             }
 
@@ -212,13 +212,13 @@ namespace Orang.CommandLine
 
             ContentWriter contentWriter = null;
             TextWriter textWriter = null;
-            List<Group> groups = null;
+            List<Capture> groups = null;
 
             try
             {
-                groups = ListCache<Group>.GetInstance();
+                groups = ListCache<Capture>.GetInstance();
 
-                GetGroups(match, writerOptions.GroupNumber, context, isPathWritten: !Options.OmitPath, predicate: Options.ContentFilter.Predicate, groups: groups);
+                GetCaptures(match, writerOptions.GroupNumber, context, isPathWritten: !Options.OmitPath, predicate: Options.ContentFilter.Predicate, captures: groups);
 
                 int fileMatchCount = 0;
                 int fileReplacementCount = 0;
@@ -328,7 +328,7 @@ namespace Orang.CommandLine
                 contentWriter?.Dispose();
 
                 if (groups != null)
-                    ListCache<Group>.Free(groups);
+                    ListCache<Capture>.Free(groups);
             }
         }
 

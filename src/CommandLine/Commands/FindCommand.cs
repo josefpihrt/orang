@@ -299,13 +299,13 @@ namespace Orang.CommandLine
             SearchTelemetry telemetry = context.Telemetry;
 
             ContentWriter contentWriter = null;
-            List<Group> groups = null;
+            List<Capture> captures = null;
 
             try
             {
-                groups = ListCache<Group>.GetInstance();
+                captures = ListCache<Capture>.GetInstance();
 
-                GetGroups(match, writerOptions.GroupNumber, context, isPathWritten: !Options.OmitPath, predicate: ContentFilter.Predicate, groups: groups);
+                GetCaptures(match, writerOptions.GroupNumber, context, isPathWritten: !Options.OmitPath, predicate: ContentFilter.Predicate, captures: captures);
 
                 bool hasAnyFunction = Options.ModifyOptions.HasAnyFunction;
 
@@ -342,7 +342,7 @@ namespace Orang.CommandLine
                     contentWriter = new EmptyContentWriter(null, writerOptions);
                 }
 
-                WriteMatches(contentWriter, groups, context);
+                WriteMatches(contentWriter, captures, context);
 
                 if (hasAnyFunction)
                 {
@@ -394,16 +394,16 @@ namespace Orang.CommandLine
             {
                 contentWriter?.Dispose();
 
-                if (groups != null)
-                    ListCache<Group>.Free(groups);
+                if (captures != null)
+                    ListCache<Capture>.Free(captures);
             }
         }
 
-        protected void WriteMatches(ContentWriter writer, IEnumerable<Group> groups, SearchContext context)
+        protected void WriteMatches(ContentWriter writer, IEnumerable<Capture> captures, SearchContext context)
         {
             try
             {
-                writer.WriteMatches(groups, context.CancellationToken);
+                writer.WriteMatches(captures, context.CancellationToken);
             }
             catch (OperationCanceledException)
             {
@@ -411,13 +411,13 @@ namespace Orang.CommandLine
             }
         }
 
-        protected MaxReason GetGroups(
+        protected MaxReason GetCaptures(
             Match match,
             int groupNumber,
             SearchContext context,
             bool isPathWritten,
-            Func<Group, bool> predicate,
-            List<Group> groups)
+            Func<Capture, bool> predicate,
+            List<Capture> captures)
         {
             int maxMatchesInFile = Options.MaxMatchesInFile;
             int maxMatches = Options.MaxMatches;
@@ -447,17 +447,17 @@ namespace Orang.CommandLine
             MaxReason maxReason;
             if (groupNumber < 1)
             {
-                maxReason = GetMatches(groups, match, count, predicate, context.CancellationToken);
+                maxReason = GetMatches(captures, match, count, predicate, context.CancellationToken);
             }
             else
             {
-                maxReason = GetGroups(groups, match, groupNumber, count, predicate, context.CancellationToken);
+                maxReason = GetCaptures(captures, match, groupNumber, count, predicate, context.CancellationToken);
             }
 
-            if (groups.Count > 1
-                && groups[0].Index > groups[1].Index)
+            if (captures.Count > 1
+                && captures[0].Index > captures[1].Index)
             {
-                groups.Reverse();
+                captures.Reverse();
             }
 
             if ((maxReason == MaxReason.CountEqualsMax || maxReason == MaxReason.CountExceedsMax)
@@ -477,7 +477,7 @@ namespace Orang.CommandLine
                     verbosity = (Options.IncludeCount) ? Verbosity.Minimal : Verbosity.Detailed;
 
                     ConsoleOut.Write("  ", Colors.Message_OK, verbosity);
-                    ConsoleOut.Write(groups.Count.ToString("n0"), Colors.Message_OK, verbosity);
+                    ConsoleOut.Write(captures.Count.ToString("n0"), Colors.Message_OK, verbosity);
                     ConsoleOut.WriteIf(maxReason == MaxReason.CountExceedsMax, "+", Colors.Message_OK, verbosity);
                 }
 
@@ -493,7 +493,7 @@ namespace Orang.CommandLine
                         verbosity = (Options.IncludeCount) ? Verbosity.Minimal : Verbosity.Detailed;
 
                         Out.Write("  ", verbosity);
-                        Out.Write(groups.Count.ToString("n0"), verbosity);
+                        Out.Write(captures.Count.ToString("n0"), verbosity);
                         Out.WriteIf(maxReason == MaxReason.CountExceedsMax, "+", verbosity);
                     }
 
@@ -505,7 +505,7 @@ namespace Orang.CommandLine
         }
 
         private MaxReason GetMatches(
-            List<Group> groups,
+            List<Capture> matches,
             Match match,
             int count,
             Func<Group, bool> predicate,
@@ -513,7 +513,7 @@ namespace Orang.CommandLine
         {
             do
             {
-                groups.Add(match);
+                matches.Add(match);
 
                 if (predicate != null)
                 {
@@ -537,7 +537,7 @@ namespace Orang.CommandLine
                     match = match.NextMatch();
                 }
 
-                if (groups.Count == count)
+                if (matches.Count == count)
                 {
                     return (match.Success)
                         ? MaxReason.CountExceedsMax
@@ -551,30 +551,42 @@ namespace Orang.CommandLine
             return MaxReason.None;
         }
 
-        private MaxReason GetGroups(
-            List<Group> groups,
+        private MaxReason GetCaptures(
+            List<Capture> captures,
             Match match,
             int groupNumber,
             int count,
-            Func<Group, bool> predicate,
+            Func<Capture, bool> predicate,
             CancellationToken cancellationToken)
         {
             Group group = match.Groups[groupNumber];
 
             do
             {
-                groups.Add(group);
+                Capture prevCapture = null;
 
-                group = NextGroup();
-
-                if (groups.Count == count)
+                foreach (Capture capture in group.Captures)
                 {
-                    return (group.Success)
-                        ? MaxReason.CountExceedsMax
-                        : MaxReason.CountEqualsMax;
+                    if (prevCapture != null
+                        && prevCapture.EndIndex() <= capture.EndIndex()
+                        && prevCapture.Index >= capture.Index)
+                    {
+                        captures[captures.Count - 1] = capture;
+                    }
+                    else
+                    {
+                        captures.Add(capture);
+                    }
+
+                    if (captures.Count == count)
+                        return (group.Success) ? MaxReason.CountExceedsMax : MaxReason.CountEqualsMax;
+
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    prevCapture = capture;
                 }
 
-                cancellationToken.ThrowIfCancellationRequested();
+                group = NextGroup();
 
             } while (group.Success);
 

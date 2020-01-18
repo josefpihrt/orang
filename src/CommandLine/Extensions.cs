@@ -10,6 +10,11 @@ namespace Orang
 {
     internal static class Extensions
     {
+        public static int EndIndex(this Capture capture)
+        {
+            return capture.Index + capture.Length;
+        }
+
         public static void WriteLineIf(this TextWriter writer, bool condition, string value)
         {
             if (condition)

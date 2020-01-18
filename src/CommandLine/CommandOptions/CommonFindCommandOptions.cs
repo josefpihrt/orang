@@ -71,7 +71,8 @@ namespace Orang.CommandLine
                 MatchData.Create(input, ContentFilter.Regex, match),
                 groupNumber,
                 includeGroupNumber: groupNumber >= 0,
-                includeCaptureNumber: false);
+                includeCaptureNumber: false,
+                new OutputCaptions(shortMatch: ""));
         }
     }
 }

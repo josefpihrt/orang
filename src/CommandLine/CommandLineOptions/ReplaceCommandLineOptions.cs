@@ -162,6 +162,7 @@ namespace Orang.CommandLine
             options.MaxMatchesInFile = maxMatchesInFile;
             options.MaxMatches = maxMatches;
             options.MaxMatchingFiles = maxMatchingFiles;
+            options.ModifyOptions = ModifyOptions.Default;
 
             return true;
         }

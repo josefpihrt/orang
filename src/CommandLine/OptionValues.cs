@@ -6,7 +6,7 @@ namespace Orang.CommandLine
 {
     internal static class OptionValues
     {
-        public static readonly SimpleOptionValue ModifyFlags_Except = SimpleOptionValue.Create(ModifyFlags.Except, shortValue: "e", description: "Return values from first file except values from second file.");
+        public static readonly SimpleOptionValue ModifyFlags_Except = SimpleOptionValue.Create(ModifyFlags.Except, shortValue: "", description: "Return values from first file except values from second file.");
         public static readonly SimpleOptionValue ModifyFlags_Intersect = SimpleOptionValue.Create(ModifyFlags.Intersect, shortValue: "", description: "Return values that were found in all files.");
         public static readonly SimpleOptionValue PathDisplayStyle_Full = SimpleOptionValue.Create(PathDisplayStyle.Full, description: "Display full path.");
         public static readonly SimpleOptionValue PathDisplayStyle_Relative = SimpleOptionValue.Create(PathDisplayStyle.Relative, description: "Display path relatively to the base directory.");

@@ -18,7 +18,7 @@ namespace Orang.CommandLine
             MetaName = ArgumentMetaNames.Path)]
         public string Path { get; set; }
 
-        [Option(longName: OptionNames.Input,
+        [Option(shortName: OptionShortNames.Input, longName: OptionNames.Input,
             HelpText = "Text to search.",
             MetaValue = MetaValues.Input)]
         public string Input { get; set; }

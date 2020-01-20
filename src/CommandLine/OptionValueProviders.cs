@@ -143,7 +143,7 @@ namespace Orang.CommandLine
             SimpleOptionValue.Create(ModifyFlags.Ascending, description: "Sort values in an ascending order."),
             SimpleOptionValue.Create(ModifyFlags.CultureInvariant, shortValue: "ci", description: "Ignore cultural differences between languages."),
             SimpleOptionValue.Create(ModifyFlags.Descending, description: "Sort values in a descending order."),
-            SimpleOptionValue.Create(ModifyFlags.Distinct, shortValue: "", description: "Return distinct values."),
+            SimpleOptionValue.Create(ModifyFlags.Distinct, shortValue: "di", description: "Return distinct values."),
             OptionValues.ModifyFlags_Except,
             OptionValues.ModifyFlags_Intersect,
             SimpleOptionValue.Create(ModifyFlags.IgnoreCase, description: "Use case-insensitive matching."),

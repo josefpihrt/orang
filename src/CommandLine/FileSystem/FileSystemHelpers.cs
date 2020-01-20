@@ -119,7 +119,7 @@ namespace Orang.FileSystem
         }
 
         public static void Delete(
-            in FileSystemFinderResult result,
+            FileSystemFinderResult result,
             bool contentOnly = false,
             bool includingBom = false,
             bool filesOnly = false,

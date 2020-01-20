@@ -98,10 +98,10 @@ namespace Orang.CommandLine
         {
             context.Telemetry.FileCount++;
 
-            FileSystemFinderResult? maybeResult = MatchFile(filePath, context.Progress);
+            FileSystemFinderResult result = MatchFile(filePath, context.Progress);
 
-            if (maybeResult != null)
-                ProcessResult(maybeResult.Value, context, FileWriterOptions);
+            if (result != null)
+                ProcessResult(result, context, FileWriterOptions);
         }
 
         protected override void ExecuteDirectory(string directoryPath, SearchContext context)

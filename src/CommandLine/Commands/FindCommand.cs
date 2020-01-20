@@ -130,17 +130,17 @@ namespace Orang.CommandLine
         {
             context.Telemetry.FileCount++;
 
-            FileSystemFinderResult? maybeResult = MatchFile(filePath, context.Progress);
+            FileSystemFinderResult result = MatchFile(filePath, context.Progress);
 
-            if (maybeResult != null)
+            if (result != null)
             {
                 if (ContentFilter != null)
                 {
-                    ProcessResult(maybeResult.Value, context, FileWriterOptions);
+                    ProcessResult(result, context, FileWriterOptions);
                 }
                 else
                 {
-                    ExecuteOrAddResult(maybeResult.Value, context, null);
+                    ExecuteOrAddResult(result, context, null);
                 }
             }
         }

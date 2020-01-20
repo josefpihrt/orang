@@ -74,10 +74,10 @@ namespace Orang.FileSystem
                         {
                             while (fi.MoveNext())
                             {
-                                FileSystemFinderResult? result = MatchFile(fi.Current, nameFilter, extensionFilter, options, progress, namePart);
+                                FileSystemFinderResult result = MatchFile(fi.Current, nameFilter, extensionFilter, options, progress, namePart);
 
                                 if (result != null)
-                                    yield return result.Value;
+                                    yield return result;
 
                                 cancellationToken.ThrowIfCancellationRequested();
                             }
@@ -111,10 +111,10 @@ namespace Orang.FileSystem
                                 if (options.SearchTarget != SearchTarget.Files
                                     && namePart != NamePartKind.Extension)
                                 {
-                                    FileSystemFinderResult? result = MatchDirectory(currentDirectory, nameFilter, options, progress);
+                                    FileSystemFinderResult result = MatchDirectory(currentDirectory, nameFilter, options, progress);
 
                                     if (result != null)
-                                        yield return result.Value;
+                                        yield return result;
                                 }
 
                                 if (currentDirectory != null
@@ -146,7 +146,7 @@ namespace Orang.FileSystem
             }
         }
 
-        public static FileSystemFinderResult? MatchFile(
+        public static FileSystemFinderResult MatchFile(
             string path,
             Filter nameFilter = null,
             Filter extensionFilter = null,
@@ -162,7 +162,7 @@ namespace Orang.FileSystem
                 namePartKind: nameFilter?.NamePart ?? NamePartKind.Name);
         }
 
-        internal static FileSystemFinderResult? MatchFile(
+        internal static FileSystemFinderResult MatchFile(
             string path,
             Filter nameFilter,
             Filter extensionFilter,
@@ -216,7 +216,7 @@ namespace Orang.FileSystem
             return new FileSystemFinderResult(namePart, match);
         }
 
-        public static FileSystemFinderResult? MatchDirectory(
+        public static FileSystemFinderResult MatchDirectory(
             string path,
             Filter nameFilter = null,
             FileSystemFinderOptions options = null,
@@ -230,7 +230,7 @@ namespace Orang.FileSystem
                 namePartKind: nameFilter?.NamePart ?? NamePartKind.Name);
         }
 
-        internal static FileSystemFinderResult? MatchDirectory(
+        internal static FileSystemFinderResult MatchDirectory(
             string path,
             Filter nameFilter,
             FileSystemFinderOptions options,

@@ -205,7 +205,7 @@ namespace Orang.CommandLine
         }
 
         public static void WritePath(
-            in FileSystemFinderResult result,
+            FileSystemFinderResult result,
             string basePath,
             bool relativePath,
             in ConsoleColors colors,
@@ -229,7 +229,7 @@ namespace Orang.CommandLine
         }
 
         public static void WritePath(
-            in FileSystemFinderResult result,
+            FileSystemFinderResult result,
             List<ReplaceItem> items,
             string basePath,
             bool relativePath,

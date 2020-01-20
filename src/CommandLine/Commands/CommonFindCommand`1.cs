@@ -404,9 +404,9 @@ namespace Orang.CommandLine
             return results;
         }
 
-        protected FileSystemFinderResult? MatchFile(string filePath, ProgressReporter progress = null)
+        protected FileSystemFinderResult MatchFile(string filePath, ProgressReporter progress = null)
         {
-            FileSystemFinderResult? result = FileSystemFinder.MatchFile(
+            FileSystemFinderResult result = FileSystemFinder.MatchFile(
                 filePath,
                 nameFilter: Options.NameFilter,
                 extensionFilter: Options.ExtensionFilter,
@@ -414,7 +414,7 @@ namespace Orang.CommandLine
                 progress: progress);
 
             if (result != null
-                && Options.FilePropertyFilter?.IsMatch(result.Value) == false)
+                && Options.FilePropertyFilter?.IsMatch(result) == false)
             {
                 return null;
             }

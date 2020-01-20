@@ -109,6 +109,7 @@ namespace Orang.CommandLine
 
         protected virtual void ExecuteCore(SearchContext context)
         {
+            bool canceled = false;
             Stopwatch stopwatch = Stopwatch.StartNew();
 
             foreach (PathInfo pathInfo in Options.Paths)
@@ -121,6 +122,7 @@ namespace Orang.CommandLine
                 if (context.TerminationReason == TerminationReason.Canceled
                     || context.CancellationToken.IsCancellationRequested)
                 {
+                    canceled = true;
                     OperationCanceled();
                     break;
                 }
@@ -135,8 +137,11 @@ namespace Orang.CommandLine
                     context.Progress.ProgressReported = false;
                 }
 
-                if (context.Results.Count > 0)
+                if (!canceled
+                    && context.Results.Count > 0)
+                {
                     ExecuteResults(context);
+                }
             }
 
             stopwatch.Stop();

@@ -126,38 +126,37 @@ namespace Orang.CommandLine
 
             bool renamed = false;
 
-            if (!Options.DryRun
-                && (!Options.Ask || AskToRename()))
+            if (!Options.Ask || AskToRename())
             {
                 try
                 {
+                    if (!Options.DryRun)
+                    {
+                        if (result.IsDirectory)
+                        {
+                            Directory.Move(path, newPath);
+                        }
+                        else
+                        {
+                            File.Move(path, newPath);
+                        }
+
+                        renamed = true;
+                    }
+
                     if (result.IsDirectory)
                     {
-                        Directory.Move(path, newPath);
+                        context.Telemetry.ProcessedDirectoryCount++;
                     }
                     else
                     {
-                        File.Move(path, newPath);
+                        context.Telemetry.ProcessedFileCount++;
                     }
-
-                    renamed = true;
                 }
                 catch (Exception ex) when (ex is IOException
                     || ex is UnauthorizedAccessException)
                 {
                     WriteFileError(ex, indent: indent);
-                }
-            }
-
-            if (Options.DryRun || renamed)
-            {
-                if (result.IsDirectory)
-                {
-                    context.Telemetry.ProcessedDirectoryCount++;
-                }
-                else
-                {
-                    context.Telemetry.ProcessedFileCount++;
                 }
             }
 

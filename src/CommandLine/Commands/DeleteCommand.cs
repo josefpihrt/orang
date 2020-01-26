@@ -84,36 +84,35 @@ namespace Orang.CommandLine
 
             bool deleted = false;
 
-            if (!Options.DryRun
-                && (!Options.Ask || AskToDelete()))
+            if (!Options.Ask || AskToDelete())
             {
                 try
                 {
-                    FileSystemHelpers.Delete(
-                        result,
-                        contentOnly: Options.ContentOnly,
-                        includingBom: Options.IncludingBom,
-                        filesOnly: Options.FilesOnly,
-                        directoriesOnly: Options.DirectoriesOnly);
+                    if (!Options.DryRun)
+                    {
+                        FileSystemHelpers.Delete(
+                            result,
+                            contentOnly: Options.ContentOnly,
+                            includingBom: Options.IncludingBom,
+                            filesOnly: Options.FilesOnly,
+                            directoriesOnly: Options.DirectoriesOnly);
 
-                    deleted = true;
+                        deleted = true;
+                    }
+
+                    if (result.IsDirectory)
+                    {
+                        context.Telemetry.ProcessedDirectoryCount++;
+                    }
+                    else
+                    {
+                        context.Telemetry.ProcessedFileCount++;
+                    }
                 }
                 catch (Exception ex) when (ex is IOException
                     || ex is UnauthorizedAccessException)
                 {
                     WriteFileError(ex, indent: indent);
-                }
-            }
-
-            if (Options.DryRun || deleted)
-            {
-                if (result.IsDirectory)
-                {
-                    context.Telemetry.ProcessedDirectoryCount++;
-                }
-                else
-                {
-                    context.Telemetry.ProcessedFileCount++;
                 }
             }
 

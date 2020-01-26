@@ -164,6 +164,9 @@ namespace Orang.CommandLine
                 if (context.TerminationReason == TerminationReason.MaxReached)
                     break;
             }
+
+            if (ContentFilter == null)
+                _storageIndexes?.Add(_storage.Count);
         }
 
         private void ProcessResult(
@@ -275,6 +278,13 @@ namespace Orang.CommandLine
 
             if (!Options.OmitPath)
                 WritePath(context, result, baseDirectoryPath, indent, columnWidths);
+
+            if (_storage != null
+                && result.Match != null
+                && !object.ReferenceEquals(result.Match, Match.Empty))
+            {
+                _storage.Add(result.Match.Value);
+            }
 
             if (_askMode == AskMode.File)
             {
@@ -639,7 +649,7 @@ namespace Orang.CommandLine
                 if ((modifyOptions.Functions & ModifyFunctions.Except) != 0)
                 {
                     if (_storageIndexes.Count > 2)
-                        throw new InvalidOperationException("'Except' operation cannot be applied on more than two files.");
+                        throw new InvalidOperationException($"'Except' operation cannot be applied on more than two {((ContentFilter != null) ? "files" : "directories")}.");
 
                     int index = _storageIndexes[0];
 

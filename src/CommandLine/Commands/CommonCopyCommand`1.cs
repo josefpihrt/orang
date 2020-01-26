@@ -61,11 +61,12 @@ namespace Orang.CommandLine
             ExecuteOperation(result, context, baseDirectoryPath, GetPathIndent(baseDirectoryPath));
         }
 
-        protected override void ExecuteResult(FileSystemFinderResult result, SearchContext context, string baseDirectoryPath = null, ColumnWidths columnWidths = null)
+        protected sealed override void ExecuteResult(FileSystemFinderResult result, SearchContext context, string baseDirectoryPath = null, ColumnWidths columnWidths = null)
         {
-            base.ExecuteResult(result, context, baseDirectoryPath, columnWidths);
-
             ExecuteOperation(result, context, baseDirectoryPath, GetPathIndent(baseDirectoryPath));
+
+            if (context.TerminationReason != TerminationReason.Canceled)
+                AskToContinue(context, GetPathIndent(baseDirectoryPath));
         }
 
         private void ExecuteOperation(

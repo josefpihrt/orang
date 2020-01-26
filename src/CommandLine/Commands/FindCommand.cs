@@ -241,18 +241,7 @@ namespace Orang.CommandLine
                 WriteMatches(input, match, writerOptions, context);
             }
 
-            if (_askMode == AskMode.File)
-            {
-                try
-                {
-                    if (ConsoleHelpers.Question("Continue without asking?", indent))
-                        _askMode = AskMode.None;
-                }
-                catch (OperationCanceledException)
-                {
-                    context.TerminationReason = TerminationReason.Canceled;
-                }
-            }
+            AskToContinue(context, indent);
         }
 
         protected override void ExecuteResult(SearchResult result, SearchContext context, ColumnWidths columnWidths)
@@ -286,6 +275,11 @@ namespace Orang.CommandLine
                 _storage.Add(result.Match.Value);
             }
 
+            AskToContinue(context, indent);
+        }
+
+        protected void AskToContinue(SearchContext context, string indent)
+        {
             if (_askMode == AskMode.File)
             {
                 try

@@ -288,10 +288,10 @@ namespace Orang.CommandLine
                         {
                             if (Options.DryRun)
                             {
-                                if (ConsoleHelpers.Question("Continue without asking?", indent))
+                                if (ConsoleHelpers.AskToContinue(indent))
                                     Options.AskMode = AskMode.None;
                             }
-                            else if (ConsoleHelpers.Question("Replace content?", indent))
+                            else if (ConsoleHelpers.AskToExecute("Replace content?", indent))
                             {
                                 File.WriteAllText(filePath, textWriter!.ToString(), encoding);
                             }

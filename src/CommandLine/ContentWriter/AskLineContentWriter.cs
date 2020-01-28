@@ -59,8 +59,11 @@ namespace Orang.CommandLine
 
             WriteEndLine(endIndex, eolIndex);
 
-            if (ConsoleHelpers.QuestionIf(Ask, "Continue without asking?", Options.Indent))
+            if (Ask
+                && ConsoleHelpers.AskToContinue(Options.Indent))
+            {
                 Ask = false;
+            }
         }
 
         protected override void WriteEndMatches()

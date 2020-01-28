@@ -284,7 +284,7 @@ namespace Orang.CommandLine
             {
                 try
                 {
-                    if (ConsoleHelpers.Question("Continue without asking?", indent))
+                    if (ConsoleHelpers.AskToContinue(indent))
                         _askMode = AskMode.None;
                 }
                 catch (OperationCanceledException)

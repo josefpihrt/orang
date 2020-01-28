@@ -168,14 +168,34 @@ namespace Orang.CommandLine
 
             bool AskToRename()
             {
-                try
+                DialogResult result = ConsoleHelpers.Ask("Rename?", indent);
+
+                switch (result)
                 {
-                    return ConsoleHelpers.Question("Rename?", indent);
-                }
-                catch (OperationCanceledException)
-                {
-                    context.TerminationReason = TerminationReason.Canceled;
-                    return false;
+                    case DialogResult.Yes:
+                        {
+                            return true;
+                        }
+                    case DialogResult.YesToAll:
+                        {
+                            Options.Ask = false;
+                            return true;
+                        }
+                    case DialogResult.No:
+                    case DialogResult.None:
+                        {
+                            return false;
+                        }
+                    case DialogResult.NoToAll:
+                    case DialogResult.Cancel:
+                        {
+                            context.TerminationReason = TerminationReason.Canceled;
+                            return false;
+                        }
+                    default:
+                        {
+                            throw new InvalidOperationException($"Unknown enum value '{result}'.");
+                        }
                 }
             }
         }

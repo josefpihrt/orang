@@ -175,7 +175,7 @@ namespace Orang.CommandLine
                     question = "Overwrite file?";
                 }
 
-                DialogResult dialogResult = ConsoleHelpers.QuestionWithResult(question, indent);
+                DialogResult dialogResult = ConsoleHelpers.Ask(question, indent);
                 switch (dialogResult)
                 {
                     case DialogResult.Yes:

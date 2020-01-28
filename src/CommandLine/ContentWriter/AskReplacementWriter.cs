@@ -55,7 +55,7 @@ namespace Orang.CommandLine
         {
             if (_lazyWriter != null)
             {
-                if (ConsoleHelpers.Question("Replace?", Options.Indent))
+                if (ConsoleHelpers.AskToExecute("Replace?", Options.Indent))
                 {
                     _lazyWriter.Value.Write(Input.AsSpan(_writerIndex, match.Index - _writerIndex));
                     _lazyWriter.Value.Write(result);
@@ -66,7 +66,7 @@ namespace Orang.CommandLine
                 }
             }
             else if (!ContinueWithoutAsking
-                && ConsoleHelpers.Question("Continue without asking?", Options.Indent))
+                && ConsoleHelpers.AskToContinue(Options.Indent))
             {
                 ContinueWithoutAsking = true;
             }

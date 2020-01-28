@@ -10,41 +10,6 @@ namespace Orang.CommandLine
 {
     internal static class ConsoleHelpers
     {
-        private static readonly ImmutableDictionary<string, DialogResult> _dialogResultMap = CreateDialogResultMap();
-        private static readonly ImmutableDictionary<string, DialogResult> _yesNoCancelMap = CreateYesNoCancelMap();
-
-        private static ImmutableDictionary<string, DialogResult> CreateDialogResultMap()
-        {
-            ImmutableDictionary<string, DialogResult>.Builder builder = ImmutableDictionary.CreateBuilder<string, DialogResult>();
-
-            builder.Add("y", DialogResult.Yes);
-            builder.Add("yes", DialogResult.Yes);
-            builder.Add("ya", DialogResult.YesToAll);
-            builder.Add("yes to all", DialogResult.YesToAll);
-            builder.Add("n", DialogResult.No);
-            builder.Add("no", DialogResult.No);
-            builder.Add("na", DialogResult.NoToAll);
-            builder.Add("no to all", DialogResult.NoToAll);
-            builder.Add("c", DialogResult.Cancel);
-            builder.Add("cancel", DialogResult.Cancel);
-
-            return builder.ToImmutableDictionary(StringComparer.OrdinalIgnoreCase);
-        }
-
-        private static ImmutableDictionary<string, DialogResult> CreateYesNoCancelMap()
-        {
-            ImmutableDictionary<string, DialogResult>.Builder builder = ImmutableDictionary.CreateBuilder<string, DialogResult>();
-
-            builder.Add("y", DialogResult.Yes);
-            builder.Add("yes", DialogResult.Yes);
-            builder.Add("n", DialogResult.No);
-            builder.Add("no", DialogResult.No);
-            builder.Add("c", DialogResult.Cancel);
-            builder.Add("cancel", DialogResult.Cancel);
-
-            return builder.ToImmutableDictionary(StringComparer.OrdinalIgnoreCase);
-        }
-
         public static string ReadRedirectedInput()
         {
             if (Console.IsInputRedirected)
@@ -74,17 +39,9 @@ namespace Orang.CommandLine
             }
         }
 
-        public static bool Question(string question, string indent = null)
+        public static bool AskToExecute(string text, string indent = null)
         {
-            return QuestionIf(true, question, indent);
-        }
-
-        public static bool QuestionIf(bool condition, string question, string indent = null)
-        {
-            if (!condition)
-                return true;
-
-            switch (QuestionWithResult(question, " (Y/N/C): ", "Y (Yes), N (No), C (Cancel)", _yesNoCancelMap, indent))
+            switch (Ask(text, " (Y/N/C): ", "Y (Yes), N (No), C (Cancel)", DialogResultMap.YesNoCancel, indent))
             {
                 case DialogResult.Yes:
                     return true;
@@ -98,12 +55,35 @@ namespace Orang.CommandLine
             }
         }
 
-        public static DialogResult QuestionWithResult(string question, string indent = null)
+        public static bool AskToContinue(string indent)
         {
-            return QuestionWithResult(question, " (Y[A]/N[A]/C): ", "Y (Yes), YA (Yes to All), N (No), NA (No to All), C (Cancel)", _dialogResultMap, indent);
+            switch (Ask(
+                question: "Continue?",
+                suffix: " (Y[A]/C): ",
+                helpText: "Y (Yes), YA (Yes to All), C (Cancel)",
+                map: DialogResultMap.YesYesToAllCancel,
+                indent: indent))
+            {
+                case DialogResult.None:
+                case DialogResult.Yes:
+                    break;
+                case DialogResult.YesToAll:
+                    return true;
+                case DialogResult.Cancel:
+                    throw new OperationCanceledException();
+                default:
+                    throw new InvalidOperationException();
+            }
+
+            return false;
         }
 
-        private static DialogResult QuestionWithResult(
+        public static DialogResult Ask(string question, string indent = null)
+        {
+            return Ask(question, " (Y[A]/N[A]/C): ", "Y (Yes), YA (Yes to All), N (No), NA (No to All), C (Cancel)", DialogResultMap.All, indent);
+        }
+
+        private static DialogResult Ask(
             string question,
             string suffix,
             string helpText,

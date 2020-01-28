@@ -124,16 +124,34 @@ namespace Orang.CommandLine
 
             bool AskToDelete()
             {
-                try
+                DialogResult result = ConsoleHelpers.Ask((Options.ContentOnly) ? "Delete content?" : "Delete?", indent);
+
+                switch (result)
                 {
-                    return ConsoleHelpers.Question(
-                        (Options.ContentOnly) ? "Delete content?" : "Delete?",
-                        indent);
-                }
-                catch (OperationCanceledException)
-                {
-                    context.TerminationReason = TerminationReason.Canceled;
-                    return false;
+                    case DialogResult.Yes:
+                        {
+                            return true;
+                        }
+                    case DialogResult.YesToAll:
+                        {
+                            Options.Ask = false;
+                            return true;
+                        }
+                    case DialogResult.No:
+                    case DialogResult.None:
+                        {
+                            return false;
+                        }
+                    case DialogResult.NoToAll:
+                    case DialogResult.Cancel:
+                        {
+                            context.TerminationReason = TerminationReason.Canceled;
+                            return false;
+                        }
+                    default:
+                        {
+                            throw new InvalidOperationException($"Unknown enum value '{result}'.");
+                        }
                 }
             }
         }

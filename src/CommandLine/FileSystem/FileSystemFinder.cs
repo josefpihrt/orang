@@ -2,10 +2,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Security;
 using System.Text.RegularExpressions;
 using System.Threading;
+using static Orang.FileSystem.FileSystemHelpers;
 
 namespace Orang.FileSystem
 {
@@ -37,8 +39,8 @@ namespace Orang.FileSystem
             NamePartKind namePart = nameFilter?.NamePart ?? NamePartKind.Name;
             NamePartKind directoryNamePart = directoryFilter?.NamePart ?? NamePartKind.Name;
 
-            var directories = new Queue<string>();
-            Queue<string> subDirectories = (options.RecurseSubdirectories) ? new Queue<string>() : null;
+            var directories = new Queue<Directory>();
+            Queue<Directory> subdirectories = (options.RecurseSubdirectories) ? new Queue<Directory>() : null;
 
             string currentDirectory = null;
 
@@ -47,25 +49,30 @@ namespace Orang.FileSystem
                 notifyDirectoryChanged.DirectoryChanged += (object sender, DirectoryChangedEventArgs e) => currentDirectory = e.NewName;
             }
 
-            string dirPath = directoryPath;
+            bool? isMatch = (directoryFilter?.IsNegative == false)
+                ? directoryFilter.IsMatch(NamePart.FromDirectory(directoryPath, directoryNamePart))
+                : default(bool?);
+
+            var directory = new Directory(directoryPath, isMatch);
 
             while (true)
             {
-                progress?.Report(new FileSystemFinderProgress(dirPath, ProgressKind.SearchedDirectory));
+                progress?.Report(new FileSystemFinderProgress(directory.Path, ProgressKind.SearchedDirectory));
 
-                if (options.SearchTarget != SearchTarget.Directories)
+                if (options.SearchTarget != SearchTarget.Directories
+                    && directory.IsMatch != false)
                 {
                     IEnumerator<string> fi = null;
 
                     try
                     {
                         fi = (options.CanEnumerate)
-                            ? Directory.EnumerateFiles(dirPath, "*", enumerationOptions).GetEnumerator()
-                            : ((IEnumerable<string>)Directory.GetFiles(dirPath, "*", enumerationOptions)).GetEnumerator();
+                            ? EnumerateFiles(directory.Path, enumerationOptions).GetEnumerator()
+                            : ((IEnumerable<string>)GetFiles(directory.Path, enumerationOptions)).GetEnumerator();
                     }
                     catch (Exception ex) when (IsWellKnownException(ex))
                     {
-                        progress?.Report(new FileSystemFinderProgress(dirPath, ProgressKind.SearchedDirectory, ex));
+                        progress?.Report(new FileSystemFinderProgress(directory.Path, ProgressKind.SearchedDirectory, ex));
                     }
 
                     if (fi != null)
@@ -90,12 +97,12 @@ namespace Orang.FileSystem
                 try
                 {
                     di = (options.CanEnumerate)
-                        ? Directory.EnumerateDirectories(dirPath, "*", enumerationOptions).GetEnumerator()
-                        : ((IEnumerable<string>)Directory.GetDirectories(dirPath, "*", enumerationOptions)).GetEnumerator();
+                        ? EnumerateDirectories(directory.Path, enumerationOptions).GetEnumerator()
+                        : ((IEnumerable<string>)GetDirectories(directory.Path, enumerationOptions)).GetEnumerator();
                 }
                 catch (Exception ex) when (IsWellKnownException(ex))
                 {
-                    progress?.Report(new FileSystemFinderProgress(dirPath, ProgressKind.SearchedDirectory, ex));
+                    progress?.Report(new FileSystemFinderProgress(directory.Path, ProgressKind.SearchedDirectory, ex));
                 }
 
                 if (di != null)
@@ -106,21 +113,34 @@ namespace Orang.FileSystem
                         {
                             currentDirectory = di.Current;
 
-                            if (directoryFilter?.IsMatch(NamePart.FromDirectory(currentDirectory, directoryNamePart)) != false)
+                            isMatch = (directory.IsMatch == true) ? true : default(bool?);
+
+                            if (directory.IsMatch != false
+                                && options.SearchTarget != SearchTarget.Files
+                                && namePart != NamePartKind.Extension)
                             {
-                                if (options.SearchTarget != SearchTarget.Files
-                                    && namePart != NamePartKind.Extension)
+                                if (isMatch == null)
+                                    isMatch = directoryFilter?.IsMatch(NamePart.FromDirectory(currentDirectory, directoryNamePart));
+
+                                if (isMatch != false)
                                 {
                                     FileSystemFinderResult result = MatchDirectory(currentDirectory, nameFilter, options, progress);
 
                                     if (result != null)
                                         yield return result;
                                 }
+                            }
 
-                                if (currentDirectory != null
-                                    && options.RecurseSubdirectories)
+                            if (currentDirectory != null
+                                && options.RecurseSubdirectories)
+                            {
+                                if (isMatch == null)
+                                    isMatch = directoryFilter?.IsMatch(NamePart.FromDirectory(currentDirectory, directoryNamePart));
+
+                                if (isMatch != false
+                                    || !directoryFilter!.IsNegative)
                                 {
-                                    subDirectories!.Enqueue(currentDirectory);
+                                    subdirectories!.Enqueue(new Directory(currentDirectory, isMatch));
                                 }
                             }
 
@@ -130,14 +150,14 @@ namespace Orang.FileSystem
 
                     if (options.RecurseSubdirectories)
                     {
-                        while (subDirectories!.Count > 0)
-                            directories.Enqueue(subDirectories.Dequeue());
+                        while (subdirectories!.Count > 0)
+                            directories.Enqueue(subdirectories.Dequeue());
                     }
                 }
 
                 if (directories.Count > 0)
                 {
-                    dirPath = directories.Dequeue();
+                    directory = directories.Dequeue();
                 }
                 else
                 {
@@ -199,8 +219,8 @@ namespace Orang.FileSystem
                 try
                 {
                     if ((options.Empty.Value)
-                        ? !FileSystemHelpers.IsEmptyFile(path)
-                        : FileSystemHelpers.IsEmptyFile(path))
+                        ? !IsEmptyFile(path)
+                        : IsEmptyFile(path))
                     {
                         return null;
                     }
@@ -263,8 +283,8 @@ namespace Orang.FileSystem
                 try
                 {
                     if ((options.Empty.Value)
-                        ? !FileSystemHelpers.IsEmptyDirectory(path)
-                        : FileSystemHelpers.IsEmptyDirectory(path))
+                        ? !IsEmptyDirectory(path)
+                        : IsEmptyDirectory(path))
                     {
                         return null;
                     }
@@ -287,6 +307,23 @@ namespace Orang.FileSystem
                 || ex is UnauthorizedAccessException
                 || ex is SecurityException
                 || ex is NotSupportedException;
+        }
+
+        [DebuggerDisplay("{DebuggerDisplay,nq}")]
+        private readonly struct Directory
+        {
+            public Directory(string path, bool? isMatch = null)
+            {
+                Path = path;
+                IsMatch = isMatch;
+            }
+
+            public string Path { get; }
+
+            public bool? IsMatch { get; }
+
+            [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+            private string DebuggerDisplay => $"{Path}";
         }
     }
 }

@@ -33,6 +33,26 @@ namespace Orang.FileSystem
 
         public static StringComparison Comparison { get; } = (IsCaseSensitive) ? StringComparison.CurrentCulture : StringComparison.CurrentCultureIgnoreCase;
 
+        public static IEnumerable<string> EnumerateFiles(string path, EnumerationOptions options)
+        {
+            return Directory.EnumerateFiles(path, "*", options);
+        }
+
+        public static IEnumerable<string> EnumerateDirectories(string path, EnumerationOptions options)
+        {
+            return Directory.EnumerateDirectories(path, "*", options);
+        }
+
+        public static string[] GetFiles(string path, EnumerationOptions options)
+        {
+            return Directory.GetFiles(path, "*", options);
+        }
+
+        public static string[] GetDirectories(string path, EnumerationOptions options)
+        {
+            return Directory.GetDirectories(path, "*", options);
+        }
+
         private static bool GetIsCaseSensitive()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -141,13 +161,13 @@ namespace Orang.FileSystem
             {
                 if (!directoriesOnly)
                 {
-                    foreach (string path in Directory.EnumerateFiles(directoryPath, "*", _enumerationOptionsNoRecurse))
+                    foreach (string path in EnumerateFiles(directoryPath, _enumerationOptionsNoRecurse))
                         File.Delete(path);
                 }
 
                 if (!filesOnly)
                 {
-                    foreach (string path in Directory.EnumerateDirectories(directoryPath, "*", _enumerationOptionsNoRecurse))
+                    foreach (string path in EnumerateDirectories(directoryPath, _enumerationOptionsNoRecurse))
                         Directory.Delete(path, recursive: true);
                 }
             }
@@ -270,7 +290,7 @@ namespace Orang.FileSystem
         {
             long size = 0;
 
-            foreach (string filePath in Directory.EnumerateFiles(directoryPath, "*", _enumerationOptionsRecurse))
+            foreach (string filePath in EnumerateFiles(directoryPath, _enumerationOptionsRecurse))
             {
                 size += new FileInfo(filePath).Length;
             }

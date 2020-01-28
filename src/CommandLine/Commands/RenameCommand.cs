@@ -13,14 +13,12 @@ using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
-    internal class RenameCommand : CommonFindCommand<RenameCommandOptions>, INotifyDirectoryChanged
+    internal class RenameCommand : DeleteOrRenameCommand<RenameCommandOptions>
     {
         public RenameCommand(RenameCommandOptions options) : base(options)
         {
             Debug.Assert(options.ContentFilter?.IsNegative != true);
         }
-
-        public event EventHandler<DirectoryChangedEventArgs> DirectoryChanged;
 
         protected override FileSystemFinderOptions CreateFinderOptions()
         {
@@ -34,33 +32,7 @@ namespace Orang.CommandLine
                 partOnly: true);
         }
 
-        protected override void ExecuteFile(string filePath, SearchContext context)
-        {
-            context.Telemetry.FileCount++;
-
-            FileSystemFinderResult result = MatchFile(filePath, context.Progress);
-
-            if (result != null)
-                ProcessResult(result, context);
-        }
-
-        protected override void ExecuteDirectory(string directoryPath, SearchContext context)
-        {
-            foreach (FileSystemFinderResult result in Find(directoryPath, context, notifyDirectoryChanged: this))
-            {
-                Debug.Assert(result.Path.StartsWith(directoryPath, FileSystemHelpers.Comparison), $"{directoryPath}\r\n{result.Path}");
-
-                ProcessResult(result, context, directoryPath);
-
-                if (context.TerminationReason == TerminationReason.Canceled)
-                    break;
-
-                if (context.TerminationReason == TerminationReason.MaxReached)
-                    break;
-            }
-        }
-
-        private void ProcessResult(
+        protected override void ProcessResult(
             FileSystemFinderResult result,
             SearchContext context,
             string baseDirectoryPath = null)
@@ -80,11 +52,6 @@ namespace Orang.CommandLine
             }
 
             ExecuteOrAddResult(result, context, baseDirectoryPath);
-        }
-
-        protected override void ExecuteResult(SearchResult result, SearchContext context, ColumnWidths columnWidths)
-        {
-            ExecuteResult(result.Result, context, result.BaseDirectoryPath, columnWidths);
         }
 
         protected override void ExecuteResult(
@@ -126,7 +93,7 @@ namespace Orang.CommandLine
 
             bool renamed = false;
 
-            if (!Options.Ask || AskToRename())
+            if (!Options.Ask || AskToExecute(context, "Rename?", indent))
             {
                 try
                 {
@@ -164,39 +131,6 @@ namespace Orang.CommandLine
                 && renamed)
             {
                 OnDirectoryChanged(new DirectoryChangedEventArgs(path, newPath));
-            }
-
-            bool AskToRename()
-            {
-                DialogResult result = ConsoleHelpers.Ask("Rename?", indent);
-
-                switch (result)
-                {
-                    case DialogResult.Yes:
-                        {
-                            return true;
-                        }
-                    case DialogResult.YesToAll:
-                        {
-                            Options.Ask = false;
-                            return true;
-                        }
-                    case DialogResult.No:
-                    case DialogResult.None:
-                        {
-                            return false;
-                        }
-                    case DialogResult.NoToAll:
-                    case DialogResult.Cancel:
-                        {
-                            context.TerminationReason = TerminationReason.Canceled;
-                            return false;
-                        }
-                    default:
-                        {
-                            throw new InvalidOperationException($"Unknown enum value '{result}'.");
-                        }
-                }
             }
         }
 
@@ -268,11 +202,6 @@ namespace Orang.CommandLine
             sb.Append(path, lastPos, path.Length - lastPos);
 
             return StringBuilderCache.GetStringAndFree(sb);
-        }
-
-        protected virtual void OnDirectoryChanged(DirectoryChangedEventArgs e)
-        {
-            DirectoryChanged?.Invoke(this, e);
         }
 
         protected override void WriteSummary(SearchTelemetry telemetry, Verbosity verbosity)

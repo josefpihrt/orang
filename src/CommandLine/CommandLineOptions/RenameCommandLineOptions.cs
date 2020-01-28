@@ -2,7 +2,6 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using System.Text.RegularExpressions;
 using CommandLine;
 using Orang.FileSystem;
@@ -16,7 +15,7 @@ namespace Orang.CommandLine
     [OptionValueProvider(nameof(Display), OptionValueProviderNames.Display_NonContent)]
     [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.RenameHighlightOptions)]
     [OptionValueProvider(nameof(Name), OptionValueProviderNames.PatternOptionsWithoutGroupAndNegative)]
-    internal sealed class RenameCommandLineOptions : CommonFindCommandLineOptions
+    internal sealed class RenameCommandLineOptions : DeleteOrRenameCommandLineOptions
     {
         [Option(longName: OptionNames.Ask,
             HelpText = "Ask for a permission to rename file or directory.")]
@@ -59,7 +58,7 @@ namespace Orang.CommandLine
 
         public bool TryParse(RenameCommandOptions options)
         {
-            var baseOptions = (CommonFindCommandOptions)options;
+            var baseOptions = (DeleteOrRenameCommandOptions)options;
 
             if (!TryParse(baseOptions))
                 return false;

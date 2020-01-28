@@ -2,13 +2,11 @@
 
 namespace Orang.CommandLine
 {
-    internal sealed class DeleteCommandOptions : CommonFindCommandOptions
+    internal sealed class DeleteCommandOptions : DeleteOrRenameCommandOptions
     {
         internal DeleteCommandOptions()
         {
         }
-
-        public bool Ask { get; internal set; }
 
         public bool ContentOnly { get; internal set; }
 
@@ -17,7 +15,5 @@ namespace Orang.CommandLine
         public bool FilesOnly { get; internal set; }
 
         public bool DirectoriesOnly { get; internal set; }
-
-        public bool DryRun { get; internal set; }
     }
 }

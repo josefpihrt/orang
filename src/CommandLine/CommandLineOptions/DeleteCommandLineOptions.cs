@@ -2,7 +2,6 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using CommandLine;
 using Orang.FileSystem;
 using static Orang.CommandLine.ParseHelpers;
@@ -13,7 +12,7 @@ namespace Orang.CommandLine
     [OptionValueProvider(nameof(Content), OptionValueProviderNames.PatternOptionsWithoutPart)]
     [OptionValueProvider(nameof(Display), OptionValueProviderNames.Display_NonContent)]
     [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.DeleteHighlightOptions)]
-    internal sealed class DeleteCommandLineOptions : CommonFindCommandLineOptions
+    internal sealed class DeleteCommandLineOptions : DeleteOrRenameCommandLineOptions
     {
         [Option(longName: OptionNames.Ask,
             HelpText = "Ask for a permission to delete file or directory.")]
@@ -48,7 +47,7 @@ namespace Orang.CommandLine
 
         public bool TryParse(DeleteCommandOptions options)
         {
-            var baseOptions = (CommonFindCommandOptions)options;
+            var baseOptions = (DeleteOrRenameCommandOptions)options;
 
             if (!TryParse(baseOptions))
                 return false;

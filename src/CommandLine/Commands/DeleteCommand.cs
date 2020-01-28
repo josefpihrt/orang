@@ -8,41 +8,13 @@ using static Orang.CommandLine.LogHelpers;
 
 namespace Orang.CommandLine
 {
-    internal class DeleteCommand : CommonFindCommand<DeleteCommandOptions>, INotifyDirectoryChanged
+    internal class DeleteCommand : DeleteOrRenameCommand<DeleteCommandOptions>
     {
         public DeleteCommand(DeleteCommandOptions options) : base(options)
         {
         }
 
-        public event EventHandler<DirectoryChangedEventArgs> DirectoryChanged;
-
-        protected override void ExecuteFile(string filePath, SearchContext context)
-        {
-            context.Telemetry.FileCount++;
-
-            FileSystemFinderResult result = MatchFile(filePath, context.Progress);
-
-            if (result != null)
-                ProcessResult(result, context);
-        }
-
-        protected override void ExecuteDirectory(string directoryPath, SearchContext context)
-        {
-            foreach (FileSystemFinderResult result in Find(directoryPath, context, notifyDirectoryChanged: this))
-            {
-                Debug.Assert(result.Path.StartsWith(directoryPath, FileSystemHelpers.Comparison), $"{directoryPath}\r\n{result.Path}");
-
-                ProcessResult(result, context, directoryPath);
-
-                if (context.TerminationReason == TerminationReason.Canceled)
-                    break;
-
-                if (context.TerminationReason == TerminationReason.MaxReached)
-                    break;
-            }
-        }
-
-        private void ProcessResult(
+        protected override void ProcessResult(
             FileSystemFinderResult result,
             SearchContext context,
             string baseDirectoryPath = null)
@@ -66,11 +38,6 @@ namespace Orang.CommandLine
             ExecuteOrAddResult(result, context, baseDirectoryPath);
         }
 
-        protected override void ExecuteResult(SearchResult result, SearchContext context, ColumnWidths columnWidths)
-        {
-            ExecuteResult(result.Result, context, result.BaseDirectoryPath, columnWidths);
-        }
-
         protected override void ExecuteResult(
             FileSystemFinderResult result,
             SearchContext context,
@@ -84,7 +51,7 @@ namespace Orang.CommandLine
 
             bool deleted = false;
 
-            if (!Options.Ask || AskToDelete())
+            if (!Options.Ask || AskToExecute(context, (Options.ContentOnly) ? "Delete content?" : "Delete?", indent))
             {
                 try
                 {
@@ -121,44 +88,6 @@ namespace Orang.CommandLine
             {
                 OnDirectoryChanged(new DirectoryChangedEventArgs(result.Path, null));
             }
-
-            bool AskToDelete()
-            {
-                DialogResult result = ConsoleHelpers.Ask((Options.ContentOnly) ? "Delete content?" : "Delete?", indent);
-
-                switch (result)
-                {
-                    case DialogResult.Yes:
-                        {
-                            return true;
-                        }
-                    case DialogResult.YesToAll:
-                        {
-                            Options.Ask = false;
-                            return true;
-                        }
-                    case DialogResult.No:
-                    case DialogResult.None:
-                        {
-                            return false;
-                        }
-                    case DialogResult.NoToAll:
-                    case DialogResult.Cancel:
-                        {
-                            context.TerminationReason = TerminationReason.Canceled;
-                            return false;
-                        }
-                    default:
-                        {
-                            throw new InvalidOperationException($"Unknown enum value '{result}'.");
-                        }
-                }
-            }
-        }
-
-        protected virtual void OnDirectoryChanged(DirectoryChangedEventArgs e)
-        {
-            DirectoryChanged?.Invoke(this, e);
         }
 
         protected override void WriteSummary(SearchTelemetry telemetry, Verbosity verbosity)

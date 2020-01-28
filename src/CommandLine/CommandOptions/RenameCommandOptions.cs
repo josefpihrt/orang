@@ -2,15 +2,11 @@
 
 namespace Orang.CommandLine
 {
-    internal sealed class RenameCommandOptions : CommonFindCommandOptions
+    internal sealed class RenameCommandOptions : DeleteOrRenameCommandOptions
     {
         internal RenameCommandOptions()
         {
         }
-
-        public bool Ask { get; internal set; }
-
-        public bool DryRun { get; internal set; }
 
         public ReplaceOptions ReplaceOptions { get; internal set; }
     }

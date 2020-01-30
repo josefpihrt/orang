@@ -16,7 +16,7 @@ namespace Orang.CommandLine
         public static readonly SimpleOptionValue Display_ModifiedTime = SimpleOptionValue.Create("ModifiedTime", shortValue: "mt", helpValue: "m[odified-]t[ime]", description: "Include file last modified time.");
         public static readonly SimpleOptionValue Display_Size = SimpleOptionValue.Create("Size", description: "Include file size.");
         public static readonly SimpleOptionValue Display_Summary = SimpleOptionValue.Create("Summary", shortValue: "su", description: "Include summary.");
-        public static readonly SimpleOptionValue Display_TrimLine = SimpleOptionValue.Create("TrimLine", description: "Trim leading and trailing white-space from a line.");
+        public static readonly SimpleOptionValue Display_TrimLine = SimpleOptionValue.Create("TrimLine", shortValue: "", description: "Trim leading and trailing white-space from a line.");
         public static readonly SimpleOptionValue ModifyFlags_Except = SimpleOptionValue.Create(ModifyFlags.Except, shortValue: "", description: "Return values from first file except values from second file.");
         public static readonly SimpleOptionValue ModifyFlags_Intersect = SimpleOptionValue.Create(ModifyFlags.Intersect, shortValue: "", description: "Return values that were found in all files.");
         public static readonly SimpleOptionValue Output_Append = SimpleOptionValue.Create("Append", description: "If the file exists output will be appended to the end of the file.");

@@ -221,7 +221,7 @@ namespace Orang.CommandLine
             ValueWriter.Write(result, Symbols, ReplacementColors, ReplacementBoundaryColors);
         }
 
-        public virtual void WriteMatches(IEnumerable<Group> matches, in CancellationToken cancellationToken = default)
+        public virtual void WriteMatches(IEnumerable<Capture> matches, in CancellationToken cancellationToken = default)
         {
             MatchCount = 0;
 
@@ -229,7 +229,7 @@ namespace Orang.CommandLine
 
             try
             {
-                using (IEnumerator<Group> en = matches.GetEnumerator())
+                using (IEnumerator<Capture> en = matches.GetEnumerator())
                 {
                     if (en.MoveNext())
                     {

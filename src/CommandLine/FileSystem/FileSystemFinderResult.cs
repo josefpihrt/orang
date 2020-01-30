@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 namespace Orang.FileSystem
 {
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public readonly struct FileSystemFinderResult
+    public class FileSystemFinderResult
     {
         internal FileSystemFinderResult(in NamePart part, Match match, bool isDirectory = false)
         {

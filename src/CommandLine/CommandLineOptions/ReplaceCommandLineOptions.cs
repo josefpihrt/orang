@@ -14,7 +14,7 @@ namespace Orang.CommandLine
     [Verb("replace", HelpText = "Searches the file system for files and replaces its content.")]
     [OptionValueProvider(nameof(Content), OptionValueProviderNames.PatternOptionsWithoutGroupAndPartAndNegative)]
     [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.ReplaceHighlightOptions)]
-    internal sealed class ReplaceCommandLineOptions : CommonFindCommandLineOptions
+    internal sealed class ReplaceCommandLineOptions : FileSystemCommandLineOptions
     {
         [Option(longName: OptionNames.Ask,
             HelpText = "Ask for permission after each file or value.",
@@ -63,7 +63,7 @@ namespace Orang.CommandLine
 
         public bool TryParse(ReplaceCommandOptions options)
         {
-            var baseOptions = (CommonFindCommandOptions)options;
+            var baseOptions = (FileSystemCommandOptions)options;
 
             if (!TryParse(baseOptions))
                 return false;
@@ -76,7 +76,7 @@ namespace Orang.CommandLine
             if (!TryParseAsEnumFlags(Highlight, OptionNames.Highlight, out HighlightOptions highlightOptions, defaultValue: HighlightOptions.Replacement, provider: OptionValueProviders.ReplaceHighlightOptionsProvider))
                 return false;
 
-            if (!TryParseFilter(Content, OptionNames.Content, out Filter contentFilter, provider: OptionValueProviders.PatternOptionsWithoutGroupAndPartAndNegativeProvider))
+            if (!FilterParser.TryParse(Content, OptionNames.Content, OptionValueProviders.PatternOptionsWithoutGroupAndPartAndNegativeProvider, out Filter contentFilter))
                 return false;
 
             if (!TryParseReplacement(Replacement, out string replacement))

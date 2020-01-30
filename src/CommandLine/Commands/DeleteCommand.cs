@@ -8,41 +8,13 @@ using static Orang.CommandLine.LogHelpers;
 
 namespace Orang.CommandLine
 {
-    internal class DeleteCommand : CommonFindCommand<DeleteCommandOptions>, INotifyDirectoryChanged
+    internal class DeleteCommand : DeleteOrRenameCommand<DeleteCommandOptions>
     {
         public DeleteCommand(DeleteCommandOptions options) : base(options)
         {
         }
 
-        public event EventHandler<DirectoryChangedEventArgs> DirectoryChanged;
-
-        protected override void ExecuteFile(string filePath, SearchContext context)
-        {
-            context.Telemetry.FileCount++;
-
-            FileSystemFinderResult? maybeResult = MatchFile(filePath);
-
-            if (maybeResult != null)
-                ProcessResult(maybeResult.Value, context);
-        }
-
-        protected override void ExecuteDirectory(string directoryPath, SearchContext context)
-        {
-            foreach (FileSystemFinderResult result in Find(directoryPath, context, notifyDirectoryChanged: this))
-            {
-                Debug.Assert(result.Path.StartsWith(directoryPath, FileSystemHelpers.Comparison), $"{directoryPath}\r\n{result.Path}");
-
-                ProcessResult(result, context, directoryPath);
-
-                if (context.TerminationReason == TerminationReason.Canceled)
-                    break;
-
-                if (context.TerminationReason == TerminationReason.MaxReached)
-                    break;
-            }
-        }
-
-        private void ProcessResult(
+        protected override void ProcessResult(
             FileSystemFinderResult result,
             SearchContext context,
             string baseDirectoryPath = null)
@@ -66,11 +38,6 @@ namespace Orang.CommandLine
             ExecuteOrAddResult(result, context, baseDirectoryPath);
         }
 
-        protected override void ExecuteResult(SearchResult result, SearchContext context, ColumnWidths columnWidths)
-        {
-            ExecuteResult(result.Result, context, result.BaseDirectoryPath, columnWidths);
-        }
-
         protected override void ExecuteResult(
             FileSystemFinderResult result,
             SearchContext context,
@@ -84,19 +51,30 @@ namespace Orang.CommandLine
 
             bool deleted = false;
 
-            if (!Options.DryRun
-                && (!Options.Ask || AskToDelete()))
+            if (!Options.Ask || AskToExecute(context, (Options.ContentOnly) ? "Delete content?" : "Delete?", indent))
             {
                 try
                 {
-                    FileSystemHelpers.Delete(
-                        result,
-                        contentOnly: Options.ContentOnly,
-                        includingBom: Options.IncludingBom,
-                        filesOnly: Options.FilesOnly,
-                        directoriesOnly: Options.DirectoriesOnly);
+                    if (!Options.DryRun)
+                    {
+                        FileSystemHelpers.Delete(
+                            result,
+                            contentOnly: Options.ContentOnly,
+                            includingBom: Options.IncludingBom,
+                            filesOnly: Options.FilesOnly,
+                            directoriesOnly: Options.DirectoriesOnly);
 
-                    deleted = true;
+                        deleted = true;
+                    }
+
+                    if (result.IsDirectory)
+                    {
+                        context.Telemetry.ProcessedDirectoryCount++;
+                    }
+                    else
+                    {
+                        context.Telemetry.ProcessedFileCount++;
+                    }
                 }
                 catch (Exception ex) when (ex is IOException
                     || ex is UnauthorizedAccessException)
@@ -105,43 +83,11 @@ namespace Orang.CommandLine
                 }
             }
 
-            if (Options.DryRun || deleted)
-            {
-                if (result.IsDirectory)
-                {
-                    context.Telemetry.ProcessedDirectoryCount++;
-                }
-                else
-                {
-                    context.Telemetry.ProcessedFileCount++;
-                }
-            }
-
             if (result.IsDirectory
                 && deleted)
             {
                 OnDirectoryChanged(new DirectoryChangedEventArgs(result.Path, null));
             }
-
-            bool AskToDelete()
-            {
-                try
-                {
-                    return ConsoleHelpers.Question(
-                        (Options.ContentOnly) ? "Delete content?" : "Delete?",
-                        indent);
-                }
-                catch (OperationCanceledException)
-                {
-                    context.TerminationReason = TerminationReason.Canceled;
-                    return false;
-                }
-            }
-        }
-
-        protected virtual void OnDirectoryChanged(DirectoryChangedEventArgs e)
-        {
-            DirectoryChanged?.Invoke(this, e);
         }
 
         protected override void WriteSummary(SearchTelemetry telemetry, Verbosity verbosity)

@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using static Orang.Logger;
 
@@ -38,40 +39,82 @@ namespace Orang.CommandLine
             }
         }
 
-        public static bool Question(string question, string indent = null)
+        public static bool AskToExecute(string text, string indent = null)
         {
-            return QuestionIf(true, question, indent);
+            switch (Ask(text, " (Y/N/C): ", "Y (Yes), N (No), C (Cancel)", DialogResultMap.YesNoCancel, indent))
+            {
+                case DialogResult.Yes:
+                    return true;
+                case DialogResult.No:
+                case DialogResult.None:
+                    return false;
+                case DialogResult.Cancel:
+                    throw new OperationCanceledException();
+                default:
+                    throw new InvalidOperationException();
+            }
         }
 
-        public static bool QuestionIf(bool condition, string question, string indent = null)
+        public static bool AskToContinue(string indent)
         {
-            if (!condition)
-                return true;
-
-            ConsoleOut.Write(indent);
-            ConsoleOut.Write(question);
-            ConsoleOut.Write(" (Y/N/C): ");
-
-            switch (Console.ReadLine()?.Trim())
+            switch (Ask(
+                question: "Continue?",
+                suffix: " (Y[A]/C): ",
+                helpText: "Y (Yes), YA (Yes to All), C (Cancel)",
+                map: DialogResultMap.YesYesToAllCancel,
+                indent: indent))
             {
-                case "y":
-                case "Y":
-                    {
-                        return true;
-                    }
-                case "c":
-                case "C":
-                    {
-                        throw new OperationCanceledException();
-                    }
-                case null:
-                    {
-                        ConsoleOut.WriteLine();
-                        break;
-                    }
+                case DialogResult.None:
+                case DialogResult.Yes:
+                    break;
+                case DialogResult.YesToAll:
+                    return true;
+                case DialogResult.Cancel:
+                    throw new OperationCanceledException();
+                default:
+                    throw new InvalidOperationException();
             }
 
             return false;
+        }
+
+        public static DialogResult Ask(string question, string indent = null)
+        {
+            return Ask(question, " (Y[A]/N[A]/C): ", "Y (Yes), YA (Yes to All), N (No), NA (No to All), C (Cancel)", DialogResultMap.All, indent);
+        }
+
+        private static DialogResult Ask(
+            string question,
+            string suffix,
+            string helpText,
+            ImmutableDictionary<string, DialogResult> map,
+            string indent)
+        {
+            while (true)
+            {
+                ConsoleOut.Write(indent);
+                ConsoleOut.Write(question);
+                ConsoleOut.Write(suffix);
+
+                string s = Console.ReadLine()?.Trim();
+
+                if (s != null)
+                {
+                    if (s.Length == 0)
+                        return DialogResult.None;
+
+                    if (map.TryGetValue(s, out DialogResult dialogResult))
+                        return dialogResult;
+                }
+                else
+                {
+                    ConsoleOut.WriteLine();
+                    return DialogResult.None;
+                }
+
+                ConsoleOut.Write(indent);
+                ConsoleOut.WriteLine($"Value '{s}' is invalid. Allowed values are: {helpText}");
+            }
         }
     }
 }

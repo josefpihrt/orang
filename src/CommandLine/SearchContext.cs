@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using Orang.FileSystem;
@@ -9,12 +10,12 @@ namespace Orang.CommandLine
     internal class SearchContext
     {
         public SearchContext(
-            SearchTelemetry telemetry = null,
-            FileSystemFinderProgressReporter progress = null,
+            SearchTelemetry telemetry,
+            ProgressReporter progress = null,
             List<SearchResult> results = null,
             in CancellationToken cancellationToken = default)
         {
-            Telemetry = telemetry ?? new SearchTelemetry();
+            Telemetry = telemetry ?? throw new ArgumentNullException(nameof(telemetry));
             Progress = progress;
             Results = results;
             CancellationToken = cancellationToken;
@@ -22,7 +23,7 @@ namespace Orang.CommandLine
 
         public SearchTelemetry Telemetry { get; }
 
-        public FileSystemFinderProgressReporter Progress { get; }
+        public ProgressReporter Progress { get; }
 
         public List<SearchResult> Results { get; }
 

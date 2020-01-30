@@ -2,7 +2,6 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using CommandLine;
 using Orang.FileSystem;
 using static Orang.CommandLine.ParseHelpers;
@@ -13,7 +12,7 @@ namespace Orang.CommandLine
     [OptionValueProvider(nameof(Content), OptionValueProviderNames.PatternOptionsWithoutPart)]
     [OptionValueProvider(nameof(Display), OptionValueProviderNames.Display_NonContent)]
     [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.DeleteHighlightOptions)]
-    internal sealed class DeleteCommandLineOptions : CommonFindCommandLineOptions
+    internal sealed class DeleteCommandLineOptions : DeleteOrRenameCommandLineOptions
     {
         [Option(longName: OptionNames.Ask,
             HelpText = "Ask for a permission to delete file or directory.")]
@@ -48,7 +47,7 @@ namespace Orang.CommandLine
 
         public bool TryParse(DeleteCommandOptions options)
         {
-            var baseOptions = (CommonFindCommandOptions)options;
+            var baseOptions = (DeleteOrRenameCommandOptions)options;
 
             if (!TryParse(baseOptions))
                 return false;
@@ -58,13 +57,8 @@ namespace Orang.CommandLine
             if (!TryParseAsEnumFlags(Highlight, OptionNames.Highlight, out HighlightOptions highlightOptions, defaultValue: HighlightOptions.Default, provider: OptionValueProviders.DeleteHighlightOptionsProvider))
                 return false;
 
-            Filter nameFilter = null;
-
-            if (Name.Any()
-                && !TryParseFilter(Name, OptionNames.Name, out nameFilter))
-            {
+            if (!FilterParser.TryParse(Name, OptionNames.Name, OptionValueProviders.PatternOptionsProvider, out Filter nameFilter, allowNull: true))
                 return false;
-            }
 
             if (nameFilter == null
                 && options.Paths.Length == 1
@@ -74,13 +68,8 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            Filter contentFilter = null;
-
-            if (Content.Any()
-                && !TryParseFilter(Content, OptionNames.Content, out contentFilter))
-            {
+            if (!FilterParser.TryParse(Content, OptionNames.Content, OptionValueProviders.PatternOptionsProvider, out Filter contentFilter, allowNull: true))
                 return false;
-            }
 
             if (!TryParseDisplay(
                 values: Display,

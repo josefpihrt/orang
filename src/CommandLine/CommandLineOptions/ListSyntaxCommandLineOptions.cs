@@ -2,14 +2,31 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Text.RegularExpressions;
 using CommandLine;
 using Orang.Syntax;
+using static Orang.CommandLine.ParseHelpers;
 
 namespace Orang.CommandLine
 {
     [Verb("list-syntax", HelpText = "Lists regular expression syntax.")]
     internal sealed class ListSyntaxCommandLineOptions : CommonListCommandLineOptions
     {
+        [Value(index: 0,
+            Required = false,
+            HelpText = "Character or a decimal number that represents the character. For a number literal use escape like \\1.",
+            MetaName = ArgumentMetaNames.Char)]
+        public string Value { get; set; }
+
+        [Option(longName: OptionNames.CharGroup,
+            HelpText = "Treat character as if it is in the character group.")]
+        public bool CharGroup { get; set; }
+
+        [Option(shortName: OptionShortNames.Options, longName: OptionNames.Options,
+            HelpText = "Regex options that should be used. Relevant values are [e]cma-[s]cript or [i]gnore-case.",
+            MetaValue = MetaValues.RegexOptions)]
+        public IEnumerable<string> Options { get; set; }
+
         [Option(shortName: OptionShortNames.Section, longName: OptionNames.Section,
             HelpText = "Syntax sections to filter.",
             MetaValue = MetaValues.SyntaxSections)]
@@ -24,9 +41,25 @@ namespace Orang.CommandLine
 
             options = (ListSyntaxCommandOptions)baseOptions;
 
-            if (!ParseHelpers.TryParseAsEnumValues(Section, OptionNames.Section, out ImmutableArray<SyntaxSection> sections, provider: OptionValueProviders.SyntaxSectionProvider))
+            char? value = null;
+
+            if (Value != null)
+            {
+                if (!TryParseChar(Value, out char ch))
+                    return false;
+
+                value = ch;
+            }
+
+            if (!TryParseAsEnumFlags(Options, OptionNames.Options, out RegexOptions regexOptions, provider: OptionValueProviders.RegexOptionsProvider))
                 return false;
 
+            if (!TryParseAsEnumValues(Section, OptionNames.Section, out ImmutableArray<SyntaxSection> sections, provider: OptionValueProviders.SyntaxSectionProvider))
+                return false;
+
+            options.Value = value;
+            options.RegexOptions = regexOptions;
+            options.InCharGroup = CharGroup;
             options.Sections = sections;
 
             return true;

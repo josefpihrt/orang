@@ -1,4 +1,12 @@
-﻿## Links
+﻿## Exit Code
+
+Code | Comment
+--- | ---
+0 | Match found
+1 | No match found
+2 | Error occured or execution canceled
+
+## Links
 
 * [List of Allowed Values](AllowedValues.md)
 * [How To](HowTo.md)

@@ -63,28 +63,35 @@ namespace Orang
 
         public void Write(string value, in ConsoleColors colors, Verbosity verbosity)
         {
-            WriteIf(verbosity <= Verbosity, value, colors);
+            if (verbosity <= Verbosity)
+                Write(value, colors);
         }
 
-        public void Write(string value, int startIndex, int length, in ConsoleColors colors)
+        public void Write(ReadOnlySpan<char> buffer, in ConsoleColors colors)
         {
             if (!colors.IsDefault)
             {
                 ConsoleColors tmp = Colors;
                 Colors = colors;
-                Write(value, startIndex, length);
+                Write(buffer);
                 Colors = tmp;
             }
             else
             {
-                Write(value, startIndex, length);
+                Write(buffer);
             }
+        }
+
+        public void Write(ReadOnlySpan<char> buffer, in ConsoleColors colors, Verbosity verbosity)
+        {
+            if (verbosity <= Verbosity)
+                Write(buffer, colors);
         }
 
         public void Write(string value, int startIndex, int length, in ConsoleColors colors, Verbosity verbosity)
         {
             if (verbosity <= Verbosity)
-                Write(value, startIndex, length, colors);
+                Write(value.AsSpan(startIndex, length), colors);
         }
 
         public void WriteIf(bool condition, string value, in ConsoleColors colors)
@@ -95,8 +102,8 @@ namespace Orang
 
         public void WriteIf(bool condition, string value, in ConsoleColors colors, Verbosity verbosity)
         {
-            if (condition)
-                Write(value, colors, verbosity);
+            if (condition && verbosity <= Verbosity)
+                Write(value, colors);
         }
 
         public void WriteLine(string value, in ConsoleColors colors)
@@ -116,13 +123,41 @@ namespace Orang
 
         public void WriteLine(string value, in ConsoleColors colors, Verbosity verbosity)
         {
-            WriteLineIf(verbosity <= Verbosity, value, colors);
+            if (verbosity <= Verbosity)
+                WriteLine(value, colors);
+        }
+
+        public void WriteLine(ReadOnlySpan<char> buffer, in ConsoleColors colors)
+        {
+            if (!colors.IsDefault)
+            {
+                ConsoleColors tmp = Colors;
+                Colors = colors;
+                WriteLine(buffer);
+                Colors = tmp;
+            }
+            else
+            {
+                WriteLine(buffer);
+            }
+        }
+
+        public void WriteLine(ReadOnlySpan<char> buffer, in ConsoleColors colors, Verbosity verbosity)
+        {
+            if (verbosity <= Verbosity)
+                WriteLine(buffer, colors);
         }
 
         public void WriteLineIf(bool condition, string value, in ConsoleColors colors)
         {
             if (condition)
                 WriteLine(value, colors);
+        }
+
+        public void WriteLineIf(bool condition, ReadOnlySpan<char> buffer, in ConsoleColors colors)
+        {
+            if (condition)
+                WriteLine(buffer, colors);
         }
 
         protected override void Dispose(bool disposing)

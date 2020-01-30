@@ -2,7 +2,6 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using System.Text.RegularExpressions;
 using CommandLine;
 using Orang.FileSystem;
@@ -16,7 +15,7 @@ namespace Orang.CommandLine
     [OptionValueProvider(nameof(Display), OptionValueProviderNames.Display_NonContent)]
     [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.RenameHighlightOptions)]
     [OptionValueProvider(nameof(Name), OptionValueProviderNames.PatternOptionsWithoutGroupAndNegative)]
-    internal sealed class RenameCommandLineOptions : CommonFindCommandLineOptions
+    internal sealed class RenameCommandLineOptions : DeleteOrRenameCommandLineOptions
     {
         [Option(longName: OptionNames.Ask,
             HelpText = "Ask for a permission to rename file or directory.")]
@@ -59,7 +58,7 @@ namespace Orang.CommandLine
 
         public bool TryParse(RenameCommandOptions options)
         {
-            var baseOptions = (CommonFindCommandOptions)options;
+            var baseOptions = (DeleteOrRenameCommandOptions)options;
 
             if (!TryParse(baseOptions))
                 return false;
@@ -69,7 +68,7 @@ namespace Orang.CommandLine
             if (!TryParseAsEnumFlags(Highlight, OptionNames.Highlight, out HighlightOptions highlightOptions, defaultValue: HighlightOptions.Replacement, provider: OptionValueProviders.RenameHighlightOptionsProvider))
                 return false;
 
-            if (!TryParseFilter(Name, OptionNames.Name, out Filter nameFilter, provider: OptionValueProviders.PatternOptionsWithoutGroupAndNegativeProvider))
+            if (!FilterParser.TryParse(Name, OptionNames.Name, OptionValueProviders.PatternOptionsWithoutGroupAndNegativeProvider, out Filter nameFilter))
                 return false;
 
             if (nameFilter.NamePart == NamePartKind.FullName)
@@ -78,13 +77,8 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            Filter contentFilter = null;
-
-            if (Content.Any()
-                && !TryParseFilter(Content, OptionNames.Content, out contentFilter))
-            {
+            if (!FilterParser.TryParse(Content, OptionNames.Content, OptionValueProviders.PatternOptionsProvider, out Filter contentFilter, allowNull: true))
                 return false;
-            }
 
             if (!TryParseReplacement(Replacement, out string replacement))
                 return false;

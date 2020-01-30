@@ -32,7 +32,7 @@ namespace Orang.CommandLine
 
             options = (MatchCommandOptions)baseOptions;
 
-            if (!TryParseFilter(Content, OptionNames.Content, out Filter filter, provider: OptionValueProviders.PatternOptionsWithoutPartAndNegativeProvider))
+            if (!FilterParser.TryParse(Content, OptionNames.Content, OptionValueProviders.PatternOptionsWithoutPartAndNegativeProvider, out Filter filter))
                 return false;
 
             if (!TryParseAsEnumFlags(Highlight, OptionNames.Highlight, out HighlightOptions highlightOptions, defaultValue: HighlightOptions.Default, provider: OptionValueProviders.MatchHighlightOptionsProvider))

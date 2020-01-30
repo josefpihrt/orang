@@ -19,5 +19,7 @@ namespace Orang.CommandLine
         public bool HighlightMatch => (HighlightOptions & HighlightOptions.DefaultOrMatch) != 0;
 
         public bool HighlightReplacement => (HighlightOptions & HighlightOptions.Replacement) != 0;
+
+        public bool HighlightBoundary => (HighlightOptions & HighlightOptions.Boundary) != 0;
     }
 }

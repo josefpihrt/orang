@@ -15,13 +15,13 @@ All these commands are powered with [.NET regular expression engine](https://doc
 Orang is distributed as a [.NET Core global tool](https://docs.microsoft.com/en-us/dotnet/core/tools/global-tools). To install Orang run:
 
 ```
-dotnet install tool -g orang.dotnet.cli
+dotnet tool install -g orang.dotnet.cli
 ```
 
 To install non-alpha version run:
 
 ```
-dotnet install tool -g orang.dotnet.cli --version 0.1.0-beta
+dotnet tool install -g orang.dotnet.cli --version 0.1.0-beta
 ```
 
 To update Orang run:

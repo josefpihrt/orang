@@ -1,282 +1,118 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
-using System.Linq;
-using System.Text;
 using CommandLine;
-using Orang.FileSystem;
 using static Orang.CommandLine.ParseHelpers;
+using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
-    [OptionValueProvider(nameof(AttributesToSkip), OptionValueProviderNames.FileSystemAttributesToSkip)]
-    internal abstract class CommonFindCommandLineOptions : CommonRegexCommandLineOptions
+    [OptionValueProvider(nameof(Content), OptionValueProviderNames.PatternOptionsWithoutPart)]
+    [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.FindHighlightOptions)]
+    internal abstract class CommonFindCommandLineOptions : FileSystemCommandLineOptions
     {
-        private FileSystemAttributes FileSystemAttributes { get; set; }
+        [Option(longName: OptionNames.Ask,
+            HelpText = "Ask for permission after each file or value.",
+            MetaValue = MetaValues.AskMode)]
+        public string Ask { get; set; }
 
-        [Value(index: 0,
-            HelpText = "Path to one or more files and/or directories that should be searched.",
-            MetaName = ArgumentMetaNames.Path)]
-        public IEnumerable<string> Path { get; set; }
-
-        [Option(shortName: OptionShortNames.Attributes, longName: OptionNames.Attributes,
-        HelpText = "File attributes that are required.",
-        MetaValue = MetaValues.Attributes)]
-        public IEnumerable<string> Attributes { get; set; }
-
-        [Option(longName: OptionNames.AttributesToSkip,
-            HelpText = "File attributes that should be skipped.",
-            MetaValue = MetaValues.Attributes)]
-        public IEnumerable<string> AttributesToSkip { get; set; }
-
-        [Option(longName: OptionNames.Encoding,
-            HelpText = "Encoding to use when a file does not contain byte order mark. Default encoding is UTF-8.",
-            MetaValue = MetaValues.Encoding)]
-        public string Encoding { get; set; }
-
-        [Option(shortName: OptionShortNames.Extension, longName: OptionNames.Extension,
-            HelpText = "A filter for file extensions (case-insensitive by default). Syntax is EXT1[,EXT2,...] [<EXTENSION_OPTIONS>].",
-            MetaValue = MetaValues.ExtensionFilter)]
-        public IEnumerable<string> Extension { get; set; }
-
-        [Option(shortName: OptionShortNames.Properties, longName: OptionNames.Properties,
-            HelpText = "A filter for file properties.",
-            MetaValue = MetaValues.FileProperties)]
-        public IEnumerable<string> FileProperties { get; set; }
-
-        [Option(shortName: OptionShortNames.IncludeDirectory, longName: OptionNames.IncludeDirectory,
-            HelpText = "Regular expression for a directory name. Syntax is <PATTERN> [<PATTERN_OPTIONS>].",
+        [Option(shortName: OptionShortNames.Content, longName: OptionNames.Content,
+            HelpText = "Regular expression for files' content. Syntax is <PATTERN> [<PATTERN_OPTIONS>].",
             MetaValue = MetaValues.Regex)]
-        public IEnumerable<string> IncludeDirectory { get; set; }
+        public IEnumerable<string> Content { get; set; }
 
-        [Option(longName: OptionNames.NoRecurse,
-            HelpText = "Do not search subdirectories.")]
-        public bool NoRecurse { get; set; }
+        [Option(shortName: OptionShortNames.MaxCount, longName: OptionNames.MaxCount,
+            HelpText = "Stop searching after specified number is reached.",
+            MetaValue = MetaValues.MaxOptions)]
+        public IEnumerable<string> MaxCount { get; set; }
 
-        [Option(longName: OptionNames.PathsFrom,
-            HelpText = "Read the list of paths to search from a file. Paths should be separated by newlines.",
-            MetaValue = MetaValues.FilePath)]
-        public string PathsFrom { get; set; }
-
-        [Option(longName: OptionNames.Progress,
-            HelpText = "Display dot (.) for every hundredth searched file or directory.")]
-        public bool Progress { get; set; }
-
-        [Option(shortName: OptionShortNames.Sort, longName: OptionNames.Sort,
-            HelpText = "Sort matched files and directories.",
-            MetaValue = MetaValues.SortOptions)]
-        public IEnumerable<string> Sort { get; set; }
+        [Option(shortName: OptionShortNames.Name, longName: OptionNames.Name,
+            HelpText = "Regular expression for file or directory name. Syntax is <PATTERN> [<PATTERN_OPTIONS>].",
+            MetaValue = MetaValues.Regex)]
+        public IEnumerable<string> Name { get; set; }
 
         public bool TryParse(CommonFindCommandOptions options)
         {
-            var baseOptions = (CommonRegexCommandOptions)options;
+            var baseOptions = (FileSystemCommandOptions)options;
 
             if (!TryParse(baseOptions))
                 return false;
 
             options = (CommonFindCommandOptions)baseOptions;
 
-            if (!TryParsePaths(out ImmutableArray<PathInfo> paths))
+            if (!TryParseProperties(Ask, Name, options))
                 return false;
 
-            if (!TryParseAsEnumFlags(Attributes, OptionNames.Attributes, out FileSystemAttributes attributes, provider: OptionValueProviders.FileSystemAttributesProvider))
+            if (!TryParseAsEnumFlags(Highlight, OptionNames.Highlight, out HighlightOptions highlightOptions, defaultValue: HighlightOptions.Default, provider: OptionValueProviders.FindHighlightOptionsProvider))
                 return false;
 
-            if (!TryParseAsEnumFlags(AttributesToSkip, OptionNames.AttributesToSkip, out FileSystemAttributes attributesToSkip, provider: OptionValueProviders.FileSystemAttributesToSkipProvider))
+            if (!FilterParser.TryParse(Content, OptionNames.Content, OptionValueProviders.PatternOptionsWithoutPartProvider, out Filter contentFilter, allowNull: true))
                 return false;
 
-            if (!TryParseEncoding(Encoding, out Encoding defaultEncoding, EncodingHelpers.UTF8NoBom))
-                return false;
-
-            if (!TryParseSortOptions(Sort, OptionNames.Sort, out SortOptions sortOptions))
-                return false;
-
-            Filter directoryFilter = null;
-
-            if (IncludeDirectory.Any()
-                && !TryParseFilter(IncludeDirectory, OptionNames.IncludeDirectory, out directoryFilter))
+            if (!TryParseDisplay(
+                values: Display,
+                optionName: OptionNames.Display,
+                contentDisplayStyle: out ContentDisplayStyle? contentDisplayStyle,
+                pathDisplayStyle: out PathDisplayStyle? pathDisplayStyle,
+                lineDisplayOptions: out LineDisplayOptions lineDisplayOptions,
+                displayParts: out DisplayParts displayParts,
+                fileProperties: out ImmutableArray<FileProperty> fileProperties,
+                indent: out string indent,
+                separator: out string separator,
+                contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider,
+                pathDisplayStyleProvider: OptionValueProviders.PathDisplayStyleProvider))
             {
                 return false;
             }
 
-            Filter extensionFilter = null;
-
-            if (Extension.Any()
-                && !TryParseFilter(
-                    Extension,
-                    OptionNames.Extension,
-                    out extensionFilter,
-                    provider: OptionValueProviders.ExtensionOptionsProvider,
-                    defaultNamePart: NamePartKind.Extension,
-                    includedPatternOptions: PatternOptions.List | PatternOptions.Equals | PatternOptions.IgnoreCase))
+            if (pathDisplayStyle == PathDisplayStyle.Relative
+                && options.Paths.Length > 1
+                && options.SortOptions != null)
             {
+                pathDisplayStyle = PathDisplayStyle.Full;
+            }
+
+            if (options.AskMode == AskMode.Value
+                && (contentDisplayStyle == ContentDisplayStyle.AllLines || contentDisplayStyle == ContentDisplayStyle.UnmatchedLines))
+            {
+                WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Display)}' cannot have value '{OptionValueProviders.ContentDisplayStyleProvider.GetValue(contentDisplayStyle.ToString()).HelpValue}' when option '{OptionNames.GetHelpText(OptionNames.Ask)}' has value '{OptionValueProviders.AskModeProvider.GetValue(nameof(AskMode.Value)).HelpValue}'.");
                 return false;
             }
 
-            if (!TryParseFileProperties(
-                FileProperties,
-                OptionNames.Properties,
-                out FilePropertyFilter filePropertyFilter))
-            {
+            if (!TryParseMaxCount(MaxCount, out int maxCount, out int maxMatches, out int maxMatchingFiles))
                 return false;
-            }
 
-            if ((attributes & FileSystemAttributes.Empty) != 0)
+            int maxMatchesInFile;
+
+            if (contentFilter != null)
             {
-                if ((attributesToSkip & FileSystemAttributes.Empty) != 0)
-                {
-                    Logger.WriteError($"Value '{OptionValueProviders.FileSystemAttributesProvider.GetValue(nameof(FileSystemAttributes.Empty)).HelpValue}' cannot be specified both for '{OptionNames.GetHelpText(OptionNames.Attributes)}' and '{OptionNames.GetHelpText(OptionNames.AttributesToSkip)}'.");
-                    return false;
-                }
-
-                options.Empty = true;
+                maxMatchesInFile = maxCount;
             }
-            else if ((attributesToSkip & FileSystemAttributes.Empty) != 0)
+            else
             {
-                options.Empty = false;
+                maxMatchesInFile = 0;
+                maxMatches = 0;
+                maxMatchingFiles = (maxCount > 0) ? maxCount : maxMatchingFiles;
             }
 
-            options.Paths = paths;
-            options.DirectoryFilter = directoryFilter;
-            options.ExtensionFilter = extensionFilter;
-            options.Attributes = GetFileAttributes(attributes);
-            options.AttributesToSkip = GetFileAttributes(attributesToSkip);
-            options.RecurseSubdirectories = !NoRecurse;
-            options.Progress = Progress;
-            options.DefaultEncoding = defaultEncoding;
-            options.SortOptions = sortOptions;
-            options.FilePropertyFilter = filePropertyFilter;
+            options.Format = new OutputDisplayFormat(
+                contentDisplayStyle: contentDisplayStyle ?? ContentDisplayStyle.Line,
+                pathDisplayStyle: pathDisplayStyle ?? PathDisplayStyle.Full,
+                lineOptions: lineDisplayOptions,
+                displayParts: displayParts,
+                fileProperties: fileProperties,
+                indent: indent,
+                separator: separator);
 
-            FileSystemAttributes = attributes;
+            options.HighlightOptions = highlightOptions;
+            options.SearchTarget = GetSearchTarget();
+            options.ContentFilter = contentFilter;
+            options.MaxMatchesInFile = maxMatchesInFile;
+            options.MaxMatches = maxMatches;
+            options.MaxMatchingFiles = maxMatchingFiles;
 
             return true;
-        }
-
-        protected virtual bool TryParsePaths(out ImmutableArray<PathInfo> paths)
-        {
-            paths = ImmutableArray<PathInfo>.Empty;
-
-            if (Path.Any()
-                && !TryEnsureFullPath(Path, PathOrigin.Argument, out paths))
-            {
-                return false;
-            }
-
-            ImmutableArray<PathInfo> pathsFromFile = ImmutableArray<PathInfo>.Empty;
-
-            if (PathsFrom != null)
-            {
-                if (!FileSystemHelpers.TryReadAllText(PathsFrom, out string content))
-                    return false;
-
-                IEnumerable<string> lines = TextHelpers.ReadLines(content).Where(f => !string.IsNullOrWhiteSpace(f));
-
-                if (!TryEnsureFullPath(lines, PathOrigin.File, out pathsFromFile))
-                    return false;
-
-                paths = paths.AddRange(pathsFromFile);
-            }
-
-            if (Console.IsInputRedirected)
-            {
-                ImmutableArray<PathInfo> pathsFromInput = ConsoleHelpers.ReadRedirectedInputAsLines()
-                   .Where(f => !string.IsNullOrEmpty(f))
-                   .Select(f => new PathInfo(f, PathOrigin.RedirectedInput))
-                   .ToImmutableArray();
-
-                paths = paths.AddRange(pathsFromInput);
-            }
-
-            if (paths.IsEmpty)
-                paths = ImmutableArray.Create(new PathInfo(Environment.CurrentDirectory, PathOrigin.CurrentDirectory));
-
-            return true;
-        }
-
-        private static bool TryEnsureFullPath(IEnumerable<string> paths, PathOrigin kind, out ImmutableArray<PathInfo> fullPaths)
-        {
-            ImmutableArray<PathInfo>.Builder builder = ImmutableArray.CreateBuilder<PathInfo>();
-
-            foreach (string path in paths)
-            {
-                if (!ParseHelpers.TryEnsureFullPath(path, out string fullPath))
-                    return false;
-
-                builder.Add(new PathInfo(fullPath, kind));
-            }
-
-            fullPaths = builder.ToImmutableArray();
-            return true;
-        }
-
-        private FileAttributes GetFileAttributes(FileSystemAttributes attributes)
-        {
-            FileAttributes fileAttributes = 0;
-
-            if ((attributes & FileSystemAttributes.ReadOnly) != 0)
-                fileAttributes |= FileAttributes.ReadOnly;
-
-            if ((attributes & FileSystemAttributes.Hidden) != 0)
-                fileAttributes |= FileAttributes.Hidden;
-
-            if ((attributes & FileSystemAttributes.System) != 0)
-                fileAttributes |= FileAttributes.System;
-
-            if ((attributes & FileSystemAttributes.Archive) != 0)
-                fileAttributes |= FileAttributes.Archive;
-
-            if ((attributes & FileSystemAttributes.Device) != 0)
-                fileAttributes |= FileAttributes.Device;
-
-            if ((attributes & FileSystemAttributes.Normal) != 0)
-                fileAttributes |= FileAttributes.Normal;
-
-            if ((attributes & FileSystemAttributes.Temporary) != 0)
-                fileAttributes |= FileAttributes.Temporary;
-
-            if ((attributes & FileSystemAttributes.SparseFile) != 0)
-                fileAttributes |= FileAttributes.SparseFile;
-
-            if ((attributes & FileSystemAttributes.ReparsePoint) != 0)
-                fileAttributes |= FileAttributes.ReparsePoint;
-
-            if ((attributes & FileSystemAttributes.Compressed) != 0)
-                fileAttributes |= FileAttributes.Compressed;
-
-            if ((attributes & FileSystemAttributes.Offline) != 0)
-                fileAttributes |= FileAttributes.Offline;
-
-            if ((attributes & FileSystemAttributes.NotContentIndexed) != 0)
-                fileAttributes |= FileAttributes.NotContentIndexed;
-
-            if ((attributes & FileSystemAttributes.Encrypted) != 0)
-                fileAttributes |= FileAttributes.Encrypted;
-
-            if ((attributes & FileSystemAttributes.IntegrityStream) != 0)
-                fileAttributes |= FileAttributes.IntegrityStream;
-
-            if ((attributes & FileSystemAttributes.NoScrubData) != 0)
-                fileAttributes |= FileAttributes.NoScrubData;
-
-            return fileAttributes;
-        }
-
-        protected SearchTarget GetSearchTarget()
-        {
-            if ((FileSystemAttributes & FileSystemAttributes.File) != 0)
-            {
-                return ((FileSystemAttributes & FileSystemAttributes.Directory) != 0)
-                    ? SearchTarget.All
-                    : SearchTarget.Files;
-            }
-
-            if ((FileSystemAttributes & FileSystemAttributes.Directory) != 0)
-                return SearchTarget.Directories;
-
-            return SearchTarget.Files;
         }
     }
 }

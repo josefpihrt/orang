@@ -57,3 +57,29 @@ orang find ^
  -y c=a ^
  --ask f
 ```
+
+### Sample
+
+Add copyright banner to each C# file in a current directory.
+
+#### Syntax
+
+```
+orang find ^
+ --extension cs ^
+ --content "banner.txt" from-file literal starts-with negative | ^
+orang replace ^
+ --content "" starts-with ^
+ --replacement "banner.txt" from-file
+```
+
+#### Short Syntax
+
+```
+orang find ^
+ -e cs ^
+ -c "banner.txt" f l sw ne | ^
+orang replace ^
+ -c "" sw ^
+ -r "banner.txt" f
+```

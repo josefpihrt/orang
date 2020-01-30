@@ -63,12 +63,14 @@ namespace Orang.CommandLine
                 });
 
                 ParserResult<object> parserResult = parser.ParseArguments<
+                    CopyCommandLineOptions,
                     DeleteCommandLineOptions,
                     EscapeCommandLineOptions,
                     FindCommandLineOptions,
                     HelpCommandLineOptions,
                     ListSyntaxCommandLineOptions,
                     MatchCommandLineOptions,
+                    MoveCommandLineOptions,
                     RenameCommandLineOptions,
                     ReplaceCommandLineOptions,
                     SplitCommandLineOptions
@@ -145,6 +147,8 @@ namespace Orang.CommandLine
                     return 2;
 
                 return parserResult.MapResult(
+                    (CopyCommandLineOptions options) => Copy(options),
+                    (MoveCommandLineOptions options) => Move(options),
                     (DeleteCommandLineOptions options) => Delete(options),
                     (EscapeCommandLineOptions options) => Escape(options),
                     (FindCommandLineOptions options) => Find(options),
@@ -177,6 +181,16 @@ namespace Orang.CommandLine
                     && value[0] == '-'
                     && value[1] == OptionShortNames.Help;
             }
+        }
+
+        private static int Copy(CopyCommandLineOptions commandLineOptions)
+        {
+            var options = new CopyCommandOptions();
+
+            if (!commandLineOptions.TryParse(options))
+                return 1;
+
+            return Execute(new CopyCommand(options));
         }
 
         private static int Delete(DeleteCommandLineOptions commandLineOptions)
@@ -237,6 +251,16 @@ namespace Orang.CommandLine
                 return 2;
 
             return Execute(new MatchCommand(options));
+        }
+
+        private static int Move(MoveCommandLineOptions commandLineOptions)
+        {
+            var options = new MoveCommandOptions();
+
+            if (!commandLineOptions.TryParse(options))
+                return 1;
+
+            return Execute(new MoveCommand(options));
         }
 
         private static int Rename(RenameCommandLineOptions commandLineOptions)

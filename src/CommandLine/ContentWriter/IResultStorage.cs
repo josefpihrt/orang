@@ -7,5 +7,7 @@ namespace Orang.CommandLine
         void Add(string value);
 
         void Add(string value, int start, int length);
+
+        int Count { get; }
     }
 }

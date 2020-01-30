@@ -137,6 +137,26 @@ namespace Orang.CommandLine
             SimpleOptionValue.Create(SyntaxSection.Substitutions)
         );
 
+        public static OptionValueProvider ModifyFlagsProvider { get; } = new OptionValueProvider(MetaValues.ModifyOptions,
+            SimpleOptionValue.Create(ModifyFlags.Aggregate, shortValue: "ag", description: "Display list of all values at the end of search."),
+            SimpleOptionValue.Create(ModifyFlags.AggregateOnly, shortValue: "ao", description: "Display only list of all values at the end of search."),
+            SimpleOptionValue.Create(ModifyFlags.Ascending, description: "Sort values in an ascending order."),
+            SimpleOptionValue.Create(ModifyFlags.CultureInvariant, shortValue: "ci", description: "Ignore cultural differences between languages."),
+            SimpleOptionValue.Create(ModifyFlags.Descending, description: "Sort values in a descending order."),
+            SimpleOptionValue.Create(ModifyFlags.Distinct, shortValue: "di", description: "Return distinct values."),
+            OptionValues.ModifyFlags_Except,
+            OptionValues.ModifyFlags_Intersect,
+            SimpleOptionValue.Create(ModifyFlags.IgnoreCase, description: "Use case-insensitive matching."),
+            SimpleOptionValue.Create(ModifyFlags.RemoveEmpty, shortValue: "re", description: "Remove values that are empty strings."),
+            SimpleOptionValue.Create(ModifyFlags.RemoveWhiteSpace, shortValue: "rw", description: "Remove values that are empty or consist of white-space."),
+            OptionValues.SortBy,
+            OptionValues.ToLower,
+            OptionValues.ToUpper,
+            OptionValues.Trim,
+            OptionValues.TrimEnd,
+            OptionValues.TrimStart
+        );
+
         public static OptionValueProvider HighlightOptionsProvider { get; } = new OptionValueProvider(MetaValues.Highlight,
             SimpleOptionValue.Create(HighlightOptions.None, description: "No highlighting."),
             SimpleOptionValue.Create(HighlightOptions.Match, description: "Highlight match value."),
@@ -340,13 +360,32 @@ namespace Orang.CommandLine
             OptionValues.FileProperty_Size
         );
 
+        public static OptionValueProvider ValueSortPropertyProvider { get; } = new OptionValueProvider(MetaValues.SortProperty,
+            SimpleOptionValue.Create(ValueSortProperty.Length, description: "Sort values by value's length.")
+        );
+
         public static OptionValueProvider ReplaceFlagsProvider { get; } = new OptionValueProvider(MetaValues.ReplaceModify,
             SimpleOptionValue.Create(ReplaceFlags.CultureInvariant, shortValue: "ci", description: "Ignore cultural differences between languages."),
-            SimpleOptionValue.Create(ReplaceFlags.ToLower, shortValue: "tl", description: "Convert value to lowercase."),
-            SimpleOptionValue.Create(ReplaceFlags.ToUpper, shortValue: "tu", description: "Convert value to uppercase."),
-            SimpleOptionValue.Create(ReplaceFlags.Trim, description: "Trim leading and trailing white-space."),
-            SimpleOptionValue.Create(ReplaceFlags.TrimEnd, shortValue: "te", description: "Trim trailing white-space."),
-            SimpleOptionValue.Create(ReplaceFlags.TrimStart, shortValue: "ts", description: "Trim leading white-space.")
+            OptionValues.ToLower,
+            OptionValues.ToUpper,
+            OptionValues.Trim,
+            OptionValues.TrimEnd,
+            OptionValues.TrimStart
+        );
+
+        public static OptionValueProvider ConflictResolutionProvider { get; } = new OptionValueProvider(MetaValues.ConflictResolution,
+            OptionValues.ConflictResolution_Ask,
+            OptionValues.ConflictResolution_Overwrite,
+            OptionValues.ConflictResolution_Rename,
+            OptionValues.ConflictResolution_Skip
+        );
+
+        public static OptionValueProvider FileCompareOptionsProvider { get; } = new OptionValueProvider(MetaValues.CompareOptions,
+            SimpleOptionValue.Create(FileCompareOptions.None, description: "Compare files only by name."),
+            SimpleOptionValue.Create(FileCompareOptions.Attributes, description: "Compare file attributes."),
+            SimpleOptionValue.Create(FileCompareOptions.Content, description: "Compare file content."),
+            SimpleOptionValue.Create(FileCompareOptions.ModifiedTime, shortValue: "mt", helpValue: "m[odified-]t[ime]", description: "Compare time a file was last modified."),
+            SimpleOptionValue.Create(FileCompareOptions.Size, description: "Compare file size.")
         );
 
         public static ImmutableDictionary<string, OptionValueProvider> ProvidersByName

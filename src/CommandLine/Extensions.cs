@@ -4,47 +4,15 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
-using Orang.FileSystem;
+using Orang.CommandLine;
 
 namespace Orang
 {
     internal static class Extensions
     {
-        public static void WritePath(
-            this TextWriterWithVerbosity writer,
-            string path,
-            string basePath,
-            bool relativePath = false,
-            string indent = null,
-            Verbosity verbosity = Verbosity.Quiet)
+        public static int EndIndex(this Capture capture)
         {
-            if (!writer.ShouldWrite(verbosity))
-                return;
-
-            writer.Write(indent, verbosity);
-
-            int startIndex = 0;
-
-            if (string.Equals(path, basePath, FileSystemHelpers.Comparison))
-            {
-                writer.Write((relativePath) ? "." : path, verbosity);
-                return;
-            }
-
-            if (basePath != null
-                && path.Length > basePath.Length
-                && path.StartsWith(basePath, FileSystemHelpers.Comparison))
-            {
-                startIndex = basePath.Length;
-
-                if (FileSystemHelpers.IsDirectorySeparator(path[startIndex]))
-                    startIndex++;
-            }
-
-            if (!relativePath)
-                writer.Write(path, 0, startIndex, Colors.BasePath, verbosity);
-
-            writer.Write(path, startIndex, path.Length - startIndex, verbosity);
+            return capture.Index + capture.Length;
         }
 
         public static void WriteLineIf(this TextWriter writer, bool condition, string value)
@@ -86,6 +54,14 @@ namespace Orang
                 if ((options & RegexOptions.CultureInvariant) != 0)
                     yield return RegexOptions.CultureInvariant;
             }
+        }
+
+        public static IEnumerable<string> Modify(
+            this IEnumerable<string> values,
+            ModifyOptions options,
+            ModifyFunctions? filter = null)
+        {
+            return options.Modify(values, filter);
         }
 
         public static int GetDigitCount(this int value)

@@ -14,7 +14,7 @@ using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
-    internal class ReplaceCommand : FindCommand<ReplaceCommandOptions>
+    internal class ReplaceCommand : CommonFindCommand<ReplaceCommandOptions>
     {
         private OutputSymbols _symbols;
 
@@ -51,13 +51,13 @@ namespace Orang.CommandLine
             if (match.Success)
             {
                 ContentWriter contentWriter = null;
-                List<Group> groups = null;
+                List<Capture> groups = null;
 
                 try
                 {
-                    groups = ListCache<Group>.GetInstance();
+                    groups = ListCache<Capture>.GetInstance();
 
-                    maxReason = GetGroups(match, FileWriterOptions.GroupNumber, context, isPathWritten: false, predicate: Options.ContentFilter.Predicate, groups: groups);
+                    maxReason = GetCaptures(match, FileWriterOptions.GroupNumber, context, isPathWritten: false, predicate: Options.ContentFilter.Predicate, captures: groups);
 
                     if (ShouldLog(Verbosity.Normal))
                     {
@@ -78,7 +78,7 @@ namespace Orang.CommandLine
                     contentWriter?.Dispose();
 
                     if (groups != null)
-                        ListCache<Group>.Free(groups);
+                        ListCache<Capture>.Free(groups);
                 }
             }
 
@@ -98,10 +98,10 @@ namespace Orang.CommandLine
         {
             context.Telemetry.FileCount++;
 
-            FileSystemFinderResult? maybeResult = MatchFile(filePath);
+            FileSystemFinderResult result = MatchFile(filePath, context.Progress);
 
-            if (maybeResult != null)
-                ProcessResult(maybeResult.Value, context, FileWriterOptions);
+            if (result != null)
+                ProcessResult(result, context, FileWriterOptions);
         }
 
         protected override void ExecuteDirectory(string directoryPath, SearchContext context)
@@ -139,6 +139,16 @@ namespace Orang.CommandLine
                 return;
 
             ExecuteOrAddResult(result, context, writerOptions, match, input, encoding, baseDirectoryPath);
+        }
+
+        protected override void ExecuteResult(FileSystemFinderResult result, SearchContext context, string baseDirectoryPath = null, ColumnWidths columnWidths = null)
+        {
+            string indent = GetPathIndent(baseDirectoryPath);
+
+            if (!Options.OmitPath)
+                WritePath(context, result, baseDirectoryPath, indent, columnWidths);
+
+            AskToContinue(context, indent);
         }
 
         protected override void ExecuteResult(
@@ -212,13 +222,13 @@ namespace Orang.CommandLine
 
             ContentWriter contentWriter = null;
             TextWriter textWriter = null;
-            List<Group> groups = null;
+            List<Capture> groups = null;
 
             try
             {
-                groups = ListCache<Group>.GetInstance();
+                groups = ListCache<Capture>.GetInstance();
 
-                GetGroups(match, writerOptions.GroupNumber, context, isPathWritten: !Options.OmitPath, predicate: Options.ContentFilter.Predicate, groups: groups);
+                GetCaptures(match, writerOptions.GroupNumber, context, isPathWritten: !Options.OmitPath, predicate: Options.ContentFilter.Predicate, captures: groups);
 
                 int fileMatchCount = 0;
                 int fileReplacementCount = 0;
@@ -288,10 +298,10 @@ namespace Orang.CommandLine
                         {
                             if (Options.DryRun)
                             {
-                                if (ConsoleHelpers.Question("Continue without asking?", indent))
+                                if (ConsoleHelpers.AskToContinue(indent))
                                     Options.AskMode = AskMode.None;
                             }
-                            else if (ConsoleHelpers.Question("Replace content?", indent))
+                            else if (ConsoleHelpers.AskToExecute("Replace content?", indent))
                             {
                                 File.WriteAllText(filePath, textWriter!.ToString(), encoding);
                             }
@@ -328,7 +338,7 @@ namespace Orang.CommandLine
                 contentWriter?.Dispose();
 
                 if (groups != null)
-                    ListCache<Group>.Free(groups);
+                    ListCache<Capture>.Free(groups);
             }
         }
 

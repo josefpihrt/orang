@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -32,6 +33,26 @@ namespace Orang.FileSystem
 
         public static StringComparison Comparison { get; } = (IsCaseSensitive) ? StringComparison.CurrentCulture : StringComparison.CurrentCultureIgnoreCase;
 
+        public static IEnumerable<string> EnumerateFiles(string path, EnumerationOptions options)
+        {
+            return Directory.EnumerateFiles(path, "*", options);
+        }
+
+        public static IEnumerable<string> EnumerateDirectories(string path, EnumerationOptions options)
+        {
+            return Directory.EnumerateDirectories(path, "*", options);
+        }
+
+        public static string[] GetFiles(string path, EnumerationOptions options)
+        {
+            return Directory.GetFiles(path, "*", options);
+        }
+
+        public static string[] GetDirectories(string path, EnumerationOptions options)
+        {
+            return Directory.GetDirectories(path, "*", options);
+        }
+
         private static bool GetIsCaseSensitive()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -48,6 +69,64 @@ namespace Orang.FileSystem
             return true;
         }
 
+        internal static bool FileEquals(string path1, string path2, FileCompareOptions options)
+        {
+            if ((options & FileCompareOptions.ModifiedTime) != 0
+                && File.GetLastWriteTimeUtc(path1) != File.GetLastWriteTimeUtc(path2))
+            {
+                return false;
+            }
+
+            if ((options & FileCompareOptions.Attributes) != 0
+                && File.GetAttributes(path1) != File.GetAttributes(path2))
+            {
+                return false;
+            }
+
+            if ((options & (FileCompareOptions.Size | FileCompareOptions.Content)) != 0)
+            {
+                using (var fs1 = new FileStream(path1, FileMode.Open, FileAccess.Read))
+                using (var fs2 = new FileStream(path2, FileMode.Open, FileAccess.Read))
+                {
+                    if ((options & FileCompareOptions.Size) != 0
+                        && fs1.Length != fs2.Length)
+                    {
+                        return false;
+                    }
+
+                    if ((options & FileCompareOptions.Content) != 0
+                        && !StreamComparer.Default.ByteEquals(fs1, fs2))
+                    {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        internal static bool IsSubdirectory(string basePath, string path)
+        {
+            return path.Length > basePath.Length
+                && (IsDirectorySeparator(basePath[basePath.Length - 1])
+                    || IsDirectorySeparator(path[basePath.Length]))
+                && path.StartsWith(basePath, Comparison);
+        }
+
+        internal static bool UpdateAttributes(string sourcePath, string destinationPath)
+        {
+            FileAttributes sourceAttributes = File.GetAttributes(sourcePath);
+            FileAttributes destinationAttributes = File.GetAttributes(destinationPath);
+
+            if (sourceAttributes != destinationAttributes)
+            {
+                File.SetAttributes(destinationPath, sourceAttributes);
+                return true;
+            }
+
+            return false;
+        }
+
         internal static int IndexOfDirectorySeparator(string path, int start)
         {
             for (int i = start; i < path.Length; i++)
@@ -60,7 +139,7 @@ namespace Orang.FileSystem
         }
 
         public static void Delete(
-            in FileSystemFinderResult result,
+            FileSystemFinderResult result,
             bool contentOnly = false,
             bool includingBom = false,
             bool filesOnly = false,
@@ -82,13 +161,13 @@ namespace Orang.FileSystem
             {
                 if (!directoriesOnly)
                 {
-                    foreach (string path in Directory.EnumerateFiles(directoryPath, "*", _enumerationOptionsNoRecurse))
+                    foreach (string path in EnumerateFiles(directoryPath, _enumerationOptionsNoRecurse))
                         File.Delete(path);
                 }
 
                 if (!filesOnly)
                 {
-                    foreach (string path in Directory.EnumerateDirectories(directoryPath, "*", _enumerationOptionsNoRecurse))
+                    foreach (string path in EnumerateDirectories(directoryPath, _enumerationOptionsNoRecurse))
                         Directory.Delete(path, recursive: true);
                 }
             }
@@ -211,7 +290,7 @@ namespace Orang.FileSystem
         {
             long size = 0;
 
-            foreach (string filePath in Directory.EnumerateFiles(directoryPath, "*", _enumerationOptionsRecurse))
+            foreach (string filePath in EnumerateFiles(directoryPath, _enumerationOptionsRecurse))
             {
                 size += new FileInfo(filePath).Length;
             }

@@ -93,6 +93,8 @@ namespace Orang.Documentation
                     };
                 }));
 
+            AddFootnote(document);
+
             var markdownFormat = new MarkdownFormat(tableOptions: MarkdownFormat.Default.TableOptions | TableOptions.FormatContent);
 
             File.WriteAllText(valuesFilePath, document.ToString(markdownFormat));
@@ -140,6 +142,11 @@ namespace Orang.Documentation
             mw.WriteLink("DotMarkdown", "http://github.com/JosefPihrt/DotMarkdown");
             mw.WriteString(")");
             mw.WriteEndItalic();
+        }
+
+        private static void AddFootnote(MDocument document)
+        {
+            document.Add(Italic("(Generated with ", Link("DotMarkdown", "http://github.com/JosefPihrt/DotMarkdown"), ")"));
         }
     }
 }

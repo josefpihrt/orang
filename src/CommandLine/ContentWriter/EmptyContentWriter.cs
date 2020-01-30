@@ -9,14 +9,19 @@ namespace Orang.CommandLine
     {
         public EmptyContentWriter(
             string input,
-            ContentWriterOptions options) : base(input, options)
+            ContentWriterOptions options,
+            IResultStorage resultStorage = null) : base(input, options)
         {
+            ResultStorage = resultStorage;
         }
 
         protected override ValueWriter ValueWriter => throw new NotSupportedException();
 
+        public IResultStorage ResultStorage { get; }
+
         protected override void WriteMatch(Capture capture)
         {
+            ResultStorage?.Add(capture.Value);
         }
 
         protected override void WriteStartMatches()

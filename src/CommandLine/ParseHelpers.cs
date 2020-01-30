@@ -174,6 +174,113 @@ namespace Orang.CommandLine
             }
         }
 
+        public static bool TryParseModifyOptions(
+            IEnumerable<string> values,
+            string optionName,
+            out ModifyOptions modifyOptions,
+            out bool aggregateOnly)
+        {
+            modifyOptions = null;
+            aggregateOnly = false;
+
+            var sortProperty = ValueSortProperty.None;
+            List<string> options = null;
+
+            foreach (string value in values)
+            {
+                int index = value.IndexOf('=');
+
+                if (index >= 0)
+                {
+                    string key = value.Substring(0, index);
+                    string value2 = value.Substring(index + 1);
+
+                    if (OptionValues.SortBy.IsKeyOrShortKey(key))
+                    {
+                        if (!TryParseAsEnum(value2, optionName, out sortProperty, provider: OptionValueProviders.ValueSortPropertyProvider))
+                            return false;
+                    }
+                    else
+                    {
+                        string helpText = OptionValueProviders.ModifyFlagsProvider.GetHelpText();
+                        WriteError($"Option '{OptionNames.GetHelpText(optionName)}' has invalid value '{value}'. Allowed values: {helpText}.");
+                        return false;
+                    }
+                }
+                else
+                {
+                    (options ?? (options = new List<string>())).Add(value);
+                }
+            }
+
+            var modifyFlags = ModifyFlags.None;
+
+            if (options != null
+                && !TryParseAsEnumFlags(options, optionName, out modifyFlags, provider: OptionValueProviders.ModifyFlagsProvider))
+            {
+                return false;
+            }
+
+            if ((modifyFlags & ModifyFlags.ExceptIntersect) == ModifyFlags.ExceptIntersect)
+            {
+                WriteError($"Values '{OptionValues.ModifyFlags_Except.HelpValue}' and '{OptionValues.ModifyFlags_Intersect.HelpValue}' cannot be use both at the same time.");
+                return false;
+            }
+
+            var functions = ModifyFunctions.None;
+
+            if ((modifyFlags & ModifyFlags.Distinct) != 0)
+                functions |= ModifyFunctions.Distinct;
+
+            if ((modifyFlags & ModifyFlags.Ascending) != 0)
+                functions |= ModifyFunctions.Sort;
+
+            if ((modifyFlags & ModifyFlags.Descending) != 0)
+                functions |= ModifyFunctions.SortDescending;
+
+            if ((modifyFlags & ModifyFlags.Except) != 0)
+                functions |= ModifyFunctions.Except;
+
+            if ((modifyFlags & ModifyFlags.Intersect) != 0)
+                functions |= ModifyFunctions.Intersect;
+
+            if ((modifyFlags & ModifyFlags.RemoveEmpty) != 0)
+                functions |= ModifyFunctions.RemoveEmpty;
+
+            if ((modifyFlags & ModifyFlags.RemoveWhiteSpace) != 0)
+                functions |= ModifyFunctions.RemoveWhiteSpace;
+
+            if ((modifyFlags & ModifyFlags.TrimStart) != 0)
+                functions |= ModifyFunctions.TrimStart;
+
+            if ((modifyFlags & ModifyFlags.TrimEnd) != 0)
+                functions |= ModifyFunctions.TrimEnd;
+
+            if ((modifyFlags & ModifyFlags.ToLower) != 0)
+                functions |= ModifyFunctions.ToLower;
+
+            if ((modifyFlags & ModifyFlags.ToUpper) != 0)
+                functions |= ModifyFunctions.ToUpper;
+
+            aggregateOnly = (modifyFlags & ModifyFlags.AggregateOnly) != 0;
+
+            if (modifyFlags != ModifyFlags.None)
+            {
+                modifyOptions = new ModifyOptions(
+                    functions: functions,
+                    aggregate: (modifyFlags & ModifyFlags.Aggregate) != 0 || aggregateOnly,
+                    ignoreCase: (modifyFlags & ModifyFlags.IgnoreCase) != 0,
+                    cultureInvariant: (modifyFlags & ModifyFlags.CultureInvariant) != 0,
+                    sortProperty: sortProperty);
+            }
+            else
+            {
+                modifyOptions = ModifyOptions.Default;
+            }
+
+            return true;
+        }
+
         public static bool TryParseReplaceOptions(
             IEnumerable<string> values,
             string optionName,
@@ -385,259 +492,6 @@ namespace Orang.CommandLine
             }
 
             return true;
-        }
-
-        public static bool TryParseFilter(
-            IEnumerable<string> values,
-            string optionName,
-            out Filter filter,
-            OptionValueProvider provider = null,
-            NamePartKind defaultNamePart = NamePartKind.Name,
-            PatternOptions includedPatternOptions = PatternOptions.None)
-        {
-            filter = null;
-
-            string pattern = null;
-            TimeSpan matchTimeout = Regex.InfiniteMatchTimeout;
-            string groupName = null;
-            NamePartKind namePart = defaultNamePart;
-            string separator = null;
-            Func<Group, bool> predicate = null;
-
-            List<string> options;
-
-            try
-            {
-                options = EnumerateOptions().ToList();
-            }
-            catch (ArgumentException ex)
-            {
-                WriteError(ex);
-                return false;
-            }
-
-            return TryParseFilter(pattern, options, matchTimeout, groupName, namePart, optionName, separator, predicate, out filter, provider, includedPatternOptions);
-
-            IEnumerable<string> EnumerateOptions()
-            {
-                using (IEnumerator<string> en = values.GetEnumerator())
-                {
-                    if (!en.MoveNext())
-                        throw new ArgumentException("", nameof(values));
-
-                    pattern = en.Current;
-
-                    while (en.MoveNext())
-                    {
-                        string option = en.Current;
-
-                        if (Expression.TryParse(option, out Expression expression))
-                        {
-                            if (!ParseExpression(expression))
-                            {
-                                string helpText = (provider ?? OptionValueProviders.PatternOptionsProvider).GetHelpText();
-
-                                throw new ArgumentException($"Option '{OptionNames.GetHelpText(optionName)}' has invalid value '{option}'. Allowed values: {helpText}.", nameof(values));
-                            }
-                        }
-                        else
-                        {
-                            yield return option;
-                        }
-                    }
-                }
-            }
-
-            bool ParseExpression(Expression expression)
-            {
-                string key = expression.Identifier;
-
-                if (expression.Kind == ExpressionKind.EqualsExpression)
-                {
-                    var equalsExpression = (BinaryExpression)expression;
-                    string value = equalsExpression.Value;
-
-                    if (OptionValues.Group.IsKeyOrShortKey(key))
-                    {
-                        groupName = value;
-                        return true;
-                    }
-                    else if (OptionValues.ListSeparator.IsKeyOrShortKey(key))
-                    {
-                        separator = value;
-                        return true;
-                    }
-                    else if (OptionValues.Part.IsKeyOrShortKey(key))
-                    {
-                        if (!TryParseAsEnum(value, out namePart, provider: OptionValueProviders.NamePartKindProvider))
-                        {
-                            string helpText = OptionValueProviders.NamePartKindProvider?.GetHelpText() ?? OptionValue.GetDefaultHelpText<NamePartKind>();
-                            throw new ArgumentException($"Option '{OptionNames.GetHelpText(optionName)}' has invalid value '{value}'. Allowed values: {helpText}.", nameof(values));
-                        }
-
-                        return true;
-                    }
-                    else if (OptionValues.Timeout.IsKeyOrShortKey(key))
-                    {
-                        matchTimeout = ParseMatchTimeout(value);
-                        return true;
-                    }
-                }
-
-                if (expression.Kind != ExpressionKind.DecrementExpression
-                    && OptionValues.Length.IsKeyOrShortKey(key))
-                {
-                    try
-                    {
-                        predicate = PredicateHelpers.GetLengthPredicate(expression);
-                        return true;
-                    }
-                    catch (ArgumentException)
-                    {
-                    }
-                }
-
-                return false;
-            }
-        }
-
-        private static bool TryParseFilter(
-            string pattern,
-            IEnumerable<string> options,
-            TimeSpan matchTimeout,
-            string groupName,
-            NamePartKind namePart,
-            string optionName,
-            string separator,
-            Func<Group, bool> predicate,
-            out Filter filter,
-            OptionValueProvider provider = null,
-            PatternOptions includedPatternOptions = PatternOptions.None)
-        {
-            filter = null;
-
-            if (!TryParseRegexOptions(options, optionName, out RegexOptions regexOptions, out PatternOptions patternOptions, includedPatternOptions, provider))
-                return false;
-
-            switch (patternOptions & (PatternOptions.WholeWord | PatternOptions.WholeLine))
-            {
-                case PatternOptions.None:
-                case PatternOptions.WholeWord:
-                case PatternOptions.WholeLine:
-                    {
-                        break;
-                    }
-                default:
-                    {
-                        WriteError($"Values '{OptionValueProviders.PatternOptionsProvider.GetValue(nameof(PatternOptions.WholeWord)).HelpValue}' and '{OptionValueProviders.PatternOptionsProvider.GetValue(nameof(PatternOptions.WholeLine)).HelpValue}' cannot be combined.");
-                        return false;
-                    }
-            }
-
-            bool fromFile = (patternOptions & PatternOptions.FromFile) != 0;
-            bool literal = (patternOptions & PatternOptions.Literal) != 0;
-
-            if (fromFile
-                && !FileSystemHelpers.TryReadAllText(pattern, out pattern))
-            {
-                return false;
-            }
-
-            if ((patternOptions & PatternOptions.List) != 0)
-            {
-                IEnumerable<string> values = (fromFile && separator == null)
-                    ? TextHelpers.ReadLines(pattern).Where(f => f.Length > 0)
-                    : pattern.Split(separator ?? ",", StringSplitOptions.RemoveEmptyEntries);
-
-                pattern = JoinValues(values);
-            }
-            else if (literal)
-            {
-                pattern = RegexEscape.Escape(pattern);
-            }
-
-            if ((patternOptions & PatternOptions.WholeWord) != 0)
-            {
-                pattern = @"\b(?:" + pattern + @")\b";
-            }
-            else if ((patternOptions & PatternOptions.WholeLine) != 0)
-            {
-                pattern = @"(?:\A|(?<=\n))(?:" + pattern + @")(?:\z|(?=\r?\n))";
-            }
-
-            if ((patternOptions & PatternOptions.Equals) == PatternOptions.Equals)
-            {
-                pattern = @"\A(?:" + pattern + @")\z";
-            }
-            else if ((patternOptions & PatternOptions.StartsWith) != 0)
-            {
-                pattern = @"\A(?:" + pattern + ")";
-            }
-            else if ((patternOptions & PatternOptions.EndsWith) != 0)
-            {
-                pattern = "(?:" + pattern + @")\z";
-            }
-
-            if (!TryParseRegex(pattern, regexOptions, matchTimeout, optionName, out Regex regex))
-                return false;
-
-            int groupIndex = -1;
-
-            if (groupName != null)
-            {
-                groupIndex = regex.GroupNumberFromName(groupName);
-                if (groupIndex == -1)
-                {
-                    string message = $"Group '{groupName}' does not exist.";
-
-                    string[] groupNames = regex.GetGroupNames();
-
-                    if (groupNames.Length > 1)
-                        message += $" Existing group names: {TextHelpers.Join(", ", " and ", groupNames.Where(f => f != "0"))}.";
-
-                    WriteError(message);
-
-                    return false;
-                }
-            }
-
-            filter = new Filter(regex, namePart, groupNumber: groupIndex, isNegative: (patternOptions & PatternOptions.Negative) != 0, predicate);
-            return true;
-
-            string JoinValues(IEnumerable<string> values)
-            {
-                using (IEnumerator<string> en = values.GetEnumerator())
-                {
-                    if (en.MoveNext())
-                    {
-                        StringBuilder sb = StringBuilderCache.GetInstance();
-
-                        sb.Append((literal) ? "(?n:" : "(?:");
-
-                        while (true)
-                        {
-                            sb.Append((literal) ? "(" : "(?:");
-                            sb.Append((literal) ? RegexEscape.Escape(en.Current) : en.Current);
-                            sb.Append(")");
-
-                            if (en.MoveNext())
-                            {
-                                sb.Append("|");
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
-
-                        sb.Append(")");
-
-                        return StringBuilderCache.GetStringAndFree(sb);
-                    }
-                }
-
-                return "";
-            }
         }
 
         public static bool TryParseRegex(
@@ -943,20 +797,35 @@ namespace Orang.CommandLine
             return false;
         }
 
-        private static TimeSpan ParseMatchTimeout(string value)
+        public static bool TryParseChar(string value, out char result)
         {
-            if (!int.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out int seconds))
-                throw new ArgumentException($"Option '{OptionNames.GetHelpText(OptionNames.Timeout)}' has invalid value '{value}'.");
+            if (value.Length == 2
+                && value[0] == '\\'
+                && value[1] >= 48
+                && value[1] <= 57)
+            {
+                result = value[1];
+                return true;
+            }
 
-            try
+            if (int.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out int charCode))
             {
-                return TimeSpan.FromSeconds(seconds);
+                if (charCode < 0 || charCode > 0xFFFF)
+                {
+                    WriteError("Value must be in range from 0 to 65535.");
+                    result = default;
+                    return false;
+                }
+
+                result = (char)charCode;
             }
-            catch (Exception ex) when (ex is ArgumentException
-                || ex is OverflowException)
+            else if (!char.TryParse(value, out result))
             {
-                throw new ArgumentException($"Option '{OptionNames.GetHelpText(OptionNames.Timeout)}' has invalid value '{value}'.");
+                WriteError($"Could not parse '{value}' as character value.");
+                return false;
             }
+
+            return true;
         }
 
         public static bool TryEnsureFullPath(IEnumerable<string> paths, out ImmutableArray<string> fullPaths)
@@ -1005,7 +874,7 @@ namespace Orang.CommandLine
             WriteError($"Option '{OptionNames.GetHelpText(optionName)}' has invalid value '{value}'. Allowed values: {helpText}.");
         }
 
-        internal static bool TryParseProperties(string ask, IEnumerable<string> name, FindCommandOptions options)
+        internal static bool TryParseProperties(string ask, IEnumerable<string> name, CommonFindCommandOptions options)
         {
             if (!TryParseAsEnum(ask, OptionNames.Ask, out AskMode askMode, defaultValue: AskMode.None, OptionValueProviders.AskModeProvider))
                 return false;
@@ -1017,13 +886,8 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            Filter nameFilter = null;
-
-            if (name.Any()
-                && !TryParseFilter(name, OptionNames.Name, out nameFilter))
-            {
+            if (!FilterParser.TryParse(name, OptionNames.Name, OptionValueProviders.PatternOptionsProvider, out Filter nameFilter, allowNull: true))
                 return false;
-            }
 
             options.AskMode = askMode;
             options.NameFilter = nameFilter;

@@ -14,7 +14,7 @@ namespace Orang.CommandLine
     [Verb("replace", HelpText = "Searches the file system for files and replaces its content.")]
     [OptionValueProvider(nameof(Content), OptionValueProviderNames.PatternOptionsWithoutGroupAndPartAndNegative)]
     [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.ReplaceHighlightOptions)]
-    internal sealed class ReplaceCommandLineOptions : CommonFindCommandLineOptions
+    internal sealed class ReplaceCommandLineOptions : FileSystemCommandLineOptions
     {
         [Option(longName: OptionNames.Ask,
             HelpText = "Ask for permission after each file or value.",
@@ -63,7 +63,7 @@ namespace Orang.CommandLine
 
         public bool TryParse(ReplaceCommandOptions options)
         {
-            var baseOptions = (CommonFindCommandOptions)options;
+            var baseOptions = (FileSystemCommandOptions)options;
 
             if (!TryParse(baseOptions))
                 return false;
@@ -162,7 +162,6 @@ namespace Orang.CommandLine
             options.MaxMatchesInFile = maxMatchesInFile;
             options.MaxMatches = maxMatches;
             options.MaxMatchingFiles = maxMatchingFiles;
-            options.ModifyOptions = ModifyOptions.Default;
 
             return true;
         }

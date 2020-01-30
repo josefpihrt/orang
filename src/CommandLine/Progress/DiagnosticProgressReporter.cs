@@ -11,7 +11,7 @@ namespace Orang.FileSystem
         public DiagnosticProgressReporter(
             ProgressReportMode consoleReportMode,
             ProgressReportMode fileReportMode,
-            CommonFindCommandOptions options,
+            FileSystemCommandOptions options,
             string indent)
         {
             ConsoleReportMode = consoleReportMode;
@@ -24,7 +24,7 @@ namespace Orang.FileSystem
 
         public ProgressReportMode FileReportMode { get; }
 
-        public CommonFindCommandOptions Options { get; }
+        public FileSystemCommandOptions Options { get; }
 
         public string Indent { get; }
 

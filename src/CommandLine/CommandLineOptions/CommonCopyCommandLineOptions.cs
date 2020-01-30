@@ -5,7 +5,7 @@ using CommandLine;
 
 namespace Orang.CommandLine
 {
-    internal abstract class CommonCopyCommandLineOptions : FindCommandLineOptions
+    internal abstract class CommonCopyCommandLineOptions : CommonFindCommandLineOptions
     {
         [Option(longName: OptionNames.Compare,
             HelpText = "File properties to be compared.",
@@ -14,7 +14,7 @@ namespace Orang.CommandLine
 
         public bool TryParse(CommonCopyCommandOptions options)
         {
-            var baseOptions = (FindCommandOptions)options;
+            var baseOptions = (CommonFindCommandOptions)options;
 
             if (!TryParse(baseOptions))
                 return false;

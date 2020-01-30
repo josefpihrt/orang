@@ -2,7 +2,7 @@
 
 namespace Orang.CommandLine
 {
-    internal sealed class ReplaceCommandOptions : FindCommandOptions
+    internal sealed class ReplaceCommandOptions : CommonFindCommandOptions
     {
         internal ReplaceCommandOptions()
         {

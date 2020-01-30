@@ -874,7 +874,7 @@ namespace Orang.CommandLine
             WriteError($"Option '{OptionNames.GetHelpText(optionName)}' has invalid value '{value}'. Allowed values: {helpText}.");
         }
 
-        internal static bool TryParseProperties(string ask, IEnumerable<string> name, FindCommandOptions options)
+        internal static bool TryParseProperties(string ask, IEnumerable<string> name, CommonFindCommandOptions options)
         {
             if (!TryParseAsEnum(ask, OptionNames.Ask, out AskMode askMode, defaultValue: AskMode.None, OptionValueProviders.AskModeProvider))
                 return false;

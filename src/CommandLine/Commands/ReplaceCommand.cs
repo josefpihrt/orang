@@ -14,7 +14,7 @@ using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
-    internal class ReplaceCommand : FindCommand<ReplaceCommandOptions>
+    internal class ReplaceCommand : CommonFindCommand<ReplaceCommandOptions>
     {
         private OutputSymbols _symbols;
 
@@ -139,6 +139,16 @@ namespace Orang.CommandLine
                 return;
 
             ExecuteOrAddResult(result, context, writerOptions, match, input, encoding, baseDirectoryPath);
+        }
+
+        protected override void ExecuteResult(FileSystemFinderResult result, SearchContext context, string baseDirectoryPath = null, ColumnWidths columnWidths = null)
+        {
+            string indent = GetPathIndent(baseDirectoryPath);
+
+            if (!Options.OmitPath)
+                WritePath(context, result, baseDirectoryPath, indent, columnWidths);
+
+            AskToContinue(context, indent);
         }
 
         protected override void ExecuteResult(

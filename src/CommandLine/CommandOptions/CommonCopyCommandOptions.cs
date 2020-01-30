@@ -4,7 +4,7 @@ using Orang.FileSystem;
 
 namespace Orang.CommandLine
 {
-    internal abstract class CommonCopyCommandOptions : FindCommandOptions
+    internal abstract class CommonCopyCommandOptions : CommonFindCommandOptions
     {
         private string _target;
 

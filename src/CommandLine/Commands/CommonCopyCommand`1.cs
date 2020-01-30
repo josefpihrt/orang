@@ -11,7 +11,7 @@ using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
-    internal abstract class CommonCopyCommand<TOptions> : FindCommand<TOptions> where TOptions : CommonCopyCommandOptions
+    internal abstract class CommonCopyCommand<TOptions> : CommonFindCommand<TOptions> where TOptions : CommonCopyCommandOptions
     {
         protected CommonCopyCommand(TOptions options) : base(options)
         {
@@ -56,9 +56,7 @@ namespace Orang.CommandLine
             string baseDirectoryPath = null,
             ColumnWidths columnWidths = null)
         {
-            base.ExecuteResult(result, context, writerOptions, match, input, encoding, baseDirectoryPath, columnWidths);
-
-            ExecuteOperation(result, context, baseDirectoryPath, GetPathIndent(baseDirectoryPath));
+            ExecuteResult(result, context, baseDirectoryPath, columnWidths);
         }
 
         protected sealed override void ExecuteResult(FileSystemFinderResult result, SearchContext context, string baseDirectoryPath = null, ColumnWidths columnWidths = null)

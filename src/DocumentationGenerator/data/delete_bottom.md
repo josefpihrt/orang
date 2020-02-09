@@ -32,7 +32,7 @@ Delete content of "bin" or "obj" directories in a current directory.
 
 ```
 orang delete ^
- --name "bin|obj" whole-input ^
+ --name "bin|obj" equals ^
  --attributes directory ^
  --content-only
 ```
@@ -41,7 +41,7 @@ orang delete ^
 
 ```
 orang delete ^
- -n "bin|obj" wi ^
+ -n "bin|obj" e ^
  -a d ^
  --content-only
 ```

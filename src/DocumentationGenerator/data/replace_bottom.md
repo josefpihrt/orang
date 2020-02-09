@@ -64,7 +64,7 @@ Current directory contains file **pattern.txt** with a following content:
 orang replace ^
  --extension cs ^
  --content "pattern.txt" ^
- --include-directory ".git" whole-input negative ^
+ --include-directory ".git" equals negative ^
  --highlight match
 ```
 
@@ -74,7 +74,7 @@ orang replace ^
 orang replace ^
  -e cs ^
  -c "pattern.txt" ^
- -i ".git" wi e ^
+ -i ".git" e e ^
  -t m
 
 ```

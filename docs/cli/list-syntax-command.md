@@ -5,16 +5,32 @@ Lists regular expression syntax\.
 ## Synopsis
 
 ```
-orang list-syntax
-[-f|--filter]  <FILTER>
-[-s|--section] <SYNTAX_SECTIONS>
+orang list-syntax [<CHAR>]
+[   --char-group]
+[-f|--filter]     <FILTER>
+[-o|--options]    <REGEX_OPTIONS>
+[-s|--section]    <SYNTAX_SECTIONS>
 ```
 
+## Arguments
+
+**`<CHAR>`**
+
+Character or a decimal number that represents the character\. For a number literal use escape like \\1\.
+
 ## Options
+
+**`[--char-group]`**
+
+Treat character as if it is in the character group\.
 
 **`[-f|--filter] <FILTER>`**
 
 Filter string that should be used to filter results\.
+
+**`[-o|--options] <REGEX_OPTIONS>`**
+
+Regex options that should be used\. Relevant values are \[e\]cma\-\[s\]cript or \[i\]gnore\-case\. Allowed values are c\[ompiled\], c\[ulture\]\-i\[nvariant\], e\[cma\]\-s\[cript\], n \[explicit\-capture\], i\[gnore\-case\], x \[ignore\-pattern\-whitespace\], m\[ultiline\], r\[ight\-to\-left\] and s\[ingleline\]\.
 
 **`[-s|--section] <SYNTAX_SECTIONS>`**
 

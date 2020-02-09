@@ -4,6 +4,8 @@ Orang is a cross-platform command-line tool for:
 
 * [searching](docs/cli/find-command.md) files, directories and files' content,
 * [replacing](docs/cli/replace-command.md) files' content,
+* [copying](docs/cli/copy-command.md) files and directories,
+* [moving](docs/cli/move-command.md) files and directories,
 * [renaming](docs/cli/rename-command.md) files and directories,
 * [deleting](docs/cli/delete-command.md) files, directories or its content,
 * executing [Regex](https://docs.microsoft.com/cs-cz/dotnet/api/system.text.regularexpressions.regex?view=netcore-2.2) functions such as [match](docs/cli/match-command.md) or [split](docs/cli/split-command.md)
@@ -21,7 +23,7 @@ dotnet tool install -g orang.dotnet.cli
 To install non-alpha version run:
 
 ```
-dotnet tool install -g orang.dotnet.cli --version 0.1.0-beta
+dotnet tool install -g orang.dotnet.cli --version 0.1.0-rc
 ```
 
 To update Orang run:

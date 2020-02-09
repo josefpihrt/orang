@@ -1,25 +1,26 @@
-﻿# `orang delete`
+﻿# `orang move`
 
-Deletes files and directories\.
+Searches the file system for files and directories and move them to a destination directory\.
 
 ## Synopsis
 
 ```
-orang delete [<PATH>]
-[   --ask]
+orang move [<PATH>]
+[   --ask]                <ASK_MODE>
 [-a|--attributes]         <ATTRIBUTES>
 [   --attributes-to-skip] <ATTRIBUTES>
+[   --compare]            <COMPARE_OPTIONS>
+[   --conflict]           <CONFLICT_RESOLUTION>
 [-c|--content]            <REGEX>
-[   --content-only]
 [-y|--display]            <DISPLAY_OPTIONS>
 [-d|--dry-run]
 [   --encoding]           <ENCODING>
 [-e|--extension]          <EXTENSION_FILTER>
+[   --flat]
 [-h|--help]
 [-t|--highlight]          <HIGHLIGHT>
 [-i|--include-directory]  <REGEX>
-[   --including-bom]
-[-m|--max-count]          <NUM>
+[-m|--max-count]          <MAX_OPTIONS>
 [-n|--name]               <REGEX>
 [   --no-recurse]
 [-o|--output]             <OUTPUT_OPTIONS>
@@ -27,6 +28,7 @@ orang delete [<PATH>]
 [   --progress]
 [-p|--properties]         <FILE_PROPERTIES>
 [-s|--sort]               <SORT_OPTIONS>
+    --target              <DIRECTORY_PATH>
 [-v|--verbosity]          <VERBOSITY>
 ```
 
@@ -38,9 +40,9 @@ Path to one or more files and/or directories that should be searched\.
 
 ## Options
 
-**`[--ask]`**
+**`[--ask] <ASK_MODE>`**
 
-Ask for a permission to delete file or directory\.
+Ask for permission after each file or value\. Allowed values are f\[ile\] and v\[alue\]\.
 
 **`[-a|--attributes] <ATTRIBUTES>`**
 
@@ -50,21 +52,25 @@ File attributes that are required\. Allowed values are archive, compressed, d\[i
 
 File attributes that should be skipped\. Allowed values are archive, compressed, e\[mpty\], encrypted, h\[idden\], normal, offline, r\[ead\-only\], r\[eparse\]\-p\[oint\], s\[ystem\] and temporary\.
 
+**`[--compare] <COMPARE_OPTIONS>`**
+
+File properties to be compared\. Allowed values are n\[one\], a\[ttributes\], c\[ontent\], m\[odified\-\]t\[ime\] and s\[ize\]\.
+
+**`[--conflict] <CONFLICT_RESOLUTION>`**
+
+Defines how to resolve conflict when a file already exists\. Allowed values are a\[sk\], o\[verwrite\], r\[ename\] and s\[kip\]\.
+
 **`[-c|--content] <REGEX>`**
 
 Regular expression for files' content\. Syntax is \<PATTERN> \[\<PATTERN\_OPTIONS>\]\. Allowed values are compiled, c\[ulture\-\]i\[nvariant\], e\[cma\-\]s\[cript\], e\[nds\-\]w\[ith\], e\[quals\], n \[explicit\-capture\], f\[rom\-file\], g\[roup\]=\<GROUP\_NAME>, i\[gnore\-case\], x \[ignore\-pattern\-whitespace\], li\[st\], length=\<NUM>, l\[ist\-\]s\[eparator\], l\[iteral\], m\[ultiline\], ne\[gative\], r\[ight\-to\-left\], s\[ingleline\], s\[tarts\-\]w\[ith\], timeout=\<NUM>, w\[hole\-\]l\[ine\] and w\[hole\-word\]\.
 
-**`[--content-only]`**
-
-Delete content of a file or directory but not the file or directory itself\.
-
 **`[-y|--display] <DISPLAY_OPTIONS>`**
 
-Display of the results\. Allowed values are c\[reation\-\]t\[ime\], indent=\<INDENT>, m\[odified\-\]t\[ime\], p\[ath\]=\<PATH\_DISPLAY>, s\[ize\], s\[eparator\]=\<SEPARATOR> and su\[mmary\]\.
+Display of the results\. Allowed values are c\[ontent\]=\<CONTENT\_DISPLAY>, c\[ount\], c\[reation\-\]t\[ime\], indent=\<INDENT>, l\[ine\-number\], m\[odified\-\]t\[ime\], p\[ath\]=\<PATH\_DISPLAY>, s\[ize\], s\[eparator\]=\<SEPARATOR>, su\[mmary\] and trim\-line\.
 
 **`[-d|--dry-run]`**
 
-Display which files or directories should be deleted but do not actually delete any file or directory\.
+Display which files or directories should be moved but do not actually move any file or directory\.
 
 **`[--encoding] <ENCODING>`**
 
@@ -74,25 +80,25 @@ Encoding to use when a file does not contain byte order mark\. Default encoding 
 
 A filter for file extensions \(case\-insensitive by default\)\. Syntax is EXT1\[,EXT2,\.\.\.\] \[\<EXTENSION\_OPTIONS>\]\. Allowed values are c\[ase\-\]s\[ensitive\], c\[ulture\-\]i\[nvariant\], f\[rom\-file\], l\[ist\-\]s\[eparator\], l\[iteral\], ne\[gative\] and timeout=\<NUM>\.
 
+**`[--flat]`**
+
+Move files directly into target directory\.
+
 **`[-h|--help]`**
 
 Show command line help\.
 
 **`[-t|--highlight] <HIGHLIGHT>`**
 
-Parts of the output to highlight\. Allowed values are n\[one\], m\[atch\], e\[mpty\-\]s\[plit\] and e\[mpty\]\.
+Parts of the output to highlight\. Allowed values are n\[one\], m\[atch\], e\[mpty\-\]m\[atch\], e\[mpty\-\]s\[plit\], e\[mpty\], b\[oundary\], t\[ab\], c\[arriage\-\]r\[eturn\], l\[ine\]f\[eed\], n\[ew\-\]l\[ine\] and space\.
 
 **`[-i|--include-directory] <REGEX>`**
 
 Regular expression for a directory name\. Syntax is \<PATTERN> \[\<PATTERN\_OPTIONS>\]\. Allowed values are compiled, c\[ulture\-\]i\[nvariant\], e\[cma\-\]s\[cript\], e\[nds\-\]w\[ith\], e\[quals\], n \[explicit\-capture\], f\[rom\-file\], g\[roup\]=\<GROUP\_NAME>, i\[gnore\-case\], x \[ignore\-pattern\-whitespace\], li\[st\], length=\<NUM>, l\[ist\-\]s\[eparator\], l\[iteral\], m\[ultiline\], ne\[gative\], p\[art\]=\<NAME\_PART>, r\[ight\-to\-left\], s\[ingleline\], s\[tarts\-\]w\[ith\], timeout=\<NUM>, w\[hole\-\]l\[ine\] and w\[hole\-word\]\.
 
-**`[--including-bom]`**
+**`[-m|--max-count] <MAX_OPTIONS>`**
 
-Delete byte order mark \(BOM\) when deleting file's content\.
-
-**`[-m|--max-count] <NUM>`**
-
-Stop deleting after specified number is reached\.
+Stop searching after specified number is reached\. Allowed values are \<NUM>, m\[atches\]=\<NUM> and m\[atching\-\]f\[iles\]\.
 
 **`[-n|--name] <REGEX>`**
 
@@ -122,6 +128,10 @@ A filter for file properties\. Allowed values are c\[reation\-\]t\[ime\], m\[odi
 
 Sort matched files and directories\. Allowed values are a\[scending\], c\[reation\-\]t\[ime\], d\[escending\], m\[ax\-count\]=\<NUM>, m\[odified\-\]t\[ime\], n\[ame\] and s\[ize\]\.
 
+**`--target <DIRECTORY_PATH>`**
+
+A directory to move files and directories to\.
+
 **`[-v|--verbosity] <VERBOSITY>`**
 
 The amount of information to display in the log\. Allowed values are q\[uiet\], m\[inimal\], n\[ormal\], d\[etailed\] and di\[agnostic\]\.
@@ -129,49 +139,5 @@ The amount of information to display in the log\. Allowed values are q\[uiet\], 
 ## Use Redirected Input
 
 Piped output from a previous command will be treated as a list of paths separated by newlines.
-
-## Samples
-
-### Sample
-
-Delete empty directories in a current directory.
-
-#### Syntax
-
-```
-orang delete ^
- --name "^(?=)" ^
- --attributes directory empty
-```
-
-#### Short Syntax
-
-```
-orang delete ^
- -n "^(?=)" ^
- -a d e
-```
-
-### Sample
-
-Delete content of "bin" or "obj" directories in a current directory.
-
-#### Syntax
-
-```
-orang delete ^
- --name "bin|obj" equals ^
- --attributes directory ^
- --content-only
-```
-
-#### Short Syntax
-
-```
-orang delete ^
- -n "bin|obj" e ^
- -a d ^
- --content-only
-```
 
 *\(Generated with [DotMarkdown](http://github.com/JosefPihrt/DotMarkdown)\)*

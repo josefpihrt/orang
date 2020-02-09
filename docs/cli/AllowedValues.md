@@ -2,18 +2,24 @@
 
 * [\<ASK_MODE>](#ask-mode)
 * [\<ATTRIBUTES>](#attributes)
+* [\<COMPARE_OPTIONS>](#compare-options)
+* [\<CONFLICT_RESOLUTION>](#conflict-resolution)
 * [\<CONTENT_DISPLAY>](#content-display)
 * [\<DISPLAY_OPTIONS>](#display-options)
 * [\<EXTENSION_OPTIONS>](#extension-options)
 * [\<FILE_PROPERTIES>](#file-properties)
 * [\<HIGHLIGHT>](#highlight)
 * [\<MAX_OPTIONS>](#max-options)
+* [\<MODIFY_OPTIONS>](#modify-options)
 * [\<NAME_PART>](#name-part)
 * [\<OUTPUT_OPTIONS>](#output-options)
 * [\<PATH_DISPLAY>](#path-display)
 * [\<PATTERN_OPTIONS>](#pattern-options)
+* [\<REGEX_OPTIONS>](#regex-options)
+* [\<REPLACE_MODIFY>](#replace-modify)
 * [\<REPLACEMENT_OPTIONS>](#replacement-options)
 * [\<SORT_OPTIONS>](#sort-options)
+* [\<SORT_PROPERTY>](#sort-property)
 * [\<SYNTAX_SECTIONS>](#syntax-sections)
 * [\<VERBOSITY>](#verbosity)
 
@@ -46,6 +52,25 @@
 | s\[ystem\]             |
 | temporary              |
 
+## \<COMPARE\_OPTIONS>
+
+| Value                  | Description                             |
+| ---------------------- | --------------------------------------- |
+| n\[one\]               | Compare files only by name\.            |
+| a\[ttributes\]         | Compare file attributes\.               |
+| c\[ontent\]            | Compare file content\.                  |
+| m\[odified\-\]t\[ime\] | Compare time a file was last modified\. |
+| s\[ize\]               | Compare file size\.                     |
+
+## \<CONFLICT\_RESOLUTION>
+
+| Value         | Description                                       |
+| ------------- | ------------------------------------------------- |
+| a\[sk\]       | Ask when a file or already exists\.               |
+| o\[verwrite\] | Overwrite a file when it already exists\.         |
+| r\[ename\]    | Create new file name if it already exists\.       |
+| s\[kip\]      | Do not copy or move a file if it already exists\. |
+
 ## \<CONTENT\_DISPLAY>
 
 | Value                | Description                                                                              |
@@ -70,15 +95,15 @@
 | s\[ize\]                        | Include file size\.                                                    |
 | s\[eparator\]=\<SEPARATOR>      | String that separate each value\.                                      |
 | su\[mmary\]                     | Include summary\.                                                      |
-| t\[rim\-line\]                  | Trim leading and trailing white\-space from a line\.                   |
+| trim\-line                      | Trim leading and trailing white\-space from a line\.                   |
 
 ## \<EXTENSION\_OPTIONS>
 
 | Value                      | Description                                                                                                             |
 | -------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| c\[ase\-\]s\[ensitive\]    | Use case\-sensitive matching\.                                                                                          |
 | c\[ulture\-\]i\[nvariant\] | Ignore cultural differences between languages\.                                                                         |
 | f\[rom\-file\]             | Load pattern from a file\.                                                                                              |
-| i\[gnore\-case\]           | Use case\-insensitive matching\.                                                                                        |
 | l\[ist\-\]s\[eparator\]    | String that separate each value in a list\. Default value is comma \(,\) or newline if the list is loaded from a file\. |
 | l\[iteral\]                | Pattern should be treated as a literal expression and not as a regular expression\.                                     |
 | ne\[gative\]               | Search succeeds if the regular expression does not match\.                                                              |
@@ -119,6 +144,28 @@
 | m\[atches\]=\<NUM>      | Stop searching after \<NUM> matches\.                                                         |
 | m\[atching\-\]f\[iles\] | Stop searching after \<NUM> matching files\.                                                  |
 
+## \<MODIFY\_OPTIONS>
+
+| Value                       | Description                                                    |
+| --------------------------- | -------------------------------------------------------------- |
+| ag\[gregate\]               | Display list of all values at the end of search\.              |
+| ao \[aggregate\-only\]      | Display only list of all values at the end of search\.         |
+| a\[scending\]               | Sort values in an ascending order\.                            |
+| ci \[culture\-invariant\]   | Ignore cultural differences between languages\.                |
+| d\[escending\]              | Sort values in a descending order\.                            |
+| di\[stinct\]                | Return distinct values\.                                       |
+| except                      | Return values from first file except values from second file\. |
+| intersect                   | Return values that were found in all files\.                   |
+| i\[gnore\-case\]            | Use case\-insensitive matching\.                               |
+| re\[move\-empty\]           | Remove values that are empty strings\.                         |
+| rw \[remove\-white\-space\] | Remove values that are empty or consist of white\-space\.      |
+| sort\-by=\<SORT\_PROPERTY>  |
+| tl \[to\-lower\]            | Convert value to lowercase\.                                   |
+| tu \[to\-upper\]            | Convert value to uppercase\.                                   |
+| t\[rim\]                    | Trim leading and trailing white\-space\.                       |
+| te \[trim\-end\]            | Trim trailing white\-space\.                                   |
+| ts \[trim\-start\]          | Trim leading white\-space\.                                    |
+
 ## \<NAME\_PART>
 
 | Value                          | Description                             |
@@ -142,6 +189,7 @@
 | ------------ | ----------------------------------------------- |
 | f\[ull\]     | Display full path\.                             |
 | r\[elative\] | Display path relatively to the base directory\. |
+| m\[atch\]    | Display only match\.                            |
 | o\[mit\]     | Do not display path\.                           |
 
 ## \<PATTERN\_OPTIONS>
@@ -151,6 +199,8 @@
 | compiled                          | Compile the regular expression to an assembly\.                                                                                                        |
 | c\[ulture\-\]i\[nvariant\]        | Ignore cultural differences between languages\.                                                                                                        |
 | e\[cma\-\]s\[cript\]              | Enable ECMAScript\-compliant behavior for the expression\.                                                                                             |
+| e\[nds\-\]w\[ith\]                | Pattern should match from the end of the input string\.                                                                                                |
+| e\[quals\]                        | Pattern should match whole input string\.                                                                                                              |
 | n \[explicit\-capture\]           | Do not capture unnamed groups\.                                                                                                                        |
 | f\[rom\-file\]                    | Load pattern from a file\.                                                                                                                             |
 | g\[roup\]=\<GROUP\_NAME>          |
@@ -165,10 +215,35 @@
 | p\[art\]=\<NAME\_PART>            | The part of a file or a directory name that should be matched\.                                                                                        |
 | r\[ight\-to\-left\]               | Specifies that the search will be from right to left\.                                                                                                 |
 | s\[ingleline\]                    | The period \(\.\) matches every character \(instead of every character except \\n\)\.                                                                  |
+| s\[tarts\-\]w\[ith\]              | Pattern should match from the start of the input string\.                                                                                              |
 | timeout=\<NUM>                    | Match time\-out interval in seconds\.                                                                                                                  |
-| w\[hole\-\]i\[nput\]              | Pattern should match whole input string\.                                                                                                              |
 | w\[hole\-\]l\[ine\]               | Pattern should match whole line\.                                                                                                                      |
 | w\[hole\-word\]                   | Pattern should match whole word\.                                                                                                                      |
+
+## \<REGEX\_OPTIONS>
+
+| Value                             | Description                                                                                                 |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| c\[ompiled\]                      | Compile the regular expression to an assembly\.                                                             |
+| c\[ulture\]\-i\[nvariant\]        | Ignore cultural differences between languages\.                                                             |
+| e\[cma\]\-s\[cript\]              | Enable ECMAScript\-compliant behavior for the expression\.                                                  |
+| n \[explicit\-capture\]           | Do not capture unnamed groups\.                                                                             |
+| i\[gnore\-case\]                  | Use case\-insensitive matching\.                                                                            |
+| x \[ignore\-pattern\-whitespace\] | Exclude unescaped white\-space from the pattern and enable comments after a number sign \(\#\)\.            |
+| m\[ultiline\]                     | ^ and $ match the beginning and end of each line \(instead of the beginning and end of the input string\)\. |
+| r\[ight\-to\-left\]               | Specifies that the search will be from right to left\.                                                      |
+| s\[ingleline\]                    | The period \(\.\) matches every character \(instead of every character except \\n\)\.                       |
+
+## \<REPLACE\_MODIFY>
+
+| Value                     | Description                                     |
+| ------------------------- | ----------------------------------------------- |
+| ci \[culture\-invariant\] | Ignore cultural differences between languages\. |
+| tl \[to\-lower\]          | Convert value to lowercase\.                    |
+| tu \[to\-upper\]          | Convert value to uppercase\.                    |
+| t\[rim\]                  | Trim leading and trailing white\-space\.        |
+| te \[trim\-end\]          | Trim trailing white\-space\.                    |
+| ts \[trim\-start\]        | Trim leading white\-space\.                     |
 
 ## \<REPLACEMENT\_OPTIONS>
 
@@ -189,6 +264,12 @@
 | m\[odified\-\]t\[ime\] | Sort items by last modified time\. |
 | n\[ame\]               | Sort items by full name\.          |
 | s\[ize\]               | Sort items by size\.               |
+
+## \<SORT\_PROPERTY>
+
+| Value      | Description                     |
+| ---------- | ------------------------------- |
+| l\[ength\] | Sort values by value's length\. |
 
 ## \<SYNTAX\_SECTIONS>
 
@@ -217,3 +298,4 @@
 | d\[etailed\]   |
 | di\[agnostic\] |
 
+*\(Generated with [DotMarkdown](http://github.com/JosefPihrt/DotMarkdown)\)*

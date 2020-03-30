@@ -66,7 +66,7 @@ namespace Orang.CommandLine
                 WriteCount("  Files total size", telemetry.FilesTotalSize, verbosity: verbosity);
 
             if (telemetry.Elapsed != default)
-                Write($"  Elapsed Time: {telemetry.Elapsed:mm\\:ss\\.ff}", verbosity);
+                Write($"  Elapsed time: {telemetry.Elapsed:mm\\:ss\\.ff}", verbosity);
 
             WriteLine(verbosity);
         }

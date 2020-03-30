@@ -9,20 +9,30 @@ namespace Orang.CommandLine
     internal class FilePropertyFilter
     {
         public FilePropertyFilter(
-            Func<long, bool> sizePredicate = null,
-            Func<DateTime, bool> creationTimePredicate = null,
-            Func<DateTime, bool> modifiedTimePredicate = null)
+            FilterPredicate<long> sizePredicate = null,
+            FilterPredicate<DateTime> creationTimePredicate = null,
+            FilterPredicate<DateTime> modifiedTimePredicate = null)
         {
             SizePredicate = sizePredicate;
             CreationTimePredicate = creationTimePredicate;
             ModifiedTimePredicate = modifiedTimePredicate;
         }
 
-        public Func<long, bool> SizePredicate { get; }
+        public FilterPredicate<long> SizePredicate { get; }
 
-        public Func<DateTime, bool> CreationTimePredicate { get; }
+        public FilterPredicate<DateTime> CreationTimePredicate { get; }
 
-        public Func<DateTime, bool> ModifiedTimePredicate { get; }
+        public FilterPredicate<DateTime> ModifiedTimePredicate { get; }
+
+        internal bool IsDefault
+        {
+            get
+            {
+                return SizePredicate == null
+                    && CreationTimePredicate == null
+                    && ModifiedTimePredicate == null;
+            }
+        }
 
         public bool IsMatch(FileSystemFinderResult result)
         {
@@ -32,15 +42,15 @@ namespace Orang.CommandLine
         public bool IsMatch(string path, bool isDirectory = false)
         {
             if (!isDirectory
-                && SizePredicate?.Invoke(new FileInfo(path).Length) == false)
+                && SizePredicate?.Predicate.Invoke(new FileInfo(path).Length) == false)
             {
                 return false;
             }
 
-            if (CreationTimePredicate?.Invoke(File.GetCreationTime(path)) == false)
+            if (CreationTimePredicate?.Predicate.Invoke(File.GetCreationTime(path)) == false)
                 return false;
 
-            if (ModifiedTimePredicate?.Invoke(File.GetLastWriteTime(path)) == false)
+            if (ModifiedTimePredicate?.Predicate.Invoke(File.GetLastWriteTime(path)) == false)
                 return false;
 
             return true;

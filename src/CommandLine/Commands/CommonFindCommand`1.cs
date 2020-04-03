@@ -14,7 +14,6 @@ namespace Orang.CommandLine
 {
     internal abstract class CommonFindCommand<TOptions> : FileSystemCommand<TOptions> where TOptions : CommonFindCommandOptions
     {
-        private AskMode _askMode;
         private OutputSymbols _symbols;
         private ContentWriterOptions _fileWriterOptions;
         private ContentWriterOptions _directoryWriterOptions;
@@ -26,6 +25,8 @@ namespace Orang.CommandLine
         public Filter ContentFilter => Options.ContentFilter;
 
         private OutputSymbols Symbols => _symbols ?? (_symbols = OutputSymbols.Create(Options.HighlightOptions));
+
+        protected AskMode AskMode { get; set; }
 
         public override bool CanEndProgress
         {
@@ -98,7 +99,7 @@ namespace Orang.CommandLine
             context.Telemetry.MatchingLineCount = -1;
 
             if (ConsoleOut.Verbosity >= Verbosity.Minimal)
-                _askMode = Options.AskMode;
+                AskMode = Options.AskMode;
 
             base.ExecuteCore(context);
         }
@@ -219,12 +220,12 @@ namespace Orang.CommandLine
 
         protected void AskToContinue(SearchContext context, string indent)
         {
-            if (_askMode == AskMode.File)
+            if (AskMode == AskMode.File)
             {
                 try
                 {
                     if (ConsoleHelpers.AskToContinue(indent))
-                        _askMode = AskMode.None;
+                        AskMode = AskMode.None;
                 }
                 catch (OperationCanceledException)
                 {

@@ -14,7 +14,6 @@ namespace Orang.CommandLine
 {
     internal sealed class FindCommand<TOptions> : CommonFindCommand<TOptions> where TOptions : FindCommandOptions
     {
-        private AskMode _askMode;
         private OutputSymbols _symbols;
         private IResultStorage _storage;
         private List<int> _storageIndexes;
@@ -154,7 +153,7 @@ namespace Orang.CommandLine
                         storage: (hasAnyFunction) ? _fileStorage : _storage,
                         outputInfo: Options.CreateOutputInfo(input, match),
                         writer: (hasAnyFunction) ? null : ContentTextWriter.Default,
-                        ask: _askMode == AskMode.Value);
+                        ask: AskMode == AskMode.Value);
                 }
                 else
                 {
@@ -195,17 +194,17 @@ namespace Orang.CommandLine
                     }
                 }
 
-                if (_askMode == AskMode.Value)
+                if (AskMode == AskMode.Value)
                 {
                     if (contentWriter is AskValueContentWriter askValueContentWriter)
                     {
                         if (!askValueContentWriter.Ask)
-                            _askMode = AskMode.None;
+                            AskMode = AskMode.None;
                     }
                     else if (contentWriter is AskLineContentWriter askLineContentWriter)
                     {
                         if (!askLineContentWriter.Ask)
-                            _askMode = AskMode.None;
+                            AskMode = AskMode.None;
                     }
                 }
             }

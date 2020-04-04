@@ -170,12 +170,12 @@ namespace Orang.CommandLine
             Writer?.Write(value, startIndex, length, colors);
         }
 
-        protected virtual void WriteLine()
+        protected void WriteLine()
         {
             Writer?.WriteLine();
         }
 
-        protected virtual void WriteLineNumber(int value)
+        protected void WriteLineNumber(int value)
         {
             Write(value.ToString(), Colors.LineNumber);
             Write(" ");

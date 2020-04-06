@@ -26,7 +26,7 @@ namespace Orang.CommandLine
             DisplayParts = displayParts;
             FileProperties = fileProperties?.ToImmutableArray() ?? ImmutableArray<FileProperty>.Empty;
             Indent = indent ?? DefaultIndent;
-            Separator = separator ?? Environment.NewLine;
+            Separator = separator;
             IncludeBaseDirectory = includeBaseDirectory;
         }
 

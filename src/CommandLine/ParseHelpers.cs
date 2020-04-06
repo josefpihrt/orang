@@ -372,7 +372,7 @@ namespace Orang.CommandLine
                     }
                     else if (OptionValues.Display_Separator.IsKeyOrShortKey(key))
                     {
-                        separator = value2;
+                        separator = RegexEscape.ConvertCharacterEscapes(value2);
                     }
                     else
                     {

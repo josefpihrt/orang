@@ -76,7 +76,10 @@ namespace Orang.CommandLine
             else
             {
                 if (_lastEndIndex >= 0)
+                {
                     WriteEndOfLine();
+                    Write(Options.Separator);
+                }
 
                 Write(Options.Indent);
 

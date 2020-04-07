@@ -113,7 +113,9 @@ namespace Orang.FileSystem
                         {
                             currentDirectory = di.Current;
 
-                            isMatch = (directory.IsMatch == true) ? true : default(bool?);
+                            isMatch = (directoryFilter?.IsNegative == false && directory.IsMatch == true)
+                                ? true
+                                : default(bool?);
 
                             if (directory.IsMatch != false
                                 && options.SearchTarget != SearchTarget.Files

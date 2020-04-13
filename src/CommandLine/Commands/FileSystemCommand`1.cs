@@ -151,7 +151,7 @@ namespace Orang.CommandLine
                 if (context.Progress != null)
                 {
                     context.Telemetry.SearchedDirectoryCount = context.Progress.SearchedDirectoryCount;
-                    context.Telemetry.FileCount += context.Progress.FileCount;
+                    context.Telemetry.FileCount = context.Progress.FileCount;
                     context.Telemetry.DirectoryCount = context.Progress.DirectoryCount;
                 }
 

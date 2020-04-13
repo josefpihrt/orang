@@ -23,8 +23,6 @@ namespace Orang.CommandLine
 
         protected sealed override void ExecuteFile(string filePath, SearchContext context)
         {
-            context.Telemetry.FileCount++;
-
             FileSystemFinderResult result = MatchFile(filePath, context.Progress);
 
             if (result != null)

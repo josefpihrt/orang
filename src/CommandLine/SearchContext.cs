@@ -7,7 +7,7 @@ using Orang.FileSystem;
 
 namespace Orang.CommandLine
 {
-    internal class SearchContext
+    internal sealed class SearchContext
     {
         public SearchContext(
             SearchTelemetry telemetry,

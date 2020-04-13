@@ -139,7 +139,17 @@ namespace Orang.CommandLine
                         }
                     }
                 });
+#if DEBUG
+                if (args != null)
+                {
+                    WriteLine("--- ARGS ---", Verbosity.Diagnostic);
 
+                    foreach (string arg in args)
+                        WriteLine(arg, Verbosity.Diagnostic);
+
+                    WriteLine("--- END OF ARGS ---", Verbosity.Diagnostic);
+                }
+#endif
                 if (help)
                     return 0;
 

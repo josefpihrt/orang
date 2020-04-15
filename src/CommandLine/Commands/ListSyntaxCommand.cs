@@ -145,7 +145,7 @@ namespace Orang.CommandLine
                 WriteRow("PATTERN", "DESCRIPTION");
 
                 foreach (PatternInfo item in patterns)
-                    WriteRow(item.Pattern, item.Description);
+                    WriteRow(item.Pattern, item.Description, Colors.Syntax);
 
                 return CommandResult.Success;
             }

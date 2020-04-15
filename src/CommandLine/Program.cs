@@ -47,6 +47,8 @@ namespace Orang.CommandLine
                     .WithNotParsed(_ =>
                     {
                     });
+#else
+                    ;
 #endif
 
                 if (help)

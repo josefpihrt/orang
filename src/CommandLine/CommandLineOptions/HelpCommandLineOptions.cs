@@ -5,16 +5,12 @@ using CommandLine;
 namespace Orang.CommandLine
 {
     [Verb("help", HelpText = "Displays help.")]
-    internal sealed class HelpCommandLineOptions
+    internal sealed class HelpCommandLineOptions : AbstractCommandLineOptions
     {
         [Value(index: 0,
             HelpText = "Command name.",
             MetaName = ArgumentMetaNames.Command)]
         public string Command { get; set; }
-
-        [Option(shortName: OptionShortNames.Values, longName: OptionNames.Values,
-            HelpText = "Display list of allowed values.")]
-        public bool Values { get; set; }
 
         [Option(shortName: OptionShortNames.Manual, longName: OptionNames.Manual,
             HelpText = "Display full manual.")]
@@ -23,7 +19,6 @@ namespace Orang.CommandLine
         public bool TryParse(HelpCommandOptions options)
         {
             options.Command = Command;
-            options.IncludeValues = Values;
             options.Manual = Manual;
 
             return true;

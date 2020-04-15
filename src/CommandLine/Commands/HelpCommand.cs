@@ -2,6 +2,7 @@
 
 using System;
 using System.Threading;
+using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
@@ -15,17 +16,25 @@ namespace Orang.CommandLine
         {
             try
             {
-                string text = GetHelpText(commandName: Options.Command, manual: Options.Manual, includeValues: Options.IncludeValues);
+                WriteHelpText(ConsoleOut);
 
-                Logger.Write(text);
+                if (Out != null)
+                    WriteHelpText(Out);
             }
             catch (ArgumentException ex)
             {
-                Logger.WriteError(ex);
+                WriteError(ex);
                 return CommandResult.Fail;
             }
 
             return CommandResult.Success;
+
+            void WriteHelpText(TextWriterWithVerbosity writer)
+            {
+                string text = GetHelpText(commandName: Options.Command, manual: Options.Manual, includeValues: writer.Verbosity > Verbosity.Normal);
+
+                writer.Write(text);
+            }
         }
 
         private static string GetHelpText(string commandName = null, bool manual = false, bool includeValues = false)

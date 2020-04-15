@@ -5,7 +5,7 @@ using CommandLine;
 
 namespace Orang.CommandLine
 {
-    internal abstract class CommonRegexCommandLineOptions : AbstractCommandLineOptions
+    internal abstract class CommonRegexCommandLineOptions : BaseCommandLineOptions
     {
         [Option(shortName: OptionShortNames.Display, longName: OptionNames.Display,
             HelpText = "Display of the results.",

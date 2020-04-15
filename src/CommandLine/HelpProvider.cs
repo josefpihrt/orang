@@ -23,23 +23,42 @@ namespace Orang.CommandLine
         {
             return $"Run 'orang {command ?? "[command]"} -h' for more information on a command."
                 + Environment.NewLine
-                + $"Run 'orang help {command ?? "[command]"} -v' for more information on allowed values.";
+                + $"Run 'orang {command ?? "[command]"} -h -v d' for more information on allowed values.";
         }
 
-        public static string GetHelpText(bool includeValues = false)
+        public static string GetHelpText(Command command = null, bool includeValues = false)
         {
-            using (var stringWriter = new StringWriter())
+            if (command != null)
             {
-                IEnumerable<Command> commands = LoadCommands();
+                using (var stringWriter = new StringWriter())
+                {
+                    var helpWriter = new CommandHelpWriter(
+                        stringWriter,
+                        new HelpWriterOptions(includeValues: includeValues),
+                        OptionValueProviders.ProvidersByName);
 
-                var helpWriter = new CommandHelpWriter(
-                    stringWriter,
-                    new HelpWriterOptions(includeValues: includeValues),
-                    OptionValueProviders.ProvidersByName);
+                    command = command.WithOptions(command.Options.Sort(CompareOptions));
 
-                helpWriter.WriteCommands(commands);
+                    helpWriter.WriteCommand(command);
 
-                return stringWriter.ToString();
+                    return stringWriter.ToString();
+                }
+            }
+            else
+            {
+                using (var stringWriter = new StringWriter())
+                {
+                    IEnumerable<Command> commands = LoadCommands();
+
+                    var helpWriter = new CommandHelpWriter(
+                        stringWriter,
+                        new HelpWriterOptions(includeValues: includeValues),
+                        OptionValueProviders.ProvidersByName);
+
+                    helpWriter.WriteCommands(commands);
+
+                    return stringWriter.ToString();
+                }
             }
         }
 
@@ -51,23 +70,6 @@ namespace Orang.CommandLine
                 throw new ArgumentException($"Command '{commandName}' does not exist.", nameof(commandName));
 
             return GetHelpText(command, includeValues);
-        }
-
-        public static string GetHelpText(Command command, bool includeValues = false)
-        {
-            using (var stringWriter = new StringWriter())
-            {
-                var helpWriter = new CommandHelpWriter(
-                    stringWriter,
-                    new HelpWriterOptions(includeValues: includeValues),
-                    OptionValueProviders.ProvidersByName);
-
-                command = command.WithOptions(command.Options.Sort(CompareOptions));
-
-                helpWriter.WriteCommand(command);
-
-                return stringWriter.ToString();
-            }
         }
 
         public static string GetManual(bool includeValues = false)

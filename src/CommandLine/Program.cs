@@ -64,7 +64,7 @@ namespace Orang.CommandLine
                     EscapeCommandLineOptions,
                     FindCommandLineOptions,
                     HelpCommandLineOptions,
-                    ListSyntaxCommandLineOptions,
+                    ListPatternsCommandLineOptions,
                     MatchCommandLineOptions,
                     MoveCommandLineOptions,
                     RenameCommandLineOptions,
@@ -109,7 +109,7 @@ namespace Orang.CommandLine
                     (EscapeCommandLineOptions options) => Escape(options),
                     (FindCommandLineOptions options) => Find(options),
                     (HelpCommandLineOptions options) => Help(options),
-                    (ListSyntaxCommandLineOptions options) => ListSyntax(options),
+                    (ListPatternsCommandLineOptions options) => ListPatterns(options),
                     (MatchCommandLineOptions options) => Match(options),
                     (RenameCommandLineOptions options) => Rename(options),
                     (ReplaceCommandLineOptions options) => Replace(options),
@@ -240,14 +240,14 @@ namespace Orang.CommandLine
             return Execute(new HelpCommand(options));
         }
 
-        private static int ListSyntax(ListSyntaxCommandLineOptions commandLineOptions)
+        private static int ListPatterns(ListPatternsCommandLineOptions commandLineOptions)
         {
-            var options = new ListSyntaxCommandOptions();
+            var options = new ListPatternsCommandOptions();
 
             if (!commandLineOptions.TryParse(options))
                 return 2;
 
-            return Execute(new ListSyntaxCommand(options));
+            return Execute(new ListPatternsCommand(options));
         }
 
         private static int Match(MatchCommandLineOptions commandLineOptions)

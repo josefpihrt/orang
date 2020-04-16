@@ -29,14 +29,21 @@ namespace Orang
 
         public bool Hidden { get; }
 
-        public static string GetDefaultHelpText<TEnum>()
+        public static string GetDefaultHelpText<TEnum>(bool multiline = false)
         {
             IEnumerable<string> values = Enum.GetValues(typeof(TEnum))
                 .Cast<TEnum>()
                 .Select(f => _lowerLetterUpperLetterRegex.Replace(f.ToString(), e => e.Value.Insert(1, "-")).ToLowerInvariant())
                 .OrderBy(f => f);
 
-            return TextHelpers.Join(", ", " and ", values);
+            if (multiline)
+            {
+                return string.Join(Environment.NewLine + "  ", values);
+            }
+            else
+            {
+                return TextHelpers.Join(", ", " and ", values);
+            }
         }
     }
 }

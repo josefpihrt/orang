@@ -72,8 +72,7 @@ namespace Orang.CommandLine
                     {
                         if (!TryParseAsEnum(value, out namePart, provider: OptionValueProviders.NamePartKindProvider))
                         {
-                            string helpText = OptionValueProviders.NamePartKindProvider.GetHelpText();
-                            WriteError($"Option '{OptionValues.Part.HelpValue}' has invalid value '{value}'. Allowed values: {helpText}.");
+                            WriteOptionValueError(value, OptionValues.Part, OptionValueProviders.NamePartKindProvider);
                             return false;
                         }
 
@@ -83,7 +82,7 @@ namespace Orang.CommandLine
                     {
                         if (!TryParseMatchTimeout(value, out matchTimeout))
                         {
-                            WriteError($"Option '{OptionValues.Timeout.HelpValue}' has invalid value '{value}'.");
+                            WriteOptionValueError(value, OptionValues.Timeout);
                             return false;
                         }
 
@@ -102,13 +101,13 @@ namespace Orang.CommandLine
                         }
                         catch (ArgumentException)
                         {
-                            WriteError($"Option '{OptionNames.GetHelpText(optionName)}' has invalid value '{option}'.");
+                            WriteOptionValueError(expression.Value, OptionValues.Length, HelpWriter.GetExpressionSyntax("  ", includeDate: false));
                             return false;
                         }
                     }
                     else
                     {
-                        WriteError($"Option '{OptionNames.GetHelpText(optionName)}' has invalid value '{option}'. Allowed values: {provider.GetHelpText()}.");
+                        WriteOptionError(option, optionName, provider);
                         return false;
                     }
                 }

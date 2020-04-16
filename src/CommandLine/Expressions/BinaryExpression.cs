@@ -4,14 +4,11 @@ namespace Orang.Expressions
 {
     internal class BinaryExpression : Expression
     {
-        public BinaryExpression(string identifier, string value, ExpressionKind kind) : base(identifier)
+        public BinaryExpression(string identifier, string value, ExpressionKind kind) : base(identifier, value)
         {
-            Value = value;
             Kind = kind;
         }
 
         public override ExpressionKind Kind { get; }
-
-        public string Value { get; }
     }
 }

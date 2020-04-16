@@ -4,13 +4,10 @@ namespace Orang.Expressions
 {
     internal class DecrementExpression : Expression
     {
-        public DecrementExpression(string identifier, string value) : base(identifier)
+        public DecrementExpression(string identifier, string value) : base(identifier, value)
         {
-            Value = value;
         }
 
         public override ExpressionKind Kind => ExpressionKind.DecrementExpression;
-
-        public string Value { get; }
     }
 }

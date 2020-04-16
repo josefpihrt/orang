@@ -53,7 +53,7 @@ namespace Orang.CommandLine
                     }
                     else
                     {
-                        WriteParseError(value, optionName, OptionValueProviders.FilePropertiesProvider);
+                        WriteOptionError(value, optionName, OptionValueProviders.FilePropertiesProvider);
                         return false;
                     }
                 }
@@ -101,7 +101,7 @@ namespace Orang.CommandLine
                     }
                     else
                     {
-                        WriteParseError(value, optionName, OptionValueProviders.SortFlagsProvider);
+                        WriteOptionError(value, optionName, OptionValueProviders.SortFlagsProvider);
                         return false;
                     }
                 }
@@ -202,8 +202,7 @@ namespace Orang.CommandLine
                     }
                     else
                     {
-                        string helpText = OptionValueProviders.ModifyFlagsProvider.GetHelpText();
-                        WriteError($"Option '{OptionNames.GetHelpText(optionName)}' has invalid value '{value}'. Allowed values: {helpText}.");
+                        WriteOptionError(value, optionName, OptionValueProviders.ModifyFlagsProvider);
                         return false;
                     }
                 }
@@ -376,7 +375,8 @@ namespace Orang.CommandLine
                     }
                     else
                     {
-                        ThrowException(value);
+                        WriteOptionError(value, optionName, OptionValueProviders.DisplayProvider);
+                        return false;
                     }
                 }
                 else if (OptionValues.Display_Summary.IsValueOrShortValue(value))
@@ -417,7 +417,8 @@ namespace Orang.CommandLine
                 }
                 else
                 {
-                    ThrowException(value);
+                    WriteOptionError(value, optionName, OptionValueProviders.DisplayProvider);
+                    return false;
                 }
             }
 
@@ -425,13 +426,6 @@ namespace Orang.CommandLine
                 fileProperties = builder.ToImmutableArray();
 
             return true;
-
-            void ThrowException(string value)
-            {
-                string helpText = OptionValueProviders.DisplayProvider.GetHelpText();
-
-                throw new ArgumentException($"Option '{OptionNames.GetHelpText(optionName)}' has invalid value '{value}'. Allowed values: {helpText}.", nameof(values));
-            }
         }
 
         public static bool TryParseOutputOptions(
@@ -476,7 +470,7 @@ namespace Orang.CommandLine
                     }
                     else
                     {
-                        WriteParseError(value, optionName, OptionValueProviders.OutputFlagsProvider);
+                        WriteOptionError(value, optionName, OptionValueProviders.OutputFlagsProvider);
                         return false;
                     }
                 }
@@ -486,7 +480,7 @@ namespace Orang.CommandLine
                 }
                 else
                 {
-                    WriteParseError(value, optionName, OptionValueProviders.OutputFlagsProvider);
+                    WriteOptionError(value, optionName, OptionValueProviders.OutputFlagsProvider);
                     return false;
                 }
             }
@@ -676,7 +670,7 @@ namespace Orang.CommandLine
         {
             if (!TryParseAsEnum(value, out result, defaultValue, provider))
             {
-                WriteParseError(value, optionName, provider?.GetHelpText() ?? OptionValue.GetDefaultHelpText<TEnum>());
+                WriteOptionError(value, optionName, provider?.GetHelpText(multiline: true) ?? OptionValue.GetDefaultHelpText<TEnum>(multiline: true));
                 return false;
             }
 
@@ -775,7 +769,7 @@ namespace Orang.CommandLine
                     }
                     else
                     {
-                        WriteParseError(value, OptionNames.MaxCount, OptionValueProviders.MaxOptionsProvider);
+                        WriteOptionError(value, OptionNames.MaxCount, OptionValueProviders.MaxOptionsProvider);
                         return false;
                     }
                 }
@@ -862,16 +856,34 @@ namespace Orang.CommandLine
             }
         }
 
-        private static void WriteParseError(string value, string optionName, OptionValueProvider provider)
+        internal static void WriteOptionError(string value, string optionName, OptionValueProvider provider = null)
         {
-            string helpText = provider.GetHelpText();
-
-            WriteParseError(value, optionName, helpText);
+            WriteOptionError(value, optionName, provider?.GetHelpText(multiline: true));
         }
 
-        private static void WriteParseError(string value, string optionName, string helpText)
+        private static void WriteOptionError(string value, string optionName, string allowedValues)
         {
-            WriteError($"Option '{OptionNames.GetHelpText(optionName)}' has invalid value '{value}'. Allowed values: {helpText}.");
+            WriteParseError(value, OptionNames.GetHelpText(optionName), allowedValues);
+        }
+
+        internal static void WriteOptionValueError(string value, OptionValue optionValue, OptionValueProvider provider = null)
+        {
+            WriteOptionValueError(value, optionValue, provider?.GetHelpText(multiline: true));
+        }
+
+        internal static void WriteOptionValueError(string value, OptionValue optionValue, string allowedValues)
+        {
+            WriteParseError(value, optionValue.HelpValue, allowedValues);
+        }
+
+        private static void WriteParseError(string value, string optionText, string allowedValues)
+        {
+            string message = $"Option '{optionText}' has invalid value '{value}'.";
+
+            if (!string.IsNullOrEmpty(allowedValues))
+                message += $"{Environment.NewLine}{Environment.NewLine}Allowed values:{Environment.NewLine}{allowedValues}";
+
+            WriteError(message);
         }
 
         internal static bool TryParseProperties(string ask, IEnumerable<string> name, CommonFindCommandOptions options)

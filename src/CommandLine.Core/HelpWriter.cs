@@ -9,9 +9,9 @@ using System.Text;
 
 namespace Orang
 {
-    public abstract class HelpWriter
+    public class HelpWriter
     {
-        protected HelpWriter(TextWriter writer, HelpWriterOptions options = null, IEnumerable<OptionValueProvider> optionValueProviders = default)
+        public HelpWriter(TextWriter writer, HelpWriterOptions options = null, IEnumerable<OptionValueProvider> optionValueProviders = default)
         {
             Writer = writer;
             Options = options ?? HelpWriterOptions.Default;
@@ -228,60 +228,15 @@ namespace Orang
 
                     IEnumerable<OptionValue> optionValues = providers.SelectMany(p => p.Values.Where(v => !v.Hidden));
 
-                    int width1 = providers.Max(f => f.Name.Length) + 1;
-
-                    int width2 = optionValues.Max(f =>
-                    {
-                        return f switch
-                        {
-                            SimpleOptionValue enumOptionValue => enumOptionValue.Value.Length,
-                            KeyValuePairOptionValue keyOptionValue => keyOptionValue.Key.Length + 1 + keyOptionValue.Value.Length,
-                            _ => throw new InvalidOperationException(),
-                        };
-                    }) + 1;
-
-                    int width3 = optionValues.Max(f =>
-                    {
-                        return f switch
-                        {
-                            SimpleOptionValue enumOptionValue => enumOptionValue.ShortValue.Length,
-                            KeyValuePairOptionValue keyOptionValue => keyOptionValue.ShortKey.Length,
-                            _ => throw new InvalidOperationException(),
-                        };
-                    }) + 1;
+                    (int width1, int width2) = CalculateColumnWidths(optionValues);
 
                     while (true)
                     {
                         WriteLine(en.Current.Name);
 
-                        foreach (OptionValue optionValue in en.Current
-                            .Values
-                            .Where(v => !v.Hidden))
-                        {
-                            Write(Options.Indent);
+                        WriteValues(en.Current.Values.Where(v => !v.Hidden), width1, width2);
 
-                            string value = GetValue(optionValue);
-
-                            Write(value);
-                            WriteSpaces(width2 - value.Length);
-
-                            string shortValue = GetShortValue(optionValue);
-
-                            if (string.IsNullOrEmpty(shortValue))
-                                shortValue = "-";
-
-                            Write(shortValue);
-
-                            string description = optionValue.Description;
-
-                            if (!string.IsNullOrEmpty(description))
-                            {
-                                WriteSpaces(width3 - shortValue.Length);
-                                Write(description);
-                            }
-
-                            WriteLine();
-                        }
+                        WriteLine();
 
                         if (en.MoveNext())
                         {
@@ -299,14 +254,57 @@ namespace Orang
                     {
                         WriteLine();
                         WriteLine("Expression syntax:");
-                        WriteLine($"{Options.Indent}x=n");
-                        WriteLine($"{Options.Indent}x<n");
-                        WriteLine($"{Options.Indent}x>n");
-                        WriteLine($"{Options.Indent}x<=n");
-                        WriteLine($"{Options.Indent}x>=n");
-                        WriteLine($"{Options.Indent}x=<min;max>          Inclusive interval");
-                        WriteLine($"{Options.Indent}x=(min;max)          Exclusive interval");
-                        WriteLine($"{Options.Indent}x=-d|[d.]hh:mm[:ss]  x is greater than actual date - <VALUE>");
+                        WriteLine(GetExpressionSyntax(Options.Indent));
+                    }
+                }
+            }
+        }
+
+        public void WriteValues(IEnumerable<OptionValue> optionValues)
+        {
+            (int width1, int width2) = CalculateColumnWidths(optionValues);
+
+            WriteValues(optionValues, width1, width2);
+        }
+
+        private void WriteValues(IEnumerable<OptionValue> values, int width1, int width2)
+        {
+            using (IEnumerator<OptionValue> en = values.GetEnumerator())
+            {
+                if (en.MoveNext())
+                {
+                    while (true)
+                    {
+                        Write(Options.Indent);
+
+                        string value = GetValue(en.Current);
+
+                        Write(value);
+                        WriteSpaces(width1 - value.Length);
+
+                        string shortValue = GetShortValue(en.Current);
+
+                        if (string.IsNullOrEmpty(shortValue))
+                            shortValue = "-";
+
+                        Write(shortValue);
+
+                        string description = en.Current.Description;
+
+                        if (!string.IsNullOrEmpty(description))
+                        {
+                            WriteSpaces(width2 - shortValue.Length);
+                            Write(description);
+                        }
+
+                        if (en.MoveNext())
+                        {
+                            WriteLine();
+                        }
+                        else
+                        {
+                            break;
+                        }
                     }
                 }
             }
@@ -330,6 +328,51 @@ namespace Orang
                     _ => throw new InvalidOperationException(),
                 };
             }
+        }
+
+        private static (int width1, int width2) CalculateColumnWidths(IEnumerable<OptionValue> optionValues)
+        {
+            int width1 = optionValues.Max(f =>
+            {
+                return f switch
+                {
+                    SimpleOptionValue enumOptionValue => enumOptionValue.Value.Length,
+                    KeyValuePairOptionValue keyOptionValue => keyOptionValue.Key.Length + 1 + keyOptionValue.Value.Length,
+                    _ => throw new InvalidOperationException(),
+                };
+            }) + 1;
+            int width2 = optionValues.Max(f =>
+            {
+                return f switch
+                {
+                    SimpleOptionValue enumOptionValue => enumOptionValue.ShortValue.Length,
+                    KeyValuePairOptionValue keyOptionValue => keyOptionValue.ShortKey.Length,
+                    _ => throw new InvalidOperationException(),
+                };
+            }) + 1;
+
+            return (width1, width2);
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "RCS1197")]
+        internal static string GetExpressionSyntax(string indent, bool includeDate = true)
+        {
+            StringBuilder sb = StringBuilderCache.GetInstance()
+                .AppendLine($"{indent}x=n")
+                .AppendLine($"{indent}x<n")
+                .AppendLine($"{indent}x>n")
+                .AppendLine($"{indent}x<=n")
+                .AppendLine($"{indent}x>=n")
+                .AppendLine($"{indent}x=<min;max>          Inclusive interval")
+                .Append($"{indent}x=(min;max)          Exclusive interval");
+
+            if (includeDate)
+            {
+                sb.AppendLine();
+                sb.Append($"{indent}x=-d|[d.]hh:mm[:ss]  x is greater than actual date - <VALUE>");
+            }
+
+            return StringBuilderCache.GetStringAndFree(sb);
         }
 
         public virtual void WriteStartValues()

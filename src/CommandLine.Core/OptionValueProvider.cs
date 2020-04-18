@@ -39,12 +39,7 @@ namespace Orang
             foreach (OptionValue value in Values)
             {
                 if (Array.IndexOf(values, value) == -1)
-                {
                     builder.Add(value);
-                }
-                else
-                {
-                }
             }
 
             return new OptionValueProvider(name, builder);

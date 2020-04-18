@@ -56,6 +56,13 @@ namespace Orang.CommandLine
                 if (index != -1)
                 {
                     string key = option.Substring(0, index);
+
+                    if (!provider.ContainsName(key))
+                    {
+                        WriteOptionError(option, optionName, provider);
+                        return false;
+                    }
+
                     string value = option.Substring(index + 1);
 
                     if (OptionValues.Group.IsKeyOrShortKey(key))
@@ -92,7 +99,8 @@ namespace Orang.CommandLine
 
                 if (Expression.TryParse(option, out Expression expression))
                 {
-                    if (OptionValues.Length.IsKeyOrShortKey(expression.Identifier))
+                    if (OptionValues.Length.IsKeyOrShortKey(expression.Identifier)
+                        && provider.ContainsName(expression.Identifier))
                     {
                         try
                         {

@@ -32,6 +32,17 @@ namespace Orang
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private string DebuggerDisplay => Name;
 
+        public bool ContainsName(string name)
+        {
+            foreach (OptionValue value in Values)
+            {
+                if (string.Equals(value.Name, name, StringComparison.Ordinal))
+                    return true;
+            }
+
+            return false;
+        }
+
         public bool TryParseEnum<TEnum>(string value, out TEnum result) where TEnum : struct
         {
             foreach (OptionValue optionValue in Values)

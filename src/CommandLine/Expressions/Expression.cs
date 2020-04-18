@@ -6,11 +6,14 @@ namespace Orang.Expressions
 {
     internal abstract class Expression
     {
-        protected Expression(string identifier, string value)
+        protected Expression(string text, string identifier, string value)
         {
+            Text = text;
             Identifier = identifier;
             Value = value;
         }
+
+        public string Text { get; }
 
         public string Identifier { get; }
 
@@ -50,14 +53,16 @@ namespace Orang.Expressions
                                     }
                                 case '-':
                                     {
-                                        expression = new DecrementExpression(value.Substring(0, i), value.Substring(i + 2));
+                                        expression = new DecrementExpression(value, value.Substring(0, i), value.Substring(i + 2));
                                         return true;
                                     }
                                 default:
                                     {
                                         expression = new BinaryExpression(
+                                            value,
                                             value.Substring(0, i),
-                                            value.Substring(i + 1), ExpressionKind.EqualsExpression);
+                                            value.Substring(i + 1),
+                                            ExpressionKind.EqualsExpression);
 
                                         return true;
                                     }
@@ -68,14 +73,18 @@ namespace Orang.Expressions
                             if (Peek() == '=')
                             {
                                 expression = new BinaryExpression(
+                                    value,
                                     value.Substring(0, i),
-                                    value.Substring(i + 2), ExpressionKind.GreaterThanOrEqualExpression);
+                                    value.Substring(i + 2),
+                                    ExpressionKind.GreaterThanOrEqualExpression);
                             }
                             else
                             {
                                 expression = new BinaryExpression(
+                                    value,
                                     value.Substring(0, i),
-                                    value.Substring(i + 1), ExpressionKind.GreaterThanExpression);
+                                    value.Substring(i + 1),
+                                    ExpressionKind.GreaterThanExpression);
                             }
 
                             return true;
@@ -85,14 +94,18 @@ namespace Orang.Expressions
                             if (Peek() == '=')
                             {
                                 expression = new BinaryExpression(
+                                    value,
                                     value.Substring(0, i),
-                                    value.Substring(i + 2), ExpressionKind.LessThanOrEqualExpression);
+                                    value.Substring(i + 2),
+                                    ExpressionKind.LessThanOrEqualExpression);
                             }
                             else
                             {
                                 expression = new BinaryExpression(
+                                    value,
                                     value.Substring(0, i),
-                                    value.Substring(i + 1), ExpressionKind.LessThanExpression);
+                                    value.Substring(i + 1),
+                                    ExpressionKind.LessThanExpression);
                             }
 
                             return true;
@@ -172,7 +185,7 @@ namespace Orang.Expressions
                 if (expression2 == null)
                     return null;
 
-                return new IntervalExpression(identifier, intervalValue, expression1, expression2);
+                return new IntervalExpression(value, identifier, intervalValue, expression1, expression2);
             }
         }
 
@@ -182,6 +195,7 @@ namespace Orang.Expressions
                 return null;
 
             return new BinaryExpression(
+                value,
                 identifier,
                 value.Substring(index1 + 1, index2 - index1 - 1),
                 kind);

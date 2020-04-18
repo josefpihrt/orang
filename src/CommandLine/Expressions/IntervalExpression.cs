@@ -4,7 +4,7 @@ namespace Orang.Expressions
 {
     internal class IntervalExpression : Expression
     {
-        public IntervalExpression(string identifier, string value, BinaryExpression left, BinaryExpression right) : base(identifier, value)
+        public IntervalExpression(string text, string identifier, string value, BinaryExpression left, BinaryExpression right) : base(text, identifier, value)
         {
             Left = left;
             Right = right;

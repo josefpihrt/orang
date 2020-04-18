@@ -4,7 +4,7 @@ namespace Orang.Expressions
 {
     internal class DecrementExpression : Expression
     {
-        public DecrementExpression(string identifier, string value) : base(identifier, value)
+        public DecrementExpression(string text, string identifier, string value) : base(text, identifier, value)
         {
         }
 

@@ -32,6 +32,24 @@ namespace Orang
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private string DebuggerDisplay => Name;
 
+        public OptionValueProvider WithoutValues(string name, params OptionValue[] values)
+        {
+            ImmutableArray<OptionValue>.Builder builder = ImmutableArray.CreateBuilder<OptionValue>();
+
+            foreach (OptionValue value in Values)
+            {
+                if (Array.IndexOf(values, value) == -1)
+                {
+                    builder.Add(value);
+                }
+                else
+                {
+                }
+            }
+
+            return new OptionValueProvider(name, builder);
+        }
+
         public bool ContainsName(string name)
         {
             foreach (OptionValue value in Values)

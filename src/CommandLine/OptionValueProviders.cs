@@ -40,20 +40,25 @@ namespace Orang.CommandLine
             OptionValues.PatternOptions_WholeWord
         );
 
-        public static OptionValueProvider PatternOptionsWithoutPartProvider { get; } = new OptionValueProvider(OptionValueProviderNames.PatternOptionsWithoutPart,
-            PatternOptionsProvider.Values.Where(f => f.Name != OptionValues.Part.Name));
+        public static OptionValueProvider PatternOptionsWithoutPartProvider { get; } = PatternOptionsProvider.WithoutValues(
+            OptionValueProviderNames.PatternOptionsWithoutPart,
+            OptionValues.Part);
 
-        public static OptionValueProvider PatternOptionsWithoutGroupAndNegativeProvider { get; } = new OptionValueProvider(OptionValueProviderNames.PatternOptionsWithoutGroupAndNegative,
-            PatternOptionsProvider.Values.Where(f => f.Name != OptionValues.Group.Name && f.Name != nameof(PatternOptions.Negative))
-        );
+        public static OptionValueProvider PatternOptionsWithoutGroupAndNegativeProvider { get; } = PatternOptionsProvider.WithoutValues(
+            OptionValueProviderNames.PatternOptionsWithoutGroupAndNegative,
+            OptionValues.Group,
+            OptionValues.PatternOptions_Negative);
 
-        public static OptionValueProvider PatternOptionsWithoutPartAndNegativeProvider { get; } = new OptionValueProvider(OptionValueProviderNames.PatternOptionsWithoutPartAndNegative,
-            PatternOptionsProvider.Values.Where(f => f.Name != OptionValues.Part.Name && f.Name != nameof(PatternOptions.Negative))
-        );
+        public static OptionValueProvider PatternOptionsWithoutPartAndNegativeProvider { get; } = PatternOptionsProvider.WithoutValues(
+            OptionValueProviderNames.PatternOptionsWithoutPartAndNegative,
+            OptionValues.Part,
+            OptionValues.PatternOptions_Negative);
 
-        public static OptionValueProvider PatternOptionsWithoutGroupAndPartAndNegativeProvider { get; } = new OptionValueProvider(OptionValueProviderNames.PatternOptionsWithoutGroupAndPartAndNegative,
-            PatternOptionsProvider.Values.Where(f => f.Name != OptionValues.Part.Name && f.Name != OptionValues.Group.Name && f.Name != nameof(PatternOptions.Negative))
-        );
+        public static OptionValueProvider PatternOptionsWithoutGroupAndPartAndNegativeProvider { get; } = PatternOptionsProvider.WithoutValues(
+            OptionValueProviderNames.PatternOptionsWithoutGroupAndPartAndNegative,
+            OptionValues.Group,
+            OptionValues.Part,
+            OptionValues.PatternOptions_Negative);
 
         public static OptionValueProvider ExtensionOptionsProvider { get; } = new OptionValueProvider(MetaValues.ExtensionOptions,
             OptionValues.PatternOptions_CaseSensitive,
@@ -94,10 +99,10 @@ namespace Orang.CommandLine
         public static OptionValueProvider FileSystemAttributesProvider { get; } = new OptionValueProvider(MetaValues.Attributes,
             SimpleOptionValue.Create(FileSystemAttributes.Archive, shortValue: ""),
             SimpleOptionValue.Create(FileSystemAttributes.Compressed, shortValue: ""),
-            SimpleOptionValue.Create(FileSystemAttributes.Directory),
+            OptionValues.FileSystemAttributes_Directory,
             SimpleOptionValue.Create(FileSystemAttributes.Empty),
             SimpleOptionValue.Create(FileSystemAttributes.Encrypted, shortValue: ""),
-            SimpleOptionValue.Create(FileSystemAttributes.File),
+            OptionValues.FileSystemAttributes_File,
             SimpleOptionValue.Create(FileSystemAttributes.Hidden),
             SimpleOptionValue.Create(FileSystemAttributes.IntegrityStream, shortValue: "", hidden: true),
             SimpleOptionValue.Create(FileSystemAttributes.Normal, shortValue: ""),
@@ -111,9 +116,10 @@ namespace Orang.CommandLine
             SimpleOptionValue.Create(FileSystemAttributes.Temporary, shortValue: "")
         );
 
-        public static OptionValueProvider FileSystemAttributesToSkipProvider { get; } = new OptionValueProvider(OptionValueProviderNames.FileSystemAttributesToSkip,
-            FileSystemAttributesProvider.Values.Where(f => f.Name != nameof(FileSystemAttributes.File) && f.Name != nameof(FileSystemAttributes.Directory))
-        );
+        public static OptionValueProvider FileSystemAttributesToSkipProvider { get; } = FileSystemAttributesProvider.WithoutValues(
+            OptionValueProviderNames.FileSystemAttributesToSkip,
+            OptionValues.FileSystemAttributes_Directory,
+            OptionValues.FileSystemAttributes_File);
 
         public static OptionValueProvider NamePartKindProvider { get; } = new OptionValueProvider(MetaValues.NamePart,
             SimpleOptionValue.Create(NamePartKind.Extension, description: "Search in file extension."),
@@ -158,113 +164,62 @@ namespace Orang.CommandLine
         );
 
         public static OptionValueProvider HighlightOptionsProvider { get; } = new OptionValueProvider(MetaValues.Highlight,
-            SimpleOptionValue.Create(HighlightOptions.None, description: "No highlighting."),
-            SimpleOptionValue.Create(HighlightOptions.Match, description: "Highlight match value."),
-            SimpleOptionValue.Create(HighlightOptions.Replacement, description: "Highlight replacement value."),
-            SimpleOptionValue.Create(HighlightOptions.Split, description: "Highlight split value."),
-            SimpleOptionValue.Create(HighlightOptions.EmptyMatch, shortValue: "em", helpValue: "e[mpty-]m[atch]", description: "Highlight match value that is empty string."),
-            SimpleOptionValue.Create(HighlightOptions.EmptyReplacement, shortValue: "er", helpValue: "e[mpty-]r[eplacement]", description: "Highlight replacement value that is empty string."),
-            SimpleOptionValue.Create(HighlightOptions.EmptySplit, shortValue: "es", helpValue: "e[mpty-]s[plit]", description: "Highlight split value that is empty string."),
-            SimpleOptionValue.Create(HighlightOptions.Empty, description: "Highlight value that is empty string."),
-            SimpleOptionValue.Create(HighlightOptions.Boundary, description: "Highlight start and end of the value."),
-            SimpleOptionValue.Create(HighlightOptions.Tab, description: "Highlight tab character."),
-            SimpleOptionValue.Create(HighlightOptions.CarriageReturn, shortValue: "cr", helpValue: "c[arriage-]r[eturn]", description: "Highlight carriage return character."),
-            SimpleOptionValue.Create(HighlightOptions.Linefeed, shortValue: "lf", helpValue: "l[ine]f[eed]", description: "Highlight linefeed character."),
-            SimpleOptionValue.Create(HighlightOptions.NewLine, shortValue: "nl", helpValue: "n[ew-]l[ine]", description: "Highlight carriage return and linefeed characters."),
-            SimpleOptionValue.Create(HighlightOptions.Space, shortValue: "", description: "Highlight space character.")
+            OptionValues.HighlightOptions_None,
+            OptionValues.HighlightOptions_Match,
+            OptionValues.HighlightOptions_Replacement,
+            OptionValues.HighlightOptions_Split,
+            OptionValues.HighlightOptions_EmptyMatch,
+            OptionValues.HighlightOptions_EmptyReplacement,
+            OptionValues.HighlightOptions_EmptySplit,
+            OptionValues.HighlightOptions_Empty,
+            OptionValues.HighlightOptions_Boundary,
+            OptionValues.HighlightOptions_Tab,
+            OptionValues.HighlightOptions_CarriageReturn,
+            OptionValues.HighlightOptions_Linefeed,
+            OptionValues.HighlightOptions_NewLine,
+            OptionValues.HighlightOptions_Space
         );
 
         public static OptionValueProvider DeleteHighlightOptionsProvider { get; } = new OptionValueProvider(OptionValueProviderNames.DeleteHighlightOptions,
-            HighlightOptionsProvider.Values.Where(f =>
-            {
-                switch (f.Name)
-                {
-                    case nameof(HighlightOptions.EmptyMatch):
-                    case nameof(HighlightOptions.Replacement):
-                    case nameof(HighlightOptions.EmptyReplacement):
-                    case nameof(HighlightOptions.Split):
-                    case nameof(HighlightOptions.Boundary):
-                    case nameof(HighlightOptions.Tab):
-                    case nameof(HighlightOptions.Linefeed):
-                    case nameof(HighlightOptions.CarriageReturn):
-                    case nameof(HighlightOptions.NewLine):
-                    case nameof(HighlightOptions.Space):
-                        return false;
-                }
-
-                return true;
-            })
+            OptionValues.HighlightOptions_None,
+            OptionValues.HighlightOptions_Match,
+            OptionValues.HighlightOptions_Empty
         );
 
-        public static OptionValueProvider FindHighlightOptionsProvider { get; } = new OptionValueProvider(OptionValueProviderNames.FindHighlightOptions,
-            HighlightOptionsProvider.Values.Where(f =>
-            {
-                switch (f.Name)
-                {
-                    case nameof(HighlightOptions.Replacement):
-                    case nameof(HighlightOptions.EmptyReplacement):
-                    case nameof(HighlightOptions.Split):
-                        return false;
-                }
-
-                return true;
-            })
+        public static OptionValueProvider FindHighlightOptionsProvider { get; } = HighlightOptionsProvider.WithoutValues(
+            OptionValueProviderNames.FindHighlightOptions,
+            OptionValues.HighlightOptions_Replacement,
+            OptionValues.HighlightOptions_EmptyReplacement,
+            OptionValues.HighlightOptions_Split,
+            OptionValues.HighlightOptions_EmptySplit
         );
 
-        public static OptionValueProvider MatchHighlightOptionsProvider { get; } = new OptionValueProvider(OptionValueProviderNames.MatchHighlightOptions,
-            HighlightOptionsProvider.Values.Where(f =>
-            {
-                switch (f.Name)
-                {
-                    case nameof(HighlightOptions.Replacement):
-                    case nameof(HighlightOptions.EmptyReplacement):
-                    case nameof(HighlightOptions.Split):
-                        return false;
-                }
-
-                return true;
-            })
+        public static OptionValueProvider MatchHighlightOptionsProvider { get; } = HighlightOptionsProvider.WithoutValues(
+            OptionValueProviderNames.MatchHighlightOptions,
+            OptionValues.HighlightOptions_Replacement,
+            OptionValues.HighlightOptions_EmptyReplacement,
+            OptionValues.HighlightOptions_Split,
+            OptionValues.HighlightOptions_EmptySplit
         );
 
         public static OptionValueProvider RenameHighlightOptionsProvider { get; } = new OptionValueProvider(OptionValueProviderNames.RenameHighlightOptions,
-            HighlightOptionsProvider.Values.Where(f =>
-            {
-                switch (f.Name)
-                {
-                    case nameof(HighlightOptions.EmptyMatch):
-                    case nameof(HighlightOptions.EmptyReplacement):
-                    case nameof(HighlightOptions.Split):
-                    case nameof(HighlightOptions.Boundary):
-                    case nameof(HighlightOptions.Tab):
-                    case nameof(HighlightOptions.Linefeed):
-                    case nameof(HighlightOptions.CarriageReturn):
-                    case nameof(HighlightOptions.NewLine):
-                    case nameof(HighlightOptions.Space):
-                        return false;
-                }
-
-                return true;
-            })
+            OptionValues.HighlightOptions_None,
+            OptionValues.HighlightOptions_Match,
+            OptionValues.HighlightOptions_Replacement,
+            OptionValues.HighlightOptions_Empty
         );
 
-        public static OptionValueProvider ReplaceHighlightOptionsProvider { get; } = new OptionValueProvider(OptionValueProviderNames.ReplaceHighlightOptions,
-            HighlightOptionsProvider.Values.Where(f => f.Name != nameof(HighlightOptions.Split))
-        );
+        public static OptionValueProvider ReplaceHighlightOptionsProvider { get; } = HighlightOptionsProvider.WithoutValues(
+            OptionValueProviderNames.ReplaceHighlightOptions,
+            OptionValues.HighlightOptions_Split,
+            OptionValues.HighlightOptions_EmptySplit);
 
-        public static OptionValueProvider SplitHighlightOptionsProvider { get; } = new OptionValueProvider(OptionValueProviderNames.SplitHighlightOptions,
-            HighlightOptionsProvider.Values.Where(f =>
-            {
-                switch (f.Name)
-                {
-                    case nameof(HighlightOptions.Match):
-                    case nameof(HighlightOptions.Replacement):
-                    case nameof(HighlightOptions.EmptyMatch):
-                    case nameof(HighlightOptions.EmptyReplacement):
-                        return false;
-                }
-
-                return true;
-            })
+        public static OptionValueProvider SplitHighlightOptionsProvider { get; } = HighlightOptionsProvider.WithoutValues(
+            OptionValueProviderNames.SplitHighlightOptions,
+            OptionValues.HighlightOptions_Match,
+            OptionValues.HighlightOptions_Replacement,
+            OptionValues.HighlightOptions_EmptyMatch,
+            OptionValues.HighlightOptions_EmptyReplacement
         );
 
         public static OptionValueProvider OutputFlagsProvider { get; } = new OptionValueProvider(MetaValues.OutputOptions,
@@ -274,19 +229,22 @@ namespace Orang.CommandLine
         );
 
         public static OptionValueProvider ContentDisplayStyleProvider { get; } = new OptionValueProvider(MetaValues.ContentDisplay,
-            SimpleOptionValue.Create(ContentDisplayStyle.Value, description: "Display just the matched value."),
-            SimpleOptionValue.Create(ContentDisplayStyle.ValueDetail, shortValue: "d", description: "Display matched value and include information about each value such as index or length."),
-            SimpleOptionValue.Create(ContentDisplayStyle.Line, description: "Display entire line containing the matched value."),
-            SimpleOptionValue.Create(ContentDisplayStyle.UnmatchedLines, description: "Display all lines that do not contain the matched value."),
-            SimpleOptionValue.Create(ContentDisplayStyle.AllLines, description: "Display all lines.")
+            OptionValues.ContentDisplayStyle_AllLines,
+            OptionValues.ContentDisplayStyle_Line,
+            OptionValues.ContentDisplayStyle_UnmatchedLines,
+            OptionValues.ContentDisplayStyle_Value,
+            OptionValues.ContentDisplayStyle_ValueDetail
         );
 
-        public static OptionValueProvider ContentDisplayStyleProvider_WithoutUnmatchedLines { get; } = new OptionValueProvider(OptionValueProviderNames.ContentDisplayStyle_WithoutUnmatchedLines,
-            ContentDisplayStyleProvider.Values.Where(f => f.Name != nameof(ContentDisplayStyle.UnmatchedLines))
+        public static OptionValueProvider ContentDisplayStyleProvider_WithoutUnmatchedLines { get; } = ContentDisplayStyleProvider.WithoutValues(
+            OptionValueProviderNames.ContentDisplayStyle_WithoutUnmatchedLines,
+            OptionValues.ContentDisplayStyle_UnmatchedLines
         );
 
-        public static OptionValueProvider ContentDisplayStyleProvider_WithoutLineAndUnmatchedLinesAndOmit { get; } = new OptionValueProvider(OptionValueProviderNames.ContentDisplayStyle_WithoutLineAndUnmatchedLines,
-            ContentDisplayStyleProvider.Values.Where(f => f.Name != nameof(ContentDisplayStyle.Line) && f.Name != nameof(ContentDisplayStyle.UnmatchedLines))
+        public static OptionValueProvider ContentDisplayStyleProvider_WithoutLineAndUnmatchedLines { get; } = ContentDisplayStyleProvider.WithoutValues(
+            OptionValueProviderNames.ContentDisplayStyle_WithoutLineAndUnmatchedLines,
+            OptionValues.ContentDisplayStyle_Line,
+            OptionValues.ContentDisplayStyle_UnmatchedLines
         );
 
         public static OptionValueProvider AskModeProvider { get; } = new OptionValueProvider(MetaValues.AskMode,

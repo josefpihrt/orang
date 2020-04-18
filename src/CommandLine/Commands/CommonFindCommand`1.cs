@@ -5,10 +5,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using Orang.FileSystem;
-using static Orang.Logger;
 using static Orang.CommandLine.LogHelpers;
+using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
@@ -277,21 +276,7 @@ namespace Orang.CommandLine
 
             Debug.Assert(count >= 0, count.ToString());
 
-            MaxReason maxReason;
-            if (groupNumber < 1)
-            {
-                maxReason = GetMatches(captures, match, count, predicate, context.CancellationToken);
-            }
-            else
-            {
-                maxReason = GetCaptures(captures, match, groupNumber, count, predicate, context.CancellationToken);
-            }
-
-            if (captures.Count > 1
-                && captures[0].Index > captures[1].Index)
-            {
-                captures.Reverse();
-            }
+            MaxReason maxReason = CaptureFactory.GetCaptures(ref captures, match, groupNumber, count, predicate, context.CancellationToken);
 
             if ((maxReason == MaxReason.CountEqualsMax || maxReason == MaxReason.CountExceedsMax)
                 && maxMatches > 0
@@ -335,116 +320,6 @@ namespace Orang.CommandLine
             }
 
             return maxReason;
-        }
-
-        private MaxReason GetMatches(
-            List<Capture> matches,
-            Match match,
-            int count,
-            Func<Group, bool> predicate,
-            CancellationToken cancellationToken)
-        {
-            do
-            {
-                matches.Add(match);
-
-                if (predicate != null)
-                {
-                    Match m = match.NextMatch();
-
-                    match = Match.Empty;
-
-                    while (m.Success)
-                    {
-                        if (predicate(m))
-                        {
-                            match = m;
-                            break;
-                        }
-
-                        m = m.NextMatch();
-                    }
-                }
-                else
-                {
-                    match = match.NextMatch();
-                }
-
-                if (matches.Count == count)
-                {
-                    return (match.Success)
-                        ? MaxReason.CountExceedsMax
-                        : MaxReason.CountEqualsMax;
-                }
-
-                cancellationToken.ThrowIfCancellationRequested();
-
-            } while (match.Success);
-
-            return MaxReason.None;
-        }
-
-        private MaxReason GetCaptures(
-            List<Capture> captures,
-            Match match,
-            int groupNumber,
-            int count,
-            Func<Capture, bool> predicate,
-            CancellationToken cancellationToken)
-        {
-            Group group = match.Groups[groupNumber];
-
-            do
-            {
-                Capture prevCapture = null;
-
-                foreach (Capture capture in group.Captures)
-                {
-                    if (prevCapture != null
-                        && prevCapture.EndIndex() <= capture.EndIndex()
-                        && prevCapture.Index >= capture.Index)
-                    {
-                        captures[captures.Count - 1] = capture;
-                    }
-                    else
-                    {
-                        captures.Add(capture);
-                    }
-
-                    if (captures.Count == count)
-                        return (group.Success) ? MaxReason.CountExceedsMax : MaxReason.CountEqualsMax;
-
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    prevCapture = capture;
-                }
-
-                group = NextGroup();
-
-            } while (group.Success);
-
-            return MaxReason.None;
-
-            Group NextGroup()
-            {
-                while (true)
-                {
-                    match = match.NextMatch();
-
-                    if (!match.Success)
-                        break;
-
-                    Group g = match.Groups[groupNumber];
-
-                    if (g.Success
-                        && predicate?.Invoke(g) != false)
-                    {
-                        return g;
-                    }
-                }
-
-                return Match.Empty;
-            }
         }
 
         protected override void WritePath(SearchContext context, FileSystemFinderResult result, string baseDirectoryPath, string indent, ColumnWidths columnWidths)

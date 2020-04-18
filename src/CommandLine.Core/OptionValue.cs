@@ -11,12 +11,18 @@ namespace Orang
     {
         private protected static readonly Regex _lowerLetterUpperLetterRegex = new Regex(@"\p{Ll}\p{Lu}");
 
-        protected OptionValue(string name, string helpValue, string description = null, bool hidden = false)
+        protected OptionValue(
+            string name,
+            string helpValue,
+            string description = null,
+            bool hidden = false,
+            bool canContainExpression = false)
         {
             Name = name;
             HelpValue = helpValue;
             Description = description;
             Hidden = hidden;
+            CanContainExpression = canContainExpression;
         }
 
         public abstract OptionValueKind Kind { get; }
@@ -28,6 +34,8 @@ namespace Orang
         public string Description { get; }
 
         public bool Hidden { get; }
+
+        public bool CanContainExpression { get; }
 
         public static string GetDefaultHelpText<TEnum>(bool multiline = false)
         {

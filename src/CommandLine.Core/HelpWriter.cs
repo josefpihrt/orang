@@ -250,7 +250,7 @@ namespace Orang
 
                     WriteEndValues();
 
-                    if (optionValues.Any(f => f.Description?.Contains("(See 'Expression syntax' for other expressions)") == true))
+                    if (optionValues.Any(f => f.CanContainExpression))
                     {
                         WriteLine();
                         WriteLine("Expression syntax:");

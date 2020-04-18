@@ -86,12 +86,12 @@ namespace Orang.CommandLine
 
         public static readonly KeyValuePairOptionValue Encoding = KeyValuePairOptionValue.Create("encoding", MetaValues.Encoding, shortKey: "e");
 
-        public static readonly KeyValuePairOptionValue FileProperty_CreationTime = KeyValuePairOptionValue.Create("creation-time", "<DATE>", shortKey: "ct", helpValue: "c[reation-]t[ime]", description: "Filter files by creation time (See 'Expression syntax' for other expressions).");
-        public static readonly KeyValuePairOptionValue FileProperty_ModifiedTime = KeyValuePairOptionValue.Create("modified-time", "<DATE>", shortKey: "mt", helpValue: "m[odified-]t[ime]", description: "Filter files by modified time (See 'Expression syntax' for other expressions).");
-        public static readonly KeyValuePairOptionValue FileProperty_Size = KeyValuePairOptionValue.Create("size", "<NUM>", description: "Filter files by size (See 'Expression syntax' for other expressions).");
+        public static readonly KeyValuePairOptionValue FileProperty_CreationTime = KeyValuePairOptionValue.Create("creation-time", "<DATE>", shortKey: "ct", helpValue: "c[reation-]t[ime]", description: "Filter files by creation time (See 'Expression syntax' for other expressions).", canContainExpression: true);
+        public static readonly KeyValuePairOptionValue FileProperty_ModifiedTime = KeyValuePairOptionValue.Create("modified-time", "<DATE>", shortKey: "mt", helpValue: "m[odified-]t[ime]", description: "Filter files by modified time (See 'Expression syntax' for other expressions).", canContainExpression: true);
+        public static readonly KeyValuePairOptionValue FileProperty_Size = KeyValuePairOptionValue.Create("size", "<NUM>", description: "Filter files by size (See 'Expression syntax' for other expressions).", canContainExpression: true);
 
         public static readonly KeyValuePairOptionValue Group = KeyValuePairOptionValue.Create("group", "<GROUP_NAME>", shortKey: "g");
-        public static readonly KeyValuePairOptionValue Length = KeyValuePairOptionValue.Create("length", "<NUM>", shortKey: "", description: "Include matches whose length matches the expression (See 'Expression syntax' for other expressions).");
+        public static readonly KeyValuePairOptionValue Length = KeyValuePairOptionValue.Create("length", "<NUM>", shortKey: "", description: "Include matches whose length matches the expression (See 'Expression syntax' for other expressions).", canContainExpression: true);
         public static readonly KeyValuePairOptionValue ListSeparator = KeyValuePairOptionValue.Create("list-separator", "<SEPARATOR>", shortKey: "ls", helpValue: "l[ist-]s[eparator]", description: "String that separate each value in a list. Default value is comma (,) or newline if the list is loaded from a file.");
         public static readonly KeyValuePairOptionValue MaxCount = KeyValuePairOptionValue.Create("max-count", "<NUM>", description: "Show only <NUM> items.");
         public static readonly KeyValuePairOptionValue MaxMatches = KeyValuePairOptionValue.Create("matches", "<NUM>", description: "Stop searching after <NUM> matches.");

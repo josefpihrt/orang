@@ -8,8 +8,8 @@ namespace Orang
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class KeyValuePairOptionValue : OptionValue
     {
-        public KeyValuePairOptionValue(string key, string value, string shortKey, string helpValue, string description = null, bool hidden = false)
-            : base(key, helpValue, description, hidden)
+        public KeyValuePairOptionValue(string key, string value, string shortKey, string helpValue, string description = null, bool hidden = false, bool canContainExpression = false)
+            : base(key, helpValue, description, hidden, canContainExpression)
         {
             Key = key;
             ShortKey = shortKey;
@@ -38,7 +38,8 @@ namespace Orang
             string shortKey = null,
             string helpValue = null,
             string description = null,
-            bool hidden = false)
+            bool hidden = false,
+            bool canContainExpression = false)
         {
             if (key == null)
                 throw new ArgumentNullException(nameof(key));
@@ -67,7 +68,7 @@ namespace Orang
                 }
             }
 
-            return new KeyValuePairOptionValue(key, value, shortKey, helpValue, description, hidden);
+            return new KeyValuePairOptionValue(key, value, shortKey, helpValue, description, hidden: hidden, canContainExpression: canContainExpression);
         }
     }
 }

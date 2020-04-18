@@ -898,11 +898,12 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            if (!FilterParser.TryParse(name, OptionNames.Name, OptionValueProviders.PatternOptionsProvider, out Filter nameFilter, allowNull: true))
+            if (!FilterParser.TryParse(name, OptionNames.Name, OptionValueProviders.PatternOptionsProvider, out Filter nameFilter, out NamePartKind namePart, allowNull: true))
                 return false;
 
             options.AskMode = askMode;
             options.NameFilter = nameFilter;
+            options.NamePart = namePart;
 
             return true;
         }

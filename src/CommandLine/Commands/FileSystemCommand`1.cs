@@ -396,8 +396,10 @@ namespace Orang.CommandLine
             IEnumerable<FileSystemFinderResult> results = FileSystemFinder.Find(
                 directoryPath: directoryPath,
                 nameFilter: Options.NameFilter,
+                namePart: Options.NamePart,
                 extensionFilter: Options.ExtensionFilter,
                 directoryFilter: Options.DirectoryFilter,
+                directoryNamePart: Options.DirectoryNamePart,
                 options: FinderOptions,
                 progress: context.Progress,
                 notifyDirectoryChanged: notifyDirectoryChanged,
@@ -414,6 +416,7 @@ namespace Orang.CommandLine
             FileSystemFinderResult result = FileSystemFinder.MatchFile(
                 filePath,
                 nameFilter: Options.NameFilter,
+                namePart: Options.NamePart,
                 extensionFilter: Options.ExtensionFilter,
                 options: FinderOptions,
                 progress: progress);

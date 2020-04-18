@@ -68,10 +68,10 @@ namespace Orang.CommandLine
             if (!TryParseAsEnumFlags(Highlight, OptionNames.Highlight, out HighlightOptions highlightOptions, defaultValue: HighlightOptions.Replacement, provider: OptionValueProviders.RenameHighlightOptionsProvider))
                 return false;
 
-            if (!FilterParser.TryParse(Name, OptionNames.Name, OptionValueProviders.PatternOptionsWithoutGroupAndNegativeProvider, out Filter nameFilter))
+            if (!FilterParser.TryParse(Name, OptionNames.Name, OptionValueProviders.PatternOptionsWithoutGroupAndNegativeProvider, out Filter nameFilter, out NamePartKind namePart))
                 return false;
 
-            if (nameFilter.NamePart == NamePartKind.FullName)
+            if (namePart == NamePartKind.FullName)
             {
                 WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Options)}' has invalid value '{OptionValueProviders.NamePartKindProvider.GetValue(nameof(NamePartKind.FullName)).HelpValue}'.");
                 return false;
@@ -133,6 +133,7 @@ namespace Orang.CommandLine
             options.Ask = Ask;
             options.DryRun = DryRun;
             options.NameFilter = nameFilter;
+            options.NamePart = namePart;
             options.ContentFilter = contentFilter;
             options.MaxMatchingFiles = MaxCount;
 

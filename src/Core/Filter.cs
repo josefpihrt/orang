@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
-using Orang.FileSystem;
 
 namespace Orang
 {
@@ -14,7 +13,6 @@ namespace Orang
     {
         public Filter(
             Regex regex,
-            NamePartKind namePart = NamePartKind.Name,
             int groupNumber = -1,
             bool isNegative = false,
             Func<Capture, bool> predicate = null)
@@ -25,7 +23,6 @@ namespace Orang
 
             GroupNumber = groupNumber;
             IsNegative = isNegative;
-            NamePart = namePart;
             Predicate = predicate;
         }
 
@@ -35,14 +32,12 @@ namespace Orang
 
         public int GroupNumber { get; }
 
-        public NamePartKind NamePart { get; }
-
         public Func<Capture, bool> Predicate { get; }
 
         public string GroupName => Regex.GroupNameFromNumber(GroupNumber);
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private string DebuggerDisplay => $"Negative = {IsNegative}  Part = {NamePart}  Group {GroupNumber}  {Regex}";
+        private string DebuggerDisplay => $"Negative = {IsNegative}  Group {GroupNumber}  {Regex}";
 
         public Match Match(
             string input,
@@ -90,11 +85,6 @@ namespace Orang
         internal bool IsMatch(string input)
         {
             return IsMatch(Regex.Match(input));
-        }
-
-        internal bool IsMatch(in NamePart part)
-        {
-            return IsMatch(Regex.Match(part.Path, part.Index, part.Length));
         }
 
         internal bool IsMatch(Match match)

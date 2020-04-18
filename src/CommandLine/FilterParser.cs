@@ -25,7 +25,29 @@ namespace Orang.CommandLine
             NamePartKind defaultNamePart = NamePartKind.Name,
             PatternOptions includedPatternOptions = PatternOptions.None)
         {
+            return TryParse(
+                values: values,
+                optionName: optionName,
+                provider: provider,
+                filter: out filter,
+                namePart: out _,
+                allowNull: allowNull,
+                defaultNamePart: defaultNamePart,
+                includedPatternOptions: includedPatternOptions);
+        }
+
+        public static bool TryParse(
+            IEnumerable<string> values,
+            string optionName,
+            OptionValueProvider provider,
+            out Filter filter,
+            out NamePartKind namePart,
+            bool allowNull = false,
+            NamePartKind defaultNamePart = NamePartKind.Name,
+            PatternOptions includedPatternOptions = PatternOptions.None)
+        {
             filter = null;
+            namePart = defaultNamePart;
 
             string pattern = values.FirstOrDefault();
 
@@ -43,7 +65,6 @@ namespace Orang.CommandLine
 
             TimeSpan matchTimeout = Regex.InfiniteMatchTimeout;
             string groupName = null;
-            NamePartKind namePart = defaultNamePart;
             string separator = null;
             Func<Capture, bool> predicate = null;
 
@@ -182,7 +203,6 @@ namespace Orang.CommandLine
 
             filter = new Filter(
                 regex,
-                namePart: namePart,
                 groupNumber: groupIndex,
                 isNegative: (patternOptions & PatternOptions.Negative) != 0,
                 predicate);

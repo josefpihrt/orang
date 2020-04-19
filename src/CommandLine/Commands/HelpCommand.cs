@@ -71,7 +71,7 @@ namespace Orang.CommandLine
 
             if (includeValues)
             {
-                helpWriter.WriteValues(commandHelp.Values, commandHelp.Expressions);
+                helpWriter.WriteValues(commandHelp.Values);
             }
             else
             {
@@ -98,7 +98,7 @@ namespace Orang.CommandLine
             helpWriter.WriteCommands(commandsHelp);
 
             if (includeValues)
-                helpWriter.WriteValues(commandsHelp.Values, commandsHelp.Expressions);
+                helpWriter.WriteValues(commandsHelp.Values);
 
             WriteLine();
             WriteLine(GetFooterText());
@@ -116,44 +116,48 @@ namespace Orang.CommandLine
 
             ImmutableArray<CommandShortHelp> commandShortHelps = HelpProvider.GetCommandShortHelp(commandHelps.Select(f => f.Command));
 
-            if (!commandShortHelps.Any())
+            ImmutableArray<OptionValuesHelp> values = ImmutableArray<OptionValuesHelp>.Empty;
+
+            if (commandShortHelps.Any())
             {
-                WriteLine("No command found");
-                return;
-            }
+                values = HelpProvider.GetOptionValuesHelp(commandHelps.SelectMany(f => f.Command.Options), OptionValueProviders.Providers, filter);
 
-            ImmutableArray<OptionValuesHelp> values = HelpProvider.GetOptionValuesHelp(commandHelps.SelectMany(f => f.Command.Options), OptionValueProviders.Providers, filter);
+                var commandsHelp = new CommandsHelp(commandShortHelps, values);
 
-            ImmutableArray<string> expressions = HelpProvider.GetExpressionsLines(values);
+                helpWriter.WriteCommands(commandsHelp);
 
-            var commandsHelp = new CommandsHelp(commandShortHelps, values, expressions);
-
-            helpWriter.WriteCommands(commandsHelp);
-
-            foreach (CommandHelp commandHelp in commandHelps)
-            {
-                WriteSeparator();
-                WriteLine();
-                WriteLine($"Command: {commandHelp.Name}");
-                WriteLine();
-
-                string description = commandHelp.Description;
-
-                if (!string.IsNullOrEmpty(description))
+                foreach (CommandHelp commandHelp in commandHelps)
                 {
-                    WriteLine(description);
+                    WriteSeparator();
                     WriteLine();
+                    WriteLine($"Command: {commandHelp.Name}");
+                    WriteLine();
+
+                    string description = commandHelp.Description;
+
+                    if (!string.IsNullOrEmpty(description))
+                    {
+                        WriteLine(description);
+                        WriteLine();
+                    }
+
+                    helpWriter.WriteCommand(commandHelp);
                 }
 
-                helpWriter.WriteCommand(commandHelp);
+                if (includeValues)
+                    WriteSeparator();
+            }
+            else
+            {
+                WriteLine();
+                WriteLine("No command found");
+
+                if (includeValues)
+                    values = HelpProvider.GetOptionValuesHelp(commands.Select(f => CommandHelp.Create(f)).SelectMany(f => f.Command.Options), OptionValueProviders.Providers, filter);
             }
 
             if (includeValues)
-            {
-                WriteSeparator();
-
-                helpWriter.WriteValues(commandsHelp.Values, commandsHelp.Expressions);
-            }
+                helpWriter.WriteValues(values);
 
             static void WriteSeparator()
             {

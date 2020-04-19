@@ -10,19 +10,15 @@ namespace Orang
     {
         public CommandsHelp(
             ImmutableArray<CommandShortHelp> commands,
-            ImmutableArray<OptionValuesHelp> values,
-            ImmutableArray<string> expressions)
+            ImmutableArray<OptionValuesHelp> values)
         {
             Commands = commands;
             Values = values;
-            Expressions = expressions;
         }
 
         public ImmutableArray<CommandShortHelp> Commands { get; }
 
         public ImmutableArray<OptionValuesHelp> Values { get; }
-
-        public ImmutableArray<string> Expressions { get; }
 
         public static CommandsHelp Create(
             IEnumerable<Command> commands,
@@ -33,9 +29,7 @@ namespace Orang
 
             ImmutableArray<OptionValuesHelp> values = HelpProvider.GetOptionValuesHelp(commands.SelectMany(f => f.Options), providers ?? ImmutableArray<OptionValueProvider>.Empty, filter);
 
-            ImmutableArray<string> expressions = HelpProvider.GetExpressionsLines(values);
-
-            return new CommandsHelp(commandsHelp, values, expressions);
+            return new CommandsHelp(commandsHelp, values);
         }
     }
 }

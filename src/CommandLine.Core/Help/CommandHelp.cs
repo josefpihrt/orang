@@ -14,14 +14,12 @@ namespace Orang
             Command command,
             ImmutableArray<ArgumentHelp> arguments,
             ImmutableArray<OptionHelp> options,
-            ImmutableArray<OptionValuesHelp> values,
-            ImmutableArray<string> expressions)
+            ImmutableArray<OptionValuesHelp> values)
         {
             Command = command;
             Arguments = arguments;
             Options = options;
             Values = values;
-            Expressions = expressions;
         }
 
         public Command Command { get; }
@@ -36,8 +34,6 @@ namespace Orang
 
         public ImmutableArray<OptionValuesHelp> Values { get; }
 
-        public ImmutableArray<string> Expressions { get; }
-
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private string DebuggerDisplay => $"{Name}  {Description}";
 
@@ -51,9 +47,7 @@ namespace Orang
 
             ImmutableArray<OptionValuesHelp> values = HelpProvider.GetOptionValuesHelp(command.Options, providers ?? ImmutableArray<OptionValueProvider>.Empty, filter);
 
-            ImmutableArray<string> expressions = HelpProvider.GetExpressionsLines(values);
-
-            return new CommandHelp(command, arguments, options, values, expressions);
+            return new CommandHelp(command, arguments, options, values);
         }
     }
 }

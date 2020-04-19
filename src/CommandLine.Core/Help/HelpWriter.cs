@@ -129,7 +129,7 @@ namespace Orang
         {
         }
 
-        public void WriteValues(IEnumerable<OptionValuesHelp> optionValues, IEnumerable<string> expressions = null)
+        public void WriteValues(IEnumerable<OptionValuesHelp> optionValues)
         {
             using (IEnumerator<OptionValuesHelp> en = optionValues.GetEnumerator())
             {
@@ -154,7 +154,9 @@ namespace Orang
 
                     WriteEndValues();
 
-                    if (expressions?.Any() == true)
+                    ImmutableArray<string> expressions = HelpProvider.GetExpressionsLines(optionValues);
+
+                    if (!expressions.IsEmpty)
                     {
                         WriteLine();
                         WriteLine("Expression syntax:");

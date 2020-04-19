@@ -242,7 +242,7 @@ namespace Orang
             return builder.ToImmutableArray();
         }
 
-        public static ImmutableArray<string> GetExpressionsLines(ImmutableArray<OptionValuesHelp> values, bool includeDate = true)
+        public static ImmutableArray<string> GetExpressionsLines(IEnumerable<OptionValuesHelp> values, bool includeDate = true)
         {
             return (values.SelectMany(f => f.Values).Any(f => f.Value.CanContainExpression))
                 ? GetExpressionsLines(includeDate: includeDate)

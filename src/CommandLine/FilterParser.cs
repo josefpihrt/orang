@@ -130,7 +130,7 @@ namespace Orang.CommandLine
                         }
                         catch (ArgumentException)
                         {
-                            WriteOptionValueError(expression.Value, OptionValues.Length, HelpWriter.GetExpressionSyntax("  ", includeDate: false));
+                            WriteOptionValueError(expression.Value, OptionValues.Length, HelpProvider.GetExpressionsText("  ", includeDate: false));
                             return false;
                         }
                     }

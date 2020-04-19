@@ -29,15 +29,20 @@ namespace Orang.CommandLine
 
             foreach (string value in values)
             {
+                Expression expression = null;
+                OptionValue optionValue = null;
+
                 try
                 {
-                    Expression expression = Expression.Parse(value);
+                    expression = Expression.Parse(value);
 
                     if (OptionValues.FileProperty_Size.IsKeyOrShortKey(expression.Identifier))
                     {
+                        optionValue = OptionValues.FileProperty_Size;
+
                         if (expression.Kind == ExpressionKind.DecrementExpression)
                         {
-                            WriteError($"Option '{OptionNames.GetHelpText(optionName)}' has invalid expression '{value}'.");
+                            WriteOptionError(value, optionName, HelpProvider.GetExpressionsText("  ", includeDate: false));
                             return false;
                         }
 
@@ -45,10 +50,14 @@ namespace Orang.CommandLine
                     }
                     else if (OptionValues.FileProperty_CreationTime.IsKeyOrShortKey(expression.Identifier))
                     {
+                        optionValue = OptionValues.FileProperty_CreationTime;
+
                         creationTimePredicate = new FilterPredicate<DateTime>(expression, PredicateHelpers.GetDateTimePredicate(expression));
                     }
                     else if (OptionValues.FileProperty_ModifiedTime.IsKeyOrShortKey(expression.Identifier))
                     {
+                        optionValue = OptionValues.FileProperty_ModifiedTime;
+
                         modifiedTimePredicate = new FilterPredicate<DateTime>(expression, PredicateHelpers.GetDateTimePredicate(expression));
                     }
                     else
@@ -59,7 +68,16 @@ namespace Orang.CommandLine
                 }
                 catch (ArgumentException)
                 {
-                    WriteError($"Option '{OptionNames.GetHelpText(optionName)}' has invalid expression '{value}'.");
+                    if (expression != null
+                        && optionValue != null)
+                    {
+                        WriteOptionValueError(expression.Value, optionValue, HelpProvider.GetExpressionsText("  ", includeDate: optionValue != OptionValues.FileProperty_Size));
+                    }
+                    else
+                    {
+                        WriteOptionError(value, optionName, HelpProvider.GetExpressionsText("  "));
+                    }
+
                     return false;
                 }
             }
@@ -693,7 +711,9 @@ namespace Orang.CommandLine
         {
             if (!TryParseAsEnum(value, out result, defaultValue, provider))
             {
-                WriteOptionError(value, optionName, provider?.GetHelpText(multiline: true) ?? OptionValue.GetDefaultHelpText<TEnum>(multiline: true));
+                string allowedValues = OptionValueProviders.GetHelpText(provider, multiline: true) ?? OptionValue.GetDefaultHelpText<TEnum>(multiline: true);
+
+                WriteOptionError(value, optionName, allowedValues);
                 return false;
             }
 
@@ -881,7 +901,7 @@ namespace Orang.CommandLine
 
         internal static void WriteOptionError(string value, string optionName, OptionValueProvider provider = null)
         {
-            WriteOptionError(value, optionName, provider?.GetHelpText(multiline: true));
+            WriteOptionError(value, optionName, OptionValueProviders.GetHelpText(provider, multiline: true));
         }
 
         private static void WriteOptionError(string value, string optionName, string allowedValues)
@@ -891,7 +911,7 @@ namespace Orang.CommandLine
 
         internal static void WriteOptionValueError(string value, OptionValue optionValue, OptionValueProvider provider = null)
         {
-            WriteOptionValueError(value, optionValue, provider?.GetHelpText(multiline: true));
+            WriteOptionValueError(value, optionValue, OptionValueProviders.GetHelpText(provider, multiline: true));
         }
 
         internal static void WriteOptionValueError(string value, OptionValue optionValue, string allowedValues)

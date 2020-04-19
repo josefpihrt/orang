@@ -8,14 +8,18 @@ namespace Orang
 
         public HelpWriterOptions(
             bool includeValues = false,
-            string indent = "  ")
+            string indent = "  ",
+            Filter filter = null)
         {
             IncludeValues = includeValues;
             Indent = indent;
+            Filter = filter;
         }
 
         public bool IncludeValues { get; }
 
         public string Indent { get; }
+
+        public Filter Filter { get; }
     }
 }

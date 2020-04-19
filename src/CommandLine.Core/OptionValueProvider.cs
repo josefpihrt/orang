@@ -4,15 +4,16 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Orang
 {
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class OptionValueProvider
     {
+        private static readonly Regex _metaValueRegex = new Regex(@"\<\w+\>");
+
         public OptionValueProvider(string name, params OptionValue[] values)
         {
             Name = name;
@@ -85,32 +86,26 @@ namespace Orang
             return default;
         }
 
-        public string GetHelpText(Func<OptionValue, bool> predicate = null, bool multiline = false)
+        public static IEnumerable<OptionValueProvider> GetProviders(IEnumerable<CommandOption> options, IEnumerable<OptionValueProvider> providers)
         {
-            if (multiline)
-            {
-                IEnumerable<OptionValue> optionValues = (predicate != null)
-                    ? Values.Where(predicate)
-                    : Values;
+            IEnumerable<string> metaValues = options
+                .SelectMany(f => _metaValueRegex.Matches(f.Description).Cast<Match>().Select(m => m.Value))
+                .Concat(options.Select(f => f.MetaValue))
+                .Distinct();
 
-                StringBuilder sb = StringBuilderCache.GetInstance();
-                using (var stringWriter = new StringWriter(sb))
-                {
-                    var helpWriter = new HelpWriter(stringWriter);
+            ImmutableArray<OptionValueProvider> providers2 = metaValues
+                .Join(providers, f => f, f => f.Name, (_, f) => f)
+                .ToImmutableArray();
 
-                    helpWriter.WriteValues(optionValues);
-
-                    return StringBuilderCache.GetStringAndFree(sb);
-                }
-            }
-            else
-            {
-                IEnumerable<string> values = (predicate != null)
-                    ? Values.Where(predicate).Select(f => f.HelpValue)
-                    : Values.Select(f => f.HelpValue);
-
-                return TextHelpers.Join(", ", " and ", values);
-            }
+            return providers2
+                .SelectMany(f => f.Values)
+                .OfType<KeyValuePairOptionValue>()
+                .Select(f => f.Value)
+                .Distinct()
+                .Join(providers, f => f, f => f.Name, (_, f) => f)
+                .Concat(providers2)
+                .Distinct()
+                .OrderBy(f => f.Name);
         }
     }
 }

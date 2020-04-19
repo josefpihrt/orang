@@ -39,8 +39,7 @@ namespace Orang.CommandLine
                         ParseVerbosityAndOutput(options);
                         WriteArgs(args);
 
-                        ConsoleOut.Write(HelpProvider.GetHelpText(command, includeValues: ConsoleOut.Verbosity > Verbosity.Normal));
-                        Out?.Write(HelpProvider.GetHelpText(command, includeValues: Out?.Verbosity > Verbosity.Normal));
+                        HelpCommand.WriteHelp(command, includeValues: false);
                         help = true;
                     })
 #if DEBUG
@@ -74,7 +73,7 @@ namespace Orang.CommandLine
 
                 parserResult.WithNotParsed(_ =>
                 {
-                    var helpText = new HelpText(SentenceBuilder.Create(), HelpProvider.GetHeadingText());
+                    var helpText = new HelpText(SentenceBuilder.Create(), HelpCommand.GetHeadingText());
 
                     helpText = HelpText.DefaultParsingErrorsHandler(parserResult, helpText);
 
@@ -82,7 +81,7 @@ namespace Orang.CommandLine
 
                     if (verbAttribute != null)
                     {
-                        helpText.AddPreOptionsText(Environment.NewLine + HelpProvider.GetFooterText(verbAttribute.Name));
+                        helpText.AddPreOptionsText(Environment.NewLine + HelpCommand.GetFooterText(verbAttribute.Name));
                     }
 
                     Console.Error.WriteLine(helpText);
@@ -159,18 +158,21 @@ namespace Orang.CommandLine
 
             ConsoleOut.Verbosity = defaultVerbosity;
 
-            if (!TryParseOutputOptions(options.Output, OptionNames.Output, out string filePath, out Verbosity fileVerbosity, out Encoding encoding, out bool append))
-                return false;
-
-            if (filePath != null)
+            if (options is BaseCommandLineOptions baseOptions)
             {
-                FileMode fileMode = (append)
-                    ? FileMode.Append
-                    : FileMode.Create;
+                if (!TryParseOutputOptions(baseOptions.Output, OptionNames.Output, out string filePath, out Verbosity fileVerbosity, out Encoding encoding, out bool append))
+                    return false;
 
-                var stream = new FileStream(filePath, fileMode, FileAccess.Write, FileShare.Read);
-                var writer = new StreamWriter(stream, encoding, bufferSize: 4096, leaveOpen: false);
-                Out = new TextWriterWithVerbosity(writer) { Verbosity = fileVerbosity };
+                if (filePath != null)
+                {
+                    FileMode fileMode = (append)
+                        ? FileMode.Append
+                        : FileMode.Create;
+
+                    var stream = new FileStream(filePath, fileMode, FileAccess.Write, FileShare.Read);
+                    var writer = new StreamWriter(stream, encoding, bufferSize: 4096, leaveOpen: false);
+                    Out = new TextWriterWithVerbosity(writer) { Verbosity = fileVerbosity };
+                }
             }
 
             return true;

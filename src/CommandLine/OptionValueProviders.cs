@@ -1,8 +1,11 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Orang.FileSystem;
@@ -12,6 +15,7 @@ namespace Orang.CommandLine
 {
     internal static class OptionValueProviders
     {
+        private static readonly Regex _metaValueRegex = new Regex(@"\<\w+\>");
         private static ImmutableDictionary<string, OptionValueProvider> _providersByName;
 
         public static OptionValueProvider PatternOptionsProvider { get; } = new OptionValueProvider(MetaValues.PatternOptions,
@@ -368,6 +372,77 @@ namespace Orang.CommandLine
                         .Select(f => (OptionValueProvider)f.GetValue(null))
                         .ToImmutableDictionary(f => f.Name, f => f);
                 }
+            }
+        }
+
+        public static IEnumerable<OptionValueProvider> GetProviders(IEnumerable<CommandOption> options, IEnumerable<OptionValueProvider> allProviders = null)
+        {
+            IEnumerable<string> metaValues = options
+                .SelectMany(f => _metaValueRegex.Matches(f.Description).Select(m => m.Value))
+                .Concat(options.Select(f => f.MetaValue))
+                .Distinct();
+
+            ImmutableArray<OptionValueProvider> providers = metaValues
+                .Join(allProviders ?? ProvidersByName.Select(f => f.Value), f => f, f => f.Name, (_, f) => f)
+                .ToImmutableArray();
+
+            return providers
+                .SelectMany(f => f.Values)
+                .OfType<KeyValuePairOptionValue>()
+                .Select(f => f.Value)
+                .Distinct()
+                .Join(allProviders ?? ProvidersByName.Select(f => f.Value), f => f, f => f.Name, (_, f) => f)
+                .Concat(providers)
+                .Distinct()
+                .OrderBy(f => f.Name);
+        }
+
+        public static string GetHelpText(OptionValueProvider provider, Func<OptionValue, bool> predicate = null, bool multiline = false)
+        {
+            if (provider == null)
+                return null;
+
+            ImmutableArray<OptionValue> Values = provider.Values;
+
+            if (multiline)
+            {
+                IEnumerable<OptionValue> optionValues = (predicate != null)
+                    ? Values.Where(predicate)
+                    : Values;
+
+                StringBuilder sb = StringBuilderCache.GetInstance();
+
+                (int width1, int width2) = HelpProvider.CalculateOptionValuesWidths(optionValues);
+
+                ImmutableArray<OptionValueHelp>.Enumerator en = HelpProvider.GetOptionValueHelp(optionValues, width1, width2).GetEnumerator();
+
+                if (en.MoveNext())
+                {
+                    while (true)
+                    {
+                        sb.Append("  ");
+                        sb.Append(en.Current.Text);
+
+                        if (en.MoveNext())
+                        {
+                            sb.AppendLine();
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                }
+
+                return StringBuilderCache.GetStringAndFree(sb);
+            }
+            else
+            {
+                IEnumerable<string> values = (predicate != null)
+                    ? Values.Where(predicate).Select(f => f.HelpValue)
+                    : Values.Select(f => f.HelpValue);
+
+                return TextHelpers.Join(", ", " and ", values);
             }
         }
     }

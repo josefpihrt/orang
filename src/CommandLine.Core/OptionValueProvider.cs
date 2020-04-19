@@ -46,12 +46,17 @@ namespace Orang
             return new OptionValueProvider(name, builder);
         }
 
-        public bool ContainsName(string name)
+        public bool ContainsKeyOrShortKey(string value)
         {
-            foreach (OptionValue value in Values)
+            foreach (OptionValue optionValue in Values)
             {
-                if (string.Equals(value.Name, name, StringComparison.Ordinal))
-                    return true;
+                if (optionValue.Kind == OptionValueKind.KeyValuePair)
+                {
+                    var keyValue = (KeyValuePairOptionValue)optionValue;
+
+                    if (keyValue.IsKeyOrShortKey(value))
+                        return true;
+                }
             }
 
             return false;

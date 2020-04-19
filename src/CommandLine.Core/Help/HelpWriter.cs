@@ -8,46 +8,55 @@ namespace Orang
 {
     public abstract class HelpWriter
     {
-        protected HelpWriter(HelpWriterOptions options = null, IEnumerable<OptionValueProvider> optionValueProviders = default)
+        protected HelpWriter(HelpWriterOptions options = null)
         {
             Options = options ?? HelpWriterOptions.Default;
-            OptionValueProviders = optionValueProviders?.ToImmutableArray() ?? ImmutableArray<OptionValueProvider>.Empty;
         }
 
         public HelpWriterOptions Options { get; }
 
-        public ImmutableArray<OptionValueProvider> OptionValueProviders { get; }
-
-        public virtual void WriteCommand(CommandHelp command)
+        public virtual void WriteCommand(CommandHelp commandHelp)
         {
-            WriteStartCommand(command);
+            WriteStartCommand(commandHelp);
 
-            ImmutableArray<ArgumentHelp> arguments = command.Arguments;
+            ImmutableArray<ArgumentHelp> arguments = commandHelp.Arguments;
 
             if (arguments.Any())
             {
-                WriteStartArguments(command);
+                WriteStartArguments(commandHelp);
                 WriteArguments(arguments);
-                WriteEndArguments(command);
+                WriteEndArguments(commandHelp);
+            }
+            else if (Options.Filter != null
+                && commandHelp.Command.Arguments.Any())
+            {
+                WriteLine();
+                WriteLine("No argument found");
             }
 
-            ImmutableArray<OptionHelp> options = command.Options;
+            ImmutableArray<OptionHelp> options = commandHelp.Options;
 
             if (options.Any())
             {
-                WriteStartOptions(command);
+                WriteStartOptions(commandHelp);
                 WriteOptions(options);
-                WriteEndOptions(command);
+                WriteEndOptions(commandHelp);
+            }
+            else if (Options.Filter != null
+                && commandHelp.Command.Options.Any())
+            {
+                WriteLine();
+                WriteLine("No option found");
             }
 
-            WriteEndCommand(command);
+            WriteEndCommand(commandHelp);
         }
 
-        public virtual void WriteStartCommand(CommandHelp command)
+        public virtual void WriteStartCommand(CommandHelp commandHelp)
         {
         }
 
-        public virtual void WriteEndCommand(CommandHelp command)
+        public virtual void WriteEndCommand(CommandHelp commandHelp)
         {
         }
 
@@ -60,13 +69,13 @@ namespace Orang
             }
         }
 
-        public virtual void WriteStartOptions(CommandHelp command)
+        public virtual void WriteStartOptions(CommandHelp commandHelp)
         {
             WriteLine();
             WriteHeading("Options");
         }
 
-        public virtual void WriteEndOptions(CommandHelp command)
+        public virtual void WriteEndOptions(CommandHelp commandHelp)
         {
         }
 
@@ -79,45 +88,44 @@ namespace Orang
             }
         }
 
-        public virtual void WriteStartArguments(CommandHelp command)
+        public virtual void WriteStartArguments(CommandHelp commandHelp)
         {
             WriteLine();
             WriteHeading("Arguments");
         }
 
-        public virtual void WriteEndArguments(CommandHelp command)
+        public virtual void WriteEndArguments(CommandHelp commandHelp)
         {
         }
 
-        public virtual void WriteCommands(CommandsHelp commands)
+        public virtual void WriteCommands(CommandsHelp commandsHelp)
         {
-            WriteStartCommands(commands);
-
-            if (commands.Commands.Any())
+            if (commandsHelp.Commands.Any())
             {
-                int width = commands.Commands.Max(f => f.Command.Name.Length) + 1;
+                WriteStartCommands(commandsHelp);
 
-                foreach (CommandShortHelp command in commands.Commands)
+                int width = commandsHelp.Commands.Max(f => f.Command.Name.Length) + 1;
+
+                foreach (CommandShortHelp command in commandsHelp.Commands)
                 {
                     Write(Options.Indent);
                     WriteTextLine(command.Text);
                 }
+
+                WriteEndCommands(commandsHelp);
             }
-            else
+            else if (Options.Filter != null)
             {
-                Write(Options.Indent);
                 WriteLine("No command found");
             }
-
-            WriteEndCommands(commands);
         }
 
-        public virtual void WriteStartCommands(CommandsHelp commands)
+        public virtual void WriteStartCommands(CommandsHelp commandsHelp)
         {
             WriteHeading("Commands");
         }
 
-        public virtual void WriteEndCommands(CommandsHelp commands)
+        public virtual void WriteEndCommands(CommandsHelp commandsHelp)
         {
         }
 
@@ -161,7 +169,7 @@ namespace Orang
             }
         }
 
-        public void WriteValues(ImmutableArray<OptionValueHelp> values)
+        private void WriteValues(ImmutableArray<OptionValueHelp> values)
         {
             foreach (OptionValueHelp value in values)
             {

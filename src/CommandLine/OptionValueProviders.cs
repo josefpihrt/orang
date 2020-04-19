@@ -375,6 +375,8 @@ namespace Orang.CommandLine
             }
         }
 
+        public static IEnumerable<OptionValueProvider> Providers => ProvidersByName.Select(f => f.Value);
+
         public static IEnumerable<OptionValueProvider> GetProviders(IEnumerable<CommandOption> options, IEnumerable<OptionValueProvider> allProviders = null)
         {
             IEnumerable<string> metaValues = options

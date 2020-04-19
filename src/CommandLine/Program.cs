@@ -39,7 +39,15 @@ namespace Orang.CommandLine
                         ParseVerbosityAndOutput(options);
                         WriteArgs(args);
 
-                        HelpCommand.WriteHelp(command, includeValues: false);
+                        if (command != null)
+                        {
+                            HelpCommand.WriteCommandHelp(command);
+                        }
+                        else
+                        {
+                            HelpCommand.WriteCommandsHelp();
+                        }
+
                         help = true;
                     })
 #if DEBUG

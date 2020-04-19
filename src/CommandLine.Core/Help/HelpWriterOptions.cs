@@ -7,16 +7,12 @@ namespace Orang
         public static HelpWriterOptions Default { get; } = new HelpWriterOptions();
 
         public HelpWriterOptions(
-            bool includeValues = false,
             string indent = "  ",
             Filter filter = null)
         {
-            IncludeValues = includeValues;
             Indent = indent;
             Filter = filter;
         }
-
-        public bool IncludeValues { get; }
 
         public string Indent { get; }
 

@@ -47,5 +47,9 @@ namespace Orang.CommandLine
         public bool TrimLine => Format.Includes(LineDisplayOptions.TrimLine);
 
         public string Separator => Format.Separator;
+
+        public int ContextBefore => Format.LineContext.Before;
+
+        public int ContextAfter => Format.LineContext.After;
     }
 }

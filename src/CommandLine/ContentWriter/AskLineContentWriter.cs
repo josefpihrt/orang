@@ -20,15 +20,21 @@ namespace Orang.CommandLine
         {
             ResultStorage?.Add(capture.Value);
 
-            Write(Options.Indent);
-
             if (Options.IncludeLineNumber)
             {
                 _lineNumber += TextHelpers.CountLines(Input, _solIndex, capture.Index - _solIndex);
                 ((LineNumberValueWriter)ValueWriter).LineNumber = _lineNumber;
-
-                WriteLineNumber(_lineNumber);
             }
+
+            int solIndex = FindStartOfLine(capture);
+
+            if (Options.ContextBefore > 0)
+                WriteContextBefore(0, solIndex);
+
+            Write(Options.Indent);
+
+            if (Options.IncludeLineNumber)
+                WriteLineNumber(_lineNumber);
 
             if (capture.Index >= _eolIndex)
             {
@@ -45,7 +51,7 @@ namespace Orang.CommandLine
                 }
             }
 
-            _solIndex = FindStartOfLine(capture);
+            _solIndex = solIndex;
             _eolIndex = FindEndOfLine(capture);
 
             WriteStartLine(_solIndex, capture.Index);
@@ -58,6 +64,9 @@ namespace Orang.CommandLine
             int eolIndex = FindEndOfLine(capture);
 
             WriteEndLine(endIndex, eolIndex);
+
+            if (Options.ContextAfter > 0)
+                WriteContextAfter(eolIndex, Input.Length, _lineNumber);
 
             if (Ask
                 && ConsoleHelpers.AskToContinue(Options.Indent))

@@ -7,6 +7,7 @@ namespace Orang
     internal static class Colors
     {
         public static ConsoleColors BasePath { get; } = new ConsoleColors(ConsoleColor.DarkGray);
+        public static ConsoleColors ContextLine { get; } = new ConsoleColors(ConsoleColor.DarkGray);
         public static ConsoleColors EmptyMatch { get; } = new ConsoleColors(ConsoleColor.Green);
         public static ConsoleColors EmptyReplacement { get; } = new ConsoleColors(ConsoleColor.Cyan);
         public static ConsoleColors EmptySplit { get; } = new ConsoleColors(ConsoleColor.Green);

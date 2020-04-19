@@ -273,6 +273,9 @@ namespace Orang.CommandLine
 
         public static OptionValueProvider DisplayProvider { get; } = new OptionValueProvider(MetaValues.DisplayOptions,
             OptionValues.Display_Content,
+            OptionValues.Display_Context,
+            OptionValues.Display_ContextBefore,
+            OptionValues.Display_ContextAfter,
             OptionValues.Display_Count,
             OptionValues.Display_CreationTime,
             OptionValues.Display_Indent,

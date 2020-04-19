@@ -76,6 +76,7 @@ namespace Orang.CommandLine
                 contentDisplayStyle: out ContentDisplayStyle? contentDisplayStyle,
                 pathDisplayStyle: out PathDisplayStyle? _,
                 lineDisplayOptions: out LineDisplayOptions lineDisplayOptions,
+                lineContext: out LineContext _,
                 displayParts: out DisplayParts displayParts,
                 fileProperties: out ImmutableArray<FileProperty> fileProperties,
                 indent: out string indent,

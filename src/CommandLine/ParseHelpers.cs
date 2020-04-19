@@ -325,6 +325,7 @@ namespace Orang.CommandLine
             out ContentDisplayStyle? contentDisplayStyle,
             out PathDisplayStyle? pathDisplayStyle,
             out LineDisplayOptions lineDisplayOptions,
+            out LineContext lineContext,
             out DisplayParts displayParts,
             out ImmutableArray<FileProperty> fileProperties,
             out string indent,
@@ -335,6 +336,7 @@ namespace Orang.CommandLine
             contentDisplayStyle = null;
             pathDisplayStyle = null;
             lineDisplayOptions = LineDisplayOptions.None;
+            lineContext = default;
             displayParts = DisplayParts.None;
             fileProperties = ImmutableArray<FileProperty>.Empty;
             indent = null;
@@ -372,6 +374,27 @@ namespace Orang.CommandLine
                     else if (OptionValues.Display_Separator.IsKeyOrShortKey(key))
                     {
                         separator = RegexEscape.ConvertCharacterEscapes(value2);
+                    }
+                    else if (OptionValues.Display_Context.IsKeyOrShortKey(key))
+                    {
+                        if (!TryParseCount(value2, out int count, value))
+                            return false;
+
+                        lineContext = new LineContext(count);
+                    }
+                    else if (OptionValues.Display_ContextBefore.IsKeyOrShortKey(key))
+                    {
+                        if (!TryParseCount(value2, out int before, value))
+                            return false;
+
+                        lineContext = lineContext.WithBefore(before);
+                    }
+                    else if (OptionValues.Display_ContextAfter.IsKeyOrShortKey(key))
+                    {
+                        if (!TryParseCount(value2, out int after, value))
+                            return false;
+
+                        lineContext = lineContext.WithAfter(after);
                     }
                     else
                     {

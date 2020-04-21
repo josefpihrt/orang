@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using Orang.CommandLine.Help;
 using Orang.FileSystem;
 using Orang.Syntax;
 
@@ -416,7 +417,7 @@ namespace Orang.CommandLine
 
                 (int width1, int width2) = HelpProvider.CalculateOptionValuesWidths(optionValues);
 
-                ImmutableArray<OptionValueHelp>.Enumerator en = HelpProvider.GetOptionValueHelp(optionValues, width1, width2).GetEnumerator();
+                ImmutableArray<OptionValueItem>.Enumerator en = HelpProvider.GetOptionValueItems(optionValues, width1, width2).GetEnumerator();
 
                 if (en.MoveNext())
                 {

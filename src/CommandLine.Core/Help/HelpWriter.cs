@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace Orang
+namespace Orang.CommandLine.Help
 {
     public abstract class HelpWriter
     {
@@ -19,7 +19,7 @@ namespace Orang
         {
             WriteStartCommand(commandHelp);
 
-            ImmutableArray<ArgumentHelp> arguments = commandHelp.Arguments;
+            ImmutableArray<ArgumentItem> arguments = commandHelp.Arguments;
 
             if (arguments.Any())
             {
@@ -34,7 +34,7 @@ namespace Orang
                 WriteLine("No argument found");
             }
 
-            ImmutableArray<OptionHelp> options = commandHelp.Options;
+            ImmutableArray<OptionItem> options = commandHelp.Options;
 
             if (options.Any())
             {
@@ -60,9 +60,9 @@ namespace Orang
         {
         }
 
-        private void WriteOptions(ImmutableArray<OptionHelp> options)
+        private void WriteOptions(ImmutableArray<OptionItem> options)
         {
-            foreach (OptionHelp option in options)
+            foreach (OptionItem option in options)
             {
                 Write(Options.Indent);
                 WriteTextLine(option.Text);
@@ -79,9 +79,9 @@ namespace Orang
         {
         }
 
-        private void WriteArguments(ImmutableArray<ArgumentHelp> arguments)
+        private void WriteArguments(ImmutableArray<ArgumentItem> arguments)
         {
-            foreach (ArgumentHelp argument in arguments)
+            foreach (ArgumentItem argument in arguments)
             {
                 Write(Options.Indent);
                 WriteTextLine(argument.Text);
@@ -106,7 +106,7 @@ namespace Orang
 
                 int width = commandsHelp.Commands.Max(f => f.Command.Name.Length) + 1;
 
-                foreach (CommandShortHelp command in commandsHelp.Commands)
+                foreach (CommandItem command in commandsHelp.Commands)
                 {
                     Write(Options.Indent);
                     WriteTextLine(command.Text);
@@ -129,9 +129,9 @@ namespace Orang
         {
         }
 
-        public void WriteValues(IEnumerable<OptionValuesHelp> optionValues)
+        public void WriteValues(IEnumerable<OptionValueList> optionValues)
         {
-            using (IEnumerator<OptionValuesHelp> en = optionValues.GetEnumerator())
+            using (IEnumerator<OptionValueList> en = optionValues.GetEnumerator())
             {
                 if (en.MoveNext())
                 {
@@ -154,7 +154,7 @@ namespace Orang
 
                     WriteEndValues();
 
-                    ImmutableArray<string> expressions = HelpProvider.GetExpressionsLines(optionValues);
+                    ImmutableArray<string> expressions = HelpProvider.GetExpressionItems(optionValues);
 
                     if (!expressions.IsEmpty)
                     {
@@ -171,9 +171,9 @@ namespace Orang
             }
         }
 
-        private void WriteValues(ImmutableArray<OptionValueHelp> values)
+        private void WriteValues(ImmutableArray<OptionValueItem> values)
         {
-            foreach (OptionValueHelp value in values)
+            foreach (OptionValueItem value in values)
             {
                 Write(Options.Indent);
                 WriteTextLine(value.Text);

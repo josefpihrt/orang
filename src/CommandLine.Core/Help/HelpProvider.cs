@@ -6,18 +6,18 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 
-namespace Orang
+namespace Orang.CommandLine.Help
 {
     internal static class HelpProvider
     {
-        public static ImmutableArray<CommandShortHelp> GetCommandShortHelp(IEnumerable<Command> commands, Filter filter = null)
+        public static ImmutableArray<CommandItem> GetCommandItems(IEnumerable<Command> commands, Filter filter = null)
         {
             if (!commands.Any())
-                return ImmutableArray<CommandShortHelp>.Empty;
+                return ImmutableArray<CommandItem>.Empty;
 
             int width = commands.Max(f => f.Name.Length) + 1;
 
-            ImmutableArray<CommandShortHelp>.Builder builder = ImmutableArray.CreateBuilder<CommandShortHelp>();
+            ImmutableArray<CommandItem>.Builder builder = ImmutableArray.CreateBuilder<CommandItem>();
 
             foreach (Command command in commands)
             {
@@ -30,17 +30,17 @@ namespace Orang
                 string text = StringBuilderCache.GetStringAndFree(sb);
 
                 if (filter?.IsMatch(text) != false)
-                    builder.Add(new CommandShortHelp(command, text));
+                    builder.Add(new CommandItem(command, text));
             }
 
             return builder.ToImmutableArray();
         }
 
-        public static ImmutableArray<ArgumentHelp> GetArgumentsHelp(IEnumerable<CommandArgument> arguments, Filter filter = null)
+        public static ImmutableArray<ArgumentItem> GetArgumentItems(IEnumerable<CommandArgument> arguments, Filter filter = null)
         {
             int width = CalculateArgumentsWidths(arguments);
 
-            ImmutableArray<ArgumentHelp>.Builder builder = ImmutableArray.CreateBuilder<ArgumentHelp>();
+            ImmutableArray<ArgumentItem>.Builder builder = ImmutableArray.CreateBuilder<ArgumentItem>();
 
             bool anyIsOptional = arguments.Any(f => !f.IsRequired);
 
@@ -68,7 +68,7 @@ namespace Orang
                     sb.Append(argument.Description);
                 }
 
-                builder.Add(new ArgumentHelp(argument, StringBuilderCache.GetStringAndFree(sb)));
+                builder.Add(new ArgumentItem(argument, StringBuilderCache.GetStringAndFree(sb)));
             }
 
             return (filter != null)
@@ -76,14 +76,14 @@ namespace Orang
                 : builder.ToImmutableArray();
         }
 
-        public static ImmutableArray<OptionHelp> GetOptionsHelp(IEnumerable<CommandOption> options, Filter filter = null)
+        public static ImmutableArray<OptionItem> GetOptionItems(IEnumerable<CommandOption> options, Filter filter = null)
         {
             (int width1, int width2) = CalculateOptionsWidths(options);
 
             bool anyIsOptional = options.Any(f => !f.IsRequired);
             bool anyHasShortName = options.Any(f => !string.IsNullOrEmpty(f.ShortName));
 
-            ImmutableArray<OptionHelp>.Builder builder = ImmutableArray.CreateBuilder<OptionHelp>();
+            ImmutableArray<OptionItem>.Builder builder = ImmutableArray.CreateBuilder<OptionItem>();
 
             foreach (CommandOption option in options)
             {
@@ -130,7 +130,7 @@ namespace Orang
                 sb.Append(" ");
                 sb.Append(option.Description);
 
-                builder.Add(new OptionHelp(option, StringBuilderCache.GetStringAndFree(sb)));
+                builder.Add(new OptionItem(option, StringBuilderCache.GetStringAndFree(sb)));
             }
 
             return (filter != null)
@@ -138,35 +138,35 @@ namespace Orang
                 : builder.ToImmutableArray();
         }
 
-        public static ImmutableArray<OptionValuesHelp> GetOptionValuesHelp(
+        public static ImmutableArray<OptionValueList> GetAllowedValues(
             IEnumerable<CommandOption> options,
             IEnumerable<OptionValueProvider> providers,
             Filter filter = null)
         {
             providers = OptionValueProvider.GetProviders(options, providers).ToImmutableArray();
 
-            IEnumerable<OptionValue> allOptionValues = providers.SelectMany(p => p.Values.Where(v => !v.Hidden));
+            IEnumerable<OptionValue> allValues = providers.SelectMany(p => p.Values.Where(v => !v.Hidden));
 
-            ImmutableArray<OptionValuesHelp>.Builder builder = ImmutableArray.CreateBuilder<OptionValuesHelp>();
+            ImmutableArray<OptionValueList>.Builder builder = ImmutableArray.CreateBuilder<OptionValueList>();
 
-            (int width1, int width2) = CalculateOptionValuesWidths(allOptionValues);
+            (int width1, int width2) = CalculateOptionValuesWidths(allValues);
 
             foreach (OptionValueProvider provider in providers)
             {
-                IEnumerable<OptionValue> optionValues = provider.Values.Where(f => !f.Hidden);
-                ImmutableArray<OptionValueHelp> values = GetOptionValueHelp(optionValues, width1, width2);
+                IEnumerable<OptionValue> values = provider.Values.Where(f => !f.Hidden);
+                ImmutableArray<OptionValueItem> valueItems = GetOptionValueItems(values, width1, width2);
 
-                builder.Add(new OptionValuesHelp(provider.Name, values));
+                builder.Add(new OptionValueList(provider.Name, valueItems));
             }
 
             return (filter != null)
-                ? FilterOptionValues(builder, filter)
+                ? FilterAllowedValues(builder, filter)
                 : builder.ToImmutableArray();
         }
 
-        public static ImmutableArray<OptionValueHelp> GetOptionValueHelp(IEnumerable<OptionValue> optionValues, int width1, int width2)
+        public static ImmutableArray<OptionValueItem> GetOptionValueItems(IEnumerable<OptionValue> optionValues, int width1, int width2)
         {
-            ImmutableArray<OptionValueHelp>.Builder builder = ImmutableArray.CreateBuilder<OptionValueHelp>();
+            ImmutableArray<OptionValueItem>.Builder builder = ImmutableArray.CreateBuilder<OptionValueItem>();
 
             foreach (OptionValue optionValue in optionValues)
             {
@@ -192,7 +192,7 @@ namespace Orang
                     sb.Append(description);
                 }
 
-                builder.Add(new OptionValueHelp(optionValue, StringBuilderCache.GetStringAndFree(sb)));
+                builder.Add(new OptionValueItem(optionValue, StringBuilderCache.GetStringAndFree(sb)));
             }
 
             return builder.ToImmutableArray();
@@ -218,45 +218,45 @@ namespace Orang
             }
         }
 
-        public static ImmutableArray<OptionValuesHelp> FilterOptionValues(IEnumerable<OptionValuesHelp> values, Filter filter)
+        private static ImmutableArray<OptionValueList> FilterAllowedValues(IEnumerable<OptionValueList> values, Filter filter)
         {
-            ImmutableArray<OptionValuesHelp>.Builder builder = ImmutableArray.CreateBuilder<OptionValuesHelp>();
+            ImmutableArray<OptionValueList>.Builder builder = ImmutableArray.CreateBuilder<OptionValueList>();
 
-            foreach (OptionValuesHelp optionValues in values)
+            foreach (OptionValueList valueList in values)
             {
-                if (filter.IsMatch(optionValues.MetaValue))
+                if (filter.IsMatch(valueList.MetaValue))
                 {
-                    builder.Add(optionValues);
+                    builder.Add(valueList);
                 }
                 else
                 {
-                    ImmutableArray<OptionValueHelp> values2 = optionValues.Values
+                    ImmutableArray<OptionValueItem> valueItems = valueList.Values
                         .Where(f => filter.IsMatch(f.Text))
                         .ToImmutableArray();
 
-                    if (values2.Any())
-                        builder.Add(new OptionValuesHelp(optionValues.MetaValue, values2));
+                    if (valueItems.Any())
+                        builder.Add(new OptionValueList(valueList.MetaValue, valueItems));
                 }
             }
 
             return builder.ToImmutableArray();
         }
 
-        public static ImmutableArray<string> GetExpressionsLines(IEnumerable<OptionValuesHelp> values, bool includeDate = true)
+        public static ImmutableArray<string> GetExpressionItems(IEnumerable<OptionValueList> values, bool includeDate = true)
         {
             return (values.SelectMany(f => f.Values).Any(f => f.Value.CanContainExpression))
-                ? GetExpressionsLines(includeDate: includeDate)
+                ? GetExpressionItems(includeDate: includeDate)
                 : ImmutableArray<string>.Empty;
         }
 
         public static string GetExpressionsText(string indent, bool includeDate = true)
         {
-            ImmutableArray<string> expressions = GetExpressionsLines(includeDate: includeDate);
+            ImmutableArray<string> expressions = GetExpressionItems(includeDate: includeDate);
 
             return indent + string.Join(Environment.NewLine + indent, expressions);
         }
 
-        public static ImmutableArray<string> GetExpressionsLines(bool includeDate = true)
+        public static ImmutableArray<string> GetExpressionItems(bool includeDate = true)
         {
             ImmutableArray<string>.Builder builder = ImmutableArray.CreateBuilder<string>();
 

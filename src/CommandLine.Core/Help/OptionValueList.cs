@@ -3,12 +3,12 @@
 using System.Collections.Immutable;
 using System.Diagnostics;
 
-namespace Orang
+namespace Orang.CommandLine.Help
 {
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class OptionValuesHelp
+    public class OptionValueList
     {
-        public OptionValuesHelp(string metaValue, ImmutableArray<OptionValueHelp> values)
+        public OptionValueList(string metaValue, ImmutableArray<OptionValueItem> values)
         {
             MetaValue = metaValue;
             Values = values;
@@ -16,7 +16,7 @@ namespace Orang
 
         public string MetaValue { get; }
 
-        public ImmutableArray<OptionValueHelp> Values { get; }
+        public ImmutableArray<OptionValueItem> Values { get; }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private string DebuggerDisplay => $"{MetaValue}  Count = {Values.Length}";

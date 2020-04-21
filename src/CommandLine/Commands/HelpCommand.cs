@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using Orang.CommandLine.Help;
 using static Orang.Logger;
 
 namespace Orang.CommandLine
@@ -61,17 +62,17 @@ namespace Orang.CommandLine
 
         public static void WriteCommandHelp(Command command, bool includeValues = false, Filter filter = null)
         {
-            var helpWriter = new ConsoleHelpWriter(new HelpWriterOptions(filter: filter));
+            var writer = new ConsoleHelpWriter(new HelpWriterOptions(filter: filter));
 
             command = command.WithOptions(command.Options.Sort(CompareOptions));
 
             CommandHelp commandHelp = CommandHelp.Create(command, OptionValueProviders.Providers, filter: filter);
 
-            helpWriter.WriteCommand(commandHelp);
+            writer.WriteCommand(commandHelp);
 
             if (includeValues)
             {
-                helpWriter.WriteValues(commandHelp.Values);
+                writer.WriteValues(commandHelp.Values);
             }
             else
             {
@@ -93,12 +94,12 @@ namespace Orang.CommandLine
 
             CommandsHelp commandsHelp = CommandsHelp.Create(commands, OptionValueProviders.Providers, filter: filter);
 
-            var helpWriter = new ConsoleHelpWriter(new HelpWriterOptions(filter: filter));
+            var writer = new ConsoleHelpWriter(new HelpWriterOptions(filter: filter));
 
-            helpWriter.WriteCommands(commandsHelp);
+            writer.WriteCommands(commandsHelp);
 
             if (includeValues)
-                helpWriter.WriteValues(commandsHelp.Values);
+                writer.WriteValues(commandsHelp.Values);
 
             WriteLine();
             WriteLine(GetFooterText());
@@ -108,23 +109,23 @@ namespace Orang.CommandLine
         {
             IEnumerable<Command> commands = LoadCommands();
 
-            var helpWriter = new ConsoleHelpWriter(new HelpWriterOptions(filter: filter));
+            var writer = new ConsoleHelpWriter(new HelpWriterOptions(filter: filter));
 
             IEnumerable<CommandHelp> commandHelps = commands.Select(f => CommandHelp.Create(f, filter: filter))
                 .Where(f => f.Arguments.Any() || f.Options.Any())
                 .ToImmutableArray();
 
-            ImmutableArray<CommandShortHelp> commandShortHelps = HelpProvider.GetCommandShortHelp(commandHelps.Select(f => f.Command));
+            ImmutableArray<CommandItem> commandItems = HelpProvider.GetCommandItems(commandHelps.Select(f => f.Command));
 
-            ImmutableArray<OptionValuesHelp> values = ImmutableArray<OptionValuesHelp>.Empty;
+            ImmutableArray<OptionValueList> values = ImmutableArray<OptionValueList>.Empty;
 
-            if (commandShortHelps.Any())
+            if (commandItems.Any())
             {
-                values = HelpProvider.GetOptionValuesHelp(commandHelps.SelectMany(f => f.Command.Options), OptionValueProviders.Providers, filter);
+                values = HelpProvider.GetAllowedValues(commandHelps.SelectMany(f => f.Command.Options), OptionValueProviders.Providers, filter);
 
-                var commandsHelp = new CommandsHelp(commandShortHelps, values);
+                var commandsHelp = new CommandsHelp(commandItems, values);
 
-                helpWriter.WriteCommands(commandsHelp);
+                writer.WriteCommands(commandsHelp);
 
                 foreach (CommandHelp commandHelp in commandHelps)
                 {
@@ -141,7 +142,7 @@ namespace Orang.CommandLine
                         WriteLine();
                     }
 
-                    helpWriter.WriteCommand(commandHelp);
+                    writer.WriteCommand(commandHelp);
                 }
 
                 if (includeValues)
@@ -153,11 +154,11 @@ namespace Orang.CommandLine
                 WriteLine("No command found");
 
                 if (includeValues)
-                    values = HelpProvider.GetOptionValuesHelp(commands.Select(f => CommandHelp.Create(f)).SelectMany(f => f.Command.Options), OptionValueProviders.Providers, filter);
+                    values = HelpProvider.GetAllowedValues(commands.Select(f => CommandHelp.Create(f)).SelectMany(f => f.Command.Options), OptionValueProviders.Providers, filter);
             }
 
             if (includeValues)
-                helpWriter.WriteValues(values);
+                writer.WriteValues(values);
 
             static void WriteSeparator()
             {

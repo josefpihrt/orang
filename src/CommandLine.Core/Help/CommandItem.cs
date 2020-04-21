@@ -1,16 +1,16 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-namespace Orang
+namespace Orang.CommandLine.Help
 {
-    public class OptionValueHelp
+    public class CommandItem
     {
-        public OptionValueHelp(OptionValue value, string text)
+        public CommandItem(Command command, string text)
         {
-            Value = value;
+            Command = command;
             Text = text;
         }
 
-        public OptionValue Value { get; }
+        public Command Command { get; }
 
         public string Text { get; }
 

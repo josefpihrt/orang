@@ -5,16 +5,16 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 
-namespace Orang
+namespace Orang.CommandLine.Help
 {
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class CommandHelp
     {
         public CommandHelp(
             Command command,
-            ImmutableArray<ArgumentHelp> arguments,
-            ImmutableArray<OptionHelp> options,
-            ImmutableArray<OptionValuesHelp> values)
+            ImmutableArray<ArgumentItem> arguments,
+            ImmutableArray<OptionItem> options,
+            ImmutableArray<OptionValueList> values)
         {
             Command = command;
             Arguments = arguments;
@@ -28,24 +28,24 @@ namespace Orang
 
         public string Description => Command.Description;
 
-        public ImmutableArray<ArgumentHelp> Arguments { get; }
+        public ImmutableArray<ArgumentItem> Arguments { get; }
 
-        public ImmutableArray<OptionHelp> Options { get; }
+        public ImmutableArray<OptionItem> Options { get; }
 
-        public ImmutableArray<OptionValuesHelp> Values { get; }
+        public ImmutableArray<OptionValueList> Values { get; }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private string DebuggerDisplay => $"{Name}  {Description}";
 
         public static CommandHelp Create(Command command, IEnumerable<OptionValueProvider> providers = null, Filter filter = null)
         {
-            ImmutableArray<ArgumentHelp> arguments = (command.Arguments.Any())
-                ? HelpProvider.GetArgumentsHelp(command.Arguments, filter)
-                : ImmutableArray<ArgumentHelp>.Empty;
+            ImmutableArray<ArgumentItem> arguments = (command.Arguments.Any())
+                ? HelpProvider.GetArgumentItems(command.Arguments, filter)
+                : ImmutableArray<ArgumentItem>.Empty;
 
-            ImmutableArray<OptionHelp> options = HelpProvider.GetOptionsHelp(command.Options, filter);
+            ImmutableArray<OptionItem> options = HelpProvider.GetOptionItems(command.Options, filter);
 
-            ImmutableArray<OptionValuesHelp> values = HelpProvider.GetOptionValuesHelp(command.Options, providers ?? ImmutableArray<OptionValueProvider>.Empty, filter);
+            ImmutableArray<OptionValueList> values = HelpProvider.GetAllowedValues(command.Options, providers ?? ImmutableArray<OptionValueProvider>.Empty, filter);
 
             return new CommandHelp(command, arguments, options, values);
         }

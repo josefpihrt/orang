@@ -33,7 +33,7 @@ namespace Orang.CommandLine
                 {
                     if (Options.IncludeLineNumber)
                     {
-                        _valueWriter = new LineNumberValueWriter(Writer, Options.Indent);
+                        _valueWriter = new LineNumberValueWriter(Writer, Options.Indent, includeEndingLineNumber: false);
                     }
                     else
                     {
@@ -85,6 +85,24 @@ namespace Orang.CommandLine
             string result = ReplaceOptions.Replace(match);
 
             WriteReplacement(match, result);
+
+            if (Options.IncludeLineNumber)
+            {
+                int endIndex = capture.Index + capture.Length;
+
+                if (endIndex > 0
+                    && Input[endIndex - 1] == '\n')
+                {
+                    if (result.Length > 0
+                        && result[result.Length - 1] != '\n')
+                    {
+                        WriteLine();
+                        Write(Options.Indent);
+                    }
+
+                    WriteLineNumber(((LineNumberValueWriter)ValueWriter).LineNumber);
+                }
+            }
 
             base.WriteEndMatch(capture);
         }

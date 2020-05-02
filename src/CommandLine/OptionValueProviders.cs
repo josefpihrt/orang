@@ -93,6 +93,10 @@ namespace Orang.CommandLine
             SimpleOptionValue.Create(ReplacementOptions.CharacterEscapes, shortValue: "ce", helpValue: "c[haracter-]e[scapes]", description: @"Interpret literals \a, \b, \f, \n, \r, \t and \v as character escapes.")
         );
 
+        public static OptionValueProvider InputOptionsProvider { get; } = new OptionValueProvider(MetaValues.InputOptions,
+            SimpleOptionValue.Create(InputOptions.CharacterEscapes, shortValue: "ce", helpValue: "c[haracter-]e[scapes]", description: @"Interpret literals \a, \b, \f, \n, \r, \t and \v as character escapes.")
+        );
+
         public static OptionValueProvider VerbosityProvider { get; } = new OptionValueProvider(MetaValues.Verbosity,
             SimpleOptionValue.Create(Verbosity.Quiet),
             SimpleOptionValue.Create(Verbosity.Minimal),

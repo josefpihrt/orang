@@ -640,6 +640,24 @@ namespace Orang.CommandLine
             return true;
         }
 
+        public static bool TryParseInput(
+            IEnumerable<string> values,
+            out string input)
+        {
+            if (!values.Any())
+                throw new InvalidOperationException("Input is missing.");
+
+            input = values.First();
+
+            if (!TryParseAsEnumFlags(values.Skip(1), OptionNames.Input, out InputOptions options, InputOptions.None, OptionValueProviders.InputOptionsProvider))
+                return false;
+
+            if ((options & InputOptions.CharacterEscapes) != 0)
+                input = RegexEscape.ConvertCharacterEscapes(input);
+
+            return true;
+        }
+
         public static bool TryParseAsEnumFlags<TEnum>(
             IEnumerable<string> values,
             string optionName,

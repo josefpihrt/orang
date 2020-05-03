@@ -37,8 +37,8 @@ namespace Orang.CommandLine
                 WriteLine(verbosity);
             }
 #if DEBUG
-            WriteLine($"{indent}STACK TRACE:");
-            WriteLine(ex.StackTrace);
+            WriteLine($"{indent}STACK TRACE:", verbosity);
+            WriteLine(ex.StackTrace, verbosity);
 #endif
         }
 

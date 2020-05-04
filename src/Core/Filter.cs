@@ -4,7 +4,6 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading;
 
 namespace Orang
 {
@@ -39,42 +38,54 @@ namespace Orang
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private string DebuggerDisplay => $"Negative = {IsNegative}  Group {GroupNumber}  {Regex}";
 
-        public Match Match(
-            string input,
-            CancellationToken cancellationToken = default)
+        public Match Match(string input)
         {
             Match match = Regex.Match(input);
 
-            if (GroupNumber < 1)
+            return Match(match);
+        }
+
+        private Match Match(Match match)
+        {
+            if (Predicate != null)
             {
-                while (match.Success)
+                if (GroupNumber < 1)
                 {
-                    if (Predicate?.Invoke(match) != false)
+                    while (match.Success)
                     {
-                        return (IsNegative) ? null : match;
+                        if (Predicate.Invoke(match))
+                            return (IsNegative) ? null : match;
+
+                        match = match.NextMatch();
                     }
-
-                    match = match.NextMatch();
-
-                    cancellationToken.ThrowIfCancellationRequested();
                 }
+                else
+                {
+                    while (match.Success)
+                    {
+                        Group group = match.Groups[GroupNumber];
+
+                        if (group.Success
+                            && Predicate.Invoke(group))
+                        {
+                            return (IsNegative) ? null : match;
+                        }
+
+                        match = match.NextMatch();
+                    }
+                }
+            }
+            else if (GroupNumber < 1)
+            {
+                if (match.Success)
+                    return (IsNegative) ? null : match;
             }
             else
             {
-                while (match.Success)
-                {
-                    Group group = match.Groups[GroupNumber];
+                Group group = match.Groups[GroupNumber];
 
-                    if (group.Success
-                        && Predicate?.Invoke(group) != false)
-                    {
-                        return (IsNegative) ? null : match;
-                    }
-
-                    match = match.NextMatch();
-
-                    cancellationToken.ThrowIfCancellationRequested();
-                }
+                if (group.Success)
+                    return (IsNegative) ? null : match;
             }
 
             return (IsNegative)
@@ -84,22 +95,12 @@ namespace Orang
 
         internal bool IsMatch(string input)
         {
-            return IsMatch(Regex.Match(input));
+            return Match(input) != null;
         }
 
         internal bool IsMatch(Match match)
         {
-            return (IsNegative) ? !IsMatchImpl(match) : IsMatchImpl(match);
-        }
-
-        private bool IsMatchImpl(Match match)
-        {
-            return IsMatchImpl((GroupNumber < 1) ? match : match.Groups[GroupNumber]);
-        }
-
-        private bool IsMatchImpl(Group group)
-        {
-            return group.Success && Predicate?.Invoke(group) != false;
+            return Match(match) != null;
         }
     }
 }

@@ -46,7 +46,7 @@ namespace Orang.CommandLine
             string input = Options.Input;
             int count = 0;
             var maxReason = MaxReason.None;
-            Match match = Options.ContentFilter.Match(input, context.CancellationToken);
+            Match match = Options.ContentFilter.Match(input);
 
             if (match.Success)
             {
@@ -131,7 +131,7 @@ namespace Orang.CommandLine
             if (input == null)
                 return;
 
-            Match match = Options.ContentFilter.Match(input, context.CancellationToken);
+            Match match = Options.ContentFilter.Match(input);
 
             if (match == null)
                 return;

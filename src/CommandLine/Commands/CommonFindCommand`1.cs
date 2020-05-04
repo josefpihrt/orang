@@ -152,7 +152,7 @@ namespace Orang.CommandLine
             if (input == null)
                 return;
 
-            Match match = ContentFilter.Match(input, context.CancellationToken);
+            Match match = ContentFilter.Match(input);
 
             if (match == null)
                 return;

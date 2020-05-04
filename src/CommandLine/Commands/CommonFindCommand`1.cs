@@ -249,26 +249,26 @@ namespace Orang.CommandLine
             List<Capture> captures)
         {
             int maxMatchesInFile = Options.MaxMatchesInFile;
-            int maxMatches = Options.MaxMatches;
+            int maxTotalMatches = Options.MaxTotalMatches;
 
             int count = 0;
 
             if (maxMatchesInFile > 0)
             {
-                if (maxMatches > 0)
+                if (maxTotalMatches > 0)
                 {
-                    maxMatches -= context.Telemetry.MatchCount;
-                    count = Math.Min(maxMatchesInFile, maxMatches);
+                    maxTotalMatches -= context.Telemetry.MatchCount;
+                    count = Math.Min(maxMatchesInFile, maxTotalMatches);
                 }
                 else
                 {
                     count = maxMatchesInFile;
                 }
             }
-            else if (maxMatches > 0)
+            else if (maxTotalMatches > 0)
             {
-                maxMatches -= context.Telemetry.MatchCount;
-                count = maxMatches;
+                maxTotalMatches -= context.Telemetry.MatchCount;
+                count = maxTotalMatches;
             }
 
             Debug.Assert(count >= 0, count.ToString());
@@ -276,8 +276,8 @@ namespace Orang.CommandLine
             MaxReason maxReason = CaptureFactory.GetCaptures(ref captures, match, groupNumber, count, predicate, context.CancellationToken);
 
             if ((maxReason == MaxReason.CountEqualsMax || maxReason == MaxReason.CountExceedsMax)
-                && maxMatches > 0
-                && (maxMatchesInFile == 0 || maxMatches <= maxMatchesInFile))
+                && maxTotalMatches > 0
+                && (maxMatchesInFile == 0 || maxTotalMatches <= maxMatchesInFile))
             {
                 context.TerminationReason = TerminationReason.MaxReached;
             }

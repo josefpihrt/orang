@@ -81,21 +81,8 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            if (!TryParseMaxCount(MaxCount, out int maxCount, out int maxMatches, out int maxMatchingFiles))
+            if (!TryParseMaxCount(MaxCount, out int maxMatchingFiles, out int maxMatchesInFile))
                 return false;
-
-            int maxMatchesInFile;
-
-            if (contentFilter != null)
-            {
-                maxMatchesInFile = maxCount;
-            }
-            else
-            {
-                maxMatchesInFile = 0;
-                maxMatches = 0;
-                maxMatchingFiles = (maxCount > 0) ? maxCount : maxMatchingFiles;
-            }
 
             options.Format = new OutputDisplayFormat(
                 contentDisplayStyle: contentDisplayStyle ?? ContentDisplayStyle.Line,
@@ -111,8 +98,8 @@ namespace Orang.CommandLine
             options.SearchTarget = GetSearchTarget();
             options.ContentFilter = contentFilter;
             options.MaxMatchesInFile = maxMatchesInFile;
-            options.MaxMatches = maxMatches;
             options.MaxMatchingFiles = maxMatchingFiles;
+            options.MaxTotalMatches = 0;
 
             return true;
         }

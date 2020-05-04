@@ -94,7 +94,7 @@ namespace Orang.CommandLine
             if (!TryParseReplaceOptions(Modify, OptionNames.Modify, replacement, matchEvaluator, out ReplaceOptions replaceOptions))
                 return false;
 
-            if (!TryParseMaxCount(MaxCount, out int maxMatchesInFile, out int maxMatches, out int maxMatchingFiles))
+            if (!TryParseMaxCount(MaxCount, out int maxMatchingFiles, out int maxMatchesInFile))
                 return false;
 
             ContentDisplayStyle contentDisplayStyle;
@@ -162,8 +162,8 @@ namespace Orang.CommandLine
             options.Input = Input;
             options.DryRun = DryRun;
             options.MaxMatchesInFile = maxMatchesInFile;
-            options.MaxMatches = maxMatches;
             options.MaxMatchingFiles = maxMatchingFiles;
+            options.MaxTotalMatches = 0;
 
             return true;
         }

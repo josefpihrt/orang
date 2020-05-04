@@ -96,11 +96,11 @@ namespace Orang.CommandLine
             {
                 if (consoleReportMode == ProgressReportMode.None)
                 {
-                    return (ShouldWriteSummary()) ? new ProgressReporter() : null;
+                    return (ShouldWriteSummary()) ? new ProgressReporter(GetPathIndent()) : null;
                 }
                 else if (consoleReportMode == ProgressReportMode.Dot)
                 {
-                    return new DotProgressReporter();
+                    return new DotProgressReporter(GetPathIndent());
                 }
             }
 

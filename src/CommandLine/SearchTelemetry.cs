@@ -20,6 +20,8 @@ namespace Orang.CommandLine
 
         public int MatchingDirectoryCount { get; internal set; }
 
+        internal int MatchingFileDirectoryCount => MatchingFileCount + MatchingDirectoryCount;
+
         public int ProcessedFileCount { get; internal set; }
 
         public int ProcessedDirectoryCount { get; internal set; }

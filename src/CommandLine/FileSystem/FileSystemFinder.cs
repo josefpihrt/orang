@@ -20,6 +20,7 @@ namespace Orang.FileSystem
             Filter extensionFilter = null,
             Filter directoryFilter = null,
             NamePartKind directoryNamePart = NamePartKind.Name,
+            Filter contentFilter = null,
             FileSystemFinderOptions options = null,
             IProgress<FileSystemFinderProgress> progress = null,
             INotifyDirectoryChanged notifyDirectoryChanged = null,
@@ -80,7 +81,7 @@ namespace Orang.FileSystem
                         {
                             while (fi.MoveNext())
                             {
-                                FileSystemFinderResult result = MatchFile(fi.Current, nameFilter, extensionFilter, options, progress, namePart);
+                                FileSystemFinderResult result = MatchFile(fi.Current, nameFilter, extensionFilter, contentFilter, options, progress, namePart);
 
                                 if (result != null)
                                     yield return result;
@@ -183,6 +184,7 @@ namespace Orang.FileSystem
             Filter nameFilter = null,
             NamePartKind namePart = NamePartKind.Name,
             Filter extensionFilter = null,
+            Filter contentFilter = null,
             FileSystemFinderOptions options = null,
             IProgress<FileSystemFinderProgress> progress = null)
         {
@@ -190,15 +192,17 @@ namespace Orang.FileSystem
                 path: path,
                 nameFilter: nameFilter,
                 extensionFilter: extensionFilter,
+                contentFilter: contentFilter,
                 options: options ?? FileSystemFinderOptions.Default,
                 progress: progress,
                 namePartKind: namePart);
         }
 
-        internal static FileSystemFinderResult MatchFile(
+        private static FileSystemFinderResult MatchFile(
             string path,
             Filter nameFilter,
             Filter extensionFilter,
+            Filter contentFilter,
             FileSystemFinderOptions options,
             IProgress<FileSystemFinderProgress> progress,
             NamePartKind namePartKind)
@@ -247,6 +251,29 @@ namespace Orang.FileSystem
                     progress?.Report(new FileSystemFinderProgress(path, ProgressKind.File, ex));
                     return null;
                 }
+            }
+
+            if (contentFilter != null)
+            {
+                FileContent fileContent;
+
+                try
+                {
+                    fileContent = ReadFile(path, options.Encoding, saveBomEncoding: options.SaveBomEncoding);
+                }
+                catch (Exception ex) when (ex is IOException
+                    || ex is UnauthorizedAccessException)
+                {
+                    progress?.Report(new FileSystemFinderProgress(path, ProgressKind.File, ex));
+                    return null;
+                }
+
+                Match contentMatch = contentFilter.Match(fileContent.Text);
+
+                if (contentMatch == null)
+                    return null;
+
+                return new FileSystemFinderResult(namePart, match, fileContent, contentMatch);
             }
 
             return new FileSystemFinderResult(namePart, match);

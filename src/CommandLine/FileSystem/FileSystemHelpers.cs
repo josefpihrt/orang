@@ -297,5 +297,33 @@ namespace Orang.FileSystem
 
             return size;
         }
+
+        public static FileContent ReadFile(
+            string filePath,
+            Encoding encoding = null,
+            bool saveBomEncoding = false)
+        {
+            using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            {
+                Encoding bomEncoding = null;
+
+                if (saveBomEncoding)
+                {
+                    bomEncoding = EncodingHelpers.DetectEncoding(stream);
+
+                    if (bomEncoding != null)
+                        encoding = bomEncoding;
+
+                    stream.Position = 0;
+                }
+
+                using (var reader = new StreamReader(stream, encoding, detectEncodingFromByteOrderMarks: true))
+                {
+                    string content = reader.ReadToEnd();
+
+                    return new FileContent(content, bomEncoding, reader.CurrentEncoding);
+                }
+            }
+        }
     }
 }

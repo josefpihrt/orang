@@ -35,7 +35,8 @@ namespace Orang.CommandLine
                 recurseSubdirectories: Options.RecurseSubdirectories,
                 attributes: Options.Attributes,
                 attributesToSkip: Options.AttributesToSkip,
-                empty: Options.Empty);
+                empty: Options.Empty,
+                encoding: Options.DefaultEncoding);
         }
 
         protected abstract void ExecuteDirectory(string directoryPath, SearchContext context);
@@ -339,7 +340,7 @@ namespace Orang.CommandLine
                 context.Telemetry.MatchingFileCount++;
             }
 
-            if (Options.MaxMatchingFiles == context.Telemetry.MatchingFileCount + context.Telemetry.MatchingDirectoryCount)
+            if (Options.MaxMatchingFiles == context.Telemetry.MatchingFileDirectoryCount)
                 context.TerminationReason = TerminationReason.MaxReached;
 
             if (context.Results != null)
@@ -351,30 +352,6 @@ namespace Orang.CommandLine
                 EndProgress(context);
 
                 ExecuteResult(result, context, baseDirectoryPath, columnWidths: null);
-            }
-        }
-
-        protected string ReadFile(
-            string filePath,
-            string basePath,
-            Encoding encoding,
-            SearchContext context,
-            string indent = null)
-        {
-            try
-            {
-                using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-                using (var reader = new StreamReader(stream, encoding, detectEncodingFromByteOrderMarks: true))
-                {
-                    return reader.ReadToEnd();
-                }
-            }
-            catch (Exception ex) when (ex is IOException
-                || ex is UnauthorizedAccessException)
-            {
-                EndProgress(context);
-                LogHelpers.WriteFileError(ex, filePath, basePath, relativePath: Options.DisplayRelativePath, indent: indent);
-                return null;
             }
         }
 
@@ -400,6 +377,7 @@ namespace Orang.CommandLine
                 extensionFilter: Options.ExtensionFilter,
                 directoryFilter: Options.DirectoryFilter,
                 directoryNamePart: Options.DirectoryNamePart,
+                contentFilter: Options.ContentFilter,
                 options: FinderOptions,
                 progress: context.Progress,
                 notifyDirectoryChanged: notifyDirectoryChanged,
@@ -411,13 +389,14 @@ namespace Orang.CommandLine
             return results;
         }
 
-        protected FileSystemFinderResult MatchFile(string filePath, ProgressReporter progress = null)
+        protected FileSystemFinderResult MatchFile(string filePath, ProgressReporter progress)
         {
             FileSystemFinderResult result = FileSystemFinder.MatchFile(
                 filePath,
                 nameFilter: Options.NameFilter,
                 namePart: Options.NamePart,
                 extensionFilter: Options.ExtensionFilter,
+                contentFilter: Options.ContentFilter,
                 options: FinderOptions,
                 progress: progress);
 

@@ -9,9 +9,16 @@ namespace Orang.FileSystem
     public class FileSystemFinderResult
     {
         internal FileSystemFinderResult(in NamePart part, Match match, bool isDirectory = false)
+            : this(part, match, default, null, isDirectory)
+        {
+        }
+
+        internal FileSystemFinderResult(in NamePart part, Match match, FileContent content, Match contentMatch, bool isDirectory = false)
         {
             Match = match;
             Part = part;
+            Content = content;
+            ContentMatch = contentMatch;
             IsDirectory = isDirectory;
         }
 
@@ -20,6 +27,10 @@ namespace Orang.FileSystem
         public NamePart Part { get; }
 
         public Match Match { get; }
+
+        public FileContent Content { get; }
+
+        public Match ContentMatch { get; }
 
         public bool IsDirectory { get; }
 

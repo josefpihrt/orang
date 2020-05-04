@@ -27,6 +27,18 @@ namespace Orang.CommandLine
 
         private OutputSymbols Symbols => _symbols ?? (_symbols = OutputSymbols.Create(Options.HighlightOptions));
 
+        protected override FileSystemFinderOptions CreateFinderOptions()
+        {
+            return new FileSystemFinderOptions(
+                searchTarget: Options.SearchTarget,
+                recurseSubdirectories: Options.RecurseSubdirectories,
+                attributes: Options.Attributes,
+                attributesToSkip: Options.AttributesToSkip,
+                empty: Options.Empty,
+                saveBomEncoding: true,
+                encoding: Options.DefaultEncoding);
+        }
+
         protected override void ExecuteCore(SearchContext context)
         {
             context.Telemetry.MatchingLineCount = -1;
@@ -122,21 +134,9 @@ namespace Orang.CommandLine
             ContentWriterOptions writerOptions,
             string baseDirectoryPath = null)
         {
-            string indent = GetPathIndent(baseDirectoryPath);
+            Encoding encoding = result.Content.BomEncoding ?? result.Content.CurrentEncoding;
 
-            Encoding encoding = Options.DefaultEncoding;
-
-            string input = ReadFile(result.Path, baseDirectoryPath, ref encoding, context, indent);
-
-            if (input == null)
-                return;
-
-            Match match = Options.ContentFilter.Match(input);
-
-            if (match == null)
-                return;
-
-            ExecuteOrAddResult(result, context, writerOptions, match, input, encoding, baseDirectoryPath);
+            ExecuteOrAddResult(result, context, writerOptions, result.ContentMatch, result.Content.Text, encoding, baseDirectoryPath);
         }
 
         protected override void ExecuteResult(FileSystemFinderResult result, SearchContext context, string baseDirectoryPath = null, ColumnWidths columnWidths = null)
@@ -165,46 +165,6 @@ namespace Orang.CommandLine
                 WritePath(context, result, baseDirectoryPath, indent, columnWidths);
 
             ReplaceMatches(result.Path, encoding, input, match, indent, writerOptions, context);
-        }
-
-        private string ReadFile(
-            string filePath,
-            string basePath,
-            ref Encoding encoding,
-            SearchContext context,
-            string indent = null)
-        {
-            try
-            {
-                using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
-                {
-                    Encoding encodingFromBom = EncodingHelpers.DetectEncoding(stream);
-
-                    if (encodingFromBom != null)
-                        encoding = encodingFromBom;
-
-                    stream.Position = 0;
-
-                    using (var reader = new StreamReader(stream, encoding, detectEncodingFromByteOrderMarks: true))
-                    {
-                        return reader.ReadToEnd();
-                    }
-                }
-            }
-            catch (Exception ex) when (ex is IOException
-                || ex is UnauthorizedAccessException)
-            {
-                EndProgress(context);
-
-                WriteFileError(
-                    ex,
-                    filePath,
-                    basePath,
-                    relativePath: Options.DisplayRelativePath,
-                    indent: indent);
-
-                return null;
-            }
         }
 
         private void ReplaceMatches(

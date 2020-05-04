@@ -147,17 +147,7 @@ namespace Orang.CommandLine
             ContentWriterOptions writerOptions,
             string baseDirectoryPath = null)
         {
-            string input = ReadFile(result.Path, baseDirectoryPath, Options.DefaultEncoding, context);
-
-            if (input == null)
-                return;
-
-            Match match = ContentFilter.Match(input);
-
-            if (match == null)
-                return;
-
-            ExecuteOrAddResult(result, context, writerOptions, match, input, default(Encoding), baseDirectoryPath);
+            ExecuteOrAddResult(result, context, writerOptions, result.ContentMatch, result.Content.Text, default(Encoding), baseDirectoryPath);
         }
 
         protected void ExecuteOrAddResult(
@@ -169,9 +159,16 @@ namespace Orang.CommandLine
             Encoding encoding,
             string baseDirectoryPath = null)
         {
-            context.Telemetry.MatchingFileCount++;
+            if (result.IsDirectory)
+            {
+                context.Telemetry.MatchingDirectoryCount++;
+            }
+            else
+            {
+                context.Telemetry.MatchingFileCount++;
+            }
 
-            if (Options.MaxMatchingFiles == context.Telemetry.MatchingFileCount)
+            if (Options.MaxMatchingFiles == context.Telemetry.MatchingFileDirectoryCount)
                 context.TerminationReason = TerminationReason.MaxReached;
 
             if (context.Results != null)

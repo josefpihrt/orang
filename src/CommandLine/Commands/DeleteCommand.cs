@@ -21,20 +21,6 @@ namespace Orang.CommandLine
         {
             Debug.Assert(baseDirectoryPath == null || result.Path.StartsWith(baseDirectoryPath, FileSystemHelpers.Comparison), $"{baseDirectoryPath}\r\n{result.Path}");
 
-            if (!result.IsDirectory
-                && Options.ContentFilter != null)
-            {
-                string indent = GetPathIndent(baseDirectoryPath);
-
-                string input = ReadFile(result.Path, baseDirectoryPath, Options.DefaultEncoding, context, indent);
-
-                if (input == null)
-                    return;
-
-                if (!Options.ContentFilter.IsMatch(input))
-                    return;
-            }
-
             ExecuteOrAddResult(result, context, baseDirectoryPath);
         }
 

@@ -29,7 +29,8 @@ namespace Orang.CommandLine
                 attributesToSkip: Options.AttributesToSkip,
                 empty: Options.Empty,
                 canEnumerate: Options.DryRun,
-                partOnly: true);
+                partOnly: true,
+                encoding: Options.DefaultEncoding);
         }
 
         protected override void ProcessResult(
@@ -37,20 +38,6 @@ namespace Orang.CommandLine
             SearchContext context,
             string baseDirectoryPath = null)
         {
-            if (!result.IsDirectory
-                && Options.ContentFilter != null)
-            {
-                string indent = GetPathIndent(baseDirectoryPath);
-
-                string input = ReadFile(result.Path, baseDirectoryPath, Options.DefaultEncoding, context, indent);
-
-                if (input == null)
-                    return;
-
-                if (!Options.ContentFilter.IsMatch(input))
-                    return;
-            }
-
             ExecuteOrAddResult(result, context, baseDirectoryPath);
         }
 

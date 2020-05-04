@@ -79,7 +79,8 @@ namespace Orang.CommandLine
             if (!Options.OmitPath)
                 WritePath(context, result, baseDirectoryPath, indent, columnWidths);
 
-            if (ContentFilter.IsNegative)
+            if (ContentFilter.IsNegative
+                || result.IsDirectory)
             {
                 WriteLineIf(!Options.OmitPath, Verbosity.Minimal);
             }

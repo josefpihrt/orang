@@ -2,6 +2,8 @@
 
 using System.Diagnostics;
 using System.IO;
+using System.Text;
+using System.Text.RegularExpressions;
 using Orang.FileSystem;
 
 namespace Orang.CommandLine
@@ -9,44 +11,35 @@ namespace Orang.CommandLine
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     internal class SearchResult
     {
-        private FileSystemInfo _fileSystemInfo;
         private long? _size;
 
         public SearchResult(
-            FileSystemFinderResult result,
-            string baseDirectoryPath)
+            FileMatch fileMatch,
+            string baseDirectoryPath,
+            ContentWriterOptions writerOptions = null)
         {
-            Result = result;
+            FileMatch = fileMatch;
             BaseDirectoryPath = baseDirectoryPath;
+            WriterOptions = writerOptions;
         }
 
-        public FileSystemFinderResult Result { get; }
+        public FileMatch FileMatch { get; }
 
         public string BaseDirectoryPath { get; }
 
-        public bool IsDirectory => Result.IsDirectory;
+        public ContentWriterOptions WriterOptions { get; }
 
-        public string Path => Result.Path;
+        public string Path => FileMatch.Path;
 
-        public FileSystemInfo FileSystemInfo
-        {
-            get
-            {
-                if (_fileSystemInfo == null)
-                {
-                    if (IsDirectory)
-                    {
-                        _fileSystemInfo = new DirectoryInfo(Path);
-                    }
-                    else
-                    {
-                        _fileSystemInfo = new FileInfo(Path);
-                    }
-                }
+        public bool IsDirectory => FileMatch.IsDirectory;
 
-                return _fileSystemInfo;
-            }
-        }
+        public Match ContentMatch => FileMatch.ContentMatch;
+
+        public string ContentText => FileMatch.ContentText;
+
+        public Encoding Encoding => FileMatch.Encoding;
+
+        public FileSystemInfo FileSystemInfo => FileMatch.FileSystemInfo;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private string DebuggerDisplay => $"{Path}";

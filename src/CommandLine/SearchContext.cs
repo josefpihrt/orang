@@ -7,7 +7,7 @@ using Orang.FileSystem;
 
 namespace Orang.CommandLine
 {
-    internal class SearchContext
+    internal sealed class SearchContext
     {
         public SearchContext(
             SearchTelemetry telemetry,
@@ -33,11 +33,11 @@ namespace Orang.CommandLine
 
         public TerminationReason TerminationReason { get; set; }
 
-        public void AddResult(FileSystemFinderResult result, string baseDirectoryPath)
+        public void AddResult(FileMatch match, string baseDirectoryPath)
         {
-            var searchResult = new SearchResult(result, baseDirectoryPath);
+            var result = new SearchResult(match, baseDirectoryPath);
 
-            Results.Add(searchResult);
+            Results.Add(result);
         }
     }
 }

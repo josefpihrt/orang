@@ -14,7 +14,7 @@ namespace Orang.CommandLine
 
         public event EventHandler<DirectoryChangedEventArgs> DirectoryChanged;
 
-        protected abstract void ProcessResult(FileSystemFinderResult result, SearchContext context, string baseDirectoryPath = null);
+        protected abstract void ProcessMatch(FileMatch fileMatch, SearchContext context, string baseDirectoryPath = null);
 
         protected virtual void OnDirectoryChanged(DirectoryChangedEventArgs e)
         {
@@ -23,21 +23,19 @@ namespace Orang.CommandLine
 
         protected sealed override void ExecuteFile(string filePath, SearchContext context)
         {
-            context.Telemetry.FileCount++;
+            FileMatch fileMatch = MatchFile(filePath, context.Progress);
 
-            FileSystemFinderResult result = MatchFile(filePath, context.Progress);
-
-            if (result != null)
-                ProcessResult(result, context);
+            if (fileMatch != null)
+                ProcessMatch(fileMatch, context);
         }
 
         protected sealed override void ExecuteDirectory(string directoryPath, SearchContext context)
         {
-            foreach (FileSystemFinderResult result in Find(directoryPath, context, notifyDirectoryChanged: this))
+            foreach (FileMatch fileMatch in Find(directoryPath, context, notifyDirectoryChanged: this))
             {
-                Debug.Assert(result.Path.StartsWith(directoryPath, FileSystemHelpers.Comparison), $"{directoryPath}\r\n{result.Path}");
+                Debug.Assert(fileMatch.Path.StartsWith(directoryPath, FileSystemHelpers.Comparison), $"{directoryPath}\r\n{fileMatch.Path}");
 
-                ProcessResult(result, context, directoryPath);
+                ProcessMatch(fileMatch, context, directoryPath);
 
                 if (context.TerminationReason == TerminationReason.Canceled)
                     break;
@@ -49,7 +47,7 @@ namespace Orang.CommandLine
 
         protected sealed override void ExecuteResult(SearchResult result, SearchContext context, ColumnWidths columnWidths)
         {
-            ExecuteResult(result.Result, context, result.BaseDirectoryPath, columnWidths);
+            ExecuteMatch(result.FileMatch, context, result.BaseDirectoryPath, columnWidths);
         }
 
         protected bool AskToExecute(SearchContext context, string question, string indent)

@@ -6,12 +6,18 @@ namespace Orang.Expressions
 {
     internal abstract class Expression
     {
-        protected Expression(string identifier)
+        protected Expression(string text, string identifier, string value)
         {
+            Text = text;
             Identifier = identifier;
+            Value = value;
         }
 
+        public string Text { get; }
+
         public string Identifier { get; }
+
+        public string Value { get; }
 
         public abstract ExpressionKind Kind { get; }
 
@@ -47,14 +53,16 @@ namespace Orang.Expressions
                                     }
                                 case '-':
                                     {
-                                        expression = new DecrementExpression(value.Substring(0, i), value.Substring(i + 2));
+                                        expression = new DecrementExpression(value, value.Substring(0, i), value.Substring(i + 2));
                                         return true;
                                     }
                                 default:
                                     {
                                         expression = new BinaryExpression(
+                                            value,
                                             value.Substring(0, i),
-                                            value.Substring(i + 1), ExpressionKind.EqualsExpression);
+                                            value.Substring(i + 1),
+                                            ExpressionKind.EqualsExpression);
 
                                         return true;
                                     }
@@ -65,14 +73,18 @@ namespace Orang.Expressions
                             if (Peek() == '=')
                             {
                                 expression = new BinaryExpression(
+                                    value,
                                     value.Substring(0, i),
-                                    value.Substring(i + 2), ExpressionKind.GreaterThanOrEqualExpression);
+                                    value.Substring(i + 2),
+                                    ExpressionKind.GreaterThanOrEqualExpression);
                             }
                             else
                             {
                                 expression = new BinaryExpression(
+                                    value,
                                     value.Substring(0, i),
-                                    value.Substring(i + 1), ExpressionKind.GreaterThanExpression);
+                                    value.Substring(i + 1),
+                                    ExpressionKind.GreaterThanExpression);
                             }
 
                             return true;
@@ -82,14 +94,18 @@ namespace Orang.Expressions
                             if (Peek() == '=')
                             {
                                 expression = new BinaryExpression(
+                                    value,
                                     value.Substring(0, i),
-                                    value.Substring(i + 2), ExpressionKind.LessThanOrEqualExpression);
+                                    value.Substring(i + 2),
+                                    ExpressionKind.LessThanOrEqualExpression);
                             }
                             else
                             {
                                 expression = new BinaryExpression(
+                                    value,
                                     value.Substring(0, i),
-                                    value.Substring(i + 1), ExpressionKind.LessThanExpression);
+                                    value.Substring(i + 1),
+                                    ExpressionKind.LessThanExpression);
                             }
 
                             return true;
@@ -153,39 +169,48 @@ namespace Orang.Expressions
                 if (!ScanToChar2(')', '>'))
                     return null;
 
+                int closeTokenIndex = i;
+
                 string identifier = value.Substring(0, equalsIndex);
 
-                BinaryExpression expression1 = CreateBinaryExpression(value, identifier, openTokenIndex, semicolonIndex);
+                string intervalValue = value.Substring(openTokenIndex);
 
-                BinaryExpression expression2 = CreateBinaryExpression(value, identifier, semicolonIndex, i);
+                BinaryExpression expression1 = CreateBinaryExpression(value, identifier, openTokenIndex, semicolonIndex, GetBinaryOperatorKind(value[openTokenIndex]));
 
-                return new IntervalExpression(identifier, expression1, expression2);
+                if (expression1 == null)
+                    return null;
+
+                BinaryExpression expression2 = CreateBinaryExpression(value, identifier, semicolonIndex, closeTokenIndex, GetBinaryOperatorKind(value[closeTokenIndex]));
+
+                if (expression2 == null)
+                    return null;
+
+                return new IntervalExpression(value, identifier, intervalValue, expression1, expression2);
             }
         }
 
-        private static BinaryExpression CreateBinaryExpression(string value, string identifier, int index1, int index2)
+        private static BinaryExpression CreateBinaryExpression(string value, string identifier, int index1, int index2, ExpressionKind kind)
         {
-            ExpressionKind kind = GetBinaryOperatorKind(value[index1]);
-
             if (kind == ExpressionKind.None)
                 return null;
 
             return new BinaryExpression(
+                value,
                 identifier,
                 value.Substring(index1 + 1, index2 - index1 - 1),
                 kind);
+        }
 
-            static ExpressionKind GetBinaryOperatorKind(char ch)
+        private static ExpressionKind GetBinaryOperatorKind(char ch)
+        {
+            return ch switch
             {
-                return ch switch
-                {
-                    '<' => ExpressionKind.GreaterThanOrEqualExpression,
-                    '(' => ExpressionKind.GreaterThanExpression,
-                    '>' => ExpressionKind.LessThanOrEqualExpression,
-                    ')' => ExpressionKind.LessThanExpression,
-                    _ => ExpressionKind.None,
-                };
-            }
+                '<' => ExpressionKind.GreaterThanOrEqualExpression,
+                '(' => ExpressionKind.GreaterThanExpression,
+                '>' => ExpressionKind.LessThanOrEqualExpression,
+                ')' => ExpressionKind.LessThanExpression,
+                _ => ExpressionKind.None,
+            };
         }
     }
 }

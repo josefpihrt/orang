@@ -1,12 +1,10 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.IO;
-using Orang.FileSystem;
 
-namespace Orang.CommandLine
+namespace Orang.FileSystem
 {
-    internal class FilePropertyFilter
+    public class FilePropertyFilter
     {
         public FilePropertyFilter(
             Func<long, bool> sizePredicate = null,
@@ -24,26 +22,14 @@ namespace Orang.CommandLine
 
         public Func<DateTime, bool> ModifiedTimePredicate { get; }
 
-        public bool IsMatch(FileSystemFinderResult result)
+        internal bool IsDefault
         {
-            return IsMatch(result.Path, result.IsDirectory);
-        }
-
-        public bool IsMatch(string path, bool isDirectory = false)
-        {
-            if (!isDirectory
-                && SizePredicate?.Invoke(new FileInfo(path).Length) == false)
+            get
             {
-                return false;
+                return SizePredicate == null
+                    && CreationTimePredicate == null
+                    && ModifiedTimePredicate == null;
             }
-
-            if (CreationTimePredicate?.Invoke(File.GetCreationTime(path)) == false)
-                return false;
-
-            if (ModifiedTimePredicate?.Invoke(File.GetLastWriteTime(path)) == false)
-                return false;
-
-            return true;
         }
     }
 }

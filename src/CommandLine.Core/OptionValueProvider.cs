@@ -5,12 +5,15 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Orang
 {
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class OptionValueProvider
     {
+        private static readonly Regex _metaValueRegex = new Regex(@"\<\w+\>");
+
         public OptionValueProvider(string name, params OptionValue[] values)
         {
             Name = name;
@@ -29,6 +32,35 @@ namespace Orang
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private string DebuggerDisplay => Name;
+
+        public OptionValueProvider WithoutValues(string name, params OptionValue[] values)
+        {
+            ImmutableArray<OptionValue>.Builder builder = ImmutableArray.CreateBuilder<OptionValue>();
+
+            foreach (OptionValue value in Values)
+            {
+                if (Array.IndexOf(values, value) == -1)
+                    builder.Add(value);
+            }
+
+            return new OptionValueProvider(name, builder);
+        }
+
+        public bool ContainsKeyOrShortKey(string value)
+        {
+            foreach (OptionValue optionValue in Values)
+            {
+                if (optionValue.Kind == OptionValueKind.KeyValuePair)
+                {
+                    var keyValue = (KeyValuePairOptionValue)optionValue;
+
+                    if (keyValue.IsKeyOrShortKey(value))
+                        return true;
+                }
+            }
+
+            return false;
+        }
 
         public bool TryParseEnum<TEnum>(string value, out TEnum result) where TEnum : struct
         {
@@ -59,13 +91,26 @@ namespace Orang
             return default;
         }
 
-        public string GetHelpText(Func<OptionValue, bool> predicate = null)
+        public static IEnumerable<OptionValueProvider> GetProviders(IEnumerable<CommandOption> options, IEnumerable<OptionValueProvider> providers)
         {
-            IEnumerable<string> values = (predicate != null)
-                ? Values.Where(predicate).Select(f => f.HelpValue)
-                : Values.Select(f => f.HelpValue);
+            IEnumerable<string> metaValues = options
+                .SelectMany(f => _metaValueRegex.Matches(f.Description).Cast<Match>().Select(m => m.Value))
+                .Concat(options.Select(f => f.MetaValue))
+                .Distinct();
 
-            return TextHelpers.Join(", ", " and ", values);
+            ImmutableArray<OptionValueProvider> providers2 = metaValues
+                .Join(providers, f => f, f => f.Name, (_, f) => f)
+                .ToImmutableArray();
+
+            return providers2
+                .SelectMany(f => f.Values)
+                .OfType<KeyValuePairOptionValue>()
+                .Select(f => f.Value)
+                .Distinct()
+                .Join(providers, f => f, f => f.Name, (_, f) => f)
+                .Concat(providers2)
+                .Distinct()
+                .OrderBy(f => f.Name);
         }
     }
 }

@@ -12,12 +12,11 @@ namespace Orang.FileSystem
             ProgressReportMode consoleReportMode,
             ProgressReportMode fileReportMode,
             FileSystemCommandOptions options,
-            string indent)
+            string indent) : base(indent)
         {
             ConsoleReportMode = consoleReportMode;
             FileReportMode = fileReportMode;
             Options = options;
-            Indent = indent;
         }
 
         public ProgressReportMode ConsoleReportMode { get; }
@@ -26,14 +25,11 @@ namespace Orang.FileSystem
 
         public FileSystemCommandOptions Options { get; }
 
-        public string Indent { get; }
-
         public override void Report(FileSystemFinderProgress value)
         {
             if (value.Error != null)
             {
-                Write("[E] ", Colors.Path_Progress);
-                WriteWarning(value.Error, verbosity: Verbosity.Diagnostic);
+                WriteError(value);
             }
             else
             {

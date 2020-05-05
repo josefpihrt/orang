@@ -12,9 +12,9 @@ using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
-    internal class ListSyntaxCommand : AbstractCommand<ListSyntaxCommandOptions>
+    internal class ListPatternsCommand : AbstractCommand<ListPatternsCommandOptions>
     {
-        public ListSyntaxCommand(ListSyntaxCommandOptions options) : base(options)
+        public ListPatternsCommand(ListPatternsCommandOptions options) : base(options)
         {
         }
 
@@ -22,15 +22,15 @@ namespace Orang.CommandLine
         {
             if (Options.Value != null)
             {
-                return ListSyntax(Options.Value.Value);
+                return ListPatterns(Options.Value.Value);
             }
             else
             {
-                return ListSyntax();
+                return ListPatterns();
             }
         }
 
-        private CommandResult ListSyntax()
+        private CommandResult ListPatterns()
         {
             IEnumerable<SyntaxItem> items = SyntaxItems.Load();
 
@@ -117,7 +117,7 @@ namespace Orang.CommandLine
             }
         }
 
-        private CommandResult ListSyntax(char ch)
+        private CommandResult ListPatterns(char ch)
         {
             var rows = new List<(string name, string description)>();
 
@@ -145,7 +145,7 @@ namespace Orang.CommandLine
                 WriteRow("PATTERN", "DESCRIPTION");
 
                 foreach (PatternInfo item in patterns)
-                    WriteRow(item.Pattern, item.Description);
+                    WriteRow(item.Pattern, item.Description, Colors.Syntax);
 
                 return CommandResult.Success;
             }

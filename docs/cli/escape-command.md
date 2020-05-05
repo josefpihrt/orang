@@ -46,4 +46,5 @@ orang escape --input "foo\bar.txt"
 ```
 orang escape -i "foo\bar.txt"
 ```
+
 *\(Generated with [DotMarkdown](http://github.com/JosefPihrt/DotMarkdown)\)*

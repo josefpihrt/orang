@@ -13,17 +13,17 @@ Backup Visual Studio project but exclude directories that are not necessary.
 ```
 orang copy MyProject ^
  --target "backup/MyProject" ^
- --target-action overwrite ^
+ --conflict overwrite ^
  --compare attributes size content ^
- --include-directory "bin,obj,packages,node_modules,.vs" literal list whole-input negative
+ --include-directory "bin,obj,packages,node_modules,.vs" literal list equals negative
 ```
 
 #### Short Syntax
 
 ```
 orang copy MyProject ^
- -g "backup/MyProject" ^
- --target-action o ^
+ --target "backup/MyProject" ^
+ --conflict o ^
  --compare a s c ^
- -i "bin,obj,packages,node_modules,.vs" l li wi ne
+ -i "bin,obj,packages,node_modules,.vs" l li e ne
 ```

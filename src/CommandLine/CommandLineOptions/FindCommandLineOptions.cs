@@ -49,6 +49,7 @@ namespace Orang.CommandLine
                 contentDisplayStyle: contentDisplayStyle,
                 pathDisplayStyle: pathDisplayStyle,
                 lineOptions: format.LineOptions,
+                lineContext: format.LineContext,
                 displayParts: format.DisplayParts,
                 fileProperties: format.FileProperties,
                 indent: format.Indent,

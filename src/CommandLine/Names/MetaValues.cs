@@ -19,6 +19,7 @@ namespace Orang.CommandLine
         public const string FileProperties = "<FILE_PROPERTIES>";
         public const string Highlight = "<HIGHLIGHT>";
         public const string Input = "<INPUT>";
+        public const string InputOptions = "<INPUT_OPTIONS>";
         public const string MaxOptions = "<MAX_OPTIONS>";
         public const string ModifyOptions = "<MODIFY_OPTIONS>";
         public const string NamePart = "<NAME_PART>";

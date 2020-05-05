@@ -20,11 +20,15 @@ namespace Orang.CommandLine
 
         public Filter NameFilter { get; internal set; }
 
+        public NamePartKind NamePart { get; internal set; }
+
         public Filter ExtensionFilter { get; internal set; }
 
         public Filter ContentFilter { get; internal set; }
 
         public Filter DirectoryFilter { get; internal set; }
+
+        public NamePartKind DirectoryNamePart { get; internal set; }
 
         public SearchTarget SearchTarget { get; internal set; }
 
@@ -59,6 +63,11 @@ namespace Orang.CommandLine
         internal string DoubleIndent => _doubleIndent ?? (_doubleIndent = Indent + Indent);
 
         internal bool IncludeBaseDirectory => Format.IncludeBaseDirectory;
+
+        internal MatchOutputInfo CreateOutputInfo(FileMatch fileMatch)
+        {
+            return CreateOutputInfo(fileMatch.ContentText, fileMatch.ContentMatch);
+        }
 
         internal MatchOutputInfo CreateOutputInfo(string input, Match match)
         {

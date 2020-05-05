@@ -139,19 +139,19 @@ namespace Orang.FileSystem
         }
 
         public static void Delete(
-            FileSystemFinderResult result,
+            FileMatch fileMatch,
             bool contentOnly = false,
             bool includingBom = false,
             bool filesOnly = false,
             bool directoriesOnly = false)
         {
-            if (result.IsDirectory)
+            if (fileMatch.IsDirectory)
             {
-                DeleteDirectory(result.Path, contentOnly: contentOnly, filesOnly: filesOnly, directoriesOnly: directoriesOnly);
+                DeleteDirectory(fileMatch.Path, contentOnly: contentOnly, filesOnly: filesOnly, directoriesOnly: directoriesOnly);
             }
             else
             {
-                DeleteFile(result.Path, contentOnly: contentOnly, includingBom: includingBom);
+                DeleteFile(fileMatch.Path, contentOnly: contentOnly, includingBom: includingBom);
             }
         }
 
@@ -225,6 +225,11 @@ namespace Orang.FileSystem
         {
             var fileInfo = new FileInfo(path);
 
+            return IsEmptyFile(fileInfo);
+        }
+
+        public static bool IsEmptyFile(FileInfo fileInfo)
+        {
             if (fileInfo.Length == 0)
                 return true;
 
@@ -296,6 +301,34 @@ namespace Orang.FileSystem
             }
 
             return size;
+        }
+
+        public static FileContent ReadFile(
+            string filePath,
+            Encoding encoding = null,
+            bool saveBomEncoding = false)
+        {
+            using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+            {
+                Encoding bomEncoding = null;
+
+                if (saveBomEncoding)
+                {
+                    bomEncoding = EncodingHelpers.DetectEncoding(stream);
+
+                    if (bomEncoding != null)
+                        encoding = bomEncoding;
+
+                    stream.Position = 0;
+                }
+
+                using (var reader = new StreamReader(stream, encoding, detectEncodingFromByteOrderMarks: true))
+                {
+                    string content = reader.ReadToEnd();
+
+                    return new FileContent(content, bomEncoding, reader.CurrentEncoding);
+                }
+            }
         }
     }
 }

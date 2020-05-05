@@ -7,6 +7,10 @@ namespace Orang.FileSystem
 {
     internal class DotProgressReporter : ProgressReporter
     {
+        public DotProgressReporter(string indent) : base(indent)
+        {
+        }
+
         public override void Report(FileSystemFinderProgress value)
         {
             if (value.Error != null)

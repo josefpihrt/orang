@@ -29,50 +29,37 @@ namespace Orang.CommandLine
                 attributesToSkip: Options.AttributesToSkip,
                 empty: Options.Empty,
                 canEnumerate: Options.DryRun,
-                partOnly: true);
+                partOnly: true,
+                encoding: Options.DefaultEncoding);
         }
 
-        protected override void ProcessResult(
-            FileSystemFinderResult result,
+        protected override void ProcessMatch(
+            FileMatch fileMatch,
             SearchContext context,
             string baseDirectoryPath = null)
         {
-            if (!result.IsDirectory
-                && Options.ContentFilter != null)
-            {
-                string indent = GetPathIndent(baseDirectoryPath);
-
-                string input = ReadFile(result.Path, baseDirectoryPath, Options.DefaultEncoding, context, indent);
-
-                if (input == null)
-                    return;
-
-                if (!Options.ContentFilter.IsMatch(input))
-                    return;
-            }
-
-            ExecuteOrAddResult(result, context, baseDirectoryPath);
+            ExecuteOrAddMatch(fileMatch, context, baseDirectoryPath);
         }
 
-        protected override void ExecuteResult(
-            FileSystemFinderResult result,
+        protected override void ExecuteMatch(
+            FileMatch fileMatch,
             SearchContext context,
             string baseDirectoryPath,
             ColumnWidths columnWidths)
         {
             string indent = GetPathIndent(baseDirectoryPath);
 
-            List<ReplaceItem> replaceItems = GetReplaceItems(result, context.CancellationToken);
+            List<ReplaceItem> replaceItems = GetReplaceItems(fileMatch, context.CancellationToken);
 
-            string path = result.Path;
-            string newPath = GetNewPath(result, replaceItems);
+            string path = fileMatch.Path;
+            string newPath = GetNewPath(fileMatch, replaceItems);
             bool changed = !string.Equals(path, newPath, StringComparison.Ordinal);
 
             if (!Options.OmitPath
                 && changed)
             {
                 LogHelpers.WritePath(
-                    result,
+                    fileMatch,
                     replaceItems,
                     baseDirectoryPath,
                     relativePath: Options.DisplayRelativePath,
@@ -82,7 +69,7 @@ namespace Orang.CommandLine
                     indent: indent,
                     verbosity: Verbosity.Minimal);
 
-                WriteProperties(context, result, columnWidths);
+                WriteProperties(context, fileMatch, columnWidths);
                 WriteLine(Verbosity.Minimal);
             }
 
@@ -99,7 +86,7 @@ namespace Orang.CommandLine
                 {
                     if (!Options.DryRun)
                     {
-                        if (result.IsDirectory)
+                        if (fileMatch.IsDirectory)
                         {
                             Directory.Move(path, newPath);
                         }
@@ -111,7 +98,7 @@ namespace Orang.CommandLine
                         renamed = true;
                     }
 
-                    if (result.IsDirectory)
+                    if (fileMatch.IsDirectory)
                     {
                         context.Telemetry.ProcessedDirectoryCount++;
                     }
@@ -127,16 +114,16 @@ namespace Orang.CommandLine
                 }
             }
 
-            if (result.IsDirectory
+            if (fileMatch.IsDirectory
                 && renamed)
             {
                 OnDirectoryChanged(new DirectoryChangedEventArgs(path, newPath));
             }
         }
 
-        private List<ReplaceItem> GetReplaceItems(FileSystemFinderResult result, CancellationToken cancellationToken)
+        private List<ReplaceItem> GetReplaceItems(FileMatch fileMatch, CancellationToken cancellationToken)
         {
-            List<Match> matches = GetMatches(result.Match);
+            List<Match> matches = GetMatches(fileMatch.NameMatch);
 
             int offset = 0;
             List<ReplaceItem> items = ListCache<ReplaceItem>.GetInstance();
@@ -178,12 +165,12 @@ namespace Orang.CommandLine
             }
         }
 
-        private string GetNewPath(FileSystemFinderResult result, List<ReplaceItem> items)
+        private string GetNewPath(FileMatch fileMatch, List<ReplaceItem> items)
         {
             StringBuilder sb = StringBuilderCache.GetInstance();
 
-            string path = result.Path;
-            NamePart part = result.Part;
+            string path = fileMatch.Path;
+            NamePart part = fileMatch.Part;
 
             sb.Append(path, 0, part.Index);
 

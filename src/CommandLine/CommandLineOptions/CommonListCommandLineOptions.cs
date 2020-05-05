@@ -4,7 +4,7 @@ using CommandLine;
 
 namespace Orang.CommandLine
 {
-    internal abstract class CommonListCommandLineOptions
+    internal abstract class CommonListCommandLineOptions : BaseCommandLineOptions
     {
         [Option(shortName: OptionShortNames.Filter, longName: OptionNames.Filter,
             HelpText = "Filter string that should be used to filter results.",

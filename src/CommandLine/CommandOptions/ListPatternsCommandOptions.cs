@@ -6,9 +6,9 @@ using Orang.Syntax;
 
 namespace Orang.CommandLine
 {
-    internal sealed class ListSyntaxCommandOptions : CommonListCommandOptions
+    internal sealed class ListPatternsCommandOptions : CommonListCommandOptions
     {
-        internal ListSyntaxCommandOptions()
+        internal ListPatternsCommandOptions()
         {
         }
 

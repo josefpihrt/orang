@@ -26,7 +26,7 @@ namespace Orang.Documentation
                     _writer.WriteString(" ");
 
                 _writer.WriteString((provider.Values.Length == 1) ? "Allowed value is " : "Allowed values are ");
-                _writer.WriteString(provider.GetHelpText(f => !f.Hidden));
+                _writer.WriteString(OptionValueProviders.GetHelpText(provider, f => !f.Hidden));
                 _writer.WriteString(".");
             }
 

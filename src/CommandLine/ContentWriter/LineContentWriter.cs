@@ -53,15 +53,19 @@ namespace Orang.CommandLine
         {
             int index = capture.Index;
 
+            int prevLineNumber = _lineNumber;
+
             if (Options.IncludeLineNumber)
             {
                 _lineNumber += TextHelpers.CountLines(Input, _solIndex, index - _solIndex);
                 ((LineNumberValueWriter)ValueWriter).LineNumber = _lineNumber;
             }
 
-            bool isSameLine = index < _eolIndex;
+            bool isSameBlock = index < _eolIndex;
 
-            if (isSameLine)
+            int solIndex = FindStartOfLine(index);
+
+            if (isSameBlock)
             {
                 int endIndex = index;
 
@@ -75,8 +79,25 @@ namespace Orang.CommandLine
             }
             else
             {
+                int startIndex = 0;
+
                 if (_lastEndIndex >= 0)
-                    WriteEndOfLine();
+                {
+                    WriteEndLine();
+                    Write(Options.Separator);
+
+                    if (Options.ContextAfter > 0)
+                    {
+                        startIndex = WriteContextAfter(_eolIndex, solIndex, prevLineNumber);
+                    }
+                    else
+                    {
+                        startIndex = _eolIndex;
+                    }
+                }
+
+                if (Options.ContextBefore > 0)
+                    WriteContextBefore(startIndex, solIndex);
 
                 Write(Options.Indent);
 
@@ -96,10 +117,10 @@ namespace Orang.CommandLine
                 MatchingLineCount += TextHelpers.CountLines(Input, index, length);
             }
 
-            _solIndex = FindStartOfLine(index);
+            _solIndex = solIndex;
             _eolIndex = FindEndOfLine(capture);
 
-            if (!isSameLine)
+            if (!isSameBlock)
             {
                 WriteStartLine(_solIndex, index);
 
@@ -124,6 +145,105 @@ namespace Orang.CommandLine
             }
         }
 
+        protected void WriteContextBefore(int startIndex, int endIndex)
+        {
+            if (startIndex == endIndex)
+                return;
+
+            int lastEolIndex = endIndex;
+            int lineCount = 0;
+            int i = endIndex - 2;
+
+            while (true)
+            {
+                if (i > startIndex)
+                {
+                    if (Input[i] == '\n')
+                    {
+                        lineCount++;
+                        lastEolIndex = i + 1;
+
+                        if (lineCount == Options.ContextBefore)
+                            break;
+                    }
+
+                    i--;
+                }
+                else if (i == startIndex)
+                {
+                    if (i == 0)
+                    {
+                        lineCount++;
+                        lastEolIndex = 0;
+                    }
+                    else if (i > 0
+                        && Input[i - 1] == '\n')
+                    {
+                        lineCount++;
+                        lastEolIndex = i;
+                    }
+
+                    break;
+                }
+            }
+
+            i = lastEolIndex;
+
+            while (i < endIndex)
+            {
+                if (Input[i] == '\n')
+                {
+                    Write(Options.Indent);
+
+                    if (Options.IncludeLineNumber)
+                        WriteContextLineNumber(_lineNumber - lineCount);
+
+                    Write(Input, lastEolIndex, i - lastEolIndex + 1, Colors.ContextLine);
+
+                    lastEolIndex = i + 1;
+                    lineCount--;
+                }
+
+                i++;
+            }
+        }
+
+        protected int WriteContextAfter(int startIndex, int endIndex, int lineNumber)
+        {
+            if (endIndex == startIndex)
+                return startIndex;
+
+            int lastEolIndex = startIndex;
+            int lineCount = 0;
+
+            for (int i = lastEolIndex; i < endIndex; i++)
+            {
+                if (Input[i] == '\n')
+                {
+                    Write(Options.Indent);
+
+                    if (Options.IncludeLineNumber)
+                        WriteContextLineNumber(lineNumber + lineCount + 1);
+
+                    Write(Input, lastEolIndex, i - lastEolIndex + 1, Colors.ContextLine);
+
+                    lastEolIndex = i + 1;
+                    lineCount++;
+
+                    if (lineCount == Options.ContextAfter)
+                        break;
+                }
+            }
+
+            return lastEolIndex;
+        }
+
+        private void WriteContextLineNumber(int value)
+        {
+            Write(value.ToString(), Colors.ContextLine);
+            Write(" ");
+        }
+
         protected override void WriteEndMatch(Capture capture)
         {
             _lastEndIndex = capture.Index + capture.Length;
@@ -143,14 +263,17 @@ namespace Orang.CommandLine
 
         protected override void WriteEndMatches()
         {
-            WriteEndOfLine();
+            WriteEndLine();
+
+            if (Options.ContextAfter > 0)
+                WriteContextAfter(_eolIndex, Input.Length, _lineNumber);
         }
 
         public override void Dispose()
         {
         }
 
-        private void WriteEndOfLine()
+        private void WriteEndLine()
         {
             WriteEndLine(_lastEndIndex, _eolIndex);
         }

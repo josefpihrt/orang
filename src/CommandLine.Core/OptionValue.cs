@@ -11,12 +11,18 @@ namespace Orang
     {
         private protected static readonly Regex _lowerLetterUpperLetterRegex = new Regex(@"\p{Ll}\p{Lu}");
 
-        protected OptionValue(string name, string helpValue, string description = null, bool hidden = false)
+        protected OptionValue(
+            string name,
+            string helpValue,
+            string description = null,
+            bool hidden = false,
+            bool canContainExpression = false)
         {
             Name = name;
             HelpValue = helpValue;
             Description = description;
             Hidden = hidden;
+            CanContainExpression = canContainExpression;
         }
 
         public abstract OptionValueKind Kind { get; }
@@ -29,14 +35,23 @@ namespace Orang
 
         public bool Hidden { get; }
 
-        public static string GetDefaultHelpText<TEnum>()
+        public bool CanContainExpression { get; }
+
+        public static string GetDefaultHelpText<TEnum>(bool multiline = false)
         {
             IEnumerable<string> values = Enum.GetValues(typeof(TEnum))
                 .Cast<TEnum>()
                 .Select(f => _lowerLetterUpperLetterRegex.Replace(f.ToString(), e => e.Value.Insert(1, "-")).ToLowerInvariant())
                 .OrderBy(f => f);
 
-            return TextHelpers.Join(", ", " and ", values);
+            if (multiline)
+            {
+                return string.Join(Environment.NewLine + "  ", values);
+            }
+            else
+            {
+                return TextHelpers.Join(", ", " and ", values);
+            }
         }
     }
 }

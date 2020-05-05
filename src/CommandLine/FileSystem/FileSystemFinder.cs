@@ -5,19 +5,25 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Security;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using Orang.CommandLine;
 using static Orang.FileSystem.FileSystemHelpers;
 
 namespace Orang.FileSystem
 {
     public static class FileSystemFinder
     {
-        public static IEnumerable<FileSystemFinderResult> Find(
+        public static IEnumerable<FileMatch> Find(
             string directoryPath,
             Filter nameFilter = null,
+            NamePartKind namePart = NamePartKind.Name,
             Filter extensionFilter = null,
             Filter directoryFilter = null,
+            NamePartKind directoryNamePart = NamePartKind.Name,
+            Filter contentFilter = null,
+            FilePropertyFilter propertyFilter = null,
             FileSystemFinderOptions options = null,
             IProgress<FileSystemFinderProgress> progress = null,
             INotifyDirectoryChanged notifyDirectoryChanged = null,
@@ -36,9 +42,6 @@ namespace Orang.FileSystem
                 ReturnSpecialDirectories = options.ReturnSpecialDirectories
             };
 
-            NamePartKind namePart = nameFilter?.NamePart ?? NamePartKind.Name;
-            NamePartKind directoryNamePart = directoryFilter?.NamePart ?? NamePartKind.Name;
-
             var directories = new Queue<Directory>();
             Queue<Directory> subdirectories = (options.RecurseSubdirectories) ? new Queue<Directory>() : null;
 
@@ -50,14 +53,14 @@ namespace Orang.FileSystem
             }
 
             bool? isMatch = (directoryFilter?.IsNegative == false)
-                ? directoryFilter.IsMatch(NamePart.FromDirectory(directoryPath, directoryNamePart))
+                ? IsMatch(directoryFilter, NamePart.FromDirectory(directoryPath, directoryNamePart))
                 : default(bool?);
 
             var directory = new Directory(directoryPath, isMatch);
 
             while (true)
             {
-                progress?.Report(new FileSystemFinderProgress(directory.Path, ProgressKind.SearchedDirectory));
+                progress?.Report(directory.Path, ProgressKind.SearchedDirectory);
 
                 if (options.SearchTarget != SearchTarget.Directories
                     && directory.IsMatch != false)
@@ -72,7 +75,8 @@ namespace Orang.FileSystem
                     }
                     catch (Exception ex) when (IsWellKnownException(ex))
                     {
-                        progress?.Report(new FileSystemFinderProgress(directory.Path, ProgressKind.SearchedDirectory, ex));
+                        Debug.Fail(ex.ToString());
+                        progress?.Report(directory.Path, ProgressKind.SearchedDirectory, ex);
                     }
 
                     if (fi != null)
@@ -81,10 +85,12 @@ namespace Orang.FileSystem
                         {
                             while (fi.MoveNext())
                             {
-                                FileSystemFinderResult result = MatchFile(fi.Current, nameFilter, extensionFilter, options, progress, namePart);
+                                (FileMatch match, Exception ex) = MatchFile(fi.Current, namePart, nameFilter, extensionFilter, contentFilter, propertyFilter, options);
 
-                                if (result != null)
-                                    yield return result;
+                                progress?.Report(fi.Current, ProgressKind.File, ex);
+
+                                if (match != null)
+                                    yield return match;
 
                                 cancellationToken.ThrowIfCancellationRequested();
                             }
@@ -102,7 +108,8 @@ namespace Orang.FileSystem
                 }
                 catch (Exception ex) when (IsWellKnownException(ex))
                 {
-                    progress?.Report(new FileSystemFinderProgress(directory.Path, ProgressKind.SearchedDirectory, ex));
+                    Debug.Fail(ex.ToString());
+                    progress?.Report(directory.Path, ProgressKind.SearchedDirectory, ex);
                 }
 
                 if (di != null)
@@ -113,29 +120,39 @@ namespace Orang.FileSystem
                         {
                             currentDirectory = di.Current;
 
-                            isMatch = (directory.IsMatch == true) ? true : default(bool?);
+                            isMatch = (directoryFilter?.IsNegative == false && directory.IsMatch == true)
+                                ? true
+                                : default(bool?);
 
                             if (directory.IsMatch != false
                                 && options.SearchTarget != SearchTarget.Files
                                 && namePart != NamePartKind.Extension)
                             {
-                                if (isMatch == null)
-                                    isMatch = directoryFilter?.IsMatch(NamePart.FromDirectory(currentDirectory, directoryNamePart));
+                                if (isMatch == null
+                                    && directoryFilter != null)
+                                {
+                                    isMatch = IsMatch(directoryFilter, NamePart.FromDirectory(currentDirectory, directoryNamePart));
+                                }
 
                                 if (isMatch != false)
                                 {
-                                    FileSystemFinderResult result = MatchDirectory(currentDirectory, nameFilter, options, progress);
+                                    (FileMatch match, Exception ex) = MatchDirectory(currentDirectory, namePart, nameFilter, propertyFilter, options);
 
-                                    if (result != null)
-                                        yield return result;
+                                    progress?.Report(currentDirectory, ProgressKind.Directory, ex);
+
+                                    if (match != null)
+                                        yield return match;
                                 }
                             }
 
                             if (currentDirectory != null
                                 && options.RecurseSubdirectories)
                             {
-                                if (isMatch == null)
-                                    isMatch = directoryFilter?.IsMatch(NamePart.FromDirectory(currentDirectory, directoryNamePart));
+                                if (isMatch == null
+                                    && directoryFilter != null)
+                                {
+                                    isMatch = IsMatch(directoryFilter, NamePart.FromDirectory(currentDirectory, directoryNamePart));
+                                }
 
                                 if (isMatch != false
                                     || !directoryFilter!.IsNegative)
@@ -166,40 +183,44 @@ namespace Orang.FileSystem
             }
         }
 
-        public static FileSystemFinderResult MatchFile(
+        internal static FileMatch MatchFile(
             string path,
+            NamePartKind namePartKind = NamePartKind.Name,
             Filter nameFilter = null,
             Filter extensionFilter = null,
+            Filter contentFilter = null,
+            FilePropertyFilter propertyFilter = null,
             FileSystemFinderOptions options = null,
             IProgress<FileSystemFinderProgress> progress = null)
         {
-            return MatchFile(
+            (FileMatch match, Exception ex) = MatchFile(
                 path: path,
+                namePartKind: namePartKind,
                 nameFilter: nameFilter,
                 extensionFilter: extensionFilter,
-                options: options ?? FileSystemFinderOptions.Default,
-                progress: progress,
-                namePartKind: nameFilter?.NamePart ?? NamePartKind.Name);
+                contentFilter: contentFilter,
+                propertyFilter: propertyFilter,
+                options: options ?? FileSystemFinderOptions.Default);
+
+            progress?.Report(path, ProgressKind.File, ex);
+
+            return match;
         }
 
-        internal static FileSystemFinderResult MatchFile(
+        private static (FileMatch match, Exception ex) MatchFile(
             string path,
+            NamePartKind namePartKind,
             Filter nameFilter,
             Filter extensionFilter,
-            FileSystemFinderOptions options,
-            IProgress<FileSystemFinderProgress> progress,
-            NamePartKind namePartKind)
+            Filter contentFilter,
+            FilePropertyFilter propertyFilter,
+            FileSystemFinderOptions options)
         {
-            if (options.Attributes != 0
-                && (File.GetAttributes(path) & options.Attributes) != options.Attributes)
+            if (extensionFilter != null
+                && !IsMatch(extensionFilter, NamePart.FromFile(path, NamePartKind.Extension)))
             {
-                return null;
+                return (null, null);
             }
-
-            progress?.Report(new FileSystemFinderProgress(path, ProgressKind.File));
-
-            if (extensionFilter?.IsMatch(NamePart.FromFile(path, extensionFilter.NamePart)) == false)
-                return null;
 
             NamePart namePart = NamePart.FromFile(path, namePartKind);
             Match match = null;
@@ -211,93 +232,208 @@ namespace Orang.FileSystem
                     : nameFilter.Regex.Match(path, namePart.Index, namePart.Length);
 
                 if (!nameFilter.IsMatch(match))
-                    return null;
+                    return (null, null);
             }
 
-            if (options.Empty != null)
+            FileInfo fileInfo = null;
+            bool isEmpty = false;
+            bool? empty = options.Empty;
+
+            if (options.Attributes != 0
+                || empty != null
+                || propertyFilter != null)
             {
                 try
                 {
-                    if ((options.Empty.Value)
-                        ? !IsEmptyFile(path)
-                        : IsEmptyFile(path))
+                    fileInfo = new FileInfo(path);
+
+                    if (options.Attributes != 0
+                        && (fileInfo.Attributes & options.Attributes) != options.Attributes)
                     {
-                        return null;
+                        return (null, null);
+                    }
+
+                    if (propertyFilter != null)
+                    {
+                        if (propertyFilter.SizePredicate?.Invoke(fileInfo.Length) == false)
+                            return (null, null);
+
+                        if (propertyFilter.CreationTimePredicate?.Invoke(fileInfo.CreationTime) == false)
+                            return (null, null);
+
+                        if (propertyFilter.ModifiedTimePredicate?.Invoke(fileInfo.LastWriteTime) == false)
+                            return (null, null);
+                    }
+
+                    if (empty != null)
+                    {
+                        if (fileInfo.Length == 0)
+                        {
+                            if (!empty.Value)
+                                return (null, null);
+
+                            isEmpty = true;
+                        }
+                        else if (fileInfo.Length > 4)
+                        {
+                            if (empty.Value)
+                                return (null, null);
+
+                            empty = null;
+                        }
                     }
                 }
                 catch (Exception ex) when (ex is IOException
                     || ex is UnauthorizedAccessException)
                 {
-                    progress?.Report(new FileSystemFinderProgress(path, ProgressKind.File, ex));
-                    return null;
+                    return (null, ex);
                 }
             }
 
-            return new FileSystemFinderResult(namePart, match);
-        }
-
-        public static FileSystemFinderResult MatchDirectory(
-            string path,
-            Filter nameFilter = null,
-            FileSystemFinderOptions options = null,
-            IProgress<FileSystemFinderProgress> progress = null)
-        {
-            return MatchDirectory(
-                path: path,
-                nameFilter: nameFilter,
-                options: options ?? FileSystemFinderOptions.Default,
-                progress: progress,
-                namePartKind: nameFilter?.NamePart ?? NamePartKind.Name);
-        }
-
-        internal static FileSystemFinderResult MatchDirectory(
-            string path,
-            Filter nameFilter,
-            FileSystemFinderOptions options,
-            IProgress<FileSystemFinderProgress> progress,
-            NamePartKind namePartKind)
-        {
-            if (options.Attributes != 0
-                && (File.GetAttributes(path) & options.Attributes) != options.Attributes)
+            if (contentFilter != null
+                || empty != null)
             {
-                return null;
+                FileContent fileContent = default;
+
+                if (isEmpty)
+                {
+                    fileContent = new FileContent("", null, options.Encoding);
+                }
+                else
+                {
+                    try
+                    {
+                        using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
+                        {
+                            Encoding encoding = options.Encoding;
+                            Encoding bomEncoding = null;
+
+                            if (options.SaveBomEncoding
+                                || empty != null)
+                            {
+                                bomEncoding = EncodingHelpers.DetectEncoding(stream);
+
+                                if (empty != null)
+                                {
+                                    if (bomEncoding?.Preamble.Length == stream.Length)
+                                    {
+                                        if (!empty.Value)
+                                            return (null, null);
+                                    }
+                                    else if (empty.Value)
+                                    {
+                                        return (null, null);
+                                    }
+                                }
+
+                                if (bomEncoding != null)
+                                    encoding = bomEncoding;
+                            }
+
+                            if (contentFilter != null)
+                            {
+                                if (options.SaveBomEncoding
+                                    || empty != null)
+                                {
+                                    stream.Position = 0;
+                                }
+
+                                using (var reader = new StreamReader(stream, encoding, detectEncodingFromByteOrderMarks: bomEncoding == null))
+                                {
+                                    string content = reader.ReadToEnd();
+
+                                    fileContent = new FileContent(content, bomEncoding, reader.CurrentEncoding);
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception ex) when (ex is IOException
+                        || ex is UnauthorizedAccessException)
+                    {
+                        return (null, ex);
+                    }
+                }
+
+                if (contentFilter != null)
+                {
+                    Match contentMatch = contentFilter.Match(fileContent.Text);
+
+                    if (contentMatch == null)
+                        return (null, null);
+
+                    return (new FileMatch(namePart, match, fileContent, contentMatch, fileInfo), null);
+                }
             }
 
-            progress?.Report(new FileSystemFinderProgress(path, ProgressKind.Directory));
+            return (new FileMatch(namePart, match, fileInfo), null);
+        }
 
-            NamePart namePart = NamePart.FromDirectory(path, namePartKind);
+        private static (FileMatch match, Exception ex) MatchDirectory(
+            string path,
+            NamePartKind namePartKind = NamePartKind.Name,
+            Filter nameFilter = null,
+            FilePropertyFilter propertyFilter = null,
+            FileSystemFinderOptions options = null)
+        {
+            NamePart directoryNamePart = NamePart.FromDirectory(path, namePartKind);
             Match match = null;
 
             if (nameFilter != null)
             {
                 match = (options.PartOnly)
-                    ? nameFilter.Regex.Match(namePart.ToString())
-                    : nameFilter.Regex.Match(path, namePart.Index, namePart.Length);
+                    ? nameFilter.Regex.Match(directoryNamePart.ToString())
+                    : nameFilter.Regex.Match(path, directoryNamePart.Index, directoryNamePart.Length);
 
                 if (!nameFilter.IsMatch(match))
-                    return null;
+                    return (null, null);
             }
 
-            if (options.Empty != null)
+            DirectoryInfo directoryInfo = null;
+
+            if (options.Attributes != 0
+                || options.Empty != null
+                || propertyFilter != null)
             {
                 try
                 {
-                    if ((options.Empty.Value)
-                        ? !IsEmptyDirectory(path)
-                        : IsEmptyDirectory(path))
+                    directoryInfo = new DirectoryInfo(path);
+
+                    if (options.Attributes != 0
+                        && (directoryInfo.Attributes & options.Attributes) != options.Attributes)
                     {
-                        return null;
+                        return (null, null);
+                    }
+
+                    if (propertyFilter != null)
+                    {
+                        if (propertyFilter.CreationTimePredicate?.Invoke(directoryInfo.CreationTime) == false)
+                            return (null, null);
+
+                        if (propertyFilter.ModifiedTimePredicate?.Invoke(directoryInfo.LastWriteTime) == false)
+                            return (null, null);
+                    }
+
+                    if (options.Empty != null
+                        && ((options.Empty.Value)
+                            ? !IsEmptyDirectory(path)
+                            : IsEmptyDirectory(path)))
+                    {
+                        return (null, null);
                     }
                 }
                 catch (Exception ex) when (ex is IOException
                     || ex is UnauthorizedAccessException)
                 {
-                    progress?.Report(new FileSystemFinderProgress(path, ProgressKind.Directory, ex));
-                    return null;
+                    return (null, ex);
                 }
             }
 
-            return new FileSystemFinderResult(namePart, match, isDirectory: true);
+            return (new FileMatch(directoryNamePart, match, directoryInfo, isDirectory: true), null);
+        }
+
+        private static bool IsMatch(Filter filter, in NamePart part)
+        {
+            return filter.IsMatch(filter.Regex.Match(part.Path, part.Index, part.Length));
         }
 
         private static bool IsWellKnownException(Exception ex)

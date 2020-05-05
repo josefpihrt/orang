@@ -14,6 +14,7 @@ namespace Orang.CommandLine
             ContentDisplayStyle contentDisplayStyle,
             PathDisplayStyle pathDisplayStyle = PathDisplayStyle.Full,
             LineDisplayOptions lineOptions = LineDisplayOptions.None,
+            LineContext lineContext = default,
             DisplayParts displayParts = DisplayParts.None,
             IEnumerable<FileProperty> fileProperties = null,
             string indent = null,
@@ -23,10 +24,11 @@ namespace Orang.CommandLine
             ContentDisplayStyle = contentDisplayStyle;
             PathDisplayStyle = pathDisplayStyle;
             LineOptions = lineOptions;
+            LineContext = lineContext;
             DisplayParts = displayParts;
             FileProperties = fileProperties?.ToImmutableArray() ?? ImmutableArray<FileProperty>.Empty;
             Indent = indent ?? DefaultIndent;
-            Separator = separator ?? Environment.NewLine;
+            Separator = separator;
             IncludeBaseDirectory = includeBaseDirectory;
         }
 
@@ -35,6 +37,8 @@ namespace Orang.CommandLine
         public PathDisplayStyle PathDisplayStyle { get; }
 
         public LineDisplayOptions LineOptions { get; }
+
+        public LineContext LineContext { get; }
 
         public DisplayParts DisplayParts { get; }
 

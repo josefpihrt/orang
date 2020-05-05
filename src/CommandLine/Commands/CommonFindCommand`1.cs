@@ -5,16 +5,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using Orang.FileSystem;
-using static Orang.Logger;
 using static Orang.CommandLine.LogHelpers;
+using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
     internal abstract class CommonFindCommand<TOptions> : FileSystemCommand<TOptions> where TOptions : CommonFindCommandOptions
     {
-        private AskMode _askMode;
         private OutputSymbols _symbols;
         private ContentWriterOptions _fileWriterOptions;
         private ContentWriterOptions _directoryWriterOptions;
@@ -26,6 +24,8 @@ namespace Orang.CommandLine
         public Filter ContentFilter => Options.ContentFilter;
 
         private OutputSymbols Symbols => _symbols ?? (_symbols = OutputSymbols.Create(Options.HighlightOptions));
+
+        protected AskMode AskMode { get; set; }
 
         public override bool CanEndProgress
         {
@@ -98,41 +98,39 @@ namespace Orang.CommandLine
             context.Telemetry.MatchingLineCount = -1;
 
             if (ConsoleOut.Verbosity >= Verbosity.Minimal)
-                _askMode = Options.AskMode;
+                AskMode = Options.AskMode;
 
             base.ExecuteCore(context);
         }
 
         protected override void ExecuteFile(string filePath, SearchContext context)
         {
-            context.Telemetry.FileCount++;
+            FileMatch fileMatch = MatchFile(filePath, context.Progress);
 
-            FileSystemFinderResult result = MatchFile(filePath, context.Progress);
-
-            if (result != null)
+            if (fileMatch != null)
             {
                 if (ContentFilter != null)
                 {
-                    ProcessResult(result, context, FileWriterOptions);
+                    ProcessMatch(fileMatch, context, FileWriterOptions);
                 }
                 else
                 {
-                    ExecuteOrAddResult(result, context, null);
+                    ExecuteOrAddMatch(fileMatch, context, null);
                 }
             }
         }
 
         protected override void ExecuteDirectory(string directoryPath, SearchContext context)
         {
-            foreach (FileSystemFinderResult result in Find(directoryPath, context))
+            foreach (FileMatch fileMatch in Find(directoryPath, context))
             {
                 if (ContentFilter != null)
                 {
-                    ProcessResult(result, context, DirectoryWriterOptions, directoryPath);
+                    ProcessMatch(fileMatch, context, DirectoryWriterOptions, directoryPath);
                 }
                 else
                 {
-                    ExecuteOrAddResult(result, context, directoryPath);
+                    ExecuteOrAddMatch(fileMatch, context, directoryPath);
                 }
 
                 if (context.TerminationReason == TerminationReason.Canceled)
@@ -143,42 +141,36 @@ namespace Orang.CommandLine
             }
         }
 
-        private void ProcessResult(
-            FileSystemFinderResult result,
+        private void ProcessMatch(
+            FileMatch fileMatch,
             SearchContext context,
             ContentWriterOptions writerOptions,
             string baseDirectoryPath = null)
         {
-            string input = ReadFile(result.Path, baseDirectoryPath, Options.DefaultEncoding, context);
-
-            if (input == null)
-                return;
-
-            Match match = ContentFilter.Match(input, context.CancellationToken);
-
-            if (match == null)
-                return;
-
-            ExecuteOrAddResult(result, context, writerOptions, match, input, default(Encoding), baseDirectoryPath);
+            ExecuteOrAddMatch(fileMatch, context, writerOptions, baseDirectoryPath);
         }
 
-        protected void ExecuteOrAddResult(
-            FileSystemFinderResult result,
+        protected void ExecuteOrAddMatch(
+            FileMatch fileMatch,
             SearchContext context,
             ContentWriterOptions writerOptions,
-            Match match,
-            string input,
-            Encoding encoding,
             string baseDirectoryPath = null)
         {
-            context.Telemetry.MatchingFileCount++;
+            if (fileMatch.IsDirectory)
+            {
+                context.Telemetry.MatchingDirectoryCount++;
+            }
+            else
+            {
+                context.Telemetry.MatchingFileCount++;
+            }
 
-            if (Options.MaxMatchingFiles == context.Telemetry.MatchingFileCount)
+            if (Options.MaxMatchingFiles == context.Telemetry.MatchingFileDirectoryCount)
                 context.TerminationReason = TerminationReason.MaxReached;
 
             if (context.Results != null)
             {
-                var searchResult = new ContentSearchResult(result, baseDirectoryPath, match, input, encoding, writerOptions);
+                var searchResult = new SearchResult(fileMatch, baseDirectoryPath, writerOptions);
 
                 context.Results.Add(searchResult);
             }
@@ -186,17 +178,14 @@ namespace Orang.CommandLine
             {
                 EndProgress(context);
 
-                ExecuteResult(result, context, writerOptions, match, input, encoding, baseDirectoryPath);
+                ExecuteMatch(fileMatch, context, writerOptions, baseDirectoryPath);
             }
         }
 
-        protected abstract void ExecuteResult(
-            FileSystemFinderResult result,
+        protected abstract void ExecuteMatch(
+            FileMatch fileMatch,
             SearchContext context,
             ContentWriterOptions writerOptions,
-            Match match,
-            string input,
-            Encoding encoding,
             string baseDirectoryPath = null,
             ColumnWidths columnWidths = null);
 
@@ -204,27 +193,22 @@ namespace Orang.CommandLine
         {
             if (ContentFilter != null)
             {
-                ExecuteResult((ContentSearchResult)result, context, columnWidths);
+                ExecuteMatch(result.FileMatch, context, result.WriterOptions, result.BaseDirectoryPath, columnWidths);
             }
             else
             {
-                ExecuteResult(result.Result, context, result.BaseDirectoryPath, columnWidths);
+                ExecuteMatch(result.FileMatch, context, result.BaseDirectoryPath, columnWidths);
             }
-        }
-
-        private void ExecuteResult(ContentSearchResult result, SearchContext context, ColumnWidths columnWidths)
-        {
-            ExecuteResult(result.Result, context, result.WriterOptions, result.Match, result.Input, result.Encoding, result.BaseDirectoryPath, columnWidths);
         }
 
         protected void AskToContinue(SearchContext context, string indent)
         {
-            if (_askMode == AskMode.File)
+            if (AskMode == AskMode.File)
             {
                 try
                 {
                     if (ConsoleHelpers.AskToContinue(indent))
-                        _askMode = AskMode.None;
+                        AskMode = AskMode.None;
                 }
                 catch (OperationCanceledException)
                 {
@@ -254,49 +238,35 @@ namespace Orang.CommandLine
             List<Capture> captures)
         {
             int maxMatchesInFile = Options.MaxMatchesInFile;
-            int maxMatches = Options.MaxMatches;
+            int maxTotalMatches = Options.MaxTotalMatches;
 
             int count = 0;
 
             if (maxMatchesInFile > 0)
             {
-                if (maxMatches > 0)
+                if (maxTotalMatches > 0)
                 {
-                    maxMatches -= context.Telemetry.MatchCount;
-                    count = Math.Min(maxMatchesInFile, maxMatches);
+                    maxTotalMatches -= context.Telemetry.MatchCount;
+                    count = Math.Min(maxMatchesInFile, maxTotalMatches);
                 }
                 else
                 {
                     count = maxMatchesInFile;
                 }
             }
-            else if (maxMatches > 0)
+            else if (maxTotalMatches > 0)
             {
-                maxMatches -= context.Telemetry.MatchCount;
-                count = maxMatches;
+                maxTotalMatches -= context.Telemetry.MatchCount;
+                count = maxTotalMatches;
             }
 
             Debug.Assert(count >= 0, count.ToString());
 
-            MaxReason maxReason;
-            if (groupNumber < 1)
-            {
-                maxReason = GetMatches(captures, match, count, predicate, context.CancellationToken);
-            }
-            else
-            {
-                maxReason = GetCaptures(captures, match, groupNumber, count, predicate, context.CancellationToken);
-            }
-
-            if (captures.Count > 1
-                && captures[0].Index > captures[1].Index)
-            {
-                captures.Reverse();
-            }
+            MaxReason maxReason = CaptureFactory.GetCaptures(ref captures, match, groupNumber, count, predicate, context.CancellationToken);
 
             if ((maxReason == MaxReason.CountEqualsMax || maxReason == MaxReason.CountExceedsMax)
-                && maxMatches > 0
-                && (maxMatchesInFile == 0 || maxMatches <= maxMatchesInFile))
+                && maxTotalMatches > 0
+                && (maxMatchesInFile == 0 || maxTotalMatches <= maxMatchesInFile))
             {
                 context.TerminationReason = TerminationReason.MaxReached;
             }
@@ -338,125 +308,15 @@ namespace Orang.CommandLine
             return maxReason;
         }
 
-        private MaxReason GetMatches(
-            List<Capture> matches,
-            Match match,
-            int count,
-            Func<Group, bool> predicate,
-            CancellationToken cancellationToken)
-        {
-            do
-            {
-                matches.Add(match);
-
-                if (predicate != null)
-                {
-                    Match m = match.NextMatch();
-
-                    match = Match.Empty;
-
-                    while (m.Success)
-                    {
-                        if (predicate(m))
-                        {
-                            match = m;
-                            break;
-                        }
-
-                        m = m.NextMatch();
-                    }
-                }
-                else
-                {
-                    match = match.NextMatch();
-                }
-
-                if (matches.Count == count)
-                {
-                    return (match.Success)
-                        ? MaxReason.CountExceedsMax
-                        : MaxReason.CountEqualsMax;
-                }
-
-                cancellationToken.ThrowIfCancellationRequested();
-
-            } while (match.Success);
-
-            return MaxReason.None;
-        }
-
-        private MaxReason GetCaptures(
-            List<Capture> captures,
-            Match match,
-            int groupNumber,
-            int count,
-            Func<Capture, bool> predicate,
-            CancellationToken cancellationToken)
-        {
-            Group group = match.Groups[groupNumber];
-
-            do
-            {
-                Capture prevCapture = null;
-
-                foreach (Capture capture in group.Captures)
-                {
-                    if (prevCapture != null
-                        && prevCapture.EndIndex() <= capture.EndIndex()
-                        && prevCapture.Index >= capture.Index)
-                    {
-                        captures[captures.Count - 1] = capture;
-                    }
-                    else
-                    {
-                        captures.Add(capture);
-                    }
-
-                    if (captures.Count == count)
-                        return (group.Success) ? MaxReason.CountExceedsMax : MaxReason.CountEqualsMax;
-
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    prevCapture = capture;
-                }
-
-                group = NextGroup();
-
-            } while (group.Success);
-
-            return MaxReason.None;
-
-            Group NextGroup()
-            {
-                while (true)
-                {
-                    match = match.NextMatch();
-
-                    if (!match.Success)
-                        break;
-
-                    Group g = match.Groups[groupNumber];
-
-                    if (g.Success
-                        && predicate?.Invoke(g) != false)
-                    {
-                        return g;
-                    }
-                }
-
-                return Match.Empty;
-            }
-        }
-
-        protected override void WritePath(SearchContext context, FileSystemFinderResult result, string baseDirectoryPath, string indent, ColumnWidths columnWidths)
+        protected override void WritePath(SearchContext context, FileMatch fileMatch, string baseDirectoryPath, string indent, ColumnWidths columnWidths)
         {
             if (ContentFilter != null)
             {
-                WritePath(context, result, baseDirectoryPath, indent, columnWidths, Colors.Match_Path);
+                WritePath(context, fileMatch, baseDirectoryPath, indent, columnWidths, Colors.Match_Path);
             }
             else
             {
-                base.WritePath(context, result, baseDirectoryPath, indent, columnWidths);
+                base.WritePath(context, fileMatch, baseDirectoryPath, indent, columnWidths);
             }
         }
 

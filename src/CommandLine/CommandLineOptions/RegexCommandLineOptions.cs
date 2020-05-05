@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
+using System.Linq;
 using CommandLine;
 using static Orang.CommandLine.ParseHelpers;
 using static Orang.Logger;
@@ -19,9 +20,9 @@ namespace Orang.CommandLine
         public string Path { get; set; }
 
         [Option(shortName: OptionShortNames.Input, longName: OptionNames.Input,
-            HelpText = "Text to search.",
+            HelpText = "The input string to be searched. Syntax is <INPUT> [<INPUT_OPTIONS>].",
             MetaValue = MetaValues.Input)]
-        public string Input { get; set; }
+        public IEnumerable<string> Input { get; set; }
 
         [Option(longName: OptionNames.Modify,
             HelpText = "Functions to modify results.",
@@ -37,7 +38,7 @@ namespace Orang.CommandLine
 
             options = (RegexCommandOptions)baseOptions;
 
-            string input = Input;
+            string input = Input.FirstOrDefault();
 
             if (!string.IsNullOrEmpty(Path))
             {
@@ -69,6 +70,10 @@ namespace Orang.CommandLine
                     return false;
                 }
             }
+            else if (!TryParseInput(Input, out input))
+            {
+                return false;
+            }
 
             if (!TryParseDisplay(
                 values: Display,
@@ -76,11 +81,12 @@ namespace Orang.CommandLine
                 contentDisplayStyle: out ContentDisplayStyle? contentDisplayStyle,
                 pathDisplayStyle: out PathDisplayStyle? _,
                 lineDisplayOptions: out LineDisplayOptions lineDisplayOptions,
+                lineContext: out LineContext _,
                 displayParts: out DisplayParts displayParts,
                 fileProperties: out ImmutableArray<FileProperty> fileProperties,
                 indent: out string indent,
                 separator: out string separator,
-                contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider_WithoutLineAndUnmatchedLinesAndOmit,
+                contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider_WithoutLineAndUnmatchedLines,
                 pathDisplayStyleProvider: OptionValueProviders.PathDisplayStyleProvider))
             {
                 return false;

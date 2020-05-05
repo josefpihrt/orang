@@ -7,8 +7,8 @@ namespace Orang
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class SimpleOptionValue : OptionValue
     {
-        public SimpleOptionValue(string name, string value, string shortValue, string helpValue, string description = null, bool hidden = false)
-            : base(name, helpValue, description, hidden)
+        public SimpleOptionValue(string name, string value, string shortValue, string helpValue, string description = null, bool hidden = false, bool canContainExpression = false)
+            : base(name, helpValue, description, hidden, canContainExpression)
         {
             Value = value;
             ShortValue = shortValue;
@@ -51,7 +51,8 @@ namespace Orang
             string shortValue = null,
             string helpValue = null,
             string description = null,
-            bool hidden = false)
+            bool hidden = false,
+            bool canContainExpression = false)
         {
             value ??= _lowerLetterUpperLetterRegex.Replace(name, e => e.Value.Insert(1, "-")).ToLowerInvariant();
             shortValue ??= value.Substring(0, 1);
@@ -75,7 +76,7 @@ namespace Orang
                 }
             }
 
-            return new SimpleOptionValue(name, value, shortValue, helpValue, description, hidden);
+            return new SimpleOptionValue(name, value, shortValue, helpValue, description, hidden: hidden, canContainExpression: canContainExpression);
         }
     }
 }

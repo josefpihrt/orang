@@ -4,15 +4,25 @@ Search, replace, rename and delete files and its content using the power of \.NE
 
 ## Commands
 
+* [copy](copy-command.md)
 * [delete](delete-command.md)
 * [escape](escape-command.md)
 * [find](find-command.md)
 * [help](help-command.md)
 * [list-syntax](list-syntax-command.md)
 * [match](match-command.md)
+* [move](move-command.md)
 * [rename](rename-command.md)
 * [replace](replace-command.md)
 * [split](split-command.md)
+
+## Exit Code
+
+Code | Comment
+--- | ---
+0 | Match found
+1 | No match found
+2 | Error occured or execution canceled
 
 ## Links
 

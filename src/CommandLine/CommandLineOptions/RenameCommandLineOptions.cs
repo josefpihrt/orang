@@ -68,16 +68,16 @@ namespace Orang.CommandLine
             if (!TryParseAsEnumFlags(Highlight, OptionNames.Highlight, out HighlightOptions highlightOptions, defaultValue: HighlightOptions.Replacement, provider: OptionValueProviders.RenameHighlightOptionsProvider))
                 return false;
 
-            if (!FilterParser.TryParse(Name, OptionNames.Name, OptionValueProviders.PatternOptionsWithoutGroupAndNegativeProvider, out Filter nameFilter))
+            if (!FilterParser.TryParse(Name, OptionNames.Name, OptionValueProviders.PatternOptionsWithoutGroupAndNegativeProvider, out Filter nameFilter, out NamePartKind namePart))
                 return false;
 
-            if (nameFilter.NamePart == NamePartKind.FullName)
+            if (namePart == NamePartKind.FullName)
             {
                 WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Options)}' has invalid value '{OptionValueProviders.NamePartKindProvider.GetValue(nameof(NamePartKind.FullName)).HelpValue}'.");
                 return false;
             }
 
-            if (!FilterParser.TryParse(Content, OptionNames.Content, OptionValueProviders.PatternOptionsProvider, out Filter contentFilter, allowNull: true))
+            if (!FilterParser.TryParse(Content, OptionNames.Content, OptionValueProviders.PatternOptionsWithoutPartProvider, out Filter contentFilter, allowNull: true))
                 return false;
 
             if (!TryParseReplacement(Replacement, out string replacement))
@@ -101,6 +101,7 @@ namespace Orang.CommandLine
                 contentDisplayStyle: out ContentDisplayStyle? _,
                 pathDisplayStyle: out PathDisplayStyle? pathDisplayStyle,
                 lineDisplayOptions: out LineDisplayOptions lineDisplayOptions,
+                lineContext: out LineContext lineContext,
                 displayParts: out DisplayParts displayParts,
                 fileProperties: out ImmutableArray<FileProperty> fileProperties,
                 indent: out string indent,
@@ -122,6 +123,7 @@ namespace Orang.CommandLine
                 contentDisplayStyle: ContentDisplayStyle.None,
                 pathDisplayStyle: pathDisplayStyle ?? PathDisplayStyle.Full,
                 lineOptions: lineDisplayOptions,
+                lineContext: lineContext,
                 displayParts: displayParts,
                 fileProperties: fileProperties,
                 indent: indent,
@@ -133,6 +135,7 @@ namespace Orang.CommandLine
             options.Ask = Ask;
             options.DryRun = DryRun;
             options.NameFilter = nameFilter;
+            options.NamePart = namePart;
             options.ContentFilter = contentFilter;
             options.MaxMatchingFiles = MaxCount;
 

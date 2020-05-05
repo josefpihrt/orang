@@ -94,7 +94,7 @@ namespace Orang.CommandLine
             if (!TryParseSortOptions(Sort, OptionNames.Sort, out SortOptions sortOptions))
                 return false;
 
-            if (!FilterParser.TryParse(IncludeDirectory, OptionNames.IncludeDirectory, OptionValueProviders.PatternOptionsProvider, out Filter directoryFilter, allowNull: true))
+            if (!FilterParser.TryParse(IncludeDirectory, OptionNames.IncludeDirectory, OptionValueProviders.PatternOptionsProvider, out Filter directoryFilter, out NamePartKind directoryNamePart, allowNull: true))
                 return false;
 
             if (!FilterParser.TryParse(
@@ -134,6 +134,7 @@ namespace Orang.CommandLine
 
             options.Paths = paths;
             options.DirectoryFilter = directoryFilter;
+            options.DirectoryNamePart = directoryNamePart;
             options.ExtensionFilter = extensionFilter;
             options.Attributes = GetFileAttributes(attributes);
             options.AttributesToSkip = GetFileAttributes(attributesToSkip);

@@ -94,7 +94,7 @@ namespace Orang.CommandLine
             if (!TryParseReplaceOptions(Modify, OptionNames.Modify, replacement, matchEvaluator, out ReplaceOptions replaceOptions))
                 return false;
 
-            if (!TryParseMaxCount(MaxCount, out int maxMatchesInFile, out int maxMatches, out int maxMatchingFiles))
+            if (!TryParseMaxCount(MaxCount, out int maxMatchingFiles, out int maxMatchesInFile))
                 return false;
 
             ContentDisplayStyle contentDisplayStyle;
@@ -106,6 +106,7 @@ namespace Orang.CommandLine
                 contentDisplayStyle: out ContentDisplayStyle? contentDisplayStyle2,
                 pathDisplayStyle: out PathDisplayStyle? pathDisplayStyle2,
                 lineDisplayOptions: out LineDisplayOptions lineDisplayOptions,
+                lineContext: out LineContext lineContext,
                 displayParts: out DisplayParts displayParts,
                 fileProperties: out ImmutableArray<FileProperty> fileProperties,
                 indent: out string indent,
@@ -149,6 +150,7 @@ namespace Orang.CommandLine
                 contentDisplayStyle: contentDisplayStyle,
                 pathDisplayStyle: pathDisplayStyle,
                 lineOptions: lineDisplayOptions,
+                lineContext: lineContext,
                 displayParts: displayParts,
                 fileProperties: fileProperties,
                 indent: indent,
@@ -160,8 +162,8 @@ namespace Orang.CommandLine
             options.Input = Input;
             options.DryRun = DryRun;
             options.MaxMatchesInFile = maxMatchesInFile;
-            options.MaxMatches = maxMatches;
             options.MaxMatchingFiles = maxMatchingFiles;
+            options.MaxTotalMatches = 0;
 
             return true;
         }

@@ -14,32 +14,18 @@ namespace Orang.CommandLine
         {
         }
 
-        protected override void ProcessResult(
-            FileSystemFinderResult result,
+        protected override void ProcessMatch(
+            FileMatch fileMatch,
             SearchContext context,
             string baseDirectoryPath = null)
         {
-            Debug.Assert(baseDirectoryPath == null || result.Path.StartsWith(baseDirectoryPath, FileSystemHelpers.Comparison), $"{baseDirectoryPath}\r\n{result.Path}");
+            Debug.Assert(baseDirectoryPath == null || fileMatch.Path.StartsWith(baseDirectoryPath, FileSystemHelpers.Comparison), $"{baseDirectoryPath}\r\n{fileMatch.Path}");
 
-            if (!result.IsDirectory
-                && Options.ContentFilter != null)
-            {
-                string indent = GetPathIndent(baseDirectoryPath);
-
-                string input = ReadFile(result.Path, baseDirectoryPath, Options.DefaultEncoding, context, indent);
-
-                if (input == null)
-                    return;
-
-                if (!Options.ContentFilter.IsMatch(input))
-                    return;
-            }
-
-            ExecuteOrAddResult(result, context, baseDirectoryPath);
+            ExecuteOrAddMatch(fileMatch, context, baseDirectoryPath);
         }
 
-        protected override void ExecuteResult(
-            FileSystemFinderResult result,
+        protected override void ExecuteMatch(
+            FileMatch fileMatch,
             SearchContext context,
             string baseDirectoryPath = null,
             ColumnWidths columnWidths = null)
@@ -47,7 +33,7 @@ namespace Orang.CommandLine
             string indent = GetPathIndent(baseDirectoryPath);
 
             if (!Options.OmitPath)
-                WritePath(context, result, baseDirectoryPath, indent, columnWidths);
+                WritePath(context, fileMatch, baseDirectoryPath, indent, columnWidths);
 
             bool deleted = false;
 
@@ -58,7 +44,7 @@ namespace Orang.CommandLine
                     if (!Options.DryRun)
                     {
                         FileSystemHelpers.Delete(
-                            result,
+                            fileMatch,
                             contentOnly: Options.ContentOnly,
                             includingBom: Options.IncludingBom,
                             filesOnly: Options.FilesOnly,
@@ -67,7 +53,7 @@ namespace Orang.CommandLine
                         deleted = true;
                     }
 
-                    if (result.IsDirectory)
+                    if (fileMatch.IsDirectory)
                     {
                         context.Telemetry.ProcessedDirectoryCount++;
                     }
@@ -83,10 +69,10 @@ namespace Orang.CommandLine
                 }
             }
 
-            if (result.IsDirectory
+            if (fileMatch.IsDirectory
                 && deleted)
             {
-                OnDirectoryChanged(new DirectoryChangedEventArgs(result.Path, null));
+                OnDirectoryChanged(new DirectoryChangedEventArgs(fileMatch.Path, null));
             }
         }
 

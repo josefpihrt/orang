@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Orang.CommandLine.Help;
 using Orang.Expressions;
 using Orang.FileSystem;
 using static Orang.CommandLine.ParseHelpers;
@@ -25,7 +26,29 @@ namespace Orang.CommandLine
             NamePartKind defaultNamePart = NamePartKind.Name,
             PatternOptions includedPatternOptions = PatternOptions.None)
         {
+            return TryParse(
+                values: values,
+                optionName: optionName,
+                provider: provider,
+                filter: out filter,
+                namePart: out _,
+                allowNull: allowNull,
+                defaultNamePart: defaultNamePart,
+                includedPatternOptions: includedPatternOptions);
+        }
+
+        public static bool TryParse(
+            IEnumerable<string> values,
+            string optionName,
+            OptionValueProvider provider,
+            out Filter filter,
+            out NamePartKind namePart,
+            bool allowNull = false,
+            NamePartKind defaultNamePart = NamePartKind.Name,
+            PatternOptions includedPatternOptions = PatternOptions.None)
+        {
             filter = null;
+            namePart = defaultNamePart;
 
             string pattern = values.FirstOrDefault();
 
@@ -43,7 +66,6 @@ namespace Orang.CommandLine
 
             TimeSpan matchTimeout = Regex.InfiniteMatchTimeout;
             string groupName = null;
-            NamePartKind namePart = defaultNamePart;
             string separator = null;
             Func<Capture, bool> predicate = null;
 
@@ -56,6 +78,13 @@ namespace Orang.CommandLine
                 if (index != -1)
                 {
                     string key = option.Substring(0, index);
+
+                    if (!provider.ContainsKeyOrShortKey(key))
+                    {
+                        WriteOptionError(option, optionName, provider);
+                        return false;
+                    }
+
                     string value = option.Substring(index + 1);
 
                     if (OptionValues.Group.IsKeyOrShortKey(key))
@@ -72,8 +101,7 @@ namespace Orang.CommandLine
                     {
                         if (!TryParseAsEnum(value, out namePart, provider: OptionValueProviders.NamePartKindProvider))
                         {
-                            string helpText = OptionValueProviders.NamePartKindProvider.GetHelpText();
-                            WriteError($"Option '{OptionValues.Part.HelpValue}' has invalid value '{value}'. Allowed values: {helpText}.");
+                            WriteOptionValueError(value, OptionValues.Part, OptionValueProviders.NamePartKindProvider);
                             return false;
                         }
 
@@ -83,7 +111,7 @@ namespace Orang.CommandLine
                     {
                         if (!TryParseMatchTimeout(value, out matchTimeout))
                         {
-                            WriteError($"Option '{OptionValues.Timeout.HelpValue}' has invalid value '{value}'.");
+                            WriteOptionValueError(value, OptionValues.Timeout);
                             return false;
                         }
 
@@ -93,7 +121,8 @@ namespace Orang.CommandLine
 
                 if (Expression.TryParse(option, out Expression expression))
                 {
-                    if (OptionValues.Length.IsKeyOrShortKey(expression.Identifier))
+                    if (OptionValues.Length.IsKeyOrShortKey(expression.Identifier)
+                        && provider.ContainsKeyOrShortKey(expression.Identifier))
                     {
                         try
                         {
@@ -102,13 +131,13 @@ namespace Orang.CommandLine
                         }
                         catch (ArgumentException)
                         {
-                            WriteError($"Option '{OptionNames.GetHelpText(optionName)}' has invalid value '{option}'.");
+                            WriteOptionValueError(expression.Value, OptionValues.Length, HelpProvider.GetExpressionsText("  ", includeDate: false));
                             return false;
                         }
                     }
                     else
                     {
-                        WriteError($"Option '{OptionNames.GetHelpText(optionName)}' has invalid value '{option}'. Allowed values: {provider.GetHelpText()}.");
+                        WriteOptionError(option, optionName, provider);
                         return false;
                     }
                 }
@@ -175,7 +204,6 @@ namespace Orang.CommandLine
 
             filter = new Filter(
                 regex,
-                namePart: namePart,
                 groupNumber: groupIndex,
                 isNegative: (patternOptions & PatternOptions.Negative) != 0,
                 predicate);

@@ -55,8 +55,7 @@ namespace Orang.CommandLine
             ResultStorage?.Add(capture.Value);
 
             if (MatchCount == 0
-                || Options.Separator == "\n"
-                || Options.Separator == "\r\n")
+                || Options.Separator?.EndsWith('\n') != false)
             {
                 Write(Options.Indent);
             }
@@ -78,7 +77,6 @@ namespace Orang.CommandLine
             else
             {
                 WriteLine();
-                Write(Options.Indent);
             }
         }
 

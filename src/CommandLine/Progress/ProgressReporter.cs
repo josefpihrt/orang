@@ -1,11 +1,19 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Orang.CommandLine;
 
 namespace Orang.FileSystem
 {
     internal class ProgressReporter : IProgress<FileSystemFinderProgress>
     {
+        public ProgressReporter(string indent)
+        {
+            Indent = indent;
+        }
+
+        public string Indent { get; }
+
         public string BaseDirectoryPath { get; private set; }
 
         public int SearchedDirectoryCount { get; protected set; }
@@ -24,7 +32,10 @@ namespace Orang.FileSystem
         public virtual void Report(FileSystemFinderProgress value)
         {
             if (value.Error != null)
+            {
+                WriteError(value);
                 return;
+            }
 
             switch (value.Kind)
             {
@@ -48,6 +59,17 @@ namespace Orang.FileSystem
                         throw new InvalidOperationException($"Unknown enum value '{value.Kind}'.");
                     }
             }
+        }
+
+        protected void WriteError(FileSystemFinderProgress value)
+        {
+            LogHelpers.WriteFileError(
+                value.Error,
+                value.Path,
+                basePath: BaseDirectoryPath,
+                colors: Colors.Message_Warning,
+                indent: Indent,
+                verbosity: Verbosity.Detailed);
         }
     }
 }

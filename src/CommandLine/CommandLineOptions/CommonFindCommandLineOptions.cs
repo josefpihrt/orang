@@ -56,6 +56,7 @@ namespace Orang.CommandLine
                 contentDisplayStyle: out ContentDisplayStyle? contentDisplayStyle,
                 pathDisplayStyle: out PathDisplayStyle? pathDisplayStyle,
                 lineDisplayOptions: out LineDisplayOptions lineDisplayOptions,
+                lineContext: out LineContext lineContext,
                 displayParts: out DisplayParts displayParts,
                 fileProperties: out ImmutableArray<FileProperty> fileProperties,
                 indent: out string indent,
@@ -80,26 +81,14 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            if (!TryParseMaxCount(MaxCount, out int maxCount, out int maxMatches, out int maxMatchingFiles))
+            if (!TryParseMaxCount(MaxCount, out int maxMatchingFiles, out int maxMatchesInFile))
                 return false;
-
-            int maxMatchesInFile;
-
-            if (contentFilter != null)
-            {
-                maxMatchesInFile = maxCount;
-            }
-            else
-            {
-                maxMatchesInFile = 0;
-                maxMatches = 0;
-                maxMatchingFiles = (maxCount > 0) ? maxCount : maxMatchingFiles;
-            }
 
             options.Format = new OutputDisplayFormat(
                 contentDisplayStyle: contentDisplayStyle ?? ContentDisplayStyle.Line,
                 pathDisplayStyle: pathDisplayStyle ?? PathDisplayStyle.Full,
                 lineOptions: lineDisplayOptions,
+                lineContext: lineContext,
                 displayParts: displayParts,
                 fileProperties: fileProperties,
                 indent: indent,
@@ -109,8 +98,8 @@ namespace Orang.CommandLine
             options.SearchTarget = GetSearchTarget();
             options.ContentFilter = contentFilter;
             options.MaxMatchesInFile = maxMatchesInFile;
-            options.MaxMatches = maxMatches;
             options.MaxMatchingFiles = maxMatchingFiles;
+            options.MaxTotalMatches = 0;
 
             return true;
         }

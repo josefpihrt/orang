@@ -57,7 +57,7 @@ namespace Orang.CommandLine
             if (!TryParseAsEnumFlags(Highlight, OptionNames.Highlight, out HighlightOptions highlightOptions, defaultValue: HighlightOptions.Default, provider: OptionValueProviders.DeleteHighlightOptionsProvider))
                 return false;
 
-            if (!FilterParser.TryParse(Name, OptionNames.Name, OptionValueProviders.PatternOptionsProvider, out Filter nameFilter, allowNull: true))
+            if (!FilterParser.TryParse(Name, OptionNames.Name, OptionValueProviders.PatternOptionsProvider, out Filter nameFilter, out NamePartKind namePart, allowNull: true))
                 return false;
 
             if (nameFilter == null
@@ -68,7 +68,7 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            if (!FilterParser.TryParse(Content, OptionNames.Content, OptionValueProviders.PatternOptionsProvider, out Filter contentFilter, allowNull: true))
+            if (!FilterParser.TryParse(Content, OptionNames.Content, OptionValueProviders.PatternOptionsWithoutPartProvider, out Filter contentFilter, allowNull: true))
                 return false;
 
             if (!TryParseDisplay(
@@ -77,6 +77,7 @@ namespace Orang.CommandLine
                 contentDisplayStyle: out ContentDisplayStyle? _,
                 pathDisplayStyle: out PathDisplayStyle? pathDisplayStyle,
                 lineDisplayOptions: out LineDisplayOptions lineDisplayOptions,
+                lineContext: out LineContext lineContext,
                 displayParts: out DisplayParts displayParts,
                 fileProperties: out ImmutableArray<FileProperty> fileProperties,
                 indent: out string indent,
@@ -98,6 +99,7 @@ namespace Orang.CommandLine
                 contentDisplayStyle: ContentDisplayStyle.None,
                 pathDisplayStyle: pathDisplayStyle ?? PathDisplayStyle.Full,
                 lineOptions: lineDisplayOptions,
+                lineContext: lineContext,
                 displayParts: displayParts,
                 fileProperties: fileProperties,
                 indent: indent,
@@ -108,6 +110,7 @@ namespace Orang.CommandLine
             options.HighlightOptions = highlightOptions;
             options.SearchTarget = GetSearchTarget();
             options.NameFilter = nameFilter;
+            options.NamePart = namePart;
             options.ContentFilter = contentFilter;
             options.ContentOnly = ContentOnly;
             options.IncludingBom = IncludingBom;

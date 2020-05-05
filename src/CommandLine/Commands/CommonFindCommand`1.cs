@@ -170,7 +170,7 @@ namespace Orang.CommandLine
 
             if (context.Results != null)
             {
-                var searchResult = new ContentSearchResult(fileMatch, baseDirectoryPath, writerOptions);
+                var searchResult = new SearchResult(fileMatch, baseDirectoryPath, writerOptions);
 
                 context.Results.Add(searchResult);
             }
@@ -193,17 +193,12 @@ namespace Orang.CommandLine
         {
             if (ContentFilter != null)
             {
-                ExecuteResult((ContentSearchResult)result, context, columnWidths);
+                ExecuteMatch(result.FileMatch, context, result.WriterOptions, result.BaseDirectoryPath, columnWidths);
             }
             else
             {
                 ExecuteMatch(result.FileMatch, context, result.BaseDirectoryPath, columnWidths);
             }
-        }
-
-        private void ExecuteResult(ContentSearchResult result, SearchContext context, ColumnWidths columnWidths)
-        {
-            ExecuteMatch(result.FileMatch, context, result.WriterOptions, result.BaseDirectoryPath, columnWidths);
         }
 
         protected void AskToContinue(SearchContext context, string indent)

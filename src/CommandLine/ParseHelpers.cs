@@ -24,9 +24,9 @@ namespace Orang.CommandLine
             out FilePropertyFilter filter)
         {
             filter = null;
-            FilterPredicate<long> sizePredicate = null;
-            FilterPredicate<DateTime> creationTimePredicate = null;
-            FilterPredicate<DateTime> modifiedTimePredicate = null;
+            Func<long, bool> sizePredicate = null;
+            Func<DateTime, bool> creationTimePredicate = null;
+            Func<DateTime, bool> modifiedTimePredicate = null;
 
             foreach (string value in values)
             {
@@ -47,19 +47,19 @@ namespace Orang.CommandLine
                             return false;
                         }
 
-                        sizePredicate = new FilterPredicate<long>(expression, PredicateHelpers.GetLongPredicate(expression));
+                        sizePredicate = PredicateHelpers.GetLongPredicate(expression);
                     }
                     else if (OptionValues.FileProperty_CreationTime.IsKeyOrShortKey(expression.Identifier))
                     {
                         optionValue = OptionValues.FileProperty_CreationTime;
 
-                        creationTimePredicate = new FilterPredicate<DateTime>(expression, PredicateHelpers.GetDateTimePredicate(expression));
+                        creationTimePredicate = PredicateHelpers.GetDateTimePredicate(expression);
                     }
                     else if (OptionValues.FileProperty_ModifiedTime.IsKeyOrShortKey(expression.Identifier))
                     {
                         optionValue = OptionValues.FileProperty_ModifiedTime;
 
-                        modifiedTimePredicate = new FilterPredicate<DateTime>(expression, PredicateHelpers.GetDateTimePredicate(expression));
+                        modifiedTimePredicate = PredicateHelpers.GetDateTimePredicate(expression);
                     }
                     else
                     {

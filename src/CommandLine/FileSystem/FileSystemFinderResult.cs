@@ -13,7 +13,7 @@ namespace Orang.FileSystem
         {
         }
 
-        internal FileSystemFinderResult(in NamePart part, Match match, FileContent content, Match contentMatch, bool isDirectory = false)
+        internal FileSystemFinderResult(in NamePart part, Match match, in FileContent content, Match contentMatch, bool isDirectory = false)
         {
             Match = match;
             Part = part;

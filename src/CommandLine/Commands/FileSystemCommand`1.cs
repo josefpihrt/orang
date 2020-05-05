@@ -370,7 +370,7 @@ namespace Orang.CommandLine
             SearchContext context,
             INotifyDirectoryChanged notifyDirectoryChanged)
         {
-            IEnumerable<FileSystemFinderResult> results = FileSystemFinder.Find(
+            return FileSystemFinder.Find(
                 directoryPath: directoryPath,
                 nameFilter: Options.NameFilter,
                 namePart: Options.NamePart,
@@ -378,35 +378,24 @@ namespace Orang.CommandLine
                 directoryFilter: Options.DirectoryFilter,
                 directoryNamePart: Options.DirectoryNamePart,
                 contentFilter: Options.ContentFilter,
+                propertyFilter: Options.FilePropertyFilter,
                 options: FinderOptions,
                 progress: context.Progress,
                 notifyDirectoryChanged: notifyDirectoryChanged,
                 cancellationToken: context.CancellationToken);
-
-            if (Options.FilePropertyFilter != null)
-                results = results.Where(Options.FilePropertyFilter.IsMatch);
-
-            return results;
         }
 
         protected FileSystemFinderResult MatchFile(string filePath, ProgressReporter progress)
         {
-            FileSystemFinderResult result = FileSystemFinder.MatchFile(
+            return FileSystemFinder.MatchFile(
                 filePath,
+                namePartKind: Options.NamePart,
                 nameFilter: Options.NameFilter,
-                namePart: Options.NamePart,
                 extensionFilter: Options.ExtensionFilter,
                 contentFilter: Options.ContentFilter,
+                propertyFilter: Options.FilePropertyFilter,
                 options: FinderOptions,
                 progress: progress);
-
-            if (result != null
-                && Options.FilePropertyFilter?.IsMatch(result) == false)
-            {
-                return null;
-            }
-
-            return result;
         }
 
         protected string GetPathIndent(string baseDirectoryPath)

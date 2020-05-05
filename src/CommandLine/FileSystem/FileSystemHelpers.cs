@@ -225,6 +225,11 @@ namespace Orang.FileSystem
         {
             var fileInfo = new FileInfo(path);
 
+            return IsEmptyFile(fileInfo);
+        }
+
+        public static bool IsEmptyFile(FileInfo fileInfo)
+        {
             if (fileInfo.Length == 0)
                 return true;
 

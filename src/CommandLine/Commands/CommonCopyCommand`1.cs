@@ -46,37 +46,34 @@ namespace Orang.CommandLine
             base.ExecuteDirectory(directoryPath, context);
         }
 
-        protected override void ExecuteResult(
-            FileSystemFinderResult result,
+        protected override void ExecuteMatch(
+            FileMatch fileMatch,
             SearchContext context,
             ContentWriterOptions writerOptions,
-            Match match,
-            string input,
-            Encoding encoding,
             string baseDirectoryPath = null,
             ColumnWidths columnWidths = null)
         {
-            ExecuteResult(result, context, baseDirectoryPath, columnWidths);
+            ExecuteMatch(fileMatch, context, baseDirectoryPath, columnWidths);
         }
 
-        protected sealed override void ExecuteResult(FileSystemFinderResult result, SearchContext context, string baseDirectoryPath = null, ColumnWidths columnWidths = null)
+        protected sealed override void ExecuteMatch(FileMatch fileMatch, SearchContext context, string baseDirectoryPath = null, ColumnWidths columnWidths = null)
         {
-            ExecuteOperation(result, context, baseDirectoryPath, GetPathIndent(baseDirectoryPath));
+            ExecuteOperation(fileMatch, context, baseDirectoryPath, GetPathIndent(baseDirectoryPath));
 
             if (context.TerminationReason != TerminationReason.Canceled)
                 AskToContinue(context, GetPathIndent(baseDirectoryPath));
         }
 
         private void ExecuteOperation(
-            FileSystemFinderResult result,
+            FileMatch fileMatch,
             SearchContext context,
             string baseDirectoryPath,
             string indent)
         {
-            string sourcePath = result.Path;
+            string sourcePath = fileMatch.Path;
             string destinationPath;
 
-            if (result.IsDirectory
+            if (fileMatch.IsDirectory
                 || (baseDirectoryPath != null && !Options.Flat))
             {
                 Debug.Assert(sourcePath.StartsWith(baseDirectoryPath, FileSystemHelpers.Comparison));
@@ -97,7 +94,7 @@ namespace Orang.CommandLine
 
             try
             {
-                ExecuteOperation(context, sourcePath, destinationPath, result.IsDirectory, indent);
+                ExecuteOperation(context, sourcePath, destinationPath, fileMatch.IsDirectory, indent);
             }
             catch (Exception ex) when (ex is IOException
                 || ex is UnauthorizedAccessException)
@@ -276,7 +273,7 @@ namespace Orang.CommandLine
             }
         }
 
-        protected sealed override void WritePath(SearchContext context, FileSystemFinderResult result, string baseDirectoryPath, string indent, ColumnWidths columnWidths)
+        protected sealed override void WritePath(SearchContext context, FileMatch fileMatch, string baseDirectoryPath, string indent, ColumnWidths columnWidths)
         {
         }
 

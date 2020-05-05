@@ -9,44 +9,23 @@ namespace Orang.CommandLine
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     internal class SearchResult
     {
-        private FileSystemInfo _fileSystemInfo;
         private long? _size;
 
-        public SearchResult(
-            FileSystemFinderResult result,
-            string baseDirectoryPath)
+        public SearchResult(FileMatch fileMatch, string baseDirectoryPath)
         {
-            Result = result;
+            FileMatch = fileMatch;
             BaseDirectoryPath = baseDirectoryPath;
         }
 
-        public FileSystemFinderResult Result { get; }
+        public FileMatch FileMatch { get; }
 
         public string BaseDirectoryPath { get; }
 
-        public bool IsDirectory => Result.IsDirectory;
+        public bool IsDirectory => FileMatch.IsDirectory;
 
-        public string Path => Result.Path;
+        public string Path => FileMatch.Path;
 
-        public FileSystemInfo FileSystemInfo
-        {
-            get
-            {
-                if (_fileSystemInfo == null)
-                {
-                    if (IsDirectory)
-                    {
-                        _fileSystemInfo = new DirectoryInfo(Path);
-                    }
-                    else
-                    {
-                        _fileSystemInfo = new FileInfo(Path);
-                    }
-                }
-
-                return _fileSystemInfo;
-            }
-        }
+        public FileSystemInfo FileSystemInfo => FileMatch.FileSystemInfo;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private string DebuggerDisplay => $"{Path}";

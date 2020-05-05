@@ -64,6 +64,11 @@ namespace Orang.CommandLine
 
         internal bool IncludeBaseDirectory => Format.IncludeBaseDirectory;
 
+        internal MatchOutputInfo CreateOutputInfo(FileMatch fileMatch)
+        {
+            return CreateOutputInfo(fileMatch.ContentText, fileMatch.ContentMatch);
+        }
+
         internal MatchOutputInfo CreateOutputInfo(string input, Match match)
         {
             if (ContentDisplayStyle != ContentDisplayStyle.ValueDetail)

@@ -15,7 +15,7 @@ namespace Orang.FileSystem
 {
     public static class FileSystemFinder
     {
-        public static IEnumerable<FileSystemFinderResult> Find(
+        public static IEnumerable<FileMatch> Find(
             string directoryPath,
             Filter nameFilter = null,
             NamePartKind namePart = NamePartKind.Name,
@@ -85,12 +85,12 @@ namespace Orang.FileSystem
                         {
                             while (fi.MoveNext())
                             {
-                                (FileSystemFinderResult result, Exception ex) = MatchFile(fi.Current, namePart, nameFilter, extensionFilter, contentFilter, propertyFilter, options);
+                                (FileMatch match, Exception ex) = MatchFile(fi.Current, namePart, nameFilter, extensionFilter, contentFilter, propertyFilter, options);
 
                                 progress?.Report(fi.Current, ProgressKind.File, ex);
 
-                                if (result != null)
-                                    yield return result;
+                                if (match != null)
+                                    yield return match;
 
                                 cancellationToken.ThrowIfCancellationRequested();
                             }
@@ -136,12 +136,12 @@ namespace Orang.FileSystem
 
                                 if (isMatch != false)
                                 {
-                                    (FileSystemFinderResult result, Exception ex) = MatchDirectory(currentDirectory, namePart, nameFilter, propertyFilter, options);
+                                    (FileMatch match, Exception ex) = MatchDirectory(currentDirectory, namePart, nameFilter, propertyFilter, options);
 
                                     progress?.Report(currentDirectory, ProgressKind.Directory, ex);
 
-                                    if (result != null)
-                                        yield return result;
+                                    if (match != null)
+                                        yield return match;
                                 }
                             }
 
@@ -183,7 +183,7 @@ namespace Orang.FileSystem
             }
         }
 
-        internal static FileSystemFinderResult MatchFile(
+        internal static FileMatch MatchFile(
             string path,
             NamePartKind namePartKind = NamePartKind.Name,
             Filter nameFilter = null,
@@ -193,7 +193,7 @@ namespace Orang.FileSystem
             FileSystemFinderOptions options = null,
             IProgress<FileSystemFinderProgress> progress = null)
         {
-            (FileSystemFinderResult result, Exception ex) = MatchFile(
+            (FileMatch match, Exception ex) = MatchFile(
                 path: path,
                 namePartKind: namePartKind,
                 nameFilter: nameFilter,
@@ -204,10 +204,10 @@ namespace Orang.FileSystem
 
             progress?.Report(path, ProgressKind.File, ex);
 
-            return result;
+            return match;
         }
 
-        private static (FileSystemFinderResult result, Exception ex) MatchFile(
+        private static (FileMatch match, Exception ex) MatchFile(
             string path,
             NamePartKind namePartKind,
             Filter nameFilter,
@@ -235,6 +235,7 @@ namespace Orang.FileSystem
                     return (null, null);
             }
 
+            FileInfo fileInfo = null;
             bool isEmpty = false;
             bool? empty = options.Empty;
 
@@ -244,7 +245,7 @@ namespace Orang.FileSystem
             {
                 try
                 {
-                    var fileInfo = new FileInfo(path);
+                    fileInfo = new FileInfo(path);
 
                     if (options.Attributes != 0
                         && (fileInfo.Attributes & options.Attributes) != options.Attributes)
@@ -360,14 +361,14 @@ namespace Orang.FileSystem
                     if (contentMatch == null)
                         return (null, null);
 
-                    return (new FileSystemFinderResult(namePart, match, fileContent, contentMatch), null);
+                    return (new FileMatch(namePart, match, fileContent, contentMatch, fileInfo), null);
                 }
             }
 
-            return (new FileSystemFinderResult(namePart, match), null);
+            return (new FileMatch(namePart, match, fileInfo), null);
         }
 
-        private static (FileSystemFinderResult result, Exception ex) MatchDirectory(
+        private static (FileMatch match, Exception ex) MatchDirectory(
             string path,
             NamePartKind namePartKind = NamePartKind.Name,
             Filter nameFilter = null,
@@ -387,13 +388,15 @@ namespace Orang.FileSystem
                     return (null, null);
             }
 
+            DirectoryInfo directoryInfo = null;
+
             if (options.Attributes != 0
                 || options.Empty != null
                 || propertyFilter != null)
             {
                 try
                 {
-                    var directoryInfo = new DirectoryInfo(path);
+                    directoryInfo = new DirectoryInfo(path);
 
                     if (options.Attributes != 0
                         && (directoryInfo.Attributes & options.Attributes) != options.Attributes)
@@ -425,7 +428,7 @@ namespace Orang.FileSystem
                 }
             }
 
-            return (new FileSystemFinderResult(directoryNamePart, match, isDirectory: true), null);
+            return (new FileMatch(directoryNamePart, match, directoryInfo, isDirectory: true), null);
         }
 
         private static bool IsMatch(Filter filter, in NamePart part)

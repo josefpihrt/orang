@@ -64,54 +64,50 @@ namespace Orang.CommandLine
                 _storageIndexes?.Add(_storage.Count);
         }
 
-        protected override void ExecuteResult(
-            FileSystemFinderResult result,
+        protected override void ExecuteMatch(
+            FileMatch fileMatch,
             SearchContext context,
             ContentWriterOptions writerOptions,
-            Match match,
-            string input,
-            Encoding encoding,
             string baseDirectoryPath = null,
             ColumnWidths columnWidths = null)
         {
             string indent = GetPathIndent(baseDirectoryPath);
 
             if (!Options.OmitPath)
-                WritePath(context, result, baseDirectoryPath, indent, columnWidths);
+                WritePath(context, fileMatch, baseDirectoryPath, indent, columnWidths);
 
             if (ContentFilter.IsNegative
-                || result.IsDirectory)
+                || fileMatch.IsDirectory)
             {
                 WriteLineIf(!Options.OmitPath, Verbosity.Minimal);
             }
             else
             {
-                WriteMatches(input, match, writerOptions, context);
+                WriteMatches(fileMatch, writerOptions, context);
             }
 
             AskToContinue(context, indent);
         }
 
-        protected override void ExecuteResult(FileSystemFinderResult result, SearchContext context, string baseDirectoryPath = null, ColumnWidths columnWidths = null)
+        protected override void ExecuteMatch(FileMatch fileMatch, SearchContext context, string baseDirectoryPath = null, ColumnWidths columnWidths = null)
         {
             string indent = GetPathIndent(baseDirectoryPath);
 
             if (!Options.OmitPath)
-                WritePath(context, result, baseDirectoryPath, indent, columnWidths);
+                WritePath(context, fileMatch, baseDirectoryPath, indent, columnWidths);
 
             if (_storage != null
-                && result.Match != null
-                && !object.ReferenceEquals(result.Match, Match.Empty))
+                && fileMatch.NameMatch != null
+                && !object.ReferenceEquals(fileMatch.NameMatch, Match.Empty))
             {
-                _storage.Add(result.Match.Value);
+                _storage.Add(fileMatch.NameMatch.Value);
             }
 
             AskToContinue(context, indent);
         }
 
         private void WriteMatches(
-            string input,
-            Match match,
+            FileMatch fileMatch,
             ContentWriterOptions writerOptions,
             SearchContext context)
         {
@@ -124,7 +120,7 @@ namespace Orang.CommandLine
             {
                 captures = ListCache<Capture>.GetInstance();
 
-                GetCaptures(match, writerOptions.GroupNumber, context, isPathWritten: !Options.OmitPath, predicate: ContentFilter.Predicate, captures: captures);
+                GetCaptures(fileMatch.ContentMatch, writerOptions.GroupNumber, context, isPathWritten: !Options.OmitPath, predicate: ContentFilter.Predicate, captures: captures);
 
                 bool hasAnyFunction = Options.ModifyOptions.HasAnyFunction;
 
@@ -149,10 +145,10 @@ namespace Orang.CommandLine
 
                     contentWriter = ContentWriter.CreateFind(
                         contentDisplayStyle: Options.ContentDisplayStyle,
-                        input: input,
+                        input: fileMatch.ContentText,
                         options: writerOptions,
                         storage: (hasAnyFunction) ? _fileStorage : _storage,
-                        outputInfo: Options.CreateOutputInfo(input, match),
+                        outputInfo: Options.CreateOutputInfo(fileMatch),
                         writer: (hasAnyFunction) ? null : ContentTextWriter.Default,
                         ask: AskMode == AskMode.Value);
                 }

@@ -9,24 +9,18 @@ namespace Orang.CommandLine
     internal class ContentSearchResult : SearchResult
     {
         public ContentSearchResult(
-            FileSystemFinderResult result,
+            FileMatch fileMatch,
             string baseDirectoryPath,
-            Match match,
-            string input,
-            Encoding encoding,
-            ContentWriterOptions writerOptions) : base(result, baseDirectoryPath)
+            ContentWriterOptions writerOptions) : base(fileMatch, baseDirectoryPath)
         {
-            Match = match;
-            Input = input;
-            Encoding = encoding;
             WriterOptions = writerOptions;
         }
 
-        public Match Match { get; }
+        public Match ContentMatch => FileMatch.ContentMatch;
 
-        public string Input { get; }
+        public string ContentText => FileMatch.ContentText;
 
-        public Encoding Encoding { get; }
+        public Encoding Encoding => FileMatch.Encoding;
 
         public ContentWriterOptions WriterOptions { get; }
     }

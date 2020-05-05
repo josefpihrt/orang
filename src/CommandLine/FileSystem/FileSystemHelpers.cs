@@ -139,19 +139,19 @@ namespace Orang.FileSystem
         }
 
         public static void Delete(
-            FileSystemFinderResult result,
+            FileMatch fileMatch,
             bool contentOnly = false,
             bool includingBom = false,
             bool filesOnly = false,
             bool directoriesOnly = false)
         {
-            if (result.IsDirectory)
+            if (fileMatch.IsDirectory)
             {
-                DeleteDirectory(result.Path, contentOnly: contentOnly, filesOnly: filesOnly, directoriesOnly: directoriesOnly);
+                DeleteDirectory(fileMatch.Path, contentOnly: contentOnly, filesOnly: filesOnly, directoriesOnly: directoriesOnly);
             }
             else
             {
-                DeleteFile(result.Path, contentOnly: contentOnly, includingBom: includingBom);
+                DeleteFile(fileMatch.Path, contentOnly: contentOnly, includingBom: includingBom);
             }
         }
 

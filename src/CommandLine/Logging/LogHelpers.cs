@@ -205,7 +205,7 @@ namespace Orang.CommandLine
         }
 
         public static void WritePath(
-            FileSystemFinderResult result,
+            FileMatch fileMatch,
             string basePath,
             bool relativePath,
             in ConsoleColors colors,
@@ -213,14 +213,14 @@ namespace Orang.CommandLine
             string indent,
             Verbosity verbosity = Verbosity.Quiet)
         {
-            string path = result.Path;
-            int matchIndex = result.Index;
+            string path = fileMatch.Path;
+            int matchIndex = fileMatch.Index;
 
             (int startIndex, bool isWritten) = WritePathImpl(path, basePath, relativePath, colors, stopAtMatch: !matchColors.IsDefault, matchIndex, indent, verbosity);
 
             if (!isWritten)
             {
-                int matchLength = result.Length;
+                int matchLength = fileMatch.Length;
 
                 Write(path, startIndex, matchIndex - startIndex, colors: colors, verbosity);
                 Write(path, matchIndex, matchLength, matchColors, verbosity);
@@ -229,7 +229,7 @@ namespace Orang.CommandLine
         }
 
         public static void WritePath(
-            FileSystemFinderResult result,
+            FileMatch fileMatch,
             List<ReplaceItem> items,
             string basePath,
             bool relativePath,
@@ -239,8 +239,8 @@ namespace Orang.CommandLine
             string indent,
             Verbosity verbosity = Verbosity.Quiet)
         {
-            string path = result.Path;
-            int matchIndex = result.Part.Index + result.Index;
+            string path = fileMatch.Path;
+            int matchIndex = fileMatch.Part.Index + fileMatch.Index;
 
             (int startIndex, bool isWritten) = WritePathImpl(path, basePath, relativePath, colors, stopAtMatch: true, matchIndex, indent, verbosity);
 
@@ -250,14 +250,14 @@ namespace Orang.CommandLine
                 {
                     Match match = item.Match;
 
-                    Write(path, startIndex, result.Part.Index + match.Index - startIndex);
+                    Write(path, startIndex, fileMatch.Part.Index + match.Index - startIndex);
 
                     if (!matchColors.IsDefault)
                         Write(match.Value, matchColors);
 
                     Write(item.Value, replaceColors);
 
-                    startIndex = result.Part.Index + match.Index + match.Length;
+                    startIndex = fileMatch.Part.Index + match.Index + match.Length;
                 }
 
                 Write(path, startIndex, path.Length - startIndex);

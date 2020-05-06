@@ -9,5 +9,10 @@ namespace Orang.CommandLine
         }
 
         public ModifyOptions ModifyOptions { get; internal set; }
+
+        protected override void WriteDiagnosticCore()
+        {
+            DiagnosticWriter.WriteFindCommand(this);
+        }
     }
 }

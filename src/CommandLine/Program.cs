@@ -312,6 +312,10 @@ namespace Orang.CommandLine
 
         private static int Execute<TOptions>(AbstractCommand<TOptions> command) where TOptions : AbstractCommandOptions
         {
+#if DEBUG
+            if (ShouldLog(Verbosity.Diagnostic))
+                command.Options.WriteDiagnostic();
+#endif
             CommandResult result = command.Execute();
 
             switch (result)

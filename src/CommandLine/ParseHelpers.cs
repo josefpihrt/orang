@@ -21,12 +21,13 @@ namespace Orang.CommandLine
         public static bool TryParseFileProperties(
             IEnumerable<string> values,
             string optionName,
-            out FilePropertyFilter filter)
+            out FilterPredicate<DateTime> creationTimePredicate,
+            out FilterPredicate<DateTime> modifiedTimePredicate,
+            out FilterPredicate<long> sizePredicate)
         {
-            filter = null;
-            Func<long, bool> sizePredicate = null;
-            Func<DateTime, bool> creationTimePredicate = null;
-            Func<DateTime, bool> modifiedTimePredicate = null;
+            creationTimePredicate = null;
+            modifiedTimePredicate = null;
+            sizePredicate = null;
 
             foreach (string value in values)
             {
@@ -37,7 +38,19 @@ namespace Orang.CommandLine
                 {
                     expression = Expression.Parse(value);
 
-                    if (OptionValues.FileProperty_Size.IsKeyOrShortKey(expression.Identifier))
+                    if (OptionValues.FileProperty_CreationTime.IsKeyOrShortKey(expression.Identifier))
+                    {
+                        optionValue = OptionValues.FileProperty_CreationTime;
+
+                        creationTimePredicate = new FilterPredicate<DateTime>(expression, PredicateHelpers.GetDateTimePredicate(expression));
+                    }
+                    else if (OptionValues.FileProperty_ModifiedTime.IsKeyOrShortKey(expression.Identifier))
+                    {
+                        optionValue = OptionValues.FileProperty_ModifiedTime;
+
+                        modifiedTimePredicate = new FilterPredicate<DateTime>(expression, PredicateHelpers.GetDateTimePredicate(expression));
+                    }
+                    else if (OptionValues.FileProperty_Size.IsKeyOrShortKey(expression.Identifier))
                     {
                         optionValue = OptionValues.FileProperty_Size;
 
@@ -47,19 +60,7 @@ namespace Orang.CommandLine
                             return false;
                         }
 
-                        sizePredicate = PredicateHelpers.GetLongPredicate(expression);
-                    }
-                    else if (OptionValues.FileProperty_CreationTime.IsKeyOrShortKey(expression.Identifier))
-                    {
-                        optionValue = OptionValues.FileProperty_CreationTime;
-
-                        creationTimePredicate = PredicateHelpers.GetDateTimePredicate(expression);
-                    }
-                    else if (OptionValues.FileProperty_ModifiedTime.IsKeyOrShortKey(expression.Identifier))
-                    {
-                        optionValue = OptionValues.FileProperty_ModifiedTime;
-
-                        modifiedTimePredicate = PredicateHelpers.GetDateTimePredicate(expression);
+                        sizePredicate = new FilterPredicate<long>(expression, PredicateHelpers.GetLongPredicate(expression));
                     }
                     else
                     {
@@ -82,11 +83,6 @@ namespace Orang.CommandLine
                     return false;
                 }
             }
-
-            filter = new FilePropertyFilter(
-                sizePredicate: sizePredicate,
-                creationTimePredicate: creationTimePredicate,
-                modifiedTimePredicate: modifiedTimePredicate);
 
             return true;
         }

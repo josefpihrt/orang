@@ -7,29 +7,19 @@ namespace Orang.FileSystem
     public class FilePropertyFilter
     {
         public FilePropertyFilter(
-            Func<long, bool> sizePredicate = null,
             Func<DateTime, bool> creationTimePredicate = null,
-            Func<DateTime, bool> modifiedTimePredicate = null)
+            Func<DateTime, bool> modifiedTimePredicate = null,
+            Func<long, bool> sizePredicate = null)
         {
-            SizePredicate = sizePredicate;
             CreationTimePredicate = creationTimePredicate;
             ModifiedTimePredicate = modifiedTimePredicate;
+            SizePredicate = sizePredicate;
         }
-
-        public Func<long, bool> SizePredicate { get; }
 
         public Func<DateTime, bool> CreationTimePredicate { get; }
 
         public Func<DateTime, bool> ModifiedTimePredicate { get; }
 
-        internal bool IsDefault
-        {
-            get
-            {
-                return SizePredicate == null
-                    && CreationTimePredicate == null
-                    && ModifiedTimePredicate == null;
-            }
-        }
+        public Func<long, bool> SizePredicate { get; }
     }
 }

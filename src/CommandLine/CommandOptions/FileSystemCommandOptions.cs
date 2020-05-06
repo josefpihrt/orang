@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Immutable;
 using System.IO;
 using System.Text;
@@ -49,6 +50,12 @@ namespace Orang.CommandLine
         public SortOptions SortOptions { get; internal set; }
 
         public FilePropertyFilter FilePropertyFilter { get; internal set; }
+
+        public FilterPredicate<DateTime> CreationTimePredicate { get; internal set; }
+
+        public FilterPredicate<DateTime> ModifiedTimePredicate { get; internal set; }
+
+        public FilterPredicate<long> SizePredicate { get; internal set; }
 
         public ContentDisplayStyle ContentDisplayStyle => Format.ContentDisplayStyle;
 

@@ -13,5 +13,10 @@ namespace Orang.CommandLine
         public Filter Filter { get; internal set; }
 
         public bool Manual { get; internal set; }
+
+        protected override void WriteDiagnosticCore()
+        {
+            DiagnosticWriter.WriteHelpCommand(this);
+        }
     }
 }

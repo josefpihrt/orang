@@ -13,5 +13,10 @@ namespace Orang.CommandLine
         public bool DryRun { get; internal set; }
 
         public ReplaceOptions ReplaceOptions { get; internal set; }
+
+        protected override void WriteDiagnosticCore()
+        {
+            DiagnosticWriter.WriteReplaceCommand(this);
+        }
     }
 }

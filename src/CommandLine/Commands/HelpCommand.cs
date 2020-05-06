@@ -24,7 +24,8 @@ namespace Orang.CommandLine
                 WriteHelp(
                     commandName: Options.Command,
                     manual: Options.Manual,
-                    includeValues: ConsoleOut.Verbosity > Verbosity.Normal);
+                    includeValues: ConsoleOut.Verbosity > Verbosity.Normal,
+                    filter: Options.Filter);
             }
             catch (ArgumentException ex)
             {

@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -522,86 +521,6 @@ namespace Orang.CommandLine
                     return false;
                 }
             }
-
-            return true;
-        }
-
-        public static bool TryParseRegex(
-            string pattern,
-            RegexOptions regexOptions,
-            TimeSpan matchTimeout,
-            string patternOptionName,
-            out Regex regex)
-        {
-            regex = null;
-
-            if (pattern == null)
-                return false;
-
-            try
-            {
-                regex = new Regex(pattern, regexOptions, matchTimeout);
-                return true;
-            }
-            catch (ArgumentException ex)
-            {
-                WriteError(ex, $"Could not parse '{OptionNames.GetHelpText(patternOptionName)}' value: {ex.Message}");
-                return false;
-            }
-        }
-
-        internal static bool TryParseRegexOptions(
-            IEnumerable<string> options,
-            string optionsParameterName,
-            out RegexOptions regexOptions,
-            out PatternOptions patternOptions,
-            PatternOptions includedPatternOptions = PatternOptions.None,
-            OptionValueProvider provider = null)
-        {
-            regexOptions = RegexOptions.None;
-
-            if (!TryParseAsEnumFlags(options, optionsParameterName, out patternOptions, provider: provider ?? OptionValueProviders.PatternOptionsProvider))
-                return false;
-
-            Debug.Assert((patternOptions & (PatternOptions.CaseSensitive | PatternOptions.IgnoreCase)) != (PatternOptions.CaseSensitive | PatternOptions.IgnoreCase));
-
-            if ((patternOptions & PatternOptions.CaseSensitive) != 0)
-            {
-                includedPatternOptions &= ~PatternOptions.IgnoreCase;
-            }
-            else if ((patternOptions & PatternOptions.IgnoreCase) != 0)
-            {
-                includedPatternOptions &= ~PatternOptions.CaseSensitive;
-            }
-
-            patternOptions |= includedPatternOptions;
-
-            if ((patternOptions & PatternOptions.Compiled) != 0)
-                regexOptions |= RegexOptions.Compiled;
-
-            if ((patternOptions & PatternOptions.CultureInvariant) != 0)
-                regexOptions |= RegexOptions.CultureInvariant;
-
-            if ((patternOptions & PatternOptions.ECMAScript) != 0)
-                regexOptions |= RegexOptions.ECMAScript;
-
-            if ((patternOptions & PatternOptions.ExplicitCapture) != 0)
-                regexOptions |= RegexOptions.ExplicitCapture;
-
-            if ((patternOptions & PatternOptions.IgnoreCase) != 0)
-                regexOptions |= RegexOptions.IgnoreCase;
-
-            if ((patternOptions & PatternOptions.IgnorePatternWhitespace) != 0)
-                regexOptions |= RegexOptions.IgnorePatternWhitespace;
-
-            if ((patternOptions & PatternOptions.Multiline) != 0)
-                regexOptions |= RegexOptions.Multiline;
-
-            if ((patternOptions & PatternOptions.RightToLeft) != 0)
-                regexOptions |= RegexOptions.RightToLeft;
-
-            if ((patternOptions & PatternOptions.Singleline) != 0)
-                regexOptions |= RegexOptions.Singleline;
 
             return true;
         }

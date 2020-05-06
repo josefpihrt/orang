@@ -43,7 +43,7 @@ namespace Orang.CommandLine
 
         public Encoding DefaultEncoding { get; internal set; }
 
-        public bool? Empty { get; internal set; }
+        public FileEmptyFilter EmptyFilter { get; internal set; }
 
         public int MaxMatchingFiles { get; internal set; }
 

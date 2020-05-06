@@ -122,7 +122,7 @@ namespace Orang.CommandLine
 
         protected override void ExecuteDirectory(string directoryPath, SearchContext context)
         {
-            foreach (FileMatch fileMatch in Find(directoryPath, context))
+            foreach (FileMatch fileMatch in GetMatches(directoryPath, context))
             {
                 if (ContentFilter != null)
                 {

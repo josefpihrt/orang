@@ -11,7 +11,7 @@ namespace Orang.FileSystem
         {
         }
 
-        public override void Report(FileSystemFinderProgress value)
+        public override void Report(FileSystemFilterProgress value)
         {
             if (value.Error != null)
                 return;

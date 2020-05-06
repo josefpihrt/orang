@@ -4,9 +4,9 @@ using System;
 
 namespace Orang.FileSystem
 {
-    public readonly struct FileSystemFinderProgress
+    public readonly struct FileSystemFilterProgress
     {
-        public FileSystemFinderProgress(string path, ProgressKind kind, Exception error = null)
+        public FileSystemFilterProgress(string path, ProgressKind kind, Exception error = null)
         {
             Path = path;
             Kind = kind;

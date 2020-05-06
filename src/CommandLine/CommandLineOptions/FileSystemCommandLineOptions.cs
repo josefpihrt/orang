@@ -127,11 +127,11 @@ namespace Orang.CommandLine
                     return false;
                 }
 
-                options.Empty = true;
+                options.EmptyFilter = FileEmptyFilter.Empty;
             }
             else if ((attributesToSkip & FileSystemAttributes.Empty) != 0)
             {
-                options.Empty = false;
+                options.EmptyFilter = FileEmptyFilter.NonEmpty;
             }
 
             options.Paths = paths;

@@ -44,7 +44,7 @@ namespace Orang.CommandLine
             WriteFilter("directory filter", options.DirectoryFilter, options.DirectoryNamePart);
             WriteDisplayFormat("display", options.Format);
             WriteOption("dry run", options.DryRun);
-            WriteOption("empty", options.Empty);
+            WriteOption("empty filter", options.EmptyFilter);
             WriteFilter("extension filter", options.ExtensionFilter);
             WriteFilePropertyFilter("file properties", options.SizePredicate, options.CreationTimePredicate, options.ModifiedTimePredicate);
             WriteOption("flat", options.Flat);
@@ -72,7 +72,7 @@ namespace Orang.CommandLine
             WriteFilter("directory filter", options.DirectoryFilter, options.DirectoryNamePart);
             WriteDisplayFormat("display", options.Format);
             WriteOption("dry run", options.DryRun);
-            WriteOption("empty", options.Empty);
+            WriteOption("empty filter", options.EmptyFilter);
             WriteFilter("extension filter", options.ExtensionFilter);
             WriteFilePropertyFilter("file properties", options.SizePredicate, options.CreationTimePredicate, options.ModifiedTimePredicate);
             WriteOption("files only", options.FilesOnly);
@@ -103,7 +103,7 @@ namespace Orang.CommandLine
             WriteEncoding("default encoding", options.DefaultEncoding);
             WriteFilter("directory filter", options.DirectoryFilter, options.DirectoryNamePart);
             WriteDisplayFormat("display", options.Format);
-            WriteOption("empty", options.Empty);
+            WriteOption("empty filter", options.EmptyFilter);
             WriteFilter("extension filter", options.ExtensionFilter);
             WriteFilePropertyFilter("file properties", options.SizePredicate, options.CreationTimePredicate, options.ModifiedTimePredicate);
             WriteOption("highlight options", options.HighlightOptions);
@@ -155,7 +155,7 @@ namespace Orang.CommandLine
             WriteFilter("directory filter", options.DirectoryFilter, options.DirectoryNamePart);
             WriteDisplayFormat("display", options.Format);
             WriteOption("dry run", options.DryRun);
-            WriteOption("empty", options.Empty);
+            WriteOption("empty filter", options.EmptyFilter);
             WriteFilter("extension filter", options.ExtensionFilter);
             WriteFilePropertyFilter("file properties", options.SizePredicate, options.CreationTimePredicate, options.ModifiedTimePredicate);
             WriteOption("flat", options.Flat);
@@ -181,7 +181,7 @@ namespace Orang.CommandLine
             WriteFilter("directory filter", options.DirectoryFilter, options.DirectoryNamePart);
             WriteDisplayFormat("display", options.Format);
             WriteOption("dry run", options.DryRun);
-            WriteOption("empty", options.Empty);
+            WriteOption("empty filter", options.EmptyFilter);
             WriteEvaluator("evaluator", options.ReplaceOptions.MatchEvaluator);
             WriteFilter("extension filter", options.ExtensionFilter);
             WriteFilePropertyFilter("file properties", options.SizePredicate, options.CreationTimePredicate, options.ModifiedTimePredicate);
@@ -207,7 +207,7 @@ namespace Orang.CommandLine
             WriteFilter("directory filter", options.DirectoryFilter, options.DirectoryNamePart);
             WriteDisplayFormat("display", options.Format);
             WriteOption("dry run", options.DryRun);
-            WriteOption("empty", options.Empty);
+            WriteOption("empty filter", options.EmptyFilter);
             WriteEvaluator("evaluator", options.ReplaceOptions.MatchEvaluator);
             WriteFilter("extension filter", options.ExtensionFilter);
             WriteFilePropertyFilter("file properties", options.SizePredicate, options.CreationTimePredicate, options.ModifiedTimePredicate);
@@ -246,22 +246,6 @@ namespace Orang.CommandLine
         {
             WriteName(name);
             WriteValue(value);
-            WriteLine();
-        }
-
-        private static void WriteOption(string name, bool? value)
-        {
-            WriteName(name);
-
-            if (value == null)
-            {
-                WriteNullValue();
-            }
-            else
-            {
-                WriteValue(value.Value);
-            }
-
             WriteLine();
         }
 

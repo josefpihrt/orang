@@ -20,23 +20,39 @@ namespace Orang.CommandLine
         {
         }
 
-        private FileSystemFinderOptions _finderOptions;
+        private FileSystemFilterOptions _filterOptions;
 
-        protected FileSystemFinderOptions FinderOptions => _finderOptions ?? (_finderOptions = CreateFinderOptions());
+        private FileSystemFilter _filter;
+
+        protected FileSystemFilterOptions FilterOptions => _filterOptions ?? (_filterOptions = CreateFilterOptions());
+
+        protected FileSystemFilter Filter => _filter ?? (_filter = CreateFilter());
 
         protected virtual bool CanDisplaySummary => true;
 
         public virtual bool CanEndProgress => !Options.OmitPath;
 
-        protected virtual FileSystemFinderOptions CreateFinderOptions()
+        protected virtual FileSystemFilterOptions CreateFilterOptions()
         {
-            return new FileSystemFinderOptions(
+            return new FileSystemFilterOptions(
                 searchTarget: Options.SearchTarget,
                 recurseSubdirectories: Options.RecurseSubdirectories,
+                encoding: Options.DefaultEncoding);
+        }
+
+        protected virtual FileSystemFilter CreateFilter()
+        {
+            return new FileSystemFilter(
+                namePart: Options.NamePart,
+                nameFilter: Options.NameFilter,
+                extensionFilter: Options.ExtensionFilter,
+                contentFilter: Options.ContentFilter,
+                directoryNamePart: Options.DirectoryNamePart,
+                directoryFilter: Options.DirectoryFilter,
+                propertyFilter: Options.FilePropertyFilter,
                 attributes: Options.Attributes,
                 attributesToSkip: Options.AttributesToSkip,
-                empty: Options.Empty,
-                encoding: Options.DefaultEncoding);
+                emptyFilter: Options.EmptyFilter);
         }
 
         protected abstract void ExecuteDirectory(string directoryPath, SearchContext context);
@@ -355,31 +371,24 @@ namespace Orang.CommandLine
             }
         }
 
-        protected IEnumerable<FileMatch> Find(
+        protected IEnumerable<FileMatch> GetMatches(
             string directoryPath,
             SearchContext context)
         {
-            return Find(
+            return GetMatches(
                 directoryPath: directoryPath,
                 context: context,
                 notifyDirectoryChanged: default(INotifyDirectoryChanged));
         }
 
-        protected IEnumerable<FileMatch> Find(
+        protected IEnumerable<FileMatch> GetMatches(
             string directoryPath,
             SearchContext context,
             INotifyDirectoryChanged notifyDirectoryChanged)
         {
-            return FileSystemFinder.Find(
+            return Filter.Matches(
                 directoryPath: directoryPath,
-                nameFilter: Options.NameFilter,
-                namePart: Options.NamePart,
-                extensionFilter: Options.ExtensionFilter,
-                directoryFilter: Options.DirectoryFilter,
-                directoryNamePart: Options.DirectoryNamePart,
-                contentFilter: Options.ContentFilter,
-                propertyFilter: Options.FilePropertyFilter,
-                options: FinderOptions,
+                options: FilterOptions,
                 progress: context.Progress,
                 notifyDirectoryChanged: notifyDirectoryChanged,
                 cancellationToken: context.CancellationToken);
@@ -387,14 +396,9 @@ namespace Orang.CommandLine
 
         protected FileMatch MatchFile(string filePath, ProgressReporter progress)
         {
-            return FileSystemFinder.MatchFile(
+            return Filter.MatchFile(
                 filePath,
-                namePartKind: Options.NamePart,
-                nameFilter: Options.NameFilter,
-                extensionFilter: Options.ExtensionFilter,
-                contentFilter: Options.ContentFilter,
-                propertyFilter: Options.FilePropertyFilter,
-                options: FinderOptions,
+                options: FilterOptions,
                 progress: progress);
         }
 

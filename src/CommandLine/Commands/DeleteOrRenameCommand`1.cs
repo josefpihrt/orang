@@ -31,7 +31,7 @@ namespace Orang.CommandLine
 
         protected sealed override void ExecuteDirectory(string directoryPath, SearchContext context)
         {
-            foreach (FileMatch fileMatch in Find(directoryPath, context, notifyDirectoryChanged: this))
+            foreach (FileMatch fileMatch in GetMatches(directoryPath, context, notifyDirectoryChanged: this))
             {
                 Debug.Assert(fileMatch.Path.StartsWith(directoryPath, FileSystemHelpers.Comparison), $"{directoryPath}\r\n{fileMatch.Path}");
 

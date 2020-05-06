@@ -9,5 +9,10 @@ namespace Orang.CommandLine
         }
 
         public ReplaceOptions ReplaceOptions { get; internal set; }
+
+        protected override void WriteDiagnosticCore()
+        {
+            DiagnosticWriter.WriteRenameCommand(this);
+        }
     }
 }

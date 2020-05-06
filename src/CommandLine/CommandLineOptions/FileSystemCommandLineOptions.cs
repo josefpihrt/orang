@@ -112,7 +112,9 @@ namespace Orang.CommandLine
             if (!TryParseFileProperties(
                 FileProperties,
                 OptionNames.Properties,
-                out FilePropertyFilter filePropertyFilter))
+                out FilterPredicate<DateTime> creationTimePredicate,
+                out FilterPredicate<DateTime> modifiedTimePredicate,
+                out FilterPredicate<long> sizePredicate))
             {
                 return false;
             }
@@ -125,11 +127,11 @@ namespace Orang.CommandLine
                     return false;
                 }
 
-                options.Empty = true;
+                options.EmptyFilter = FileEmptyFilter.Empty;
             }
             else if ((attributesToSkip & FileSystemAttributes.Empty) != 0)
             {
-                options.Empty = false;
+                options.EmptyFilter = FileEmptyFilter.NonEmpty;
             }
 
             options.Paths = paths;
@@ -142,7 +144,19 @@ namespace Orang.CommandLine
             options.Progress = Progress;
             options.DefaultEncoding = defaultEncoding;
             options.SortOptions = sortOptions;
-            options.FilePropertyFilter = filePropertyFilter;
+            options.CreationTimePredicate = creationTimePredicate;
+            options.ModifiedTimePredicate = modifiedTimePredicate;
+            options.SizePredicate = sizePredicate;
+
+            if (creationTimePredicate != null
+                || modifiedTimePredicate != null
+                || sizePredicate != null)
+            {
+                options.FilePropertyFilter = new FilePropertyFilter(
+                    creationTimePredicate: creationTimePredicate?.Predicate,
+                    modifiedTimePredicate: modifiedTimePredicate?.Predicate,
+                    sizePredicate: sizePredicate?.Predicate);
+            }
 
             FileSystemAttributes = attributes;
 

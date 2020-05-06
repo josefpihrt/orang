@@ -20,14 +20,11 @@ namespace Orang.CommandLine
             Debug.Assert(options.ContentFilter?.IsNegative != true);
         }
 
-        protected override FileSystemFinderOptions CreateFinderOptions()
+        protected override FileSystemFilterOptions CreateFilterOptions()
         {
-            return new FileSystemFinderOptions(
+            return new FileSystemFilterOptions(
                 searchTarget: Options.SearchTarget,
                 recurseSubdirectories: Options.RecurseSubdirectories,
-                attributes: Options.Attributes,
-                attributesToSkip: Options.AttributesToSkip,
-                empty: Options.Empty,
                 canEnumerate: Options.DryRun,
                 partOnly: true,
                 encoding: Options.DefaultEncoding);

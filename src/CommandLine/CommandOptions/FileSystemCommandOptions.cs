@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Immutable;
 using System.IO;
 using System.Text;
@@ -42,13 +43,19 @@ namespace Orang.CommandLine
 
         public Encoding DefaultEncoding { get; internal set; }
 
-        public bool? Empty { get; internal set; }
+        public FileEmptyFilter EmptyFilter { get; internal set; }
 
         public int MaxMatchingFiles { get; internal set; }
 
         public SortOptions SortOptions { get; internal set; }
 
         public FilePropertyFilter FilePropertyFilter { get; internal set; }
+
+        public FilterPredicate<DateTime> CreationTimePredicate { get; internal set; }
+
+        public FilterPredicate<DateTime> ModifiedTimePredicate { get; internal set; }
+
+        public FilterPredicate<long> SizePredicate { get; internal set; }
 
         public ContentDisplayStyle ContentDisplayStyle => Format.ContentDisplayStyle;
 

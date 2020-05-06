@@ -25,7 +25,7 @@ namespace Orang.FileSystem
 
         public FileSystemCommandOptions Options { get; }
 
-        public override void Report(FileSystemFinderProgress value)
+        public override void Report(FileSystemFilterProgress value)
         {
             if (value.Error != null)
             {

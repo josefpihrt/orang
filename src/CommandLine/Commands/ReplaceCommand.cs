@@ -27,14 +27,11 @@ namespace Orang.CommandLine
 
         private OutputSymbols Symbols => _symbols ?? (_symbols = OutputSymbols.Create(Options.HighlightOptions));
 
-        protected override FileSystemFinderOptions CreateFinderOptions()
+        protected override FileSystemFilterOptions CreateFilterOptions()
         {
-            return new FileSystemFinderOptions(
+            return new FileSystemFilterOptions(
                 searchTarget: Options.SearchTarget,
                 recurseSubdirectories: Options.RecurseSubdirectories,
-                attributes: Options.Attributes,
-                attributesToSkip: Options.AttributesToSkip,
-                empty: Options.Empty,
                 saveBomEncoding: true,
                 encoding: Options.DefaultEncoding);
         }
@@ -116,7 +113,7 @@ namespace Orang.CommandLine
 
         protected override void ExecuteDirectory(string directoryPath, SearchContext context)
         {
-            foreach (FileMatch fileMatch in Find(directoryPath, context))
+            foreach (FileMatch fileMatch in GetMatches(directoryPath, context))
             {
                 ExecuteOrAddMatch(fileMatch, context, DirectoryWriterOptions, directoryPath);
 

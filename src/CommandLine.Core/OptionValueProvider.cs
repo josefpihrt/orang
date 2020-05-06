@@ -33,6 +33,21 @@ namespace Orang
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private string DebuggerDisplay => Name;
 
+        public OptionValueProvider WithValues(params OptionValue[] values)
+        {
+            return WithValues(Name, values);
+        }
+
+        public OptionValueProvider WithValues(string name, params OptionValue[] values)
+        {
+            return new OptionValueProvider(name, Values.AddRange(values));
+        }
+
+        public OptionValueProvider WithoutValues(params OptionValue[] values)
+        {
+            return WithoutValues(Name, values);
+        }
+
         public OptionValueProvider WithoutValues(string name, params OptionValue[] values)
         {
             ImmutableArray<OptionValue>.Builder builder = ImmutableArray.CreateBuilder<OptionValue>();

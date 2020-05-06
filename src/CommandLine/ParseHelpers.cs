@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -21,12 +20,13 @@ namespace Orang.CommandLine
         public static bool TryParseFileProperties(
             IEnumerable<string> values,
             string optionName,
-            out FilePropertyFilter filter)
+            out FilterPredicate<DateTime> creationTimePredicate,
+            out FilterPredicate<DateTime> modifiedTimePredicate,
+            out FilterPredicate<long> sizePredicate)
         {
-            filter = null;
-            Func<long, bool> sizePredicate = null;
-            Func<DateTime, bool> creationTimePredicate = null;
-            Func<DateTime, bool> modifiedTimePredicate = null;
+            creationTimePredicate = null;
+            modifiedTimePredicate = null;
+            sizePredicate = null;
 
             foreach (string value in values)
             {
@@ -37,7 +37,19 @@ namespace Orang.CommandLine
                 {
                     expression = Expression.Parse(value);
 
-                    if (OptionValues.FileProperty_Size.IsKeyOrShortKey(expression.Identifier))
+                    if (OptionValues.FileProperty_CreationTime.IsKeyOrShortKey(expression.Identifier))
+                    {
+                        optionValue = OptionValues.FileProperty_CreationTime;
+
+                        creationTimePredicate = new FilterPredicate<DateTime>(expression, PredicateHelpers.GetDateTimePredicate(expression));
+                    }
+                    else if (OptionValues.FileProperty_ModifiedTime.IsKeyOrShortKey(expression.Identifier))
+                    {
+                        optionValue = OptionValues.FileProperty_ModifiedTime;
+
+                        modifiedTimePredicate = new FilterPredicate<DateTime>(expression, PredicateHelpers.GetDateTimePredicate(expression));
+                    }
+                    else if (OptionValues.FileProperty_Size.IsKeyOrShortKey(expression.Identifier))
                     {
                         optionValue = OptionValues.FileProperty_Size;
 
@@ -47,19 +59,7 @@ namespace Orang.CommandLine
                             return false;
                         }
 
-                        sizePredicate = PredicateHelpers.GetLongPredicate(expression);
-                    }
-                    else if (OptionValues.FileProperty_CreationTime.IsKeyOrShortKey(expression.Identifier))
-                    {
-                        optionValue = OptionValues.FileProperty_CreationTime;
-
-                        creationTimePredicate = PredicateHelpers.GetDateTimePredicate(expression);
-                    }
-                    else if (OptionValues.FileProperty_ModifiedTime.IsKeyOrShortKey(expression.Identifier))
-                    {
-                        optionValue = OptionValues.FileProperty_ModifiedTime;
-
-                        modifiedTimePredicate = PredicateHelpers.GetDateTimePredicate(expression);
+                        sizePredicate = new FilterPredicate<long>(expression, PredicateHelpers.GetLongPredicate(expression));
                     }
                     else
                     {
@@ -82,11 +82,6 @@ namespace Orang.CommandLine
                     return false;
                 }
             }
-
-            filter = new FilePropertyFilter(
-                sizePredicate: sizePredicate,
-                creationTimePredicate: creationTimePredicate,
-                modifiedTimePredicate: modifiedTimePredicate);
 
             return true;
         }
@@ -526,86 +521,6 @@ namespace Orang.CommandLine
                     return false;
                 }
             }
-
-            return true;
-        }
-
-        public static bool TryParseRegex(
-            string pattern,
-            RegexOptions regexOptions,
-            TimeSpan matchTimeout,
-            string patternOptionName,
-            out Regex regex)
-        {
-            regex = null;
-
-            if (pattern == null)
-                return false;
-
-            try
-            {
-                regex = new Regex(pattern, regexOptions, matchTimeout);
-                return true;
-            }
-            catch (ArgumentException ex)
-            {
-                WriteError(ex, $"Could not parse '{OptionNames.GetHelpText(patternOptionName)}' value: {ex.Message}");
-                return false;
-            }
-        }
-
-        internal static bool TryParseRegexOptions(
-            IEnumerable<string> options,
-            string optionsParameterName,
-            out RegexOptions regexOptions,
-            out PatternOptions patternOptions,
-            PatternOptions includedPatternOptions = PatternOptions.None,
-            OptionValueProvider provider = null)
-        {
-            regexOptions = RegexOptions.None;
-
-            if (!TryParseAsEnumFlags(options, optionsParameterName, out patternOptions, provider: provider ?? OptionValueProviders.PatternOptionsProvider))
-                return false;
-
-            Debug.Assert((patternOptions & (PatternOptions.CaseSensitive | PatternOptions.IgnoreCase)) != (PatternOptions.CaseSensitive | PatternOptions.IgnoreCase));
-
-            if ((patternOptions & PatternOptions.CaseSensitive) != 0)
-            {
-                includedPatternOptions &= ~PatternOptions.IgnoreCase;
-            }
-            else if ((patternOptions & PatternOptions.IgnoreCase) != 0)
-            {
-                includedPatternOptions &= ~PatternOptions.CaseSensitive;
-            }
-
-            patternOptions |= includedPatternOptions;
-
-            if ((patternOptions & PatternOptions.Compiled) != 0)
-                regexOptions |= RegexOptions.Compiled;
-
-            if ((patternOptions & PatternOptions.CultureInvariant) != 0)
-                regexOptions |= RegexOptions.CultureInvariant;
-
-            if ((patternOptions & PatternOptions.ECMAScript) != 0)
-                regexOptions |= RegexOptions.ECMAScript;
-
-            if ((patternOptions & PatternOptions.ExplicitCapture) != 0)
-                regexOptions |= RegexOptions.ExplicitCapture;
-
-            if ((patternOptions & PatternOptions.IgnoreCase) != 0)
-                regexOptions |= RegexOptions.IgnoreCase;
-
-            if ((patternOptions & PatternOptions.IgnorePatternWhitespace) != 0)
-                regexOptions |= RegexOptions.IgnorePatternWhitespace;
-
-            if ((patternOptions & PatternOptions.Multiline) != 0)
-                regexOptions |= RegexOptions.Multiline;
-
-            if ((patternOptions & PatternOptions.RightToLeft) != 0)
-                regexOptions |= RegexOptions.RightToLeft;
-
-            if ((patternOptions & PatternOptions.Singleline) != 0)
-                regexOptions |= RegexOptions.Singleline;
 
             return true;
         }

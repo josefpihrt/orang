@@ -267,7 +267,7 @@ namespace Orang.CommandLine
 
                     count++;
 
-                } while (File.Exists(newPath));
+                } while (File.Exists(newPath) || Directory.Exists(newPath));
 
                 return newPath;
             }

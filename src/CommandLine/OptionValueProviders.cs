@@ -131,10 +131,15 @@ namespace Orang.CommandLine
             OptionValues.FileSystemAttributes_File);
 
         public static OptionValueProvider NamePartKindProvider { get; } = new OptionValueProvider(MetaValues.NamePart,
-            SimpleOptionValue.Create(NamePartKind.Extension, description: "Search in file extension."),
-            SimpleOptionValue.Create(NamePartKind.FullName, description: "Search in full path."),
-            SimpleOptionValue.Create(NamePartKind.Name, description: "Search in file name and its extension."),
-            SimpleOptionValue.Create(NamePartKind.NameWithoutExtension, shortValue: "w", description: "Search in file name without extension.")
+            OptionValues.NamePart_Extension,
+            OptionValues.NamePart_FullName,
+            OptionValues.NamePart_Name,
+            OptionValues.NamePart_NameWithoutExtension
+        );
+
+        public static OptionValueProvider NamePartKindProvider_WithoutFullName { get; } = NamePartKindProvider.WithoutValues(
+            OptionValueProviderNames.NamePart_WithoutFullName,
+            OptionValues.NamePart_FullName
         );
 
         public static OptionValueProvider SyntaxSectionProvider { get; } = new OptionValueProvider(MetaValues.SyntaxSections,

@@ -24,6 +24,7 @@ namespace Orang.CommandLine
             OptionValueProvider provider,
             out Filter filter,
             bool allowNull = false,
+            OptionValueProvider namePartProvider = null,
             NamePartKind defaultNamePart = NamePartKind.Name,
             PatternOptions includedPatternOptions = PatternOptions.None)
         {
@@ -34,6 +35,7 @@ namespace Orang.CommandLine
                 filter: out filter,
                 namePart: out _,
                 allowNull: allowNull,
+                namePartProvider: namePartProvider,
                 defaultNamePart: defaultNamePart,
                 includedPatternOptions: includedPatternOptions);
         }
@@ -45,6 +47,7 @@ namespace Orang.CommandLine
             out Filter filter,
             out NamePartKind namePart,
             bool allowNull = false,
+            OptionValueProvider namePartProvider = null,
             NamePartKind defaultNamePart = NamePartKind.Name,
             PatternOptions includedPatternOptions = PatternOptions.None)
         {
@@ -100,9 +103,9 @@ namespace Orang.CommandLine
                     }
                     else if (OptionValues.Part.IsKeyOrShortKey(key))
                     {
-                        if (!TryParseAsEnum(value, out namePart, provider: OptionValueProviders.NamePartKindProvider))
+                        if (!TryParseAsEnum(value, out namePart, provider: namePartProvider ?? OptionValueProviders.NamePartKindProvider))
                         {
-                            WriteOptionValueError(value, OptionValues.Part, OptionValueProviders.NamePartKindProvider);
+                            WriteOptionValueError(value, OptionValues.Part, namePartProvider ?? OptionValueProviders.NamePartKindProvider);
                             return false;
                         }
 

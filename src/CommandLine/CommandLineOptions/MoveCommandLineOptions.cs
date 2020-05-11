@@ -10,7 +10,7 @@ namespace Orang.CommandLine
     internal sealed class MoveCommandLineOptions : CommonCopyCommandLineOptions
     {
         [Option(longName: OptionNames.Conflict,
-            HelpText = "Defines how to resolve conflict when a file already exists.",
+            HelpText = "Defines how to resolve conflict when a file/directory already exists.",
             MetaValue = MetaValues.ConflictResolution)]
         public string Conflict { get; set; }
 

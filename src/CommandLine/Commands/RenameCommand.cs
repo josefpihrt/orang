@@ -21,6 +21,12 @@ namespace Orang.CommandLine
             Debug.Assert(options.ContentFilter?.IsNegative != true);
         }
 
+        public ConflictResolution ConflictResolution
+        {
+            get { return Options.ConflictResolution; }
+            protected set { Options.ConflictResolution = value; }
+        }
+
         protected override FileSystemFilterOptions CreateFilterOptions()
         {
             return new FileSystemFilterOptions(
@@ -82,40 +88,82 @@ namespace Orang.CommandLine
                 return;
             }
 
+            bool fileExists = File.Exists(newPath);
+            bool directoryExists = !fileExists && Directory.Exists(newPath);
+
+            if (fileExists
+                || directoryExists)
+            {
+                if (ConflictResolution == ConflictResolution.Skip)
+                    return;
+            }
+
+            string question;
+            if (fileExists)
+            {
+                question = "Rename (and delete existing file)?";
+            }
+            else if (directoryExists)
+            {
+                question = "Rename (and delete existing directory)?";
+            }
+            else
+            {
+                question = "Rename?";
+            }
+
+            if ((fileExists || directoryExists)
+                && ConflictResolution == ConflictResolution.Ask)
+            {
+                if (!AskToOverwrite(context, question, indent))
+                    return;
+            }
+            else if (Options.Ask)
+            {
+                if (!AskToExecute(context, question, indent))
+                    return;
+            }
+
             bool renamed = false;
 
-            if (!Options.Ask || AskToExecute(context, "Rename?", indent))
+            try
             {
-                try
+                if (!Options.DryRun)
                 {
-                    if (!Options.DryRun)
+                    if (fileExists)
                     {
-                        if (fileMatch.IsDirectory)
-                        {
-                            Directory.Move(path, newPath);
-                        }
-                        else
-                        {
-                            File.Move(path, newPath);
-                        }
-
-                        renamed = true;
+                        File.Delete(newPath);
+                    }
+                    else if (directoryExists)
+                    {
+                        Directory.Delete(newPath, recursive: true);
                     }
 
                     if (fileMatch.IsDirectory)
                     {
-                        context.Telemetry.ProcessedDirectoryCount++;
+                        Directory.Move(path, newPath);
                     }
                     else
                     {
-                        context.Telemetry.ProcessedFileCount++;
+                        File.Move(path, newPath);
                     }
+
+                    renamed = true;
                 }
-                catch (Exception ex) when (ex is IOException
-                    || ex is UnauthorizedAccessException)
+
+                if (fileMatch.IsDirectory)
                 {
-                    WriteFileError(ex, indent: indent);
+                    context.Telemetry.ProcessedDirectoryCount++;
                 }
+                else
+                {
+                    context.Telemetry.ProcessedFileCount++;
+                }
+            }
+            catch (Exception ex) when (ex is IOException
+                || ex is UnauthorizedAccessException)
+            {
+                WriteFileError(ex, indent: indent);
             }
 
             if (fileMatch.IsDirectory
@@ -199,6 +247,43 @@ namespace Orang.CommandLine
         {
             WriteSearchedFilesAndDirectories(telemetry, Options.SearchTarget, verbosity);
             WriteProcessedFilesAndDirectories(telemetry, Options.SearchTarget, "Renamed files", "Renamed directories", Options.DryRun, verbosity);
+        }
+
+        private bool AskToOverwrite(SearchContext context, string question, string indent)
+        {
+            DialogResult result = ConsoleHelpers.Ask(question, indent);
+
+            switch (result)
+            {
+                case DialogResult.Yes:
+                    {
+                        return true;
+                    }
+                case DialogResult.YesToAll:
+                    {
+                        ConflictResolution = ConflictResolution.Overwrite;
+                        return true;
+                    }
+                case DialogResult.No:
+                case DialogResult.None:
+                    {
+                        return false;
+                    }
+                case DialogResult.NoToAll:
+                    {
+                        ConflictResolution = ConflictResolution.Skip;
+                        return false;
+                    }
+                case DialogResult.Cancel:
+                    {
+                        context.TerminationReason = TerminationReason.Canceled;
+                        return false;
+                    }
+                default:
+                    {
+                        throw new InvalidOperationException($"Unknown enum value '{result}'.");
+                    }
+            }
         }
     }
 }

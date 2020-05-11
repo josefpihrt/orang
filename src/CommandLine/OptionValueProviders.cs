@@ -354,6 +354,11 @@ namespace Orang.CommandLine
             OptionValues.ConflictResolution_Skip
         );
 
+        public static OptionValueProvider ConflictResolutionProvider_WithoutRename { get; } = ConflictResolutionProvider.WithoutValues(
+            OptionValueProviderNames.ConflictResolution_WithoutRename,
+            OptionValues.ConflictResolution_Rename
+        );
+
         public static OptionValueProvider FileCompareOptionsProvider { get; } = new OptionValueProvider(MetaValues.CompareOptions,
             SimpleOptionValue.Create(FileCompareOptions.None, description: "Compare files only by name."),
             SimpleOptionValue.Create(FileCompareOptions.Attributes, description: "Compare file attributes."),

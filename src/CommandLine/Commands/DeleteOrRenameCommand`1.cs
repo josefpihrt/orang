@@ -52,7 +52,7 @@ namespace Orang.CommandLine
 
         protected bool AskToExecute(SearchContext context, string question, string indent)
         {
-            DialogResult result = ConsoleHelpers.Ask((Options.DryRun) ? "Continue?" : question, indent);
+            DialogResult result = ConsoleHelpers.Ask(question, indent);
 
             switch (result)
             {

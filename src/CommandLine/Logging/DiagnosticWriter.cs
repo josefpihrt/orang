@@ -176,6 +176,7 @@ namespace Orang.CommandLine
             WriteOption("ask", options.Ask);
             WriteOption("attributes", options.Attributes);
             WriteOption("attributes to skip", options.AttributesToSkip);
+            WriteOption("conflict resolution", options.ConflictResolution);
             WriteFilter("content filter", options.ContentFilter);
             WriteEncoding("default encoding", options.DefaultEncoding);
             WriteFilter("directory filter", options.DirectoryFilter, options.DirectoryNamePart);

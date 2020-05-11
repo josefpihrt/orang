@@ -21,6 +21,11 @@ namespace Orang.CommandLine
             HelpText = "Ask for a permission to rename file or directory.")]
         public bool Ask { get; set; }
 
+        [Option(longName: OptionNames.Conflict,
+            HelpText = "Defines how to resolve conflict when a file/directory already exists.",
+            MetaValue = MetaValues.ConflictResolution)]
+        public string Conflict { get; set; }
+
         [Option(shortName: OptionShortNames.Content, longName: OptionNames.Content,
             HelpText = "Regular expression for files' content. Syntax is <PATTERN> [<PATTERN_OPTIONS>].",
             MetaValue = MetaValues.Regex)]
@@ -89,6 +94,9 @@ namespace Orang.CommandLine
             if (!TryParseReplaceOptions(Modify, OptionNames.Modify, replacement, matchEvaluator, out ReplaceOptions replaceOptions))
                 return false;
 
+            if (!TryParseAsEnum(Conflict, OptionNames.Conflict, out ConflictResolution conflictResolution, defaultValue: ConflictResolution.Ask, provider: OptionValueProviders.ConflictResolutionProvider_WithoutRename))
+                return false;
+
             if (!TryParseDisplay(
                 values: Display,
                 optionName: OptionNames.Display,
@@ -132,6 +140,7 @@ namespace Orang.CommandLine
             options.NamePart = namePart;
             options.ContentFilter = contentFilter;
             options.MaxMatchingFiles = MaxCount;
+            options.ConflictResolution = conflictResolution;
 
             return true;
         }

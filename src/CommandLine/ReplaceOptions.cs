@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
@@ -9,24 +10,20 @@ namespace Orang.CommandLine
     {
         public ReplaceOptions(
             string replacement = null,
-            MatchEvaluator matchEvaluator = null,
             ReplaceFunctions functions = ReplaceFunctions.None,
             bool cultureInvariant = false)
         {
-            Replacement = replacement;
-            MatchEvaluator = matchEvaluator;
+            Replacement = replacement ?? "";
+            Functions = functions;
+            CultureInvariant = cultureInvariant;
+        }
 
-            if (MatchEvaluator == null)
-            {
-                if (replacement != null
-                    || functions == ReplaceFunctions.None)
-                {
-                    replacement ??= "";
-
-                    MatchEvaluator = new MatchEvaluator(match => match.Result(replacement));
-                }
-            }
-
+        public ReplaceOptions(
+            MatchEvaluator matchEvaluator,
+            ReplaceFunctions functions = ReplaceFunctions.None,
+            bool cultureInvariant = false)
+        {
+            MatchEvaluator = matchEvaluator ?? throw new ArgumentNullException(nameof(matchEvaluator));
             Functions = functions;
             CultureInvariant = cultureInvariant;
         }
@@ -39,42 +36,35 @@ namespace Orang.CommandLine
 
         public bool CultureInvariant { get; }
 
-        public CultureInfo CultureInfo => (CultureInvariant) ? CultureInfo.InvariantCulture : CultureInfo.CurrentCulture;
-
-        public bool TrimStart => (Functions & ReplaceFunctions.TrimStart) != 0;
-
-        public bool TrimEnd => (Functions & ReplaceFunctions.TrimEnd) != 0;
-
-        public bool Trim => (Functions & ReplaceFunctions.Trim) == ReplaceFunctions.Trim;
-
-        public bool ToLower => (Functions & ReplaceFunctions.ToLower) != 0;
-
-        public bool ToUpper => (Functions & ReplaceFunctions.ToUpper) != 0;
+        internal CultureInfo CultureInfo => (CultureInvariant) ? CultureInfo.InvariantCulture : CultureInfo.CurrentCulture;
 
         public string Replace(Match match)
         {
-            string s = MatchEvaluator?.Invoke(match) ?? match.Value;
+            string s = (MatchEvaluator != null) ? MatchEvaluator(match) : match.Result(Replacement);
 
             if (Functions != ReplaceFunctions.None)
             {
-                if (Trim)
+                if ((Functions & ReplaceFunctions.TrimStart) != 0)
                 {
-                    s = s.Trim();
+                    if ((Functions & ReplaceFunctions.TrimEnd) != 0)
+                    {
+                        s = s.Trim();
+                    }
+                    else
+                    {
+                        s = s.TrimStart();
+                    }
                 }
-                else if (TrimStart)
-                {
-                    s = s.TrimStart();
-                }
-                else if (TrimEnd)
+                else if ((Functions & ReplaceFunctions.TrimEnd) != 0)
                 {
                     s = s.TrimEnd();
                 }
 
-                if (ToLower)
+                if ((Functions & ReplaceFunctions.ToLower) != 0)
                 {
                     s = s.ToLower(CultureInfo);
                 }
-                else if (ToUpper)
+                else if ((Functions & ReplaceFunctions.ToUpper) != 0)
                 {
                     s = s.ToUpper(CultureInfo);
                 }

@@ -325,11 +325,20 @@ namespace Orang.CommandLine
             if ((replaceFlags & ReplaceFlags.ToUpper) != 0)
                 functions |= ReplaceFunctions.ToUpper;
 
-            replaceOptions = new ReplaceOptions(
-                replacement: replacement,
-                matchEvaluator: matchEvaluator,
-                functions: functions,
-                cultureInvariant: (replaceFlags & ReplaceFlags.CultureInvariant) != 0);
+            if (matchEvaluator != null)
+            {
+                replaceOptions = new ReplaceOptions(
+                    matchEvaluator: matchEvaluator,
+                    functions: functions,
+                    cultureInvariant: (replaceFlags & ReplaceFlags.CultureInvariant) != 0);
+            }
+            else
+            {
+                replaceOptions = new ReplaceOptions(
+                    replacement: replacement,
+                    functions: functions,
+                    cultureInvariant: (replaceFlags & ReplaceFlags.CultureInvariant) != 0);
+            }
 
             return true;
         }

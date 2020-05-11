@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Orang.FileSystem;
+using Orang.Text.RegularExpressions;
 using static Orang.CommandLine.LogHelpers;
 using static Orang.Logger;
 

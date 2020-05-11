@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading;
 
-namespace Orang
+namespace Orang.Text.RegularExpressions
 {
-    public sealed class ReplaceData
+    internal sealed class ReplaceData
     {
         private ReplaceData(
             Regex regex,

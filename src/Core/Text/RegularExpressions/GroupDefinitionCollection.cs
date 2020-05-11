@@ -6,9 +6,9 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-namespace Orang
+namespace Orang.Text.RegularExpressions
 {
-    public class GroupDefinitionCollection : ReadOnlyCollection<GroupDefinition>
+    internal class GroupDefinitionCollection : ReadOnlyCollection<GroupDefinition>
     {
         private readonly Dictionary<string, GroupDefinition> _names;
         private readonly Dictionary<int, GroupDefinition> _numbers;

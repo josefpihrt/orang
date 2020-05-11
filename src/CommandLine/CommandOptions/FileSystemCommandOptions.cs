@@ -6,6 +6,7 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using Orang.FileSystem;
+using Orang.Text.RegularExpressions;
 
 namespace Orang.CommandLine
 {

@@ -2,9 +2,9 @@
 
 using System.Text.RegularExpressions;
 
-namespace Orang
+namespace Orang.Text.RegularExpressions
 {
-    public sealed class CaptureItem
+    internal sealed class CaptureItem
     {
         internal CaptureItem(Capture capture, GroupItem groupItem)
         {

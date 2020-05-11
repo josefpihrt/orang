@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Orang.CommandLine.Help;
+using Orang.Text.RegularExpressions;
 using static Orang.Logger;
 
 namespace Orang.CommandLine

@@ -3,6 +3,7 @@
 using System;
 using System.Text;
 using System.Text.RegularExpressions;
+using Orang.Text.RegularExpressions;
 
 namespace Orang
 {

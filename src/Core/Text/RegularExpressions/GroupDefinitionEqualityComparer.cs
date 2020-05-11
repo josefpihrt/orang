@@ -2,9 +2,9 @@
 
 using System.Collections.Generic;
 
-namespace Orang
+namespace Orang.Text.RegularExpressions
 {
-    public abstract class GroupDefinitionEqualityComparer : EqualityComparer<GroupDefinition>
+    internal abstract class GroupDefinitionEqualityComparer : EqualityComparer<GroupDefinition>
     {
         public static GroupDefinitionEqualityComparer ByNumber { get; } = new GroupDefinitionNumberEqualityComparer();
 

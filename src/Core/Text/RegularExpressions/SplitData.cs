@@ -6,9 +6,9 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Threading;
 
-namespace Orang
+namespace Orang.Text.RegularExpressions
 {
-    public sealed class SplitData
+    internal sealed class SplitData
     {
         private SplitData(Regex regex, string input, int maxCount, SplitItemCollection items, bool omitGroups, GroupDefinitionCollection groupDefinitions)
         {

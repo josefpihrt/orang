@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 using Orang.FileSystem;
+using Orang.Text.RegularExpressions;
 using static Orang.CommandLine.LogHelpers;
 using static Orang.Logger;
 

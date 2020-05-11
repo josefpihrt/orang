@@ -3,9 +3,9 @@
 using System.Globalization;
 using System.Text.RegularExpressions;
 
-namespace Orang
+namespace Orang.Text.RegularExpressions
 {
-    public abstract class SplitItem
+    internal abstract class SplitItem
     {
         internal SplitItem()
         {

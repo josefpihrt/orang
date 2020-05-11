@@ -2,10 +2,10 @@
 
 using System.Diagnostics;
 
-namespace Orang
+namespace Orang.Text.RegularExpressions
 {
     [DebuggerDisplay("{Index} {Name}")]
-    public readonly struct GroupDefinition
+    internal readonly struct GroupDefinition
     {
         internal GroupDefinition(int number, string name)
         {

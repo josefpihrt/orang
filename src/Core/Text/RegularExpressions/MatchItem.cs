@@ -3,9 +3,9 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
-namespace Orang
+namespace Orang.Text.RegularExpressions
 {
-    public sealed class MatchItem
+    internal sealed class MatchItem
     {
         internal MatchItem(Match match, GroupDefinitionCollection groups)
         {

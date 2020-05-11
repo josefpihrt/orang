@@ -4,9 +4,9 @@ using System;
 using System.Globalization;
 using System.Text;
 
-namespace Orang
+namespace Orang.Text.RegularExpressions
 {
-    public static class RegexEscape
+    internal static class RegexEscape
     {
         public static string Escape(string input, bool inCharGroup = false)
         {

@@ -3,11 +3,11 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace Orang
+namespace Orang.Text.RegularExpressions
 {
-    public class CaptureItemCollection : ReadOnlyCollection<CaptureItem>
+    internal class SplitItemCollection : ReadOnlyCollection<SplitItem>
     {
-        internal CaptureItemCollection(IList<CaptureItem> list)
+        internal SplitItemCollection(IList<SplitItem> list)
             : base(list)
         {
         }

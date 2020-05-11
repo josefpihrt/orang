@@ -3,12 +3,12 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace Orang
+namespace Orang.Text.RegularExpressions
 {
-    public class MatchItemCollection : ReadOnlyCollection<MatchItem>
+    internal class CaptureItemCollection : ReadOnlyCollection<CaptureItem>
     {
-        internal MatchItemCollection(IList<MatchItem> matchItems)
-            : base(matchItems)
+        internal CaptureItemCollection(IList<CaptureItem> list)
+            : base(list)
         {
         }
     }

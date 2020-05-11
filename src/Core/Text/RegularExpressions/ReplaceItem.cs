@@ -2,9 +2,9 @@
 
 using System.Text.RegularExpressions;
 
-namespace Orang
+namespace Orang.Text.RegularExpressions
 {
-    public readonly struct ReplaceItem
+    internal readonly struct ReplaceItem
     {
         internal ReplaceItem(Match match, string value, int index)
         {

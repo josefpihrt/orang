@@ -2,17 +2,21 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using Orang.CommandLine;
 
 namespace Orang.FileSystem
 {
     internal static class FileSystemHelpers
     {
+        private static ImmutableHashSet<char> _invalidFileNameChars;
+
         private static readonly EnumerationOptions _enumerationOptionsNoRecurse = new EnumerationOptions()
         {
             AttributesToSkip = 0,
@@ -32,6 +36,17 @@ namespace Orang.FileSystem
         public static StringComparer Comparer { get; } = (IsCaseSensitive) ? StringComparer.CurrentCulture : StringComparer.CurrentCultureIgnoreCase;
 
         public static StringComparison Comparison { get; } = (IsCaseSensitive) ? StringComparison.CurrentCulture : StringComparison.CurrentCultureIgnoreCase;
+
+        public static ImmutableHashSet<char> InvalidFileNameChars
+        {
+            get
+            {
+                if (_invalidFileNameChars == null)
+                    Interlocked.CompareExchange(ref _invalidFileNameChars, Path.GetInvalidFileNameChars().ToImmutableHashSet(), null);
+
+                return _invalidFileNameChars;
+            }
+        }
 
         public static IEnumerable<string> EnumerateFiles(string path, EnumerationOptions options)
         {
@@ -301,6 +316,17 @@ namespace Orang.FileSystem
             }
 
             return size;
+        }
+
+        public static bool ContainsInvalidFileNameChars(string path, int startIndex)
+        {
+            for (int i = startIndex; i < path.Length; i++)
+            {
+                if (InvalidFileNameChars.Contains(path[i]))
+                    return true;
+            }
+
+            return false;
         }
 
         public static FileContent ReadFile(

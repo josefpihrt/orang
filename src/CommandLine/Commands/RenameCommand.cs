@@ -76,6 +76,12 @@ namespace Orang.CommandLine
             if (!changed)
                 return;
 
+            if (FileSystemHelpers.ContainsInvalidFileNameChars(newPath, FileSystemHelpers.GetFileNameIndex(path)))
+            {
+                WriteWarning($"{indent}New file name contains invalid character(s).", verbosity: Verbosity.Normal);
+                return;
+            }
+
             bool renamed = false;
 
             if (!Options.Ask || AskToExecute(context, "Rename?", indent))

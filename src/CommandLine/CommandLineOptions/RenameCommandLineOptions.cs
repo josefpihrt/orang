@@ -94,7 +94,7 @@ namespace Orang.CommandLine
             if (!TryParseReplaceOptions(Modify, OptionNames.Modify, replacement, matchEvaluator, out ReplaceOptions replaceOptions))
                 return false;
 
-            if (!TryParseAsEnum(Conflict, OptionNames.Conflict, out ConflictResolution conflictResolution, defaultValue: ConflictResolution.Ask, provider: OptionValueProviders.ConflictResolutionProvider_WithoutRename))
+            if (!TryParseAsEnum(Conflict, OptionNames.Conflict, out ConflictResolution conflictResolution, defaultValue: ConflictResolution.Ask, provider: OptionValueProviders.ConflictResolutionProvider_WithoutSuffix))
                 return false;
 
             if (!TryParseDisplay(

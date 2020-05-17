@@ -350,13 +350,13 @@ namespace Orang.CommandLine
         public static OptionValueProvider ConflictResolutionProvider { get; } = new OptionValueProvider(MetaValues.ConflictResolution,
             OptionValues.ConflictResolution_Ask,
             OptionValues.ConflictResolution_Overwrite,
-            OptionValues.ConflictResolution_Rename,
+            OptionValues.ConflictResolution_Suffix,
             OptionValues.ConflictResolution_Skip
         );
 
-        public static OptionValueProvider ConflictResolutionProvider_WithoutRename { get; } = ConflictResolutionProvider.WithoutValues(
-            OptionValueProviderNames.ConflictResolution_WithoutRename,
-            OptionValues.ConflictResolution_Rename
+        public static OptionValueProvider ConflictResolutionProvider_WithoutSuffix { get; } = ConflictResolutionProvider.WithoutValues(
+            OptionValueProviderNames.ConflictResolution_WithoutSuffix,
+            OptionValues.ConflictResolution_Suffix
         );
 
         public static OptionValueProvider FileCompareOptionsProvider { get; } = new OptionValueProvider(MetaValues.CompareOptions,

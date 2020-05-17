@@ -146,7 +146,7 @@ namespace Orang.CommandLine
 
             if (!isDirectory
                 && fileExists
-                && ConflictResolution == ConflictResolution.Rename)
+                && ConflictResolution == ConflictResolution.Suffix)
             {
                 destinationPath = CreateNewFile(destinationPath);
             }

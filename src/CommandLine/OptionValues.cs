@@ -8,8 +8,8 @@ namespace Orang.CommandLine
     {
         public static readonly SimpleOptionValue ConflictResolution_Ask = SimpleOptionValue.Create(ConflictResolution.Ask, description: "Ask when a file or already exists.");
         public static readonly SimpleOptionValue ConflictResolution_Overwrite = SimpleOptionValue.Create(ConflictResolution.Overwrite, description: "Overwrite a file when it already exists.");
-        public static readonly SimpleOptionValue ConflictResolution_Rename = SimpleOptionValue.Create(ConflictResolution.Rename, description: "Create new file name if it already exists.");
         public static readonly SimpleOptionValue ConflictResolution_Skip = SimpleOptionValue.Create(ConflictResolution.Skip, description: "Do not copy or move a file if it already exists.");
+        public static readonly SimpleOptionValue ConflictResolution_Suffix = SimpleOptionValue.Create(ConflictResolution.Suffix, description: "Add suffix to file name if it already exists.");
 
         public static readonly SimpleOptionValue ContentDisplayStyle_AllLines = SimpleOptionValue.Create(ContentDisplayStyle.AllLines, description: "Display all lines.");
         public static readonly SimpleOptionValue ContentDisplayStyle_Line = SimpleOptionValue.Create(ContentDisplayStyle.Line, description: "Display entire line containing the matched value.");

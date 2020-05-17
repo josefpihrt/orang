@@ -7,6 +7,6 @@ namespace Orang.FileSystem
         Ask = 0,
         Overwrite = 1,
         Skip = 2,
-        Rename = 3,
+        Suffix = 3,
     }
 }

@@ -4,7 +4,7 @@ namespace Orang.CommandLine
 {
     internal static class OptionValueProviderNames
     {
-        public const string ConflictResolution_WithoutRename = nameof(ConflictResolution_WithoutRename);
+        public const string ConflictResolution_WithoutSuffix = nameof(ConflictResolution_WithoutSuffix);
         public const string ContentDisplayStyle_WithoutLineAndUnmatchedLines = nameof(ContentDisplayStyle_WithoutLineAndUnmatchedLines);
         public const string ContentDisplayStyle_WithoutUnmatchedLines = nameof(ContentDisplayStyle_WithoutUnmatchedLines);
         public const string DeleteHighlightOptions = nameof(DeleteHighlightOptions);

@@ -94,7 +94,7 @@ namespace Orang.CommandLine
             if (!TryParseSortOptions(Sort, OptionNames.Sort, out SortOptions sortOptions))
                 return false;
 
-            if (!FilterParser.TryParse(IncludeDirectory, OptionNames.IncludeDirectory, OptionValueProviders.PatternOptionsProvider, out Filter directoryFilter, out NamePartKind directoryNamePart, allowNull: true))
+            if (!FilterParser.TryParse(IncludeDirectory, OptionNames.IncludeDirectory, OptionValueProviders.PatternOptionsProvider, out Filter directoryFilter, out NamePartKind directoryNamePart, allowNull: true, namePartProvider: OptionValueProviders.NamePartKindProvider_WithoutExtension))
                 return false;
 
             if (!FilterParser.TryParse(

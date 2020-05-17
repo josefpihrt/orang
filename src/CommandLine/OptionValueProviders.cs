@@ -142,6 +142,11 @@ namespace Orang.CommandLine
             OptionValues.NamePart_FullName
         );
 
+        public static OptionValueProvider NamePartKindProvider_WithoutExtension { get; } = NamePartKindProvider.WithoutValues(
+            OptionValueProviderNames.NamePart_WithoutExtension,
+            OptionValues.NamePart_Extension
+        );
+
         public static OptionValueProvider SyntaxSectionProvider { get; } = new OptionValueProvider(MetaValues.SyntaxSections,
             SimpleOptionValue.Create(SyntaxSection.AlternationConstructs, shortValue: "ac", helpValue: "a[lternation-]c[onstructs]"),
             SimpleOptionValue.Create(SyntaxSection.Anchors),

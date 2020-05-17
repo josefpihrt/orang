@@ -14,6 +14,7 @@ namespace Orang.CommandLine
         public const string FindHighlightOptions = nameof(FindHighlightOptions);
         public const string MatchHighlightOptions = nameof(MatchHighlightOptions);
         public const string NamePart_WithoutFullName = nameof(NamePart_WithoutFullName);
+        public const string NamePart_WithoutExtension = nameof(NamePart_WithoutExtension);
         public const string PathDisplayStyle_Rename = nameof(PathDisplayStyle_Rename);
         public const string PatternOptionsWithoutGroupAndNegative = nameof(PatternOptionsWithoutGroupAndNegative);
         public const string PatternOptionsWithoutGroupAndPartAndNegative = nameof(PatternOptionsWithoutGroupAndPartAndNegative);

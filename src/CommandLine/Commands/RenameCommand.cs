@@ -4,9 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading;
 using Orang.FileSystem;
 using Orang.Text.RegularExpressions;
 using static Orang.CommandLine.LogHelpers;
@@ -18,7 +15,7 @@ namespace Orang.CommandLine
     {
         public RenameCommand(RenameCommandOptions options) : base(options)
         {
-            Debug.Assert(options.ContentFilter?.IsNegative != true);
+            Debug.Assert(options.NameFilter?.IsNegative == false);
         }
 
         public ConflictResolution ConflictResolution
@@ -27,14 +24,14 @@ namespace Orang.CommandLine
             protected set { Options.ConflictResolution = value; }
         }
 
-        protected override FileSystemFilterOptions CreateFilterOptions()
+        protected override FileSystemSearch CreateSearch()
         {
-            return new FileSystemFilterOptions(
-                searchTarget: Options.SearchTarget,
-                recurseSubdirectories: Options.RecurseSubdirectories,
-                canEnumerate: Options.DryRun,
-                partOnly: true,
-                encoding: Options.DefaultEncoding);
+            FileSystemSearch search = base.CreateSearch();
+
+            search.DisallowEnumeration = !Options.DryRun;
+            search.MatchPartOnly = true;
+
+            return search;
         }
 
         protected override void ProcessMatch(
@@ -53,10 +50,10 @@ namespace Orang.CommandLine
         {
             string indent = GetPathIndent(baseDirectoryPath);
 
-            List<ReplaceItem> replaceItems = GetReplaceItems(fileMatch, context.CancellationToken);
+            List<ReplaceItem> replaceItems = ReplaceHelpers.GetReplaceItems(fileMatch.NameMatch, Options.ReplaceOptions, NameFilter.Predicate, context.CancellationToken);
 
             string path = fileMatch.Path;
-            string newPath = GetNewPath(fileMatch, replaceItems);
+            string newPath = ReplaceHelpers.GetNewPath(fileMatch, replaceItems);
             bool changed = !string.Equals(path, newPath, StringComparison.Ordinal);
 
             if (!Options.OmitPath
@@ -171,76 +168,6 @@ namespace Orang.CommandLine
             {
                 OnDirectoryChanged(new DirectoryChangedEventArgs(path, newPath));
             }
-        }
-
-        private List<ReplaceItem> GetReplaceItems(FileMatch fileMatch, CancellationToken cancellationToken)
-        {
-            List<Match> matches = GetMatches(fileMatch.NameMatch);
-
-            int offset = 0;
-            List<ReplaceItem> items = ListCache<ReplaceItem>.GetInstance();
-
-            foreach (Match match in matches)
-            {
-                string value = Options.ReplaceOptions.Replace(match);
-
-                items.Add(new ReplaceItem(match, value, match.Index + offset));
-
-                offset += value.Length - match.Length;
-
-                cancellationToken.ThrowIfCancellationRequested();
-            }
-
-            ListCache<Match>.Free(matches);
-
-            return items;
-
-            static List<Match> GetMatches(Match match)
-            {
-                List<Match> matches = ListCache<Match>.GetInstance();
-
-                do
-                {
-                    matches.Add(match);
-
-                    match = match.NextMatch();
-
-                } while (match.Success);
-
-                if (matches.Count > 1
-                    && matches[0].Index > matches[1].Index)
-                {
-                    matches.Reverse();
-                }
-
-                return matches;
-            }
-        }
-
-        private string GetNewPath(FileMatch fileMatch, List<ReplaceItem> items)
-        {
-            StringBuilder sb = StringBuilderCache.GetInstance();
-
-            string path = fileMatch.Path;
-            NamePart part = fileMatch.Part;
-
-            sb.Append(path, 0, part.Index);
-
-            int lastPos = part.Index;
-
-            foreach (ReplaceItem item in items)
-            {
-                Match match = item.Match;
-
-                sb.Append(path, lastPos, part.Index + match.Index - lastPos);
-                sb.Append(item.Value);
-
-                lastPos = part.Index + match.Index + match.Length;
-            }
-
-            sb.Append(path, lastPos, path.Length - lastPos);
-
-            return StringBuilderCache.GetStringAndFree(sb);
         }
 
         protected override void WriteSummary(SearchTelemetry telemetry, Verbosity verbosity)

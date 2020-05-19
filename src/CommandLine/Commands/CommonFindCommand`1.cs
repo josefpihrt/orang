@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Text;
 using System.Text.RegularExpressions;
 using Orang.FileSystem;
 using Orang.Text.RegularExpressions;
@@ -106,7 +105,7 @@ namespace Orang.CommandLine
 
         protected override void ExecuteFile(string filePath, SearchContext context)
         {
-            FileMatch fileMatch = MatchFile(filePath, context.Progress);
+            FileMatch fileMatch = MatchFile(filePath);
 
             if (fileMatch != null)
             {

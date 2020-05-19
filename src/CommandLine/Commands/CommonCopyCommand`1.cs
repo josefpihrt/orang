@@ -4,8 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Text;
-using System.Text.RegularExpressions;
 using Orang.FileSystem;
 using static Orang.Logger;
 
@@ -148,7 +146,7 @@ namespace Orang.CommandLine
                 && fileExists
                 && ConflictResolution == ConflictResolution.Suffix)
             {
-                destinationPath = CreateNewFile(destinationPath);
+                destinationPath = FileSystemHelpers.CreateNewFilePath(destinationPath);
             }
 
             if (!Options.OmitPath)
@@ -246,30 +244,6 @@ namespace Orang.CommandLine
                     ExecuteOperation(sourcePath, destinationPath);
 
                 context.Telemetry.ProcessedFileCount++;
-            }
-
-            static string CreateNewFile(string path)
-            {
-                int count = 2;
-                int extensionIndex = FileSystemHelpers.GetExtensionIndex(path);
-
-                if (extensionIndex > 0
-                    && FileSystemHelpers.IsDirectorySeparator(path[extensionIndex - 1]))
-                {
-                    extensionIndex = path.Length;
-                }
-
-                string newPath;
-
-                do
-                {
-                    newPath = path.Insert(extensionIndex, count.ToString());
-
-                    count++;
-
-                } while (File.Exists(newPath) || Directory.Exists(newPath));
-
-                return newPath;
             }
         }
 

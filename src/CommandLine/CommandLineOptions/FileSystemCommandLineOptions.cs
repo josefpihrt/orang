@@ -88,13 +88,13 @@ namespace Orang.CommandLine
             if (!TryParseAsEnumFlags(AttributesToSkip, OptionNames.AttributesToSkip, out FileSystemAttributes attributesToSkip, provider: OptionValueProviders.FileSystemAttributesToSkipProvider))
                 return false;
 
-            if (!TryParseEncoding(Encoding, out Encoding defaultEncoding, EncodingHelpers.UTF8NoBom))
+            if (!TryParseEncoding(Encoding, out Encoding defaultEncoding, Text.EncodingHelpers.UTF8NoBom))
                 return false;
 
             if (!TryParseSortOptions(Sort, OptionNames.Sort, out SortOptions sortOptions))
                 return false;
 
-            if (!FilterParser.TryParse(IncludeDirectory, OptionNames.IncludeDirectory, OptionValueProviders.PatternOptionsProvider, out Filter directoryFilter, out NamePartKind directoryNamePart, allowNull: true, namePartProvider: OptionValueProviders.NamePartKindProvider_WithoutExtension))
+            if (!FilterParser.TryParse(IncludeDirectory, OptionNames.IncludeDirectory, OptionValueProviders.PatternOptionsProvider, out Filter directoryFilter, out FileNamePart directoryNamePart, allowNull: true, namePartProvider: OptionValueProviders.NamePartKindProvider_WithoutExtension))
                 return false;
 
             if (!FilterParser.TryParse(
@@ -103,7 +103,7 @@ namespace Orang.CommandLine
                 OptionValueProviders.ExtensionOptionsProvider,
                 out Filter extensionFilter,
                 allowNull: true,
-                defaultNamePart: NamePartKind.Extension,
+                defaultNamePart: FileNamePart.Extension,
                 includedPatternOptions: PatternOptions.List | PatternOptions.Equals | PatternOptions.IgnoreCase))
             {
                 return false;
@@ -127,11 +127,11 @@ namespace Orang.CommandLine
                     return false;
                 }
 
-                options.EmptyFilter = FileEmptyFilter.Empty;
+                options.EmptyOption = FileEmptyOption.Empty;
             }
             else if ((attributesToSkip & FileSystemAttributes.Empty) != 0)
             {
-                options.EmptyFilter = FileEmptyFilter.NonEmpty;
+                options.EmptyOption = FileEmptyOption.NonEmpty;
             }
 
             options.Paths = paths;
@@ -177,7 +177,7 @@ namespace Orang.CommandLine
 
             if (PathsFrom != null)
             {
-                if (!FileSystemHelpers.TryReadAllText(PathsFrom, out string content))
+                if (!FileSystemHelpers.TryReadAllText(PathsFrom, out string content, ex => Logger.WriteError(ex)))
                     return false;
 
                 IEnumerable<string> lines = TextHelpers.ReadLines(content).Where(f => !string.IsNullOrWhiteSpace(f));

@@ -44,7 +44,7 @@ namespace Orang.CommandLine
             WriteFilter("directory filter", options.DirectoryFilter, options.DirectoryNamePart);
             WriteDisplayFormat("display", options.Format);
             WriteOption("dry run", options.DryRun);
-            WriteOption("empty filter", options.EmptyFilter);
+            WriteOption("empty", options.EmptyOption);
             WriteFilter("extension filter", options.ExtensionFilter);
             WriteFilePropertyFilter("file properties", options.SizePredicate, options.CreationTimePredicate, options.ModifiedTimePredicate);
             WriteOption("flat", options.Flat);
@@ -72,7 +72,7 @@ namespace Orang.CommandLine
             WriteFilter("directory filter", options.DirectoryFilter, options.DirectoryNamePart);
             WriteDisplayFormat("display", options.Format);
             WriteOption("dry run", options.DryRun);
-            WriteOption("empty filter", options.EmptyFilter);
+            WriteOption("empty", options.EmptyOption);
             WriteFilter("extension filter", options.ExtensionFilter);
             WriteFilePropertyFilter("file properties", options.SizePredicate, options.CreationTimePredicate, options.ModifiedTimePredicate);
             WriteOption("files only", options.FilesOnly);
@@ -103,7 +103,7 @@ namespace Orang.CommandLine
             WriteEncoding("default encoding", options.DefaultEncoding);
             WriteFilter("directory filter", options.DirectoryFilter, options.DirectoryNamePart);
             WriteDisplayFormat("display", options.Format);
-            WriteOption("empty filter", options.EmptyFilter);
+            WriteOption("empty", options.EmptyOption);
             WriteFilter("extension filter", options.ExtensionFilter);
             WriteFilePropertyFilter("file properties", options.SizePredicate, options.CreationTimePredicate, options.ModifiedTimePredicate);
             WriteOption("highlight options", options.HighlightOptions);
@@ -155,7 +155,7 @@ namespace Orang.CommandLine
             WriteFilter("directory filter", options.DirectoryFilter, options.DirectoryNamePart);
             WriteDisplayFormat("display", options.Format);
             WriteOption("dry run", options.DryRun);
-            WriteOption("empty filter", options.EmptyFilter);
+            WriteOption("empty", options.EmptyOption);
             WriteFilter("extension filter", options.ExtensionFilter);
             WriteFilePropertyFilter("file properties", options.SizePredicate, options.CreationTimePredicate, options.ModifiedTimePredicate);
             WriteOption("flat", options.Flat);
@@ -182,7 +182,7 @@ namespace Orang.CommandLine
             WriteFilter("directory filter", options.DirectoryFilter, options.DirectoryNamePart);
             WriteDisplayFormat("display", options.Format);
             WriteOption("dry run", options.DryRun);
-            WriteOption("empty filter", options.EmptyFilter);
+            WriteOption("empty", options.EmptyOption);
             WriteEvaluator("evaluator", options.ReplaceOptions.MatchEvaluator);
             WriteFilter("extension filter", options.ExtensionFilter);
             WriteFilePropertyFilter("file properties", options.SizePredicate, options.CreationTimePredicate, options.ModifiedTimePredicate);
@@ -208,7 +208,7 @@ namespace Orang.CommandLine
             WriteFilter("directory filter", options.DirectoryFilter, options.DirectoryNamePart);
             WriteDisplayFormat("display", options.Format);
             WriteOption("dry run", options.DryRun);
-            WriteOption("empty filter", options.EmptyFilter);
+            WriteOption("empty", options.EmptyOption);
             WriteEvaluator("evaluator", options.ReplaceOptions.MatchEvaluator);
             WriteFilter("extension filter", options.ExtensionFilter);
             WriteFilePropertyFilter("file properties", options.SizePredicate, options.CreationTimePredicate, options.ModifiedTimePredicate);
@@ -303,7 +303,7 @@ namespace Orang.CommandLine
             WriteLine();
         }
 
-        private static void WriteFilter(string name, Filter filter, NamePartKind? namePart = null)
+        private static void WriteFilter(string name, Filter filter, FileNamePart? part = null)
         {
             WriteName(name);
 
@@ -341,12 +341,12 @@ namespace Orang.CommandLine
                 WriteLine(filter.GroupName);
             }
 
-            if (namePart != null)
+            if (part != null)
             {
                 WriteIndent();
                 WriteName("part");
                 WriteIndent();
-                WriteLine(namePart.ToString());
+                WriteLine(part.ToString());
             }
         }
 

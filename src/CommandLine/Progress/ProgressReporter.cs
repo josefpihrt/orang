@@ -5,7 +5,7 @@ using Orang.CommandLine;
 
 namespace Orang.FileSystem
 {
-    internal class ProgressReporter : IProgress<FileSystemFilterProgress>
+    internal class ProgressReporter : IProgress<SearchProgress>
     {
         public ProgressReporter(string indent)
         {
@@ -29,9 +29,9 @@ namespace Orang.FileSystem
             BaseDirectoryPath = baseDirectoryPath;
         }
 
-        public virtual void Report(FileSystemFilterProgress value)
+        public virtual void Report(SearchProgress value)
         {
-            if (value.Error != null)
+            if (value.Exception != null)
             {
                 WriteError(value);
                 return;
@@ -39,17 +39,17 @@ namespace Orang.FileSystem
 
             switch (value.Kind)
             {
-                case ProgressKind.SearchedDirectory:
+                case SearchProgressKind.SearchDirectory:
                     {
                         SearchedDirectoryCount++;
                         break;
                     }
-                case ProgressKind.Directory:
+                case SearchProgressKind.Directory:
                     {
                         DirectoryCount++;
                         break;
                     }
-                case ProgressKind.File:
+                case SearchProgressKind.File:
                     {
                         FileCount++;
                         break;
@@ -61,10 +61,10 @@ namespace Orang.FileSystem
             }
         }
 
-        protected void WriteError(FileSystemFilterProgress value)
+        protected void WriteError(SearchProgress value)
         {
             LogHelpers.WriteFileError(
-                value.Error,
+                value.Exception,
                 value.Path,
                 basePath: BaseDirectoryPath,
                 colors: Colors.Message_Warning,

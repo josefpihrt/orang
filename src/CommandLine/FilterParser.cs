@@ -25,7 +25,7 @@ namespace Orang.CommandLine
             out Filter filter,
             bool allowNull = false,
             OptionValueProvider namePartProvider = null,
-            NamePartKind defaultNamePart = NamePartKind.Name,
+            FileNamePart defaultNamePart = FileNamePart.Name,
             PatternOptions includedPatternOptions = PatternOptions.None)
         {
             return TryParse(
@@ -45,10 +45,10 @@ namespace Orang.CommandLine
             string optionName,
             OptionValueProvider provider,
             out Filter filter,
-            out NamePartKind namePart,
+            out FileNamePart namePart,
             bool allowNull = false,
             OptionValueProvider namePartProvider = null,
-            NamePartKind defaultNamePart = NamePartKind.Name,
+            FileNamePart defaultNamePart = FileNamePart.Name,
             PatternOptions includedPatternOptions = PatternOptions.None)
         {
             filter = null;
@@ -168,7 +168,7 @@ namespace Orang.CommandLine
             }
 
             if ((patternOptions & PatternOptions.FromFile) != 0
-                && !FileSystemHelpers.TryReadAllText(pattern, out pattern))
+                && !FileSystemHelpers.TryReadAllText(pattern, out pattern, ex => WriteError(ex)))
             {
                 return false;
             }
@@ -208,9 +208,9 @@ namespace Orang.CommandLine
 
             filter = new Filter(
                 regex,
-                groupNumber: groupIndex,
                 isNegative: (patternOptions & PatternOptions.Negative) != 0,
-                predicate);
+                groupNumber: groupIndex,
+                predicate: predicate);
 
             return true;
         }

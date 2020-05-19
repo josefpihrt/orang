@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Text;
 using System.Text.RegularExpressions;
 using Orang.FileSystem;
 using static Orang.CommandLine.LogHelpers;
@@ -26,15 +25,6 @@ namespace Orang.CommandLine
         protected override bool CanDisplaySummary => Options.Input == null;
 
         private OutputSymbols Symbols => _symbols ?? (_symbols = OutputSymbols.Create(Options.HighlightOptions));
-
-        protected override FileSystemFilterOptions CreateFilterOptions()
-        {
-            return new FileSystemFilterOptions(
-                searchTarget: Options.SearchTarget,
-                recurseSubdirectories: Options.RecurseSubdirectories,
-                saveBomEncoding: true,
-                encoding: Options.DefaultEncoding);
-        }
 
         protected override void ExecuteCore(SearchContext context)
         {
@@ -105,7 +95,7 @@ namespace Orang.CommandLine
 
         protected override void ExecuteFile(string filePath, SearchContext context)
         {
-            FileMatch fileMatch = MatchFile(filePath, context.Progress);
+            FileMatch fileMatch = MatchFile(filePath);
 
             if (fileMatch != null)
                 ExecuteOrAddMatch(fileMatch, context, FileWriterOptions);

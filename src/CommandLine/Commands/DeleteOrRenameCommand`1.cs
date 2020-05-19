@@ -23,7 +23,7 @@ namespace Orang.CommandLine
 
         protected sealed override void ExecuteFile(string filePath, SearchContext context)
         {
-            FileMatch fileMatch = MatchFile(filePath, context.Progress);
+            FileMatch fileMatch = MatchFile(filePath);
 
             if (fileMatch != null)
                 ProcessMatch(fileMatch, context);

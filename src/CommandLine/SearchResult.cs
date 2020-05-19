@@ -2,7 +2,6 @@
 
 using System.Diagnostics;
 using System.IO;
-using System.Text;
 using System.Text.RegularExpressions;
 using Orang.FileSystem;
 
@@ -36,8 +35,6 @@ namespace Orang.CommandLine
         public Match ContentMatch => FileMatch.ContentMatch;
 
         public string ContentText => FileMatch.ContentText;
-
-        public Encoding Encoding => FileMatch.Encoding;
 
         public FileSystemInfo FileSystemInfo => FileMatch.FileSystemInfo;
 

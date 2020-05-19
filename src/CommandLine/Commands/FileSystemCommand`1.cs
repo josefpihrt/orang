@@ -20,39 +20,46 @@ namespace Orang.CommandLine
         {
         }
 
-        private FileSystemFilterOptions _filterOptions;
+        private FileSystemSearch _search;
 
-        private FileSystemFilter _filter;
+        protected FileSystemSearch Search => _search ?? (_search = CreateSearch());
 
-        protected FileSystemFilterOptions FilterOptions => _filterOptions ?? (_filterOptions = CreateFilterOptions());
-
-        protected FileSystemFilter Filter => _filter ?? (_filter = CreateFilter());
+        public Filter NameFilter => Options.NameFilter;
 
         protected virtual bool CanDisplaySummary => true;
 
         public virtual bool CanEndProgress => !Options.OmitPath;
 
-        protected virtual FileSystemFilterOptions CreateFilterOptions()
+        protected virtual FileSystemSearch CreateSearch()
         {
-            return new FileSystemFilterOptions(
-                searchTarget: Options.SearchTarget,
-                recurseSubdirectories: Options.RecurseSubdirectories,
-                encoding: Options.DefaultEncoding);
-        }
-
-        protected virtual FileSystemFilter CreateFilter()
-        {
-            return new FileSystemFilter(
-                namePart: Options.NamePart,
-                nameFilter: Options.NameFilter,
-                extensionFilter: Options.ExtensionFilter,
-                contentFilter: Options.ContentFilter,
-                directoryNamePart: Options.DirectoryNamePart,
-                directoryFilter: Options.DirectoryFilter,
-                propertyFilter: Options.FilePropertyFilter,
+            var filter = new FileSystemFilter(
+                name: Options.NameFilter,
+                part: Options.NamePart,
+                extension: Options.ExtensionFilter,
+                content: Options.ContentFilter,
+                properties: Options.FilePropertyFilter,
                 attributes: Options.Attributes,
                 attributesToSkip: Options.AttributesToSkip,
-                emptyFilter: Options.EmptyFilter);
+                emptyOption: Options.EmptyOption);
+
+            NameFilter directoryFilter = null;
+
+            if (Options.DirectoryFilter != null)
+            {
+                directoryFilter = new NameFilter(
+                    name: Options.DirectoryFilter,
+                    part: Options.DirectoryNamePart);
+            }
+
+            var options = new FileSystemSearchOptions(
+                searchTarget: Options.SearchTarget,
+                recurseSubdirectories: Options.RecurseSubdirectories,
+                defaultEncoding: Options.DefaultEncoding);
+
+            return new FileSystemSearch(
+                filter: filter,
+                directoryFilter: directoryFilter,
+                options: options);
         }
 
         protected abstract void ExecuteDirectory(string directoryPath, SearchContext context);
@@ -386,20 +393,15 @@ namespace Orang.CommandLine
             SearchContext context,
             INotifyDirectoryChanged notifyDirectoryChanged)
         {
-            return Filter.Matches(
+            return Search.Find(
                 directoryPath: directoryPath,
-                options: FilterOptions,
-                progress: context.Progress,
                 notifyDirectoryChanged: notifyDirectoryChanged,
                 cancellationToken: context.CancellationToken);
         }
 
-        protected FileMatch MatchFile(string filePath, ProgressReporter progress)
+        protected FileMatch MatchFile(string filePath)
         {
-            return Filter.MatchFile(
-                filePath,
-                options: FilterOptions,
-                progress: progress);
+            return Search.MatchFile(filePath);
         }
 
         protected string GetPathIndent(string baseDirectoryPath)

@@ -11,9 +11,22 @@ namespace Orang
     public class Filter
     {
         public Filter(
+            string pattern,
+            bool isNegative = false) : this(pattern, RegexOptions.None, isNegative: isNegative)
+        {
+        }
+
+        public Filter(
+            string pattern,
+            RegexOptions options,
+            bool isNegative = false) : this(new Regex(pattern, options), isNegative: isNegative)
+        {
+        }
+
+        public Filter(
             Regex regex,
-            int groupNumber = -1,
             bool isNegative = false,
+            int groupNumber = -1,
             Func<Capture, bool> predicate = null)
         {
             Regex = regex ?? throw new ArgumentNullException(nameof(regex));
@@ -45,7 +58,7 @@ namespace Orang
             return Match(match);
         }
 
-        private Match Match(Match match)
+        internal Match Match(Match match)
         {
             if (Predicate != null)
             {

@@ -551,7 +551,7 @@ namespace Orang.CommandLine
                 return false;
 
             if ((options & ReplacementOptions.FromFile) != 0
-                && !FileSystemHelpers.TryReadAllText(replacement, out replacement))
+                && !FileSystemHelpers.TryReadAllText(replacement, out replacement, ex => WriteError(ex)))
             {
                 return false;
             }
@@ -697,7 +697,7 @@ namespace Orang.CommandLine
         {
             if (name == "utf-8-no-bom")
             {
-                encoding = EncodingHelpers.UTF8NoBom;
+                encoding = Text.EncodingHelpers.UTF8NoBom;
                 return true;
             }
 
@@ -819,20 +819,17 @@ namespace Orang.CommandLine
             return true;
         }
 
-        public static bool TryEnsureFullPath(string path, out string result)
+        public static bool TryEnsureFullPath(string path, out string fullPath)
         {
             try
             {
-                if (!Path.IsPathRooted(path))
-                    path = Path.GetFullPath(path);
-
-                result = path;
+                fullPath = FileSystemHelpers.EnsureFullPath(path);
                 return true;
             }
             catch (ArgumentException ex)
             {
                 WriteError($"Path '{path}' is invalid: {ex.Message}.");
-                result = null;
+                fullPath = null;
                 return false;
             }
         }
@@ -879,7 +876,7 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            if (!FilterParser.TryParse(name, OptionNames.Name, OptionValueProviders.PatternOptionsProvider, out Filter nameFilter, out NamePartKind namePart, allowNull: true))
+            if (!FilterParser.TryParse(name, OptionNames.Name, OptionValueProviders.PatternOptionsProvider, out Filter nameFilter, out FileNamePart namePart, allowNull: true))
                 return false;
 
             options.AskMode = askMode;

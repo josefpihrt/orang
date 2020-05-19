@@ -22,7 +22,7 @@ namespace Orang.CommandLine
 
         public Filter NameFilter { get; internal set; }
 
-        public NamePartKind NamePart { get; internal set; }
+        public FileNamePart NamePart { get; internal set; }
 
         public Filter ExtensionFilter { get; internal set; }
 
@@ -30,7 +30,7 @@ namespace Orang.CommandLine
 
         public Filter DirectoryFilter { get; internal set; }
 
-        public NamePartKind DirectoryNamePart { get; internal set; }
+        public FileNamePart DirectoryNamePart { get; internal set; }
 
         public SearchTarget SearchTarget { get; internal set; }
 
@@ -44,7 +44,7 @@ namespace Orang.CommandLine
 
         public Encoding DefaultEncoding { get; internal set; }
 
-        public FileEmptyFilter EmptyFilter { get; internal set; }
+        public FileEmptyOption EmptyOption { get; internal set; }
 
         public int MaxMatchingFiles { get; internal set; }
 

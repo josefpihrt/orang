@@ -241,7 +241,7 @@ namespace Orang.CommandLine
             Verbosity verbosity = Verbosity.Quiet)
         {
             string path = fileMatch.Path;
-            int matchIndex = fileMatch.Part.Index + fileMatch.Index;
+            int matchIndex = fileMatch.NameSpan.Start + fileMatch.Index;
 
             (int startIndex, bool isWritten) = WritePathImpl(path, basePath, relativePath, colors, stopAtMatch: true, matchIndex, indent, verbosity);
 
@@ -251,14 +251,14 @@ namespace Orang.CommandLine
                 {
                     Match match = item.Match;
 
-                    Write(path, startIndex, fileMatch.Part.Index + match.Index - startIndex);
+                    Write(path, startIndex, fileMatch.NameSpan.Start + match.Index - startIndex);
 
                     if (!matchColors.IsDefault)
                         Write(match.Value, matchColors);
 
                     Write(item.Value, replaceColors);
 
-                    startIndex = fileMatch.Part.Index + match.Index + match.Length;
+                    startIndex = fileMatch.NameSpan.Start + match.Index + match.Length;
                 }
 
                 Write(path, startIndex, path.Length - startIndex);

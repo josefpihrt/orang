@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
-namespace Orang.CommandLine
+namespace Orang
 {
     internal class ModifyOptions
     {

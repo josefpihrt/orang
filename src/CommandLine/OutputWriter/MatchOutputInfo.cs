@@ -141,7 +141,7 @@ namespace Orang
 
                     foreach (Capture capture in groupItem.Captures)
                     {
-                        maxIndex = Math.Max(maxIndex, capture.Index);
+                        maxIndex = Math.Max(maxIndex, capture!.Index);
                         maxLength = Math.Max(maxLength, capture.Length);
                     }
                 }

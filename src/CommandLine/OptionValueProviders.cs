@@ -388,7 +388,7 @@ namespace Orang.CommandLine
                     return fieldInfo
                         .Where(f => f.PropertyType.Equals(typeof(OptionValueProvider)))
                         .OrderBy(f => f.Name)
-                        .Select(f => (OptionValueProvider)f.GetValue(null))
+                        .Select(f => (OptionValueProvider)f.GetValue(null)!)
                         .ToImmutableDictionary(f => f.Name, f => f);
                 }
             }

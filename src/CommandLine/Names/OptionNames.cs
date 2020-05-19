@@ -67,7 +67,7 @@ namespace Orang.CommandLine
                         typeof(OptionShortNames).GetFields(),
                         f => f.Name,
                         f => f.Name,
-                        (f, g) => new KeyValuePair<string, string>((string)f.GetValue(null), g.GetValue(null).ToString())).ToImmutableDictionary();
+                        (f, g) => new KeyValuePair<string, string>((string)f.GetValue(null), g.GetValue(null)!.ToString())).ToImmutableDictionary();
                 }
             }
         }

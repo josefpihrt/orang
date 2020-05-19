@@ -480,7 +480,7 @@ namespace Orang.CommandLine
             WriteName(name);
 
             if (matchEvaluator != null
-                && !object.ReferenceEquals(matchEvaluator.Method.DeclaringType.Assembly, typeof(Program).Assembly))
+                && !object.ReferenceEquals(matchEvaluator.Method.DeclaringType!.Assembly, typeof(Program).Assembly))
             {
                 WriteLine();
                 WriteIndent();

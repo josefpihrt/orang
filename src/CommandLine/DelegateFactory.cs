@@ -74,6 +74,12 @@ namespace Orang.CommandLine
                 {
                     object typeInstance = Activator.CreateInstance(type);
 
+                    if (typeInstance == null)
+                    {
+                        WriteError($"Cannot create instance of '{typeName}'");
+                        return false;
+                    }
+
                     result = (TDelegate)Delegate.CreateDelegate(typeof(TDelegate), typeInstance, methodName);
                 }
 

@@ -7,7 +7,7 @@ namespace Orang.FileSystem
     public class RenameOptions : ReplaceOptions
     {
         public RenameOptions(
-            string replacement = null,
+            string replacement,
             ReplaceFunctions functions = ReplaceFunctions.None,
             bool cultureInvariant = false,
             ConflictResolution conflictResolution = ConflictResolution.Skip)

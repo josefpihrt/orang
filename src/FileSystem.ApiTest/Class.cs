@@ -22,7 +22,7 @@ namespace N
 
             var search = new FileSystemSearch(filter, options: searchOptions);
 
-            search.Replace("directoryPath", new ReplaceOptions());
+            search.Replace("directoryPath", ReplaceOptions.Empty);
         }
 
         public void M2()

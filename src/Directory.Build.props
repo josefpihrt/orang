@@ -8,7 +8,7 @@
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)Orang.snk</AssemblyOriginatorKeyFile>
     <Authors>Josef Pihrt</Authors>
     <Copyright>Copyright (c) 2019-2020 Josef Pihrt</Copyright>
-    <Nullable>warnings</Nullable>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
 </Project>

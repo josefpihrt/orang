@@ -34,23 +34,15 @@ namespace Orang.CommandLine
             return search;
         }
 
-        protected override void ProcessMatch(
+        protected override void ExecuteMatchCore(
             FileMatch fileMatch,
             SearchContext context,
-            string baseDirectoryPath = null)
-        {
-            ExecuteOrAddMatch(fileMatch, context, baseDirectoryPath);
-        }
-
-        protected override void ExecuteMatch(
-            FileMatch fileMatch,
-            SearchContext context,
-            string baseDirectoryPath,
-            ColumnWidths columnWidths)
+            string? baseDirectoryPath,
+            ColumnWidths? columnWidths)
         {
             string indent = GetPathIndent(baseDirectoryPath);
 
-            List<ReplaceItem> replaceItems = ReplaceHelpers.GetReplaceItems(fileMatch.NameMatch, Options.ReplaceOptions, NameFilter.Predicate, context.CancellationToken);
+            List<ReplaceItem> replaceItems = ReplaceHelpers.GetReplaceItems(fileMatch.NameMatch!, Options.ReplaceOptions, NameFilter!.Predicate, context.CancellationToken);
 
             string path = fileMatch.Path;
             string newPath = ReplaceHelpers.GetNewPath(fileMatch, replaceItems);

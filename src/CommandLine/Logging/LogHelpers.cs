@@ -15,11 +15,11 @@ namespace Orang.CommandLine
     {
         public static void WriteFileError(
             Exception ex,
-            string path = null,
-            string basePath = null,
+            string? path = null,
+            string? basePath = null,
             bool relativePath = false,
             ConsoleColors colors = default,
-            string indent = null,
+            string? indent = null,
             Verbosity verbosity = Verbosity.Normal)
         {
             if (colors.IsDefault)
@@ -132,7 +132,7 @@ namespace Orang.CommandLine
             WriteLine(verbosity);
         }
 
-        public static void WriteGroups(GroupDefinitionCollection groupDefinitions, Dictionary<int, ConsoleColors> colors = null, Verbosity verbosity = Verbosity.Detailed)
+        public static void WriteGroups(GroupDefinitionCollection groupDefinitions, Dictionary<int, ConsoleColors>? colors = null, Verbosity verbosity = Verbosity.Detailed)
         {
             if (!ShouldLog(verbosity))
                 return;
@@ -207,7 +207,7 @@ namespace Orang.CommandLine
 
         public static void WritePath(
             FileMatch fileMatch,
-            string basePath,
+            string? basePath,
             bool relativePath,
             in ConsoleColors colors,
             in ConsoleColors matchColors,
@@ -232,7 +232,7 @@ namespace Orang.CommandLine
         public static void WritePath(
             FileMatch fileMatch,
             List<ReplaceItem> items,
-            string basePath,
+            string? basePath,
             bool relativePath,
             in ConsoleColors colors,
             in ConsoleColors matchColors,
@@ -267,10 +267,10 @@ namespace Orang.CommandLine
 
         public static void WritePath(
             string path,
-            string basePath = null,
+            string? basePath = null,
             bool relativePath = false,
             in ConsoleColors colors = default,
-            string indent = null,
+            string? indent = null,
             Verbosity verbosity = Verbosity.Quiet)
         {
             WritePathImpl(path, basePath, relativePath, colors, indent: indent, verbosity: verbosity);
@@ -278,12 +278,12 @@ namespace Orang.CommandLine
 
         private static (int startIndex, bool isWritten) WritePathImpl(
             string path,
-            string basePath,
+            string? basePath,
             bool relativePath,
             in ConsoleColors colors,
             bool stopAtMatch = false,
             int matchIndex = -1,
-            string indent = null,
+            string? indent = null,
             Verbosity verbosity = Verbosity.Quiet)
         {
             if (!ShouldLog(verbosity))

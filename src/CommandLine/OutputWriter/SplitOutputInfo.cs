@@ -12,8 +12,8 @@ namespace Orang
             int splitWidth,
             int indexWidth,
             int lengthWidth,
-            OutputCaptions captions = null,
-            string prefixSeparator = null)
+            OutputCaptions? captions = null,
+            string? prefixSeparator = null)
         {
             SplitWidth = splitWidth;
             IndexWidth = indexWidth;
@@ -43,8 +43,8 @@ namespace Orang
 
         public static SplitOutputInfo Create(
             SplitData splitData,
-            OutputCaptions captions = null,
-            string prefixSeparator = null)
+            OutputCaptions? captions = null,
+            string? prefixSeparator = null)
         {
             int splitCount = 0;
             int maxGroupNameLength = 0;

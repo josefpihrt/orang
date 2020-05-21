@@ -16,7 +16,7 @@ namespace Orang.FileSystem
             SearchTarget searchTarget = SearchTarget.Files,
             bool recurseSubdirectories = true,
             bool ignoreInaccessible = true,
-            Encoding defaultEncoding = null)
+            Encoding? defaultEncoding = null)
         {
             SearchTarget = searchTarget;
             RecurseSubdirectories = recurseSubdirectories;

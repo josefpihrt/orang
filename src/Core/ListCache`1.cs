@@ -12,13 +12,13 @@ namespace Orang
         private const int DefaultCapacity = 16;
 
         [ThreadStatic]
-        private static List<T> _cachedInstance;
+        private static List<T>? _cachedInstance;
 
         public static List<T> GetInstance(int capacity = DefaultCapacity)
         {
             if (capacity <= MaxSize)
             {
-                List<T> list = _cachedInstance;
+                List<T>? list = _cachedInstance;
 
                 Debug.Assert(list == null || list.Count == 0, "");
 

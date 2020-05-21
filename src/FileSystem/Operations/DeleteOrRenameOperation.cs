@@ -11,7 +11,7 @@ namespace Orang.Operations
         {
         }
 
-        public event EventHandler<DirectoryChangedEventArgs> DirectoryChanged;
+        public event EventHandler<DirectoryChangedEventArgs>? DirectoryChanged;
 
         protected virtual void OnDirectoryChanged(DirectoryChangedEventArgs e)
         {

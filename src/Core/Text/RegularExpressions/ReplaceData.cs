@@ -26,7 +26,7 @@ namespace Orang.Text.RegularExpressions
         public static ReplaceData Create(
             Regex regex,
             string input,
-            string replacement = null,
+            string? replacement = null,
             int count = -1,
             CancellationToken cancellationToken = default)
         {

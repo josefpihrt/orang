@@ -9,11 +9,11 @@ namespace Orang.FileSystem
     public class FileSystemFilter
     {
         public FileSystemFilter(
-            Filter name = null,
+            Filter? name = null,
             FileNamePart part = FileNamePart.Name,
-            Filter extension = null,
-            Filter content = null,
-            FilePropertyFilter properties = null,
+            Filter? extension = null,
+            Filter? content = null,
+            FilePropertyFilter? properties = null,
             FileAttributes attributes = default,
             FileAttributes attributesToSkip = default,
             FileEmptyOption emptyOption = FileEmptyOption.None)
@@ -28,15 +28,15 @@ namespace Orang.FileSystem
             EmptyOption = emptyOption;
         }
 
-        public Filter Name { get; }
+        public Filter? Name { get; }
 
         public FileNamePart Part { get; }
 
-        public Filter Extension { get; }
+        public Filter? Extension { get; }
 
-        public Filter Content { get; }
+        public Filter? Content { get; }
 
-        public FilePropertyFilter Properties { get; }
+        public FilePropertyFilter? Properties { get; }
 
         public FileAttributes Attributes { get; }
 

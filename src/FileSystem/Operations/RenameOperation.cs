@@ -13,15 +13,15 @@ namespace Orang.Operations
     {
         public override OperationKind OperationKind => OperationKind.Rename;
 
-        public RenameOptions RenameOptions { get; set; }
+        public RenameOptions RenameOptions { get; set; } = null!;
 
         public ConflictResolution ConflictResolution { get; set; }
 
-        public IDialogProvider<OperationProgress> DialogProvider { get; set; }
+        public IDialogProvider<OperationProgress>? DialogProvider { get; set; }
 
         protected override void ExecuteDirectory(string directoryPath)
         {
-            Debug.Assert(!NameFilter.IsNegative);
+            Debug.Assert(!NameFilter!.IsNegative);
 
             base.ExecuteDirectory(directoryPath);
         }
@@ -30,7 +30,7 @@ namespace Orang.Operations
             FileMatch fileMatch,
             string directoryPath)
         {
-            List<ReplaceItem> replaceItems = ReplaceHelpers.GetReplaceItems(fileMatch.NameMatch, RenameOptions, NameFilter?.Predicate, CancellationToken);
+            List<ReplaceItem> replaceItems = ReplaceHelpers.GetReplaceItems(fileMatch.NameMatch!, RenameOptions, NameFilter?.Predicate, CancellationToken);
 
             string path = fileMatch.Path;
             string newPath = ReplaceHelpers.GetNewPath(fileMatch, replaceItems);
@@ -100,7 +100,7 @@ namespace Orang.Operations
 
         private bool AskToOverwrite(FileMatch fileMatch, string newPath)
         {
-            DialogResult result = DialogProvider.GetResult(new OperationProgress(fileMatch, newPath, OperationKind));
+            DialogResult result = DialogProvider!.GetResult(new OperationProgress(fileMatch, newPath, OperationKind));
 
             switch (result)
             {

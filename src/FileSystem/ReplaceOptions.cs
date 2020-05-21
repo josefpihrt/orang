@@ -10,10 +10,10 @@ namespace Orang
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class ReplaceOptions
     {
-        internal static ReplaceOptions Empty { get; } = new ReplaceOptions();
+        public static ReplaceOptions Empty { get; } = new ReplaceOptions("");
 
         public ReplaceOptions(
-            string replacement = null,
+            string? replacement,
             ReplaceFunctions functions = ReplaceFunctions.None,
             bool cultureInvariant = false)
         {
@@ -32,9 +32,9 @@ namespace Orang
             CultureInvariant = cultureInvariant;
         }
 
-        public string Replacement { get; }
+        public string? Replacement { get; }
 
-        public MatchEvaluator MatchEvaluator { get; }
+        public MatchEvaluator? MatchEvaluator { get; }
 
         public ReplaceFunctions Functions { get; }
 
@@ -43,7 +43,7 @@ namespace Orang
         internal CultureInfo CultureInfo => (CultureInvariant) ? CultureInfo.InvariantCulture : CultureInfo.CurrentCulture;
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private string DebuggerDisplay => (Replacement != null) ? $"{Replacement}" : $"{MatchEvaluator.Method}";
+        private string DebuggerDisplay => (Replacement != null) ? $"{Replacement}" : $"{MatchEvaluator!.Method}";
 
         public string Replace(Match match)
         {

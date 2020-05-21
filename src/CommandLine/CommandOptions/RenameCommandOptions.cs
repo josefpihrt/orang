@@ -12,7 +12,7 @@ namespace Orang.CommandLine
 
         public ConflictResolution ConflictResolution { get; internal set; }
 
-        public ReplaceOptions ReplaceOptions { get; internal set; }
+        public ReplaceOptions ReplaceOptions { get; internal set; } = null!;
 
         protected override void WriteDiagnosticCore()
         {

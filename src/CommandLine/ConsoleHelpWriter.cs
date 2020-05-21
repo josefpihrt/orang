@@ -11,15 +11,15 @@ namespace Orang.CommandLine
 {
     internal class ConsoleHelpWriter : HelpWriter
     {
-        private ContentWriterOptions _contentWriterOptions;
+        private ContentWriterOptions? _contentWriterOptions;
 
-        public ConsoleHelpWriter(HelpWriterOptions options = null) : base(options)
+        public ConsoleHelpWriter(HelpWriterOptions? options = null) : base(options)
         {
         }
 
-        public Filter Filter => Options.Filter;
+        public Filter? Filter => Options.Filter;
 
-        internal ContentWriterOptions ContentWriterOptions
+        internal ContentWriterOptions? ContentWriterOptions
         {
             get
             {
@@ -95,7 +95,7 @@ namespace Orang.CommandLine
         {
             if (Filter != null)
             {
-                Match match = Filter.Match(value);
+                Match? match = Filter.Match(value);
 
                 if (match != null)
                 {
@@ -103,7 +103,7 @@ namespace Orang.CommandLine
 
                     CaptureFactory.GetCaptures(ref captures, match, Filter.GroupNumber);
 
-                    var writer = new AllLinesContentWriter(value, ContentTextWriter.Default, ContentWriterOptions);
+                    var writer = new AllLinesContentWriter(value, ContentTextWriter.Default, ContentWriterOptions!);
 
                     writer.WriteMatches(captures);
 

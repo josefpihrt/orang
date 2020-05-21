@@ -17,7 +17,7 @@ namespace Orang
             bool ignoreCase = false,
             bool cultureInvariant = false,
             ValueSortProperty sortProperty = ValueSortProperty.None,
-            Func<IEnumerable<string>, IEnumerable<string>> method = null)
+            Func<IEnumerable<string>, IEnumerable<string>>? method = null)
         {
             Functions = functions;
             Aggregate = aggregate;
@@ -37,7 +37,7 @@ namespace Orang
 
         public ValueSortProperty SortProperty { get; }
 
-        public Func<IEnumerable<string>, IEnumerable<string>> Method { get; }
+        public Func<IEnumerable<string>, IEnumerable<string>>? Method { get; }
 
         public StringComparer StringComparer
         {

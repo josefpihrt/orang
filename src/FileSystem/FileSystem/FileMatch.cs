@@ -10,14 +10,14 @@ namespace Orang.FileSystem
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class FileMatch
     {
-        private FileSystemInfo _fileSystemInfo;
+        private FileSystemInfo? _fileSystemInfo;
 
-        internal FileMatch(in FileNameSpan nameSpan, Match nameMatch, FileSystemInfo fileSystemInfo = null, bool isDirectory = false)
+        internal FileMatch(in FileNameSpan nameSpan, Match? nameMatch, FileSystemInfo? fileSystemInfo = null, bool isDirectory = false)
             : this(nameSpan, nameMatch, default(FileContent), default(Match), fileSystemInfo, isDirectory)
         {
         }
 
-        internal FileMatch(in FileNameSpan nameSpan, Match nameMatch, in FileContent content, Match contentMatch, FileSystemInfo fileSystemInfo = null, bool isDirectory = false)
+        internal FileMatch(in FileNameSpan nameSpan, Match? nameMatch, in FileContent content, Match? contentMatch, FileSystemInfo? fileSystemInfo = null, bool isDirectory = false)
         {
             NameMatch = nameMatch;
             NameSpan = nameSpan;
@@ -29,11 +29,11 @@ namespace Orang.FileSystem
 
         public FileNameSpan NameSpan { get; }
 
-        public Match NameMatch { get; }
+        public Match? NameMatch { get; }
 
         public FileContent Content { get; }
 
-        public Match ContentMatch { get; }
+        public Match? ContentMatch { get; }
 
         public bool IsDirectory { get; }
 

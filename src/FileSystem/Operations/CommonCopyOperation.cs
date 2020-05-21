@@ -13,11 +13,11 @@ namespace Orang.Operations
         {
         }
 
-        public string DestinationPath { get; set; }
+        public string DestinationPath { get; set; } = null!;
 
-        public IDialogProvider<OperationProgress> DialogProvider { get; set; }
+        public IDialogProvider<OperationProgress>? DialogProvider { get; set; }
 
-        public CopyOptions CopyOptions { get; set; }
+        public CopyOptions CopyOptions { get; set; } = null!;
 
         public ConflictResolution ConflictResolution { get; set; }
 
@@ -109,7 +109,7 @@ namespace Orang.Operations
             if (ask
                 && ConflictResolution == ConflictResolution.Ask)
             {
-                DialogResult dialogResult = DialogProvider.GetResult(new OperationProgress(fileMatch, destinationPath, OperationKind));
+                DialogResult dialogResult = DialogProvider!.GetResult(new OperationProgress(fileMatch, destinationPath, OperationKind));
 
                 switch (dialogResult)
                 {

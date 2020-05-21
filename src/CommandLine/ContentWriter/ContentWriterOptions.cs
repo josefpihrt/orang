@@ -9,9 +9,9 @@ namespace Orang.CommandLine
         public ContentWriterOptions(
             OutputDisplayFormat format,
             GroupDefinition? groupDefinition = null,
-            OutputSymbols symbols = null,
+            OutputSymbols? symbols = null,
             HighlightOptions highlightOptions = HighlightOptions.Match | HighlightOptions.Replacement,
-            string indent = null)
+            string? indent = null)
         {
             Format = format;
             GroupDefinition = groupDefinition;
@@ -32,7 +32,7 @@ namespace Orang.CommandLine
 
         public int GroupNumber => GroupDefinition?.Number ?? -1;
 
-        public string GroupName => GroupDefinition?.Name;
+        public string? GroupName => GroupDefinition?.Name;
 
         public bool HighlightMatch => (HighlightOptions & HighlightOptions.DefaultOrMatch) != 0;
 
@@ -48,7 +48,7 @@ namespace Orang.CommandLine
 
         public bool TrimLine => Format.Includes(LineDisplayOptions.TrimLine);
 
-        public string Separator => Format.Separator;
+        public string? Separator => Format.Separator;
 
         public int ContextBefore => Format.LineContext.Before;
 

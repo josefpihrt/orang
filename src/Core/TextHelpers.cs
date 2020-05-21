@@ -14,7 +14,7 @@ namespace Orang
         {
             using (var sr = new StringReader(value))
             {
-                string line = null;
+                string? line = null;
 
                 while ((line = sr.ReadLine()) != null)
                 {

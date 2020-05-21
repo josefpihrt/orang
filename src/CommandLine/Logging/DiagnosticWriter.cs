@@ -266,7 +266,7 @@ namespace Orang.CommandLine
             WriteLine();
         }
 
-        private static void WriteOption(string name, string value, bool replaceAllSymbols = false)
+        private static void WriteOption(string name, string? value, bool replaceAllSymbols = false)
         {
             WriteName(name);
             WriteValue(value, replaceAllSymbols: replaceAllSymbols);
@@ -303,7 +303,7 @@ namespace Orang.CommandLine
             WriteLine();
         }
 
-        private static void WriteFilter(string name, Filter filter, FileNamePart? part = null)
+        private static void WriteFilter(string name, Filter? filter, FileNamePart? part = null)
         {
             WriteName(name);
 
@@ -350,10 +350,11 @@ namespace Orang.CommandLine
             }
         }
 
-        private static void WriteFilePropertyFilter(string name,
-            FilterPredicate<long> sizePredicate,
-            FilterPredicate<DateTime> creationTimePredicate,
-            FilterPredicate<DateTime> modifiedTimePredicate)
+        private static void WriteFilePropertyFilter(
+            string name,
+            FilterPredicate<long>? sizePredicate,
+            FilterPredicate<DateTime>? creationTimePredicate,
+            FilterPredicate<DateTime>? modifiedTimePredicate)
         {
             WriteName(name);
 
@@ -373,7 +374,7 @@ namespace Orang.CommandLine
                 WriteFilterPredicate("size", sizePredicate);
             }
 
-            static void WriteFilterPredicate<T>(string name, FilterPredicate<T> filterPredicate)
+            static void WriteFilterPredicate<T>(string name, FilterPredicate<T>? filterPredicate)
             {
                 if (filterPredicate == null)
                     return;
@@ -434,7 +435,7 @@ namespace Orang.CommandLine
                 WriteLine();
         }
 
-        private static void WriteSortOptions(string name, SortOptions options)
+        private static void WriteSortOptions(string name, SortOptions? options)
         {
             WriteName(name);
 
@@ -475,7 +476,7 @@ namespace Orang.CommandLine
             }
         }
 
-        private static void WriteEvaluator(string name, MatchEvaluator matchEvaluator)
+        private static void WriteEvaluator(string name, MatchEvaluator? matchEvaluator)
         {
             WriteName(name);
 
@@ -591,7 +592,7 @@ namespace Orang.CommandLine
             Write((value) ? "true" : "false");
         }
 
-        private static void WriteValue(string value, bool replaceAllSymbols = false)
+        private static void WriteValue(string? value, bool replaceAllSymbols = false)
         {
             if (value == null)
             {
@@ -639,7 +640,7 @@ namespace Orang.CommandLine
             Logger.WriteLine(Verbosity);
         }
 
-        private static void WriteLine(string value)
+        private static void WriteLine(string? value)
         {
             Logger.WriteLine(value, ValueColors, Verbosity);
         }

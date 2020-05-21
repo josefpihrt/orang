@@ -116,7 +116,7 @@ namespace Orang.Text.RegularExpressions
                 CharEscapeMode.Linefeed => @"\n",
                 CharEscapeMode.Tab => @"\t",
                 CharEscapeMode.VerticalTab => @"\v",
-                _ => null,
+                _ => throw new InvalidOperationException(),
             };
         }
 

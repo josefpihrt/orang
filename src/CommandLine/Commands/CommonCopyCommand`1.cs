@@ -23,7 +23,7 @@ namespace Orang.CommandLine
             protected set { Options.ConflictResolution = value; }
         }
 
-        protected HashSet<string> IgnoredPaths { get; set; }
+        protected HashSet<string>? IgnoredPaths { get; set; }
 
         protected abstract void ExecuteOperation(string sourcePath, string destinationPath);
 
@@ -44,17 +44,17 @@ namespace Orang.CommandLine
             base.ExecuteDirectory(directoryPath, context);
         }
 
-        protected override void ExecuteMatch(
+        protected override void ExecuteMatchWithContentCore(
             FileMatch fileMatch,
             SearchContext context,
             ContentWriterOptions writerOptions,
-            string baseDirectoryPath = null,
-            ColumnWidths columnWidths = null)
+            string? baseDirectoryPath = null,
+            ColumnWidths? columnWidths = null)
         {
-            ExecuteMatch(fileMatch, context, baseDirectoryPath, columnWidths);
+            ExecuteMatchCore(fileMatch, context, baseDirectoryPath, columnWidths);
         }
 
-        protected sealed override void ExecuteMatch(FileMatch fileMatch, SearchContext context, string baseDirectoryPath = null, ColumnWidths columnWidths = null)
+        protected sealed override void ExecuteMatchCore(FileMatch fileMatch, SearchContext context, string? baseDirectoryPath = null, ColumnWidths? columnWidths = null)
         {
             ExecuteOperation(fileMatch, context, baseDirectoryPath, GetPathIndent(baseDirectoryPath));
 
@@ -65,7 +65,7 @@ namespace Orang.CommandLine
         private void ExecuteOperation(
             FileMatch fileMatch,
             SearchContext context,
-            string baseDirectoryPath,
+            string? baseDirectoryPath,
             string indent)
         {
             string sourcePath = fileMatch.Path;
@@ -74,9 +74,9 @@ namespace Orang.CommandLine
             if (fileMatch.IsDirectory
                 || (baseDirectoryPath != null && !Options.Flat))
             {
-                Debug.Assert(sourcePath.StartsWith(baseDirectoryPath, FileSystemHelpers.Comparison));
+                Debug.Assert(sourcePath.StartsWith(baseDirectoryPath!, FileSystemHelpers.Comparison));
 
-                string relativePath = sourcePath.Substring(baseDirectoryPath.Length + 1);
+                string relativePath = sourcePath.Substring(baseDirectoryPath!.Length + 1);
 
                 destinationPath = Path.Combine(Target, relativePath);
             }
@@ -247,7 +247,7 @@ namespace Orang.CommandLine
             }
         }
 
-        protected sealed override void WritePath(SearchContext context, FileMatch fileMatch, string baseDirectoryPath, string indent, ColumnWidths columnWidths)
+        protected sealed override void WritePath(SearchContext context, FileMatch fileMatch, string? baseDirectoryPath, string indent, ColumnWidths? columnWidths)
         {
         }
 

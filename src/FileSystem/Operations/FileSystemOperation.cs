@@ -15,7 +15,7 @@ namespace Orang.Operations
             Telemetry = new SearchTelemetry();
         }
 
-        public FileSystemSearch Search { get; set; }
+        public FileSystemSearch Search { get; set; } = null!;
 
         public SearchTelemetry Telemetry { get; }
 
@@ -23,15 +23,15 @@ namespace Orang.Operations
 
         public int MaxMatchingFiles { get; set; }
 
-        public IProgress<OperationProgress> Progress { get; set; }
+        public IProgress<OperationProgress>? Progress { get; set; }
 
         public bool DryRun { get; set; }
 
         public CancellationToken CancellationToken { get; set; }
 
-        protected Filter ContentFilter => Search.Filter.Content;
+        protected Filter? ContentFilter => Search.Filter.Content;
 
-        protected Filter NameFilter => Search.Filter.Name;
+        protected Filter? NameFilter => Search.Filter.Name;
 
         public abstract OperationKind OperationKind { get; }
 
@@ -71,12 +71,12 @@ namespace Orang.Operations
                 cancellationToken: CancellationToken);
         }
 
-        protected void Report(FileMatch fileMatch, Exception exception = null)
+        protected void Report(FileMatch fileMatch, Exception? exception = null)
         {
             Report(fileMatch, newPath: null, exception);
         }
 
-        protected void Report(FileMatch fileMatch, string newPath, Exception exception = null)
+        protected void Report(FileMatch fileMatch, string? newPath, Exception? exception = null)
         {
             Progress?.Report(fileMatch, newPath, OperationKind, exception);
         }

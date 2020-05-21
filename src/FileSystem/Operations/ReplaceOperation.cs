@@ -15,7 +15,7 @@ namespace Orang.Operations
     {
         public override OperationKind OperationKind => OperationKind.Replace;
 
-        public ReplaceOptions ReplaceOptions { get; set; }
+        public ReplaceOptions ReplaceOptions { get; set; } = null!;
 
         protected override void ExecuteDirectory(string path)
         {
@@ -26,14 +26,14 @@ namespace Orang.Operations
             FileMatch fileMatch,
             string directoryPath)
         {
-            TextWriter textWriter = null;
-            List<Capture> captures = null;
+            TextWriter? textWriter = null;
+            List<Capture>? captures = null;
 
             try
             {
                 captures = ListCache<Capture>.GetInstance();
 
-                GetCaptures(fileMatch.ContentMatch, ContentFilter.GroupNumber, predicate: ContentFilter.Predicate, captures: captures);
+                GetCaptures(fileMatch.ContentMatch!, ContentFilter!.GroupNumber, predicate: ContentFilter.Predicate, captures: captures);
 
                 if (!DryRun)
                 {

@@ -15,9 +15,9 @@ namespace Orang
             return options.Modify(values, filter);
         }
 
-        public static OperationCanceledException GetOperationCanceledException(this AggregateException aggregateException)
+        public static OperationCanceledException? GetOperationCanceledException(this AggregateException aggregateException)
         {
-            OperationCanceledException operationCanceledException = null;
+            OperationCanceledException? operationCanceledException = null;
 
             foreach (Exception ex in aggregateException.InnerExceptions)
             {

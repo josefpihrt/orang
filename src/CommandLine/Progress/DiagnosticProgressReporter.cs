@@ -89,14 +89,14 @@ namespace Orang.FileSystem
             }
         }
 
-        private void WritePathToFile(string path, SearchProgressKind kind, string indent = null)
+        private void WritePathToFile(string path, SearchProgressKind kind, string? indent = null)
         {
-            Out.Write(indent);
+            Out!.Write(indent);
             Out.Write(GetPrefix(kind));
             Out.WriteLine(GetPath(path));
         }
 
-        private void WritePath(string path, SearchProgressKind kind, string indent = null)
+        private void WritePath(string path, SearchProgressKind kind, string? indent = null)
         {
             ReadOnlySpan<char> pathDisplay = GetPath(path);
 
@@ -106,7 +106,7 @@ namespace Orang.FileSystem
 
             if (FileReportMode == ProgressReportMode.Path)
             {
-                Out.Write(indent);
+                Out!.Write(indent);
                 Out.Write(GetPrefix(kind));
                 Out.WriteLine(pathDisplay);
             }
@@ -119,7 +119,7 @@ namespace Orang.FileSystem
 
         private static ReadOnlySpan<char> GetPath(
             string path,
-            string basePath,
+            string? basePath,
             bool relativePath)
         {
             if (string.Equals(path, basePath, FileSystemHelpers.Comparison))

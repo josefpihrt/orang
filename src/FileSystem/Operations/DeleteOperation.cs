@@ -10,11 +10,11 @@ namespace Orang.Operations
     {
         public override OperationKind OperationKind => OperationKind.Delete;
 
-        public DeleteOptions DeleteOptions { get; set; }
+        public DeleteOptions DeleteOptions { get; set; } = null!;
 
         protected override void ExecuteMatch(
             FileMatch fileMatch,
-            string directoryPath = null)
+            string directoryPath)
         {
             bool deleted = false;
 

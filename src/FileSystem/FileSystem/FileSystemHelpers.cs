@@ -9,12 +9,13 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Orang.FileSystem
 {
     internal static class FileSystemHelpers
     {
-        private static ImmutableHashSet<char> _invalidFileNameChars;
+        private static ImmutableHashSet<char>? _invalidFileNameChars;
 
         private static readonly EnumerationOptions _enumerationOptionsNoRecurse = new EnumerationOptions()
         {
@@ -203,7 +204,7 @@ namespace Orang.FileSystem
 
                     if (includingBom)
                     {
-                        Encoding encoding = DetectEncoding(stream);
+                        Encoding? encoding = DetectEncoding(stream);
 
                         if (encoding != null)
                             length = encoding.Preamble.Length;
@@ -234,7 +235,7 @@ namespace Orang.FileSystem
             {
                 using (FileStream stream = fileInfo.OpenRead())
                 {
-                    Encoding encoding = DetectEncoding(stream);
+                    Encoding? encoding = DetectEncoding(stream);
 
                     return encoding?.Preamble.Length == stream.Length;
                 }
@@ -335,7 +336,7 @@ namespace Orang.FileSystem
             return newPath;
         }
 
-        public static Encoding DetectEncoding(Stream stream)
+        public static Encoding? DetectEncoding(Stream stream)
         {
             long length = stream.Length;
 
@@ -408,7 +409,7 @@ namespace Orang.FileSystem
             return null;
         }
 
-        public static bool TryReadAllText(string path, out string content, Action<Exception> exceptionHandler = null)
+        public static bool TryReadAllText(string path, [NotNullWhen(true)] out string? content, Action<Exception>? exceptionHandler = null)
         {
             try
             {

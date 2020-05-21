@@ -11,6 +11,8 @@ using System.Threading;
 using Orang.Operations;
 using static Orang.FileSystem.FileSystemHelpers;
 
+#pragma warning disable RCS1223
+
 namespace Orang.FileSystem
 {
     //TODO: FileSearch, Search

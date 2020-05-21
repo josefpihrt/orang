@@ -49,7 +49,7 @@ namespace Orang
         public string GroupName => Regex.GroupNameFromNumber(GroupNumber);
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private string DebuggerDisplay => $"Negative = {IsNegative}  Group {GroupNumber}  {Regex}";
+        private string DebuggerDisplay => $"{nameof(IsNegative)} = {IsNegative}  {Regex}";
 
         public Match Match(string input)
         {

@@ -1,11 +1,13 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace Orang
 {
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class ReplaceOptions
     {
         internal static ReplaceOptions Empty { get; } = new ReplaceOptions();
@@ -39,6 +41,9 @@ namespace Orang
         public bool CultureInvariant { get; }
 
         internal CultureInfo CultureInfo => (CultureInvariant) ? CultureInfo.InvariantCulture : CultureInfo.CurrentCulture;
+
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private string DebuggerDisplay => (Replacement != null) ? $"{Replacement}" : $"{MatchEvaluator.Method}";
 
         public string Replace(Match match)
         {

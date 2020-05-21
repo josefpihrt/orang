@@ -2,9 +2,10 @@
 
 using System.IO;
 
+#pragma warning disable RCS1223
+
 namespace Orang.FileSystem
 {
-    //TODO: FileFilter
     public class FileSystemFilter
     {
         public FileSystemFilter(

@@ -4,6 +4,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>Orang.FileSystem</AssemblyName>
     <RootNamespace>Orang.FileSystem</RootNamespace>
+    <CodeAnalysisRuleSet>..\api.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
 
   <PropertyGroup>

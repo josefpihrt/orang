@@ -2,6 +2,8 @@
 
 using System;
 
+#pragma warning disable RCS1223
+
 namespace Orang.FileSystem
 {
     public class FilePropertyFilter

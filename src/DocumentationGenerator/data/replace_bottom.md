@@ -88,7 +88,7 @@ Normalize newline to CR+LF for all files in a current directory.
 ```
 orang replace ^
  --content "(?<!\r)\n" ^
- --replacement "\r\n" multiline ^
+ --replacement "\r\n" character-escapes ^
  --verbosity minimal
 ```
 
@@ -97,6 +97,6 @@ orang replace ^
 ```
 orang replace ^
  -c "(?<!\r)\n" ^
- -r "\r\n" m ^
+ -r "\r\n" ec ^
  -v m
 ```

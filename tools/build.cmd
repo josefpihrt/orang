@@ -21,6 +21,13 @@ if errorlevel 1 (
  exit
 )
 
+dotnet "..\src\CommandLine\bin\Release\netcoreapp3.0\Orang.dll" help -m -v d > "..\docs\cli\manual.txt"
+
+if errorlevel 1 (
+ pause
+ exit
+)
+
 dotnet test -c Release --no-build "..\src\Tests\CommandLine.Tests\CommandLine.Tests.csproj"
 
 if errorlevel 1 (

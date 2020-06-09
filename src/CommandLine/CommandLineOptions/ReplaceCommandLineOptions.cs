@@ -37,9 +37,9 @@ namespace Orang.CommandLine
         public string Evaluator { get; set; } = null!;
 
         [Option(longName: OptionNames.Input,
-            HelpText = "Text to search.",
+            HelpText = "The input string to be searched. Syntax is <INPUT> [<INPUT_OPTIONS>].",
             MetaValue = MetaValues.Input)]
-        public string Input { get; set; } = null!;
+        public IEnumerable<string> Input { get; set; } = null!;
 
         [Option(shortName: OptionShortNames.MaxCount, longName: OptionNames.MaxCount,
             HelpText = "Stop searching after specified number is reached.",
@@ -97,6 +97,14 @@ namespace Orang.CommandLine
             if (!TryParseMaxCount(MaxCount, out int maxMatchingFiles, out int maxMatchesInFile))
                 return false;
 
+            string? input = null;
+
+            if (Input.Any()
+                && !TryParseInput(Input, out input))
+            {
+                return false;
+            }
+
             ContentDisplayStyle contentDisplayStyle;
             PathDisplayStyle pathDisplayStyle;
 
@@ -128,7 +136,7 @@ namespace Orang.CommandLine
 
                 contentDisplayStyle = contentDisplayStyle2.Value;
             }
-            else if (Input != null)
+            else if (Input.Any())
             {
                 contentDisplayStyle = ContentDisplayStyle.AllLines;
             }
@@ -159,7 +167,7 @@ namespace Orang.CommandLine
             options.HighlightOptions = highlightOptions;
             options.ContentFilter = contentFilter;
             options.ReplaceOptions = replaceOptions;
-            options.Input = Input;
+            options.Input = input;
             options.DryRun = DryRun;
             options.MaxMatchesInFile = maxMatchesInFile;
             options.MaxMatchingFiles = maxMatchingFiles;
@@ -171,7 +179,7 @@ namespace Orang.CommandLine
         protected override bool TryParsePaths(out ImmutableArray<PathInfo> paths)
         {
             if (Path.Any()
-                && Input != null)
+                && Input.Any())
             {
                 WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Input)}' and argument '{ArgumentMetaNames.Path}' cannot be set both at the same time.");
                 return false;

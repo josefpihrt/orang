@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="DotMarkdown" Version="0.1.0" />
-    <PackageReference Include="CommandLineParser" Version="2.6.0" />
+    <PackageReference Include="CommandLineParser" Version="2.8.0" />
   </ItemGroup>
 
   <ItemGroup>

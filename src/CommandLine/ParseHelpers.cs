@@ -560,7 +560,7 @@ namespace Orang.CommandLine
             if ((options & ReplacementOptions.Literal) != 0)
                 replacement = RegexEscape.EscapeSubstitution(replacement);
 
-            if ((options & ReplacementOptions.CharacterEscapes) != 0)
+            if ((options & ReplacementOptions.Escape) != 0)
                 replacement = RegexEscape.ConvertCharacterEscapes(replacement);
 
             return true;
@@ -578,7 +578,7 @@ namespace Orang.CommandLine
             if (!TryParseAsEnumFlags(values.Skip(1), OptionNames.Input, out InputOptions options, InputOptions.None, OptionValueProviders.InputOptionsProvider))
                 return false;
 
-            if ((options & InputOptions.CharacterEscapes) != 0)
+            if ((options & InputOptions.Escape) != 0)
                 input = RegexEscape.ConvertCharacterEscapes(input);
 
             return true;

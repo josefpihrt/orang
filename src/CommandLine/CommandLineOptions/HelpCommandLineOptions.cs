@@ -30,8 +30,7 @@ namespace Orang.CommandLine
                 OptionNames.Filter,
                 OptionValueProviders.PatternOptionsWithoutPartAndNegativeProvider,
                 out Filter? filter,
-                allowNull: true,
-                includedPatternOptions: PatternOptions.IgnoreCase))
+                allowNull: true))
             {
                 return false;
             }

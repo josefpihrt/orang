@@ -73,7 +73,7 @@ namespace Orang.CommandLine
                 : "Deleted files";
 
             string directoriesTitle = (Options.ContentOnly)
-                ? "Deleted directories content"
+                ? "Deleted directories (content only)"
                 : "Deleted directories";
 
             WriteProcessedFilesAndDirectories(telemetry, Options.SearchTarget, filesTitle, directoriesTitle, Options.DryRun, verbosity);

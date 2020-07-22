@@ -13,6 +13,15 @@ namespace Orang.CommandLine
         {
         }
 
+        protected override FileSystemSearch CreateSearch()
+        {
+            FileSystemSearch search = base.CreateSearch();
+
+            search.CanRecurseMatch = false;
+
+            return search;
+        }
+
         protected override void ExecuteMatchCore(
             FileMatch fileMatch,
             SearchContext context,
@@ -23,8 +32,6 @@ namespace Orang.CommandLine
 
             if (!Options.OmitPath)
                 WritePath(context, fileMatch, baseDirectoryPath, indent, columnWidths);
-
-            bool deleted = false;
 
             if (!Options.Ask || AskToExecute(context, (Options.ContentOnly) ? "Delete content?" : "Delete?", indent))
             {
@@ -38,8 +45,6 @@ namespace Orang.CommandLine
                             includingBom: Options.IncludingBom,
                             filesOnly: Options.FilesOnly,
                             directoriesOnly: Options.DirectoriesOnly);
-
-                        deleted = true;
                     }
 
                     if (fileMatch.IsDirectory)
@@ -56,12 +61,6 @@ namespace Orang.CommandLine
                 {
                     WriteFileError(ex, indent: indent);
                 }
-            }
-
-            if (fileMatch.IsDirectory
-                && deleted)
-            {
-                OnDirectoryChanged(new DirectoryChangedEventArgs(fileMatch.Path, null));
             }
         }
 

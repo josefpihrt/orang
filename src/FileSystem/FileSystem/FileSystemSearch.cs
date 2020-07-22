@@ -567,6 +567,9 @@ namespace Orang.FileSystem
                 MaxMatchingFiles = 0,
             };
 
+            bool disallowEnumeration = DisallowEnumeration;
+            bool matchPartOnly = MatchPartOnly;
+
             try
             {
                 DisallowEnumeration = !dryRun;
@@ -576,8 +579,8 @@ namespace Orang.FileSystem
             }
             finally
             {
-                DisallowEnumeration = false;
-                MatchPartOnly = false;
+                DisallowEnumeration = disallowEnumeration;
+                MatchPartOnly = matchPartOnly;
             }
         }
 

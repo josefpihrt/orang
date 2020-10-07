@@ -17,55 +17,72 @@ namespace Orang.CommandLine
     {
         private FileSystemAttributes FileSystemAttributes { get; set; }
 
-        [Value(index: 0,
+        [Value(
+            index: 0,
             HelpText = "Path to one or more files and/or directories that should be searched.",
             MetaName = ArgumentMetaNames.Path)]
         public IEnumerable<string> Path { get; set; } = null!;
 
-        [Option(shortName: OptionShortNames.Attributes, longName: OptionNames.Attributes,
-        HelpText = "File attributes that are required.",
-        MetaValue = MetaValues.Attributes)]
+        [Option(
+            shortName: OptionShortNames.Attributes,
+            longName: OptionNames.Attributes,
+            HelpText = "File attributes that are required.",
+            MetaValue = MetaValues.Attributes)]
         public IEnumerable<string> Attributes { get; set; } = null!;
 
-        [Option(shortName: OptionShortNames.AttributesToSkip, longName: OptionNames.AttributesToSkip,
+        [Option(
+            shortName: OptionShortNames.AttributesToSkip,
+            longName: OptionNames.AttributesToSkip,
             HelpText = "File attributes that should be skipped.",
             MetaValue = MetaValues.Attributes)]
         public IEnumerable<string> AttributesToSkip { get; set; } = null!;
 
-        [Option(longName: OptionNames.Encoding,
+        [Option(
+            longName: OptionNames.Encoding,
             HelpText = "Encoding to use when a file does not contain byte order mark. Default encoding is UTF-8.",
             MetaValue = MetaValues.Encoding)]
         public string Encoding { get; set; } = null!;
 
-        [Option(shortName: OptionShortNames.Extension, longName: OptionNames.Extension,
+        [Option(
+            shortName: OptionShortNames.Extension,
+            longName: OptionNames.Extension,
             HelpText = "A filter for file extensions (case-insensitive by default). Syntax is EXT1[,EXT2,...] [<EXTENSION_OPTIONS>].",
             MetaValue = MetaValues.ExtensionFilter)]
         public IEnumerable<string> Extension { get; set; } = null!;
 
-        [Option(shortName: OptionShortNames.Properties, longName: OptionNames.Properties,
+        [Option(
+            shortName: OptionShortNames.Properties,
+            longName: OptionNames.Properties,
             HelpText = "A filter for file properties.",
             MetaValue = MetaValues.FileProperties)]
         public IEnumerable<string> FileProperties { get; set; } = null!;
 
-        [Option(shortName: OptionShortNames.IncludeDirectory, longName: OptionNames.IncludeDirectory,
+        [Option(
+            shortName: OptionShortNames.IncludeDirectory,
+            longName: OptionNames.IncludeDirectory,
             HelpText = "Regular expression for a directory name. Syntax is <PATTERN> [<PATTERN_OPTIONS>].",
             MetaValue = MetaValues.Regex)]
         public IEnumerable<string> IncludeDirectory { get; set; } = null!;
 
-        [Option(longName: OptionNames.NoRecurse,
+        [Option(
+            longName: OptionNames.NoRecurse,
             HelpText = "Do not search subdirectories.")]
         public bool NoRecurse { get; set; }
 
-        [Option(longName: OptionNames.PathsFrom,
+        [Option(
+            longName: OptionNames.PathsFrom,
             HelpText = "Read the list of paths to search from a file. Paths should be separated by newlines.",
             MetaValue = MetaValues.FilePath)]
         public string PathsFrom { get; set; } = null!;
 
-        [Option(longName: OptionNames.Progress,
+        [Option(
+            longName: OptionNames.Progress,
             HelpText = "Display dot (.) for every hundredth searched file or directory.")]
         public bool Progress { get; set; }
 
-        [Option(shortName: OptionShortNames.Sort, longName: OptionNames.Sort,
+        [Option(
+            shortName: OptionShortNames.Sort,
+            longName: OptionNames.Sort,
             HelpText = "Sort matched files and directories.",
             MetaValue = MetaValues.SortOptions)]
         public IEnumerable<string> Sort { get; set; } = null!;
@@ -191,9 +208,9 @@ namespace Orang.CommandLine
             if (Console.IsInputRedirected)
             {
                 ImmutableArray<PathInfo> pathsFromInput = ConsoleHelpers.ReadRedirectedInputAsLines()
-                   .Where(f => !string.IsNullOrEmpty(f))
-                   .Select(f => new PathInfo(f, PathOrigin.RedirectedInput))
-                   .ToImmutableArray();
+                    .Where(f => !string.IsNullOrEmpty(f))
+                    .Select(f => new PathInfo(f, PathOrigin.RedirectedInput))
+                    .ToImmutableArray();
 
                 paths = paths.AddRange(pathsFromInput);
             }

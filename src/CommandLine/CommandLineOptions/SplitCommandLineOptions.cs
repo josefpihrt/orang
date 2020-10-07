@@ -11,19 +11,24 @@ namespace Orang.CommandLine
     [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.SplitHighlightOptions)]
     internal sealed class SplitCommandLineOptions : RegexCommandLineOptions
     {
-        [Option(shortName: OptionShortNames.Content, longName: OptionNames.Content,
+        [Option(
+            shortName: OptionShortNames.Content,
+            longName: OptionNames.Content,
             Required = true,
             HelpText = "Regular expression for the input string. Syntax is <PATTERN> [<PATTERN_OPTIONS>].",
             MetaValue = MetaValues.Regex)]
         public IEnumerable<string> Content { get; set; } = null!;
 
-        [Option(shortName: OptionShortNames.MaxCount, longName: OptionNames.MaxCount,
+        [Option(
+            shortName: OptionShortNames.MaxCount,
+            longName: OptionNames.MaxCount,
             Default = 0,
             HelpText = "Maximum number of times the split can occur.",
             MetaValue = MetaValues.Num)]
         public int MaxCount { get; set; }
 
-        [Option(longName: OptionNames.NoGroups,
+        [Option(
+            longName: OptionNames.NoGroups,
             HelpText = "Do not include groups in the results.")]
         public bool NoGroups { get; set; }
 

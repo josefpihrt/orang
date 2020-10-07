@@ -14,17 +14,21 @@ namespace Orang.CommandLine
     [OptionValueProvider(nameof(Display), OptionValueProviderNames.Display_MatchAndSplit)]
     internal abstract class RegexCommandLineOptions : CommonRegexCommandLineOptions
     {
-        [Value(index: 0,
+        [Value(
+            index: 0,
             HelpText = "Path to a file that should be analyzed.",
             MetaName = ArgumentMetaNames.Path)]
         public string Path { get; set; } = null!;
 
-        [Option(shortName: OptionShortNames.Input, longName: OptionNames.Input,
+        [Option(
+            shortName: OptionShortNames.Input,
+            longName: OptionNames.Input,
             HelpText = "The input string to be searched. Syntax is <INPUT> [<INPUT_OPTIONS>].",
             MetaValue = MetaValues.Input)]
         public IEnumerable<string> Input { get; set; } = null!;
 
-        [Option(longName: OptionNames.Modify,
+        [Option(
+            longName: OptionNames.Modify,
             HelpText = "Functions to modify results.",
             MetaValue = MetaValues.ModifyOptions)]
         public IEnumerable<string> Modify { get; set; } = null!;

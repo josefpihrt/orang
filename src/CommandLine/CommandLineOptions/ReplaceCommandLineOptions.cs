@@ -16,47 +16,61 @@ namespace Orang.CommandLine
     [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.ReplaceHighlightOptions)]
     internal sealed class ReplaceCommandLineOptions : FileSystemCommandLineOptions
     {
-        [Option(longName: OptionNames.Ask,
+        [Option(
+            longName: OptionNames.Ask,
             HelpText = "Ask for permission after each file or value.",
             MetaValue = MetaValues.AskMode)]
         public string Ask { get; set; } = null!;
 
-        [Option(shortName: OptionShortNames.Content, longName: OptionNames.Content,
+        [Option(
+            shortName: OptionShortNames.Content,
+            longName: OptionNames.Content,
             Required = true,
             HelpText = "Regular expression for files' content. Syntax is <PATTERN> [<PATTERN_OPTIONS>].",
             MetaValue = MetaValues.Regex)]
         public IEnumerable<string> Content { get; set; } = null!;
 
-        [Option(shortName: OptionShortNames.DryRun, longName: OptionNames.DryRun,
+        [Option(
+            shortName: OptionShortNames.DryRun,
+            longName: OptionNames.DryRun,
             HelpText = "Display which files should be updated but do not actually update any file.")]
         public bool DryRun { get; set; }
 
-        [Option(longName: OptionNames.Evaluator,
+        [Option(
+            longName: OptionNames.Evaluator,
             HelpText = "Path to the evaluator method to compute replacements. The format is \"LibraryPath,FullTypeName.MethodName\".",
             MetaValue = MetaValues.Evaluator)]
         public string Evaluator { get; set; } = null!;
 
-        [Option(longName: OptionNames.Input,
+        [Option(
+            longName: OptionNames.Input,
             HelpText = "The input string to be searched. Syntax is <INPUT> [<INPUT_OPTIONS>].",
             MetaValue = MetaValues.Input)]
         public IEnumerable<string> Input { get; set; } = null!;
 
-        [Option(shortName: OptionShortNames.MaxCount, longName: OptionNames.MaxCount,
+        [Option(
+            shortName: OptionShortNames.MaxCount,
+            longName: OptionNames.MaxCount,
             HelpText = "Stop searching after specified number is reached.",
             MetaValue = MetaValues.MaxOptions)]
         public IEnumerable<string> MaxCount { get; set; } = null!;
 
-        [Option(longName: OptionNames.Modify,
+        [Option(
+            longName: OptionNames.Modify,
             HelpText = "Functions to modify result.",
             MetaValue = MetaValues.ReplaceModify)]
         public IEnumerable<string> Modify { get; set; } = null!;
 
-        [Option(shortName: OptionShortNames.Name, longName: OptionNames.Name,
+        [Option(
+            shortName: OptionShortNames.Name,
+            longName: OptionNames.Name,
             HelpText = "Regular expression for file or directory name. Syntax is <PATTERN> [<PATTERN_OPTIONS>].",
             MetaValue = MetaValues.Regex)]
         public IEnumerable<string> Name { get; set; } = null!;
 
-        [Option(shortName: OptionShortNames.Replacement, longName: OptionNames.Replacement,
+        [Option(
+            shortName: OptionShortNames.Replacement,
+            longName: OptionNames.Replacement,
             HelpText = "Replacement pattern. Syntax is <REPLACEMENT> [<REPLACEMENT_OPTIONS>].",
             MetaValue = MetaValues.Replacement)]
         public IEnumerable<string> Replacement { get; set; } = null!;

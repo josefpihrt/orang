@@ -77,11 +77,14 @@ namespace Orang.Documentation
 
             MDocument document = Document(
                 Heading1("List of Allowed Values"),
-                BulletList(providers.Select(f => Link(f.Name, "#" + f.Name
-                    .ToLower()
-                    .Replace("<", "")
-                    .Replace(">", "")
-                    .Replace("_", "-")))),
+                BulletList(providers.Select(f => Link(
+                    f.Name,
+                    "#"
+                        + f.Name
+                            .ToLower()
+                            .Replace("<", "")
+                            .Replace(">", "")
+                            .Replace("_", "-")))),
                 providers.Select(provider =>
                 {
                     return new MObject[]

@@ -19,7 +19,8 @@ namespace Orang.CommandLine
         private static readonly Regex _metaValueRegex = new Regex(@"\<\w+\>");
         private static ImmutableDictionary<string, OptionValueProvider>? _providersByName;
 
-        public static OptionValueProvider PatternOptionsProvider { get; } = new OptionValueProvider(MetaValues.PatternOptions,
+        public static OptionValueProvider PatternOptionsProvider { get; } = new OptionValueProvider(
+            MetaValues.PatternOptions,
             OptionValues.PatternOptions_Compiled,
             OptionValues.PatternOptions_CultureInvariant,
             OptionValues.PatternOptions_ECMAScript,
@@ -65,7 +66,8 @@ namespace Orang.CommandLine
             OptionValues.Part,
             OptionValues.PatternOptions_Negative);
 
-        public static OptionValueProvider ExtensionOptionsProvider { get; } = new OptionValueProvider(MetaValues.ExtensionOptions,
+        public static OptionValueProvider ExtensionOptionsProvider { get; } = new OptionValueProvider(
+            MetaValues.ExtensionOptions,
             OptionValues.PatternOptions_CaseSensitive,
             OptionValues.PatternOptions_CultureInvariant,
             OptionValues.PatternOptions_FromFile,
@@ -75,7 +77,8 @@ namespace Orang.CommandLine
             OptionValues.Timeout
         );
 
-        public static OptionValueProvider RegexOptionsProvider { get; } = new OptionValueProvider(MetaValues.RegexOptions,
+        public static OptionValueProvider RegexOptionsProvider { get; } = new OptionValueProvider(
+            MetaValues.RegexOptions,
             SimpleOptionValue.Create(RegexOptions.Compiled, description: "Compile the regular expression to an assembly."),
             SimpleOptionValue.Create(RegexOptions.CultureInvariant, shortValue: "ci", helpValue: "c[ulture]-i[nvariant]", description: "Ignore cultural differences between languages."),
             SimpleOptionValue.Create(RegexOptions.ECMAScript, value: "ecma-script", shortValue: "es", helpValue: "e[cma]-s[cript]", description: "Enable ECMAScript-compliant behavior for the expression."),
@@ -87,17 +90,20 @@ namespace Orang.CommandLine
             SimpleOptionValue.Create(RegexOptions.Singleline, description: "The period (.) matches every character (instead of every character except \\n).")
         );
 
-        public static OptionValueProvider ReplacementOptionsProvider { get; } = new OptionValueProvider(MetaValues.ReplacementOptions,
+        public static OptionValueProvider ReplacementOptionsProvider { get; } = new OptionValueProvider(
+            MetaValues.ReplacementOptions,
             SimpleOptionValue.Create(ReplacementOptions.FromFile, description: "Load replacement string from a file whose path is specified in <REPLACEMENT> value."),
             SimpleOptionValue.Create(ReplacementOptions.Literal, description: "Replacement should be treated as a literal expression and not as a replacement expression."),
             SimpleOptionValue.Create(ReplacementOptions.Escape, description: @"Interpret literals \a, \b, \f, \n, \r, \t and \v as character escapes.")
         );
 
-        public static OptionValueProvider InputOptionsProvider { get; } = new OptionValueProvider(MetaValues.InputOptions,
+        public static OptionValueProvider InputOptionsProvider { get; } = new OptionValueProvider(
+            MetaValues.InputOptions,
             SimpleOptionValue.Create(InputOptions.Escape, description: @"Interpret literals \a, \b, \f, \n, \r, \t and \v as character escapes.")
         );
 
-        public static OptionValueProvider VerbosityProvider { get; } = new OptionValueProvider(MetaValues.Verbosity,
+        public static OptionValueProvider VerbosityProvider { get; } = new OptionValueProvider(
+            MetaValues.Verbosity,
             SimpleOptionValue.Create(Verbosity.Quiet),
             SimpleOptionValue.Create(Verbosity.Minimal),
             SimpleOptionValue.Create(Verbosity.Normal),
@@ -105,7 +111,8 @@ namespace Orang.CommandLine
             SimpleOptionValue.Create(Verbosity.Diagnostic, shortValue: "di")
         );
 
-        public static OptionValueProvider FileSystemAttributesProvider { get; } = new OptionValueProvider(MetaValues.Attributes,
+        public static OptionValueProvider FileSystemAttributesProvider { get; } = new OptionValueProvider(
+            MetaValues.Attributes,
             SimpleOptionValue.Create(FileSystemAttributes.Archive, shortValue: ""),
             SimpleOptionValue.Create(FileSystemAttributes.Compressed, shortValue: ""),
             OptionValues.FileSystemAttributes_Directory,
@@ -130,7 +137,8 @@ namespace Orang.CommandLine
             OptionValues.FileSystemAttributes_Directory,
             OptionValues.FileSystemAttributes_File);
 
-        public static OptionValueProvider NamePartKindProvider { get; } = new OptionValueProvider(MetaValues.NamePart,
+        public static OptionValueProvider NamePartKindProvider { get; } = new OptionValueProvider(
+            MetaValues.NamePart,
             OptionValues.NamePart_Extension,
             OptionValues.NamePart_FullName,
             OptionValues.NamePart_Name,
@@ -147,7 +155,8 @@ namespace Orang.CommandLine
             OptionValues.NamePart_Extension
         );
 
-        public static OptionValueProvider SyntaxSectionProvider { get; } = new OptionValueProvider(MetaValues.SyntaxSections,
+        public static OptionValueProvider SyntaxSectionProvider { get; } = new OptionValueProvider(
+            MetaValues.SyntaxSections,
             SimpleOptionValue.Create(SyntaxSection.AlternationConstructs, shortValue: "ac", helpValue: "a[lternation-]c[onstructs]"),
             SimpleOptionValue.Create(SyntaxSection.Anchors),
             SimpleOptionValue.Create(SyntaxSection.BackreferenceConstructs),
@@ -162,7 +171,8 @@ namespace Orang.CommandLine
             SimpleOptionValue.Create(SyntaxSection.Substitutions)
         );
 
-        public static OptionValueProvider ModifyFlagsProvider { get; } = new OptionValueProvider(MetaValues.ModifyOptions,
+        public static OptionValueProvider ModifyFlagsProvider { get; } = new OptionValueProvider(
+            MetaValues.ModifyOptions,
             SimpleOptionValue.Create(ModifyFlags.Aggregate, shortValue: "ag", description: "Display list of all values at the end of search."),
             SimpleOptionValue.Create(ModifyFlags.AggregateOnly, shortValue: "ao", description: "Display only list of all values at the end of search."),
             SimpleOptionValue.Create(ModifyFlags.Ascending, description: "Sort values in an ascending order."),
@@ -182,7 +192,8 @@ namespace Orang.CommandLine
             OptionValues.TrimStart
         );
 
-        public static OptionValueProvider HighlightOptionsProvider { get; } = new OptionValueProvider(MetaValues.Highlight,
+        public static OptionValueProvider HighlightOptionsProvider { get; } = new OptionValueProvider(
+            MetaValues.Highlight,
             OptionValues.HighlightOptions_None,
             OptionValues.HighlightOptions_Match,
             OptionValues.HighlightOptions_Replacement,
@@ -199,7 +210,8 @@ namespace Orang.CommandLine
             OptionValues.HighlightOptions_Space
         );
 
-        public static OptionValueProvider DeleteHighlightOptionsProvider { get; } = new OptionValueProvider(OptionValueProviderNames.DeleteHighlightOptions,
+        public static OptionValueProvider DeleteHighlightOptionsProvider { get; } = new OptionValueProvider(
+            OptionValueProviderNames.DeleteHighlightOptions,
             OptionValues.HighlightOptions_None,
             OptionValues.HighlightOptions_Match,
             OptionValues.HighlightOptions_Empty
@@ -221,7 +233,8 @@ namespace Orang.CommandLine
             OptionValues.HighlightOptions_EmptySplit
         );
 
-        public static OptionValueProvider RenameHighlightOptionsProvider { get; } = new OptionValueProvider(OptionValueProviderNames.RenameHighlightOptions,
+        public static OptionValueProvider RenameHighlightOptionsProvider { get; } = new OptionValueProvider(
+            OptionValueProviderNames.RenameHighlightOptions,
             OptionValues.HighlightOptions_None,
             OptionValues.HighlightOptions_Match,
             OptionValues.HighlightOptions_Replacement,
@@ -241,13 +254,15 @@ namespace Orang.CommandLine
             OptionValues.HighlightOptions_EmptyReplacement
         );
 
-        public static OptionValueProvider OutputFlagsProvider { get; } = new OptionValueProvider(MetaValues.OutputOptions,
+        public static OptionValueProvider OutputFlagsProvider { get; } = new OptionValueProvider(
+            MetaValues.OutputOptions,
             OptionValues.Encoding,
             OptionValues.Verbosity,
             OptionValues.Output_Append
         );
 
-        public static OptionValueProvider ContentDisplayStyleProvider { get; } = new OptionValueProvider(MetaValues.ContentDisplay,
+        public static OptionValueProvider ContentDisplayStyleProvider { get; } = new OptionValueProvider(
+            MetaValues.ContentDisplay,
             OptionValues.ContentDisplayStyle_AllLines,
             OptionValues.ContentDisplayStyle_Line,
             OptionValues.ContentDisplayStyle_UnmatchedLines,
@@ -266,30 +281,35 @@ namespace Orang.CommandLine
             OptionValues.ContentDisplayStyle_UnmatchedLines
         );
 
-        public static OptionValueProvider AskModeProvider { get; } = new OptionValueProvider(MetaValues.AskMode,
+        public static OptionValueProvider AskModeProvider { get; } = new OptionValueProvider(
+            MetaValues.AskMode,
             SimpleOptionValue.Create(AskMode.File, description: "Ask for confirmation after each file."),
             SimpleOptionValue.Create(AskMode.Value, description: "Ask for confirmation after each value.")
         );
 
-        public static OptionValueProvider MaxOptionsProvider { get; } = new OptionValueProvider(MetaValues.MaxOptions,
+        public static OptionValueProvider MaxOptionsProvider { get; } = new OptionValueProvider(
+            MetaValues.MaxOptions,
             SimpleOptionValue.Create("MaxMatchingFiles", "<NUM>", shortValue: "", description: "Stop searching after <NUM> matching files and/or directories."),
             OptionValues.MaxMatches
         );
 
-        public static OptionValueProvider PathDisplayStyleProvider { get; } = new OptionValueProvider(MetaValues.PathDisplay,
+        public static OptionValueProvider PathDisplayStyleProvider { get; } = new OptionValueProvider(
+            MetaValues.PathDisplay,
             OptionValues.PathDisplayStyle_Full,
             OptionValues.PathDisplayStyle_Relative,
             OptionValues.PathDisplayStyle_Match,
             OptionValues.PathDisplayStyle_Omit
         );
 
-        public static OptionValueProvider PathDisplayStyleProvider_Rename { get; } = new OptionValueProvider(OptionValueProviderNames.PathDisplayStyle_Rename,
+        public static OptionValueProvider PathDisplayStyleProvider_Rename { get; } = new OptionValueProvider(
+            OptionValueProviderNames.PathDisplayStyle_Rename,
             OptionValues.PathDisplayStyle_Full,
             OptionValues.PathDisplayStyle_Relative,
             OptionValues.PathDisplayStyle_Omit
         );
 
-        public static OptionValueProvider DisplayProvider { get; } = new OptionValueProvider(MetaValues.DisplayOptions,
+        public static OptionValueProvider DisplayProvider { get; } = new OptionValueProvider(
+            MetaValues.DisplayOptions,
             OptionValues.Display_Content,
             OptionValues.Display_Context,
             OptionValues.Display_ContextBefore,
@@ -306,14 +326,16 @@ namespace Orang.CommandLine
             OptionValues.Display_TrimLine
         );
 
-        public static OptionValueProvider DisplayProvider_MatchAndSplit { get; } = new OptionValueProvider(OptionValueProviderNames.Display_MatchAndSplit,
+        public static OptionValueProvider DisplayProvider_MatchAndSplit { get; } = new OptionValueProvider(
+            OptionValueProviderNames.Display_MatchAndSplit,
             OptionValues.Display_Content,
             OptionValues.Display_Indent,
             OptionValues.Display_Separator,
             OptionValues.Display_Summary
         );
 
-        public static OptionValueProvider DisplayProvider_NonContent { get; } = new OptionValueProvider(OptionValueProviderNames.Display_NonContent,
+        public static OptionValueProvider DisplayProvider_NonContent { get; } = new OptionValueProvider(
+            OptionValueProviderNames.Display_NonContent,
             OptionValues.Display_CreationTime,
             OptionValues.Display_Indent,
             OptionValues.Display_ModifiedTime,
@@ -323,7 +345,8 @@ namespace Orang.CommandLine
             OptionValues.Display_Summary
         );
 
-        public static OptionValueProvider SortFlagsProvider { get; } = new OptionValueProvider(MetaValues.SortOptions,
+        public static OptionValueProvider SortFlagsProvider { get; } = new OptionValueProvider(
+            MetaValues.SortOptions,
             SimpleOptionValue.Create(SortFlags.Ascending, description: "Sort items in ascending order."),
             SimpleOptionValue.Create(SortFlags.CreationTime, shortValue: "ct", helpValue: "c[reation-]t[ime]", description: "Sort items by creation time."),
             SimpleOptionValue.Create(SortFlags.Descending, description: "Sort items in descending order."),
@@ -333,17 +356,20 @@ namespace Orang.CommandLine
             SimpleOptionValue.Create(SortFlags.Size, description: "Sort items by size.")
         );
 
-        public static OptionValueProvider FilePropertiesProvider { get; } = new OptionValueProvider(MetaValues.FileProperties,
+        public static OptionValueProvider FilePropertiesProvider { get; } = new OptionValueProvider(
+            MetaValues.FileProperties,
             OptionValues.FileProperty_CreationTime,
             OptionValues.FileProperty_ModifiedTime,
             OptionValues.FileProperty_Size
         );
 
-        public static OptionValueProvider ValueSortPropertyProvider { get; } = new OptionValueProvider(MetaValues.SortProperty,
+        public static OptionValueProvider ValueSortPropertyProvider { get; } = new OptionValueProvider(
+            MetaValues.SortProperty,
             SimpleOptionValue.Create(ValueSortProperty.Length, description: "Sort values by value's length.")
         );
 
-        public static OptionValueProvider ReplaceFlagsProvider { get; } = new OptionValueProvider(MetaValues.ReplaceModify,
+        public static OptionValueProvider ReplaceFlagsProvider { get; } = new OptionValueProvider(
+            MetaValues.ReplaceModify,
             SimpleOptionValue.Create(ReplaceFlags.CultureInvariant, shortValue: "ci", description: "Ignore cultural differences between languages."),
             OptionValues.ToLower,
             OptionValues.ToUpper,
@@ -352,7 +378,8 @@ namespace Orang.CommandLine
             OptionValues.TrimStart
         );
 
-        public static OptionValueProvider ConflictResolutionProvider { get; } = new OptionValueProvider(MetaValues.ConflictResolution,
+        public static OptionValueProvider ConflictResolutionProvider { get; } = new OptionValueProvider(
+            MetaValues.ConflictResolution,
             OptionValues.ConflictResolution_Ask,
             OptionValues.ConflictResolution_Overwrite,
             OptionValues.ConflictResolution_Suffix,
@@ -364,7 +391,8 @@ namespace Orang.CommandLine
             OptionValues.ConflictResolution_Suffix
         );
 
-        public static OptionValueProvider FileCompareOptionsProvider { get; } = new OptionValueProvider(MetaValues.CompareOptions,
+        public static OptionValueProvider FileCompareOptionsProvider { get; } = new OptionValueProvider(
+            MetaValues.CompareOptions,
             SimpleOptionValue.Create(FileCompareOptions.None, description: "Compare files only by name."),
             SimpleOptionValue.Create(FileCompareOptions.Attributes, description: "Compare file attributes."),
             SimpleOptionValue.Create(FileCompareOptions.Content, description: "Compare file content."),

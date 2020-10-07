@@ -14,33 +14,44 @@ namespace Orang.CommandLine
     [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.DeleteHighlightOptions)]
     internal sealed class DeleteCommandLineOptions : DeleteOrRenameCommandLineOptions
     {
-        [Option(longName: OptionNames.Ask,
+        [Option(
+            longName: OptionNames.Ask,
             HelpText = "Ask for a permission to delete file or directory.")]
         public bool Ask { get; set; }
 
-        [Option(shortName: OptionShortNames.Content, longName: OptionNames.Content,
+        [Option(
+            shortName: OptionShortNames.Content,
+            longName: OptionNames.Content,
             HelpText = "Regular expression for files' content. Syntax is <PATTERN> [<PATTERN_OPTIONS>].",
             MetaValue = MetaValues.Regex)]
         public IEnumerable<string> Content { get; set; } = null!;
 
-        [Option(longName: OptionNames.ContentOnly,
+        [Option(
+            longName: OptionNames.ContentOnly,
             HelpText = "Delete content of a file or directory but not the file or directory itself.")]
         public bool ContentOnly { get; set; }
 
-        [Option(shortName: OptionShortNames.DryRun, longName: OptionNames.DryRun,
+        [Option(
+            shortName: OptionShortNames.DryRun,
+            longName: OptionNames.DryRun,
             HelpText = "Display which files or directories should be deleted but do not actually delete any file or directory.")]
         public bool DryRun { get; set; }
 
-        [Option(longName: OptionNames.IncludingBom,
+        [Option(
+            longName: OptionNames.IncludingBom,
             HelpText = "Delete byte order mark (BOM) when deleting file's content.")]
         public bool IncludingBom { get; set; }
 
-        [Option(shortName: OptionShortNames.MaxCount, longName: OptionNames.MaxCount,
+        [Option(
+            shortName: OptionShortNames.MaxCount,
+            longName: OptionNames.MaxCount,
             HelpText = "Stop deleting after specified number is reached.",
             MetaValue = MetaValues.Num)]
         public int MaxCount { get; set; }
 
-        [Option(shortName: OptionShortNames.Name, longName: OptionNames.Name,
+        [Option(
+            shortName: OptionShortNames.Name,
+            longName: OptionNames.Name,
             HelpText = "Regular expression for file or directory name. Syntax is <PATTERN> [<PATTERN_OPTIONS>].",
             MetaValue = MetaValues.Regex)]
         public IEnumerable<string> Name { get; set; } = null!;

@@ -309,7 +309,8 @@ namespace Orang.CommandLine.Help
                     KeyValuePairOptionValue keyOptionValue => keyOptionValue.Key.Length + 1 + keyOptionValue.Value.Length,
                     _ => throw new InvalidOperationException(),
                 };
-            }) + 1;
+            })
+                + 1;
             int width2 = optionValues.DefaultIfEmpty().Max(f =>
             {
                 return f switch
@@ -318,7 +319,8 @@ namespace Orang.CommandLine.Help
                     KeyValuePairOptionValue keyOptionValue => keyOptionValue.ShortKey.Length,
                     _ => throw new InvalidOperationException(),
                 };
-            }) + 1;
+            })
+                + 1;
 
             return (width1, width2);
         }

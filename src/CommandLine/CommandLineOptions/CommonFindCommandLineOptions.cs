@@ -12,22 +12,29 @@ namespace Orang.CommandLine
     [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.FindHighlightOptions)]
     internal abstract class CommonFindCommandLineOptions : FileSystemCommandLineOptions
     {
-        [Option(longName: OptionNames.Ask,
+        [Option(
+            longName: OptionNames.Ask,
             HelpText = "Ask for permission after each file or value.",
             MetaValue = MetaValues.AskMode)]
         public string Ask { get; set; } = null!;
 
-        [Option(shortName: OptionShortNames.Content, longName: OptionNames.Content,
+        [Option(
+            shortName: OptionShortNames.Content,
+            longName: OptionNames.Content,
             HelpText = "Regular expression for files' content. Syntax is <PATTERN> [<PATTERN_OPTIONS>].",
             MetaValue = MetaValues.Regex)]
         public IEnumerable<string> Content { get; set; } = null!;
 
-        [Option(shortName: OptionShortNames.MaxCount, longName: OptionNames.MaxCount,
+        [Option(
+            shortName: OptionShortNames.MaxCount,
+            longName: OptionNames.MaxCount,
             HelpText = "Stop searching after specified number is reached.",
             MetaValue = MetaValues.MaxOptions)]
         public IEnumerable<string> MaxCount { get; set; } = null!;
 
-        [Option(shortName: OptionShortNames.Name, longName: OptionNames.Name,
+        [Option(
+            shortName: OptionShortNames.Name,
+            longName: OptionNames.Name,
             HelpText = "Regular expression for file or directory name. Syntax is <PATTERN> [<PATTERN_OPTIONS>].",
             MetaValue = MetaValues.Regex)]
         public IEnumerable<string> Name { get; set; } = null!;

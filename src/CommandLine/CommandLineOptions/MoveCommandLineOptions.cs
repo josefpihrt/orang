@@ -42,14 +42,28 @@ namespace Orang.CommandLine
 
             options = (MoveCommandOptions)baseOptions;
 
-            if (!TryParseAsEnumFlags(Compare, OptionNames.Compare, out FileCompareOptions compareOptions, FileCompareOptions.None, OptionValueProviders.FileCompareOptionsProvider))
+            if (!TryParseAsEnumFlags(
+                Compare,
+                OptionNames.Compare,
+                out FileCompareOptions compareOptions,
+                FileCompareOptions.None,
+                OptionValueProviders.FileCompareOptionsProvider))
+            {
                 return false;
+            }
 
             if (!TryEnsureFullPath(Target, out string? target))
                 return false;
 
-            if (!TryParseAsEnum(Conflict, OptionNames.Conflict, out ConflictResolution conflictResolution, defaultValue: ConflictResolution.Ask, provider: OptionValueProviders.ConflictResolutionProvider))
+            if (!TryParseAsEnum(
+                Conflict,
+                OptionNames.Conflict,
+                out ConflictResolution conflictResolution,
+                defaultValue: ConflictResolution.Ask,
+                provider: OptionValueProviders.ConflictResolutionProvider))
+            {
                 return false;
+            }
 
             options.CompareOptions = compareOptions;
             options.DryRun = DryRun;

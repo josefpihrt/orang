@@ -46,7 +46,8 @@ namespace Orang.CommandLine
         [Option(
             shortName: OptionShortNames.Extension,
             longName: OptionNames.Extension,
-            HelpText = "A filter for file extensions (case-insensitive by default). Syntax is EXT1[,EXT2,...] [<EXTENSION_OPTIONS>].",
+            HelpText = "A filter for file extensions (case-insensitive by default). " +
+                "Syntax is EXT1[,EXT2,...] [<EXTENSION_OPTIONS>].",
             MetaValue = MetaValues.ExtensionFilter)]
         public IEnumerable<string> Extension { get; set; } = null!;
 
@@ -99,11 +100,23 @@ namespace Orang.CommandLine
             if (!TryParsePaths(out ImmutableArray<PathInfo> paths))
                 return false;
 
-            if (!TryParseAsEnumFlags(Attributes, OptionNames.Attributes, out FileSystemAttributes attributes, provider: OptionValueProviders.FileSystemAttributesProvider))
+            if (!TryParseAsEnumFlags(
+                Attributes,
+                OptionNames.Attributes,
+                out FileSystemAttributes attributes,
+                provider: OptionValueProviders.FileSystemAttributesProvider))
+            {
                 return false;
+            }
 
-            if (!TryParseAsEnumFlags(AttributesToSkip, OptionNames.AttributesToSkip, out FileSystemAttributes attributesToSkip, provider: OptionValueProviders.FileSystemAttributesToSkipProvider))
+            if (!TryParseAsEnumFlags(
+                AttributesToSkip,
+                OptionNames.AttributesToSkip,
+                out FileSystemAttributes attributesToSkip,
+                provider: OptionValueProviders.FileSystemAttributesToSkipProvider))
+            {
                 return false;
+            }
 
             if (!TryParseEncoding(Encoding, out Encoding defaultEncoding, Text.EncodingHelpers.UTF8NoBom))
                 return false;
@@ -111,8 +124,17 @@ namespace Orang.CommandLine
             if (!TryParseSortOptions(Sort, OptionNames.Sort, out SortOptions? sortOptions))
                 return false;
 
-            if (!FilterParser.TryParse(IncludeDirectory, OptionNames.IncludeDirectory, OptionValueProviders.PatternOptionsProvider, out Filter? directoryFilter, out FileNamePart directoryNamePart, allowNull: true, namePartProvider: OptionValueProviders.NamePartKindProvider_WithoutExtension))
+            if (!FilterParser.TryParse(
+                IncludeDirectory,
+                OptionNames.IncludeDirectory,
+                OptionValueProviders.PatternOptionsProvider,
+                out Filter? directoryFilter,
+                out FileNamePart directoryNamePart,
+                allowNull: true,
+                namePartProvider: OptionValueProviders.NamePartKindProvider_WithoutExtension))
+            {
                 return false;
+            }
 
             if (!FilterParser.TryParse(
                 Extension,
@@ -140,7 +162,14 @@ namespace Orang.CommandLine
             {
                 if ((attributesToSkip & FileSystemAttributes.Empty) != 0)
                 {
-                    Logger.WriteError($"Value '{OptionValueProviders.FileSystemAttributesProvider.GetValue(nameof(FileSystemAttributes.Empty)).HelpValue}' cannot be specified both for '{OptionNames.GetHelpText(OptionNames.Attributes)}' and '{OptionNames.GetHelpText(OptionNames.AttributesToSkip)}'.");
+                    string helpValue = OptionValueProviders.FileSystemAttributesProvider
+                        .GetValue(nameof(FileSystemAttributes.Empty))
+                        .HelpValue;
+
+                    Logger.WriteError($"Value '{helpValue}' cannot be specified both for " +
+                        $"'{OptionNames.GetHelpText(OptionNames.Attributes)}' and " +
+                        $"'{OptionNames.GetHelpText(OptionNames.AttributesToSkip)}'.");
+
                     return false;
                 }
 
@@ -221,7 +250,10 @@ namespace Orang.CommandLine
             return true;
         }
 
-        private static bool TryEnsureFullPath(IEnumerable<string> paths, PathOrigin kind, out ImmutableArray<PathInfo> fullPaths)
+        private static bool TryEnsureFullPath(
+            IEnumerable<string> paths,
+            PathOrigin kind,
+            out ImmutableArray<PathInfo> fullPaths)
         {
             ImmutableArray<PathInfo>.Builder builder = ImmutableArray.CreateBuilder<PathInfo>();
 

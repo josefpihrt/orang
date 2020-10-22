@@ -43,13 +43,17 @@ namespace Orang.CommandLine
                     {
                         optionValue = OptionValues.FileProperty_CreationTime;
 
-                        creationTimePredicate = new FilterPredicate<DateTime>(expression, PredicateHelpers.GetDateTimePredicate(expression));
+                        creationTimePredicate = new FilterPredicate<DateTime>(
+                            expression,
+                            PredicateHelpers.GetDateTimePredicate(expression));
                     }
                     else if (OptionValues.FileProperty_ModifiedTime.IsKeyOrShortKey(expression.Identifier))
                     {
                         optionValue = OptionValues.FileProperty_ModifiedTime;
 
-                        modifiedTimePredicate = new FilterPredicate<DateTime>(expression, PredicateHelpers.GetDateTimePredicate(expression));
+                        modifiedTimePredicate = new FilterPredicate<DateTime>(
+                            expression,
+                            PredicateHelpers.GetDateTimePredicate(expression));
                     }
                     else if (OptionValues.FileProperty_Size.IsKeyOrShortKey(expression.Identifier))
                     {
@@ -74,7 +78,12 @@ namespace Orang.CommandLine
                     if (expression != null
                         && optionValue != null)
                     {
-                        WriteOptionValueError(expression.Value, optionValue, HelpProvider.GetExpressionsText("  ", includeDate: optionValue != OptionValues.FileProperty_Size));
+                        WriteOptionValueError(
+                            expression.Value,
+                            optionValue,
+                            HelpProvider.GetExpressionsText(
+                                "  ",
+                                includeDate: optionValue != OptionValues.FileProperty_Size));
                     }
                     else
                     {
@@ -127,8 +136,14 @@ namespace Orang.CommandLine
                 }
             }
 
-            if (!TryParseAsEnumValues(options, optionName, out ImmutableArray<SortFlags> flags, provider: OptionValueProviders.SortFlagsProvider))
+            if (!TryParseAsEnumValues(
+                options,
+                optionName,
+                out ImmutableArray<SortFlags> flags,
+                provider: OptionValueProviders.SortFlagsProvider))
+            {
                 return false;
+            }
 
             SortDirection direction = (flags.Contains(SortFlags.Descending))
                 ? SortDirection.Descending
@@ -179,7 +194,9 @@ namespace Orang.CommandLine
             }
             else
             {
-                sortOptions = new SortOptions(ImmutableArray.Create(new SortDescriptor(SortProperty.Name, SortDirection.Ascending)), maxCount: maxCount);
+                sortOptions = new SortOptions(
+                    ImmutableArray.Create(new SortDescriptor(SortProperty.Name, SortDirection.Ascending)),
+                    maxCount: maxCount);
             }
 
             return true;
@@ -213,8 +230,14 @@ namespace Orang.CommandLine
 
                     if (OptionValues.SortBy.IsKeyOrShortKey(key))
                     {
-                        if (!TryParseAsEnum(value2, optionName, out sortProperty, provider: OptionValueProviders.ValueSortPropertyProvider))
+                        if (!TryParseAsEnum(
+                            value2,
+                            optionName,
+                            out sortProperty,
+                            provider: OptionValueProviders.ValueSortPropertyProvider))
+                        {
                             return false;
+                        }
                     }
                     else
                     {
@@ -231,14 +254,20 @@ namespace Orang.CommandLine
             var modifyFlags = ModifyFlags.None;
 
             if (options != null
-                && !TryParseAsEnumFlags(options, optionName, out modifyFlags, provider: OptionValueProviders.ModifyFlagsProvider))
+                && !TryParseAsEnumFlags(
+                    options,
+                    optionName,
+                    out modifyFlags,
+                    provider: OptionValueProviders.ModifyFlagsProvider))
             {
                 return false;
             }
 
             if ((modifyFlags & ModifyFlags.ExceptIntersect) == ModifyFlags.ExceptIntersect)
             {
-                WriteError($"Values '{OptionValues.ModifyFlags_Except.HelpValue}' and '{OptionValues.ModifyFlags_Intersect.HelpValue}' cannot be use both at the same time.");
+                WriteError($"Values '{OptionValues.ModifyFlags_Except.HelpValue}' and " +
+                    $"'{OptionValues.ModifyFlags_Intersect.HelpValue}' cannot be use both at the same time.");
+
                 return false;
             }
 
@@ -307,7 +336,11 @@ namespace Orang.CommandLine
             var replaceFlags = ReplaceFlags.None;
 
             if (values != null
-                && !TryParseAsEnumFlags(values, optionName, out replaceFlags, provider: OptionValueProviders.ReplaceFlagsProvider))
+                && !TryParseAsEnumFlags(
+                    values,
+                    optionName,
+                    out replaceFlags,
+                    provider: OptionValueProviders.ReplaceFlagsProvider))
             {
                 return false;
             }
@@ -380,15 +413,27 @@ namespace Orang.CommandLine
 
                     if (OptionValues.Display_Content.IsKeyOrShortKey(key))
                     {
-                        if (!TryParseAsEnum(value2, optionName, out ContentDisplayStyle contentDisplayStyle2, provider: contentDisplayStyleProvider))
+                        if (!TryParseAsEnum(
+                            value2,
+                            optionName,
+                            out ContentDisplayStyle contentDisplayStyle2,
+                            provider: contentDisplayStyleProvider))
+                        {
                             return false;
+                        }
 
                         contentDisplayStyle = contentDisplayStyle2;
                     }
                     else if (OptionValues.Display_Path.IsKeyOrShortKey(key))
                     {
-                        if (!TryParseAsEnum(value2, optionName, out PathDisplayStyle pathDisplayStyle2, provider: pathDisplayStyleProvider))
+                        if (!TryParseAsEnum(
+                            value2,
+                            optionName,
+                            out PathDisplayStyle pathDisplayStyle2,
+                            provider: pathDisplayStyleProvider))
+                        {
                             return false;
+                        }
 
                         pathDisplayStyle = pathDisplayStyle2;
                     }
@@ -548,8 +593,15 @@ namespace Orang.CommandLine
 
             replacement = values.First();
 
-            if (!TryParseAsEnumFlags(values.Skip(1), OptionNames.Replacement, out ReplacementOptions options, ReplacementOptions.None, OptionValueProviders.ReplacementOptionsProvider))
+            if (!TryParseAsEnumFlags(
+                values.Skip(1),
+                OptionNames.Replacement,
+                out ReplacementOptions options,
+                ReplacementOptions.None,
+                OptionValueProviders.ReplacementOptionsProvider))
+            {
                 return false;
+            }
 
             if ((options & ReplacementOptions.FromFile) != 0
                 && !FileSystemHelpers.TryReadAllText(replacement, out replacement, ex => WriteError(ex)))
@@ -575,8 +627,15 @@ namespace Orang.CommandLine
 
             input = values.First();
 
-            if (!TryParseAsEnumFlags(values.Skip(1), OptionNames.Input, out InputOptions options, InputOptions.None, OptionValueProviders.InputOptionsProvider))
+            if (!TryParseAsEnumFlags(
+                values.Skip(1),
+                OptionNames.Input,
+                out InputOptions options,
+                InputOptions.None,
+                OptionValueProviders.InputOptionsProvider))
+            {
                 return false;
+            }
 
             if ((options & InputOptions.Escape) != 0)
                 input = RegexEscape.ConvertCharacterEscapes(input);
@@ -656,7 +715,8 @@ namespace Orang.CommandLine
         {
             if (!TryParseAsEnum(value, out result, defaultValue, provider))
             {
-                string allowedValues = OptionValueProviders.GetHelpText(provider, multiline: true) ?? OptionValue.GetDefaultHelpText<TEnum>(multiline: true);
+                string allowedValues = OptionValueProviders.GetHelpText(provider, multiline: true)
+                    ?? OptionValue.GetDefaultHelpText<TEnum>(multiline: true);
 
                 WriteOptionError(value, optionName, allowedValues);
                 return false;
@@ -690,7 +750,11 @@ namespace Orang.CommandLine
 
         public static bool TryParseVerbosity(string value, out Verbosity verbosity)
         {
-            return TryParseAsEnum(value, OptionNames.Verbosity, out verbosity, provider: OptionValueProviders.VerbosityProvider);
+            return TryParseAsEnum(
+                value,
+                OptionNames.Verbosity,
+                out verbosity,
+                provider: OptionValueProviders.VerbosityProvider);
         }
 
         // https://docs.microsoft.com/en-us/dotnet/api/system.text.encoding#remarks
@@ -845,7 +909,10 @@ namespace Orang.CommandLine
             WriteParseError(value, OptionNames.GetHelpText(optionName), allowedValues);
         }
 
-        internal static void WriteOptionValueError(string value, OptionValue optionValue, OptionValueProvider? provider = null)
+        internal static void WriteOptionValueError(
+            string value,
+            OptionValue optionValue,
+            OptionValueProvider? provider = null)
         {
             WriteOptionValueError(value, optionValue, OptionValueProviders.GetHelpText(provider, multiline: true));
         }
@@ -867,18 +934,37 @@ namespace Orang.CommandLine
 
         internal static bool TryParseProperties(string ask, IEnumerable<string> name, CommonFindCommandOptions options)
         {
-            if (!TryParseAsEnum(ask, OptionNames.Ask, out AskMode askMode, defaultValue: AskMode.None, OptionValueProviders.AskModeProvider))
+            if (!TryParseAsEnum(
+                ask,
+                OptionNames.Ask,
+                out AskMode askMode,
+                defaultValue: AskMode.None,
+                OptionValueProviders.AskModeProvider))
+            {
                 return false;
+            }
 
             if (askMode == AskMode.Value
                 && ConsoleOut.Verbosity < Verbosity.Normal)
             {
-                WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Ask)}' cannot have value '{OptionValueProviders.AskModeProvider.GetValue(nameof(AskMode.Value)).HelpValue}' when '{OptionNames.GetHelpText(OptionNames.Verbosity)}' is set to '{OptionValueProviders.VerbosityProvider.GetValue(ConsoleOut.Verbosity.ToString()).HelpValue}'.");
+                WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Ask)}' cannot have value " +
+                    $"'{OptionValueProviders.AskModeProvider.GetValue(nameof(AskMode.Value)).HelpValue}' when " +
+                    $"'{OptionNames.GetHelpText(OptionNames.Verbosity)}' is set to " +
+                    $"'{OptionValueProviders.VerbosityProvider.GetValue(ConsoleOut.Verbosity.ToString()).HelpValue}'.");
+
                 return false;
             }
 
-            if (!FilterParser.TryParse(name, OptionNames.Name, OptionValueProviders.PatternOptionsProvider, out Filter? nameFilter, out FileNamePart namePart, allowNull: true))
+            if (!FilterParser.TryParse(
+                name,
+                OptionNames.Name,
+                OptionValueProviders.PatternOptionsProvider,
+                out Filter? nameFilter,
+                out FileNamePart namePart,
+                allowNull: true))
+            {
                 return false;
+            }
 
             options.AskMode = askMode;
             options.NameFilter = nameFilter;

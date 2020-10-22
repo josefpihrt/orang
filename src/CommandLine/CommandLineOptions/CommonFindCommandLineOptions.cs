@@ -51,11 +51,25 @@ namespace Orang.CommandLine
             if (!TryParseProperties(Ask, Name, options))
                 return false;
 
-            if (!TryParseAsEnumFlags(Highlight, OptionNames.Highlight, out HighlightOptions highlightOptions, defaultValue: HighlightOptions.Default, provider: OptionValueProviders.FindHighlightOptionsProvider))
+            if (!TryParseAsEnumFlags(
+                Highlight,
+                OptionNames.Highlight,
+                out HighlightOptions highlightOptions,
+                defaultValue: HighlightOptions.Default,
+                provider: OptionValueProviders.FindHighlightOptionsProvider))
+            {
                 return false;
+            }
 
-            if (!FilterParser.TryParse(Content, OptionNames.Content, OptionValueProviders.PatternOptionsWithoutPartProvider, out Filter? contentFilter, allowNull: true))
+            if (!FilterParser.TryParse(
+                Content,
+                OptionNames.Content,
+                OptionValueProviders.PatternOptionsWithoutPartProvider,
+                out Filter? contentFilter,
+                allowNull: true))
+            {
                 return false;
+            }
 
             if (!TryParseDisplay(
                 values: Display,
@@ -82,9 +96,18 @@ namespace Orang.CommandLine
             }
 
             if (options.AskMode == AskMode.Value
-                && (contentDisplayStyle == ContentDisplayStyle.AllLines || contentDisplayStyle == ContentDisplayStyle.UnmatchedLines))
+                && (contentDisplayStyle == ContentDisplayStyle.AllLines
+                    || contentDisplayStyle == ContentDisplayStyle.UnmatchedLines))
             {
-                WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Display)}' cannot have value '{OptionValueProviders.ContentDisplayStyleProvider.GetValue(contentDisplayStyle.Value.ToString()).HelpValue}' when option '{OptionNames.GetHelpText(OptionNames.Ask)}' has value '{OptionValueProviders.AskModeProvider.GetValue(nameof(AskMode.Value)).HelpValue}'.");
+                string helpValue = OptionValueProviders.ContentDisplayStyleProvider
+                    .GetValue(contentDisplayStyle.Value.ToString())
+                    .HelpValue;
+
+                string helpValue2 = OptionValueProviders.AskModeProvider.GetValue(nameof(AskMode.Value)).HelpValue;
+
+                WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Display)}' cannot have value '{helpValue}' " +
+                    $"when option '{OptionNames.GetHelpText(OptionNames.Ask)}' has value '{helpValue2}'.");
+
                 return false;
             }
 

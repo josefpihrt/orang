@@ -6,7 +6,9 @@ using static Orang.CommandLine.ParseHelpers;
 
 namespace Orang.CommandLine
 {
-    [Verb("split", HelpText = "Splits the input string into an list of substrings at the positions defined by a regular expression.")]
+    [Verb(
+        "split",
+        HelpText = "Splits the input string into an list of substrings at the positions defined by a regular expression.")]
     [OptionValueProvider(nameof(Content), OptionValueProviderNames.PatternOptionsWithoutGroupAndPartAndNegative)]
     [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.SplitHighlightOptions)]
     internal sealed class SplitCommandLineOptions : RegexCommandLineOptions
@@ -41,11 +43,24 @@ namespace Orang.CommandLine
 
             options = (SplitCommandOptions)baseOptions;
 
-            if (!FilterParser.TryParse(Content, OptionNames.Content, OptionValueProviders.PatternOptionsWithoutGroupAndPartAndNegativeProvider, out Filter? filter))
+            if (!FilterParser.TryParse(
+                Content,
+                OptionNames.Content,
+                OptionValueProviders.PatternOptionsWithoutGroupAndPartAndNegativeProvider,
+                out Filter? filter))
+            {
                 return false;
+            }
 
-            if (!TryParseAsEnumFlags(Highlight, OptionNames.Highlight, out HighlightOptions highlightOptions, defaultValue: HighlightOptions.Split, provider: OptionValueProviders.SplitHighlightOptionsProvider))
+            if (!TryParseAsEnumFlags(
+                Highlight,
+                OptionNames.Highlight,
+                out HighlightOptions highlightOptions,
+                defaultValue: HighlightOptions.Split,
+                provider: OptionValueProviders.SplitHighlightOptionsProvider))
+            {
                 return false;
+            }
 
             options.Filter = filter!;
             options.HighlightOptions = highlightOptions;

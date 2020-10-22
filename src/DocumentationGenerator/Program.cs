@@ -73,7 +73,10 @@ namespace Orang.Documentation
 
             string valuesFilePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "AllowedValues.md"));
 
-            ImmutableArray<OptionValueProvider> providers = OptionValueProvider.GetProviders(commands.SelectMany(f => f.Options), OptionValueProviders.ProvidersByName.Select(f => f.Value)).ToImmutableArray();
+            ImmutableArray<OptionValueProvider> providers = OptionValueProvider.GetProviders(
+                commands.SelectMany(f => f.Options),
+                OptionValueProviders.ProvidersByName.Select(f => f.Value))
+                .ToImmutableArray();
 
             MDocument document = Document(
                 Heading1("List of Allowed Values"),
@@ -98,7 +101,8 @@ namespace Orang.Documentation
 
             AddFootnote(document);
 
-            var markdownFormat = new MarkdownFormat(tableOptions: MarkdownFormat.Default.TableOptions | TableOptions.FormatContent);
+            var markdownFormat = new MarkdownFormat(
+                tableOptions: MarkdownFormat.Default.TableOptions | TableOptions.FormatContent);
 
             File.WriteAllText(valuesFilePath, document.ToString(markdownFormat));
 

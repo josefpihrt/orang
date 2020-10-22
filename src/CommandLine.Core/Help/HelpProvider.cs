@@ -36,7 +36,9 @@ namespace Orang.CommandLine.Help
             return builder.ToImmutableArray();
         }
 
-        public static ImmutableArray<ArgumentItem> GetArgumentItems(IEnumerable<CommandArgument> arguments, Filter? filter = null)
+        public static ImmutableArray<ArgumentItem> GetArgumentItems(
+            IEnumerable<CommandArgument> arguments,
+            Filter? filter = null)
         {
             int width = CalculateArgumentsWidths(arguments);
 
@@ -164,7 +166,10 @@ namespace Orang.CommandLine.Help
                 : builder.ToImmutableArray();
         }
 
-        public static ImmutableArray<OptionValueItem> GetOptionValueItems(IEnumerable<OptionValue> optionValues, int width1, int width2)
+        public static ImmutableArray<OptionValueItem> GetOptionValueItems(
+            IEnumerable<OptionValue> optionValues,
+            int width1,
+            int width2)
         {
             ImmutableArray<OptionValueItem>.Builder builder = ImmutableArray.CreateBuilder<OptionValueItem>();
 
@@ -218,7 +223,9 @@ namespace Orang.CommandLine.Help
             }
         }
 
-        private static ImmutableArray<OptionValueList> FilterAllowedValues(IEnumerable<OptionValueList> values, Filter filter)
+        private static ImmutableArray<OptionValueList> FilterAllowedValues(
+            IEnumerable<OptionValueList> values,
+            Filter filter)
         {
             ImmutableArray<OptionValueList>.Builder builder = ImmutableArray.CreateBuilder<OptionValueList>();
 

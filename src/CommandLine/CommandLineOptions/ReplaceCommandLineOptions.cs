@@ -38,7 +38,8 @@ namespace Orang.CommandLine
 
         [Option(
             longName: OptionNames.Evaluator,
-            HelpText = "Path to the evaluator method to compute replacements. The format is \"LibraryPath,FullTypeName.MethodName\".",
+            HelpText = "Path to the evaluator method to compute replacements. " +
+                "The format is \"LibraryPath,FullTypeName.MethodName\".",
             MetaValue = MetaValues.Evaluator)]
         public string Evaluator { get; set; } = null!;
 
@@ -87,11 +88,24 @@ namespace Orang.CommandLine
             if (!TryParseProperties(Ask, Name, options))
                 return false;
 
-            if (!TryParseAsEnumFlags(Highlight, OptionNames.Highlight, out HighlightOptions highlightOptions, defaultValue: HighlightOptions.Replacement, provider: OptionValueProviders.ReplaceHighlightOptionsProvider))
+            if (!TryParseAsEnumFlags(
+                Highlight,
+                OptionNames.Highlight,
+                out HighlightOptions highlightOptions,
+                defaultValue: HighlightOptions.Replacement,
+                provider: OptionValueProviders.ReplaceHighlightOptionsProvider))
+            {
                 return false;
+            }
 
-            if (!FilterParser.TryParse(Content, OptionNames.Content, OptionValueProviders.PatternOptionsWithoutGroupAndPartAndNegativeProvider, out Filter? contentFilter))
+            if (!FilterParser.TryParse(
+                Content,
+                OptionNames.Content,
+                OptionValueProviders.PatternOptionsWithoutGroupAndPartAndNegativeProvider,
+                out Filter? contentFilter))
+            {
                 return false;
+            }
 
             if (!TryParseReplacement(Replacement, out string? replacement))
                 return false;
@@ -101,12 +115,21 @@ namespace Orang.CommandLine
 
             if (replacement != null && matchEvaluator != null)
             {
-                WriteError($"Options '{OptionNames.GetHelpText(OptionNames.Replacement)}' and '{OptionNames.GetHelpText(OptionNames.Evaluator)}' cannot be set both at the same time.");
+                WriteError($"Options '{OptionNames.GetHelpText(OptionNames.Replacement)}' and " +
+                    $"'{OptionNames.GetHelpText(OptionNames.Evaluator)}' cannot be set both at the same time.");
+
                 return false;
             }
 
-            if (!TryParseReplaceOptions(Modify, OptionNames.Modify, replacement, matchEvaluator, out ReplaceOptions? replaceOptions))
+            if (!TryParseReplaceOptions(
+                Modify,
+                OptionNames.Modify,
+                replacement,
+                matchEvaluator,
+                out ReplaceOptions? replaceOptions))
+            {
                 return false;
+            }
 
             if (!TryParseMaxCount(MaxCount, out int maxMatchingFiles, out int maxMatchesInFile))
                 return false;
@@ -144,7 +167,15 @@ namespace Orang.CommandLine
                 if (options.AskMode == AskMode.Value
                     && contentDisplayStyle2 == ContentDisplayStyle.AllLines)
                 {
-                    WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Display)}' cannot have value '{OptionValueProviders.ContentDisplayStyleProvider.GetValue(nameof(ContentDisplayStyle.AllLines)).HelpValue}' when option '{OptionNames.GetHelpText(OptionNames.Ask)}' has value '{OptionValueProviders.AskModeProvider.GetValue(nameof(AskMode.Value)).HelpValue}'.");
+                    string helpValue = OptionValueProviders.ContentDisplayStyleProvider
+                        .GetValue(nameof(ContentDisplayStyle.AllLines))
+                        .HelpValue;
+
+                    string helpValue2 = OptionValueProviders.AskModeProvider.GetValue(nameof(AskMode.Value)).HelpValue;
+
+                    WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Display)}' cannot have value " +
+                        $"'{helpValue}' when option '{OptionNames.GetHelpText(OptionNames.Ask)}' has value '{helpValue2}'.");
+
                     return false;
                 }
 
@@ -195,7 +226,9 @@ namespace Orang.CommandLine
             if (Path.Any()
                 && Input.Any())
             {
-                WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Input)}' and argument '{ArgumentMetaNames.Path}' cannot be set both at the same time.");
+                WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Input)}' and " +
+                    $"argument '{ArgumentMetaNames.Path}' cannot be set both at the same time.");
+
                 return false;
             }
 

@@ -79,7 +79,9 @@ namespace Orang.CommandLine
 
                 if (optionAttribute != null)
                 {
-                    Debug.Assert(propertyInfo.PropertyType != typeof(bool) || string.IsNullOrEmpty(optionAttribute.MetaValue), $"{type.Name}.{propertyInfo.Name}");
+                    Debug.Assert(
+                        propertyInfo.PropertyType != typeof(bool) || string.IsNullOrEmpty(optionAttribute.MetaValue),
+                        $"{type.Name}.{propertyInfo.Name}");
 
                     var option = new CommandOption(
                         name: optionAttribute.LongName,
@@ -87,7 +89,9 @@ namespace Orang.CommandLine
                         metaValue: optionAttribute.MetaValue,
                         description: optionAttribute.HelpText,
                         isRequired: optionAttribute.Required,
-                        valueProviderName: (providerMap.TryGetValue(propertyInfo.Name, out string? valueProviderName)) ? valueProviderName : null);
+                        valueProviderName: (providerMap.TryGetValue(propertyInfo.Name, out string? valueProviderName))
+                            ? valueProviderName
+                            : null);
 
                     options.Add(option);
                 }

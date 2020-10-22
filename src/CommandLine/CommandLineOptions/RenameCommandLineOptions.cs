@@ -38,12 +38,14 @@ namespace Orang.CommandLine
         [Option(
             shortName: OptionShortNames.DryRun,
             longName: OptionNames.DryRun,
-            HelpText = "Display which files or directories should be renamed but do not actually rename any file or directory.")]
+            HelpText = "Display which files or directories should be renamed " +
+                "but do not actually rename any file or directory.")]
         public bool DryRun { get; set; }
 
         [Option(
             longName: OptionNames.Evaluator,
-            HelpText = "Path to the evaluator method to compute replacements. The format is \"LibraryPath,FullTypeName.MethodName\".",
+            HelpText = "Path to the evaluator method to compute replacements. " +
+                "The format is \"LibraryPath,FullTypeName.MethodName\".",
             MetaValue = MetaValues.Evaluator)]
         public string Evaluator { get; set; } = null!;
 
@@ -84,14 +86,36 @@ namespace Orang.CommandLine
 
             options = (RenameCommandOptions)baseOptions;
 
-            if (!TryParseAsEnumFlags(Highlight, OptionNames.Highlight, out HighlightOptions highlightOptions, defaultValue: HighlightOptions.Replacement, provider: OptionValueProviders.RenameHighlightOptionsProvider))
+            if (!TryParseAsEnumFlags(
+                Highlight,
+                OptionNames.Highlight,
+                out HighlightOptions highlightOptions,
+                defaultValue: HighlightOptions.Replacement,
+                provider: OptionValueProviders.RenameHighlightOptionsProvider))
+            {
                 return false;
+            }
 
-            if (!FilterParser.TryParse(Name, OptionNames.Name, OptionValueProviders.PatternOptionsWithoutGroupAndNegativeProvider, out Filter? nameFilter, out FileNamePart namePart, namePartProvider: OptionValueProviders.NamePartKindProvider_WithoutFullName))
+            if (!FilterParser.TryParse(
+                Name,
+                OptionNames.Name,
+                OptionValueProviders.PatternOptionsWithoutGroupAndNegativeProvider,
+                out Filter? nameFilter,
+                out FileNamePart namePart,
+                namePartProvider: OptionValueProviders.NamePartKindProvider_WithoutFullName))
+            {
                 return false;
+            }
 
-            if (!FilterParser.TryParse(Content, OptionNames.Content, OptionValueProviders.PatternOptionsWithoutPartProvider, out Filter? contentFilter, allowNull: true))
+            if (!FilterParser.TryParse(
+                Content,
+                OptionNames.Content,
+                OptionValueProviders.PatternOptionsWithoutPartProvider,
+                out Filter? contentFilter,
+                allowNull: true))
+            {
                 return false;
+            }
 
             if (!TryParseReplacement(Replacement, out string? replacement))
                 return false;
@@ -101,15 +125,30 @@ namespace Orang.CommandLine
 
             if (replacement != null && matchEvaluator != null)
             {
-                WriteError($"Options '{OptionNames.GetHelpText(OptionNames.Replacement)}' and '{OptionNames.GetHelpText(OptionNames.Evaluator)}' cannot be set both at the same time.");
+                WriteError($"Options '{OptionNames.GetHelpText(OptionNames.Replacement)}' and " +
+                    $"'{OptionNames.GetHelpText(OptionNames.Evaluator)}' cannot be set both at the same time.");
                 return false;
             }
 
-            if (!TryParseReplaceOptions(Modify, OptionNames.Modify, replacement, matchEvaluator, out ReplaceOptions? replaceOptions))
+            if (!TryParseReplaceOptions(
+                Modify,
+                OptionNames.Modify,
+                replacement,
+                matchEvaluator,
+                out ReplaceOptions? replaceOptions))
+            {
                 return false;
+            }
 
-            if (!TryParseAsEnum(Conflict, OptionNames.Conflict, out ConflictResolution conflictResolution, defaultValue: ConflictResolution.Ask, provider: OptionValueProviders.ConflictResolutionProvider_WithoutSuffix))
+            if (!TryParseAsEnum(
+                Conflict,
+                OptionNames.Conflict,
+                out ConflictResolution conflictResolution,
+                defaultValue: ConflictResolution.Ask,
+                provider: OptionValueProviders.ConflictResolutionProvider_WithoutSuffix))
+            {
                 return false;
+            }
 
             if (!TryParseDisplay(
                 values: Display,

@@ -72,7 +72,11 @@ namespace Orang.CommandLine
 
         protected abstract void ExecuteFile(string filePath, SearchContext context);
 
-        protected abstract void ExecuteMatchCore(FileMatch fileMatch, SearchContext context, string? baseDirectoryPath, ColumnWidths? columnWidths);
+        protected abstract void ExecuteMatchCore(
+            FileMatch fileMatch,
+            SearchContext context,
+            string? baseDirectoryPath,
+            ColumnWidths? columnWidths);
 
         protected abstract void ExecuteResult(SearchResult result, SearchContext context, ColumnWidths? columnWidths);
 
@@ -90,7 +94,11 @@ namespace Orang.CommandLine
                 }
             }
 
-            var context = new SearchContext(new SearchTelemetry(), progress: ProgressReporter, results: results, cancellationToken: cancellationToken);
+            var context = new SearchContext(
+                new SearchTelemetry(),
+                progress: ProgressReporter,
+                results: results,
+                cancellationToken: cancellationToken);
 
             ExecuteCore(context);
 
@@ -430,14 +438,25 @@ namespace Orang.CommandLine
                 : "";
         }
 
-        protected virtual void WritePath(SearchContext context, FileMatch fileMatch, string? baseDirectoryPath, string indent, ColumnWidths? columnWidths)
+        protected virtual void WritePath(
+            SearchContext context,
+            FileMatch fileMatch,
+            string? baseDirectoryPath,
+            string indent,
+            ColumnWidths? columnWidths)
         {
             WritePath(context, fileMatch, baseDirectoryPath, indent, columnWidths, Colors.Match);
 
             WriteLine(Verbosity.Minimal);
         }
 
-        protected void WritePath(SearchContext context, FileMatch fileMatch, string? baseDirectoryPath, string indent, ColumnWidths? columnWidths, ConsoleColors matchColors)
+        protected void WritePath(
+            SearchContext context,
+            FileMatch fileMatch,
+            string? baseDirectoryPath,
+            string indent,
+            ColumnWidths? columnWidths,
+            ConsoleColors matchColors)
         {
             if (Options.PathDisplayStyle == PathDisplayStyle.Match
                 && fileMatch.NameMatch != null

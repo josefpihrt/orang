@@ -15,7 +15,8 @@ namespace Orang.CommandLine
         [Value(
             index: 0,
             Required = false,
-            HelpText = "Character or a decimal number that represents the character. For a number literal use escape like \\1.",
+            HelpText = "Character or a decimal number that represents the character. " +
+                "For a number literal use escape like \\1.",
             MetaName = ArgumentMetaNames.Char)]
         public string Value { get; set; } = null!;
 
@@ -57,11 +58,23 @@ namespace Orang.CommandLine
                 value = ch;
             }
 
-            if (!TryParseAsEnumFlags(Options, OptionNames.Options, out RegexOptions regexOptions, provider: OptionValueProviders.RegexOptionsProvider))
+            if (!TryParseAsEnumFlags(
+                Options,
+                OptionNames.Options,
+                out RegexOptions regexOptions,
+                provider: OptionValueProviders.RegexOptionsProvider))
+            {
                 return false;
+            }
 
-            if (!TryParseAsEnumValues(Section, OptionNames.Section, out ImmutableArray<SyntaxSection> sections, provider: OptionValueProviders.SyntaxSectionProvider))
+            if (!TryParseAsEnumValues(
+                Section,
+                OptionNames.Section,
+                out ImmutableArray<SyntaxSection> sections,
+                provider: OptionValueProviders.SyntaxSectionProvider))
+            {
                 return false;
+            }
 
             options.Value = value;
             options.RegexOptions = regexOptions;

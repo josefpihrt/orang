@@ -34,7 +34,8 @@ namespace Orang.CommandLine
         [Option(
             shortName: OptionShortNames.DryRun,
             longName: OptionNames.DryRun,
-            HelpText = "Display which files or directories should be deleted but do not actually delete any file or directory.")]
+            HelpText = "Display which files or directories should be deleted " +
+                "but do not actually delete any file or directory.")]
         public bool DryRun { get; set; }
 
         [Option(
@@ -65,22 +66,45 @@ namespace Orang.CommandLine
 
             options = (DeleteCommandOptions)baseOptions;
 
-            if (!TryParseAsEnumFlags(Highlight, OptionNames.Highlight, out HighlightOptions highlightOptions, defaultValue: HighlightOptions.Default, provider: OptionValueProviders.DeleteHighlightOptionsProvider))
+            if (!TryParseAsEnumFlags(
+                Highlight,
+                OptionNames.Highlight,
+                out HighlightOptions highlightOptions,
+                defaultValue: HighlightOptions.Default,
+                provider: OptionValueProviders.DeleteHighlightOptionsProvider))
+            {
                 return false;
+            }
 
-            if (!FilterParser.TryParse(Name, OptionNames.Name, OptionValueProviders.PatternOptionsProvider, out Filter? nameFilter, out FileNamePart namePart, allowNull: true))
+            if (!FilterParser.TryParse(
+                Name,
+                OptionNames.Name,
+                OptionValueProviders.PatternOptionsProvider,
+                out Filter? nameFilter,
+                out FileNamePart namePart,
+                allowNull: true))
+            {
                 return false;
+            }
 
             if (nameFilter == null
                 && options.Paths.Length == 1
                 && options.Paths[0].Origin == PathOrigin.CurrentDirectory)
             {
-                Logger.WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Name)}' is required when no path is specified (i.e. current directory is used).");
+                Logger.WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Name)}' " +
+                    "is required when no path is specified (i.e. current directory is used).");
                 return false;
             }
 
-            if (!FilterParser.TryParse(Content, OptionNames.Content, OptionValueProviders.PatternOptionsWithoutPartProvider, out Filter? contentFilter, allowNull: true))
+            if (!FilterParser.TryParse(
+                Content,
+                OptionNames.Content,
+                OptionValueProviders.PatternOptionsWithoutPartProvider,
+                out Filter? contentFilter,
+                allowNull: true))
+            {
                 return false;
+            }
 
             if (!TryParseDisplay(
                 values: Display,

@@ -161,7 +161,15 @@ namespace Orang
             if (maxLength > 0)
                 lengthWidth = maxLength.GetDigitCount();
 
-            return new MatchOutputInfo(groupNumber, matchWidth, groupWidth, captureWidth, indexWidth, lengthWidth, captions, prefixSeparator);
+            return new MatchOutputInfo(
+                groupNumber,
+                matchWidth,
+                groupWidth,
+                captureWidth,
+                indexWidth,
+                lengthWidth,
+                captions,
+                prefixSeparator);
         }
 
         public string GetText(

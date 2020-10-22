@@ -2,6 +2,8 @@
 
 using Orang.FileSystem;
 
+#pragma warning disable RCS0056
+
 namespace Orang.CommandLine
 {
     internal static class OptionValues

@@ -16,7 +16,10 @@ namespace Orang.CommandLine
             return TryCreate(path, new Type[] { typeof(Match) }, out result);
         }
 
-        public static bool TryCreate<TDelegate>(string path, Type[] parameters, out TDelegate? result) where TDelegate : Delegate
+        public static bool TryCreate<TDelegate>(
+            string path,
+            Type[] parameters,
+            out TDelegate? result) where TDelegate : Delegate
         {
             result = default;
 
@@ -41,7 +44,8 @@ namespace Orang.CommandLine
             if (index < 0
                 || index >= path.Length - 1)
             {
-                WriteError($"Invalid method full name: {methodFullName}. The expected format is \"MyNamespace.MyClass.MyMethod\".");
+                WriteError(
+                    $"Invalid method full name: {methodFullName}. The expected format is \"MyNamespace.MyClass.MyMethod\".");
                 return false;
             }
 

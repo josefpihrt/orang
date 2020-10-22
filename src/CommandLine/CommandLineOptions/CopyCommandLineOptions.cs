@@ -18,7 +18,8 @@ namespace Orang.CommandLine
         [Option(
             shortName: OptionShortNames.DryRun,
             longName: OptionNames.DryRun,
-            HelpText = "Display which files or directories should be copied but do not actually copy any file or directory.")]
+            HelpText = "Display which files or directories should be copied " +
+                "but do not actually copy any file or directory.")]
         public bool DryRun { get; set; }
 
         [Option(
@@ -42,14 +43,28 @@ namespace Orang.CommandLine
 
             options = (CopyCommandOptions)baseOptions;
 
-            if (!TryParseAsEnumFlags(Compare, OptionNames.Compare, out FileCompareOptions compareOptions, FileCompareOptions.None, OptionValueProviders.FileCompareOptionsProvider))
+            if (!TryParseAsEnumFlags(
+                Compare,
+                OptionNames.Compare,
+                out FileCompareOptions compareOptions,
+                FileCompareOptions.None,
+                OptionValueProviders.FileCompareOptionsProvider))
+            {
                 return false;
+            }
 
             if (!TryEnsureFullPath(Target, out string? target))
                 return false;
 
-            if (!TryParseAsEnum(OnConflict, OptionNames.Conflict, out ConflictResolution conflictResolution, defaultValue: ConflictResolution.Ask, provider: OptionValueProviders.ConflictResolutionProvider))
+            if (!TryParseAsEnum(
+                OnConflict,
+                OptionNames.Conflict,
+                out ConflictResolution conflictResolution,
+                defaultValue: ConflictResolution.Ask,
+                provider: OptionValueProviders.ConflictResolutionProvider))
+            {
                 return false;
+            }
 
             options.CompareOptions = compareOptions;
             options.DryRun = DryRun;

@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using DotMarkdown;
 using DotMarkdown.Linq;
 using Orang.CommandLine;
@@ -16,6 +17,8 @@ namespace Orang.Documentation
 {
     internal static class Program
     {
+        private static readonly Regex _removeNewlineRegex = new Regex(@"\ *\r?\n\ *");
+
         private static void Main(params string[] args)
         {
             IEnumerable<Command> commands = CommandLoader.LoadCommands(typeof(CommandLoader).Assembly)
@@ -95,7 +98,8 @@ namespace Orang.Documentation
                         Heading2(provider.Name),
                         Table(
                             TableRow("Value", "Description"),
-                            provider.Values.Select(f => TableRow(f.HelpValue, f.Description)))
+                            provider.Values.Select(
+                                f => TableRow(f.HelpValue, _removeNewlineRegex.Replace(f.Description ?? "", " "))))
                     };
                 }));
 

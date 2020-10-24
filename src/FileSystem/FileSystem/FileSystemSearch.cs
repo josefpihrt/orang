@@ -696,7 +696,10 @@ namespace Orang.FileSystem
             if (conflictResolution == ConflictResolution.Ask
                 && dialogProvider == null)
             {
-                throw new ArgumentNullException(nameof(dialogProvider), $"'{nameof(dialogProvider)}' cannot be null when {nameof(ConflictResolution)} is set to {nameof(ConflictResolution.Ask)}.");
+                throw new ArgumentNullException(
+                    nameof(dialogProvider),
+                    $"'{nameof(dialogProvider)}' cannot be null when {nameof(ConflictResolution)} " +
+                        $"is set to {nameof(ConflictResolution.Ask)}.");
             }
         }
 

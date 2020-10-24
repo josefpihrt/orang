@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using Orang.FileSystem;
 
 #pragma warning disable RCS0056
@@ -85,6 +86,12 @@ namespace Orang.CommandLine
         public static readonly SimpleOptionValue Trim = SimpleOptionValue.Create(ReplaceFlags.Trim, description: "Trim leading and trailing white-space.");
         public static readonly SimpleOptionValue TrimEnd = SimpleOptionValue.Create(ReplaceFlags.TrimEnd, shortValue: "te", description: "Trim trailing white-space.");
         public static readonly SimpleOptionValue TrimStart = SimpleOptionValue.Create(ReplaceFlags.TrimStart, shortValue: "ts", description: "Trim leading white-space.");
+
+        public static readonly SimpleOptionValue ReplacementOptions_FromDll = SimpleOptionValue.Create(
+            ReplacementOptions.FromDll,
+            shortValue: "",
+            description: $"{MetaValues.Replacement} is a path to a method in DLL file. " +
+                "The format is 'DllPath,FullTypeName.MethodName'.");
 
         public static readonly KeyValuePairOptionValue Display_Context = KeyValuePairOptionValue.Create("context", "<NUM>", shortKey: "t", description: "A number of lines to display before and after matching line.");
         public static readonly KeyValuePairOptionValue Display_ContextBefore = KeyValuePairOptionValue.Create("context-before", "<NUM>", shortKey: "tb", description: "A number of lines to display before matching line.");

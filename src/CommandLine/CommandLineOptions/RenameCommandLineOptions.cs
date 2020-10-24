@@ -42,10 +42,10 @@ namespace Orang.CommandLine
                 "but do not actually rename any file or directory.")]
         public bool DryRun { get; set; }
 
+        [Hidden]
         [Option(
             longName: OptionNames.Evaluator,
-            HelpText = "Path to the evaluator method to compute replacements. " +
-                "The format is \"LibraryPath,FullTypeName.MethodName\".",
+            HelpText = "[deprecated] Use option -r, --replacement instead.",
             MetaValue = MetaValues.Evaluator)]
         public string Evaluator { get; set; } = null!;
 
@@ -117,17 +117,17 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            if (!TryParseReplacement(Replacement, out string? replacement))
+            if (!TryParseReplacement(Replacement, out string? replacement, out MatchEvaluator? matchEvaluator))
                 return false;
 
-            if (!DelegateFactory.TryCreateMatchEvaluator(Evaluator, out MatchEvaluator? matchEvaluator))
-                return false;
-
-            if (replacement != null && matchEvaluator != null)
+            if (matchEvaluator == null
+                && Evaluator != null)
             {
-                WriteError($"Options '{OptionNames.GetHelpText(OptionNames.Replacement)}' and " +
-                    $"'{OptionNames.GetHelpText(OptionNames.Evaluator)}' cannot be set both at the same time.");
-                return false;
+                WriteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Evaluator)}' is obsolete. " +
+                    $"Use option '{OptionNames.GetHelpText(OptionNames.Replacement)}' instead.");
+
+                if (!DelegateFactory.TryCreateFromAssembly(Evaluator, out matchEvaluator))
+                    return false;
             }
 
             if (!TryParseReplaceOptions(

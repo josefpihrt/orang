@@ -120,13 +120,34 @@ namespace Orang.CommandLine
             MetaValues.ReplacementOptions,
             SimpleOptionValue.Create(
                 ReplacementOptions.FromFile,
-                description: "Load replacement string from a file whose path is specified in <REPLACEMENT> value."),
+                description: $"Load text from a file whose path is specified in {MetaValues.Replacement} value."),
             SimpleOptionValue.Create(
                 ReplacementOptions.Literal,
                 description: "Replacement should be treated as a literal expression and not as a replacement expression."),
             SimpleOptionValue.Create(
                 ReplacementOptions.Escape,
-                description: @"Interpret literals \a, \b, \f, \n, \r, \t and \v as character escapes.")
+                description: @"Interpret literals \a, \b, \f, \n, \r, \t and \v as character escapes."),
+            SimpleOptionValue.Create(
+                ReplacementOptions.CSharp,
+                shortValue: "cs",
+                description:
+                    $"{MetaValues.Replacement} is either expression-body of a method with signature " +
+                        "'string M(Match match)'" +
+                        Environment.NewLine +
+                        "or a path to a code file that contains public method with signature 'string M(Match match)'." +
+                        Environment.NewLine +
+                        "Imported namespaces (when inline expression is specified):" +
+                        Environment.NewLine +
+                        "  System" +
+                        Environment.NewLine +
+                        "  System.Collections.Generic" +
+                        Environment.NewLine +
+                        "  System.Linq" +
+                        Environment.NewLine +
+                        "  System.Text" +
+                        Environment.NewLine +
+                        "  System.Text.RegularExpressions"),
+            OptionValues.ReplacementOptions_FromDll
         );
 
         public static OptionValueProvider InputOptionsProvider { get; } = new OptionValueProvider(

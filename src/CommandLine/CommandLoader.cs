@@ -57,7 +57,12 @@ namespace Orang.CommandLine
 
                 foreach (Attribute attribute in propertyInfo.GetCustomAttributes())
                 {
-                    if (attribute is ValueAttribute valueAttribute)
+                    if (attribute is HiddenAttribute)
+                    {
+                        optionAttribute = null;
+                        break;
+                    }
+                    else if (attribute is ValueAttribute valueAttribute)
                     {
                         var argument = new CommandArgument(
                             index: valueAttribute.Index,

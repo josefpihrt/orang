@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -583,15 +582,16 @@ namespace Orang.CommandLine
 
         public static bool TryParseReplacement(
             IEnumerable<string> values,
-            out string? replacement)
+            out string? replacement,
+            out MatchEvaluator? matchEvaluator)
         {
-            if (!values.Any())
-            {
-                replacement = null;
-                return true;
-            }
+            replacement = null;
+            matchEvaluator = null;
 
-            replacement = values.First();
+            if (!values.Any())
+                return true;
+
+            string value = values.First();
 
             if (!TryParseAsEnumFlags(
                 values.Skip(1),
@@ -604,16 +604,36 @@ namespace Orang.CommandLine
             }
 
             if ((options & ReplacementOptions.FromFile) != 0
-                && !FileSystemHelpers.TryReadAllText(replacement, out replacement, ex => WriteError(ex)))
+                && !FileSystemHelpers.TryReadAllText(value, out value!, ex => WriteError(ex)))
             {
                 return false;
             }
 
-            if ((options & ReplacementOptions.Literal) != 0)
-                replacement = RegexEscape.EscapeSubstitution(replacement);
+            if ((options & ReplacementOptions.CSharp) != 0)
+            {
+                if ((options & ReplacementOptions.FromFile) != 0)
+                {
+                    return DelegateFactory.TryCreateFromSourceText(value, out matchEvaluator);
+                }
+                else
+                {
+                    return DelegateFactory.TryCreateFromExpression(value, out matchEvaluator);
+                }
+            }
+            else if ((options & ReplacementOptions.FromDll) != 0)
+            {
+                return DelegateFactory.TryCreateFromAssembly(value, out matchEvaluator);
+            }
+            else
+            {
+                replacement = value;
 
-            if ((options & ReplacementOptions.Escape) != 0)
-                replacement = RegexEscape.ConvertCharacterEscapes(replacement);
+                if ((options & ReplacementOptions.Literal) != 0)
+                    replacement = RegexEscape.EscapeSubstitution(replacement);
+
+                if ((options & ReplacementOptions.Escape) != 0)
+                    replacement = RegexEscape.ConvertCharacterEscapes(replacement);
+            }
 
             return true;
         }

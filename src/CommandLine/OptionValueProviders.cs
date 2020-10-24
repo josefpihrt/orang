@@ -555,7 +555,7 @@ namespace Orang.CommandLine
                     while (true)
                     {
                         sb.Append("  ");
-                        sb.Append(en.Current.Text);
+                        sb.Append(TextHelpers.Indent(en.Current.Text, "  "));
 
                         if (en.MoveNext())
                         {

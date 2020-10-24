@@ -194,7 +194,8 @@ namespace Orang.CommandLine.Help
                 if (!string.IsNullOrEmpty(description))
                 {
                     sb.AppendSpaces(width2 - shortValue.Length);
-                    sb.Append(description);
+
+                    TextHelpers.Indent(description!, width1 + width2, ref sb);
                 }
 
                 builder.Add(new OptionValueItem(optionValue, StringBuilderCache.GetStringAndFree(sb)));

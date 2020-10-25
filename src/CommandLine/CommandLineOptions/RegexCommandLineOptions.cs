@@ -94,6 +94,7 @@ namespace Orang.CommandLine
                 fileProperties: out ImmutableArray<FileProperty> fileProperties,
                 indent: out string? indent,
                 separator: out string? separator,
+                noAlign: out bool _,
                 contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider_WithoutLineAndUnmatchedLines,
                 pathDisplayStyleProvider: OptionValueProviders.PathDisplayStyleProvider))
             {

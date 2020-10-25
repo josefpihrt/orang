@@ -458,6 +458,8 @@ namespace Orang.CommandLine
 
             if (format.Separator?.EndsWith("\n") != true)
                 WriteLine();
+
+            WriteOption("no align", !format.AlignColumns);
         }
 
         private static void WriteSortOptions(string name, SortOptions? options)

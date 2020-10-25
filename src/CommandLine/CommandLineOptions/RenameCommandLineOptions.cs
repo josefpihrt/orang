@@ -161,6 +161,7 @@ namespace Orang.CommandLine
                 fileProperties: out ImmutableArray<FileProperty> fileProperties,
                 indent: out string? indent,
                 separator: out string? separator,
+                noAlign: out bool noAlign,
                 contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider,
                 pathDisplayStyleProvider: OptionValueProviders.PathDisplayStyleProvider_Rename))
             {
@@ -182,7 +183,8 @@ namespace Orang.CommandLine
                 displayParts: displayParts,
                 fileProperties: fileProperties,
                 indent: indent,
-                separator: separator);
+                separator: separator,
+                alignColumns: !noAlign);
 
             options.HighlightOptions = highlightOptions;
             options.SearchTarget = GetSearchTarget();

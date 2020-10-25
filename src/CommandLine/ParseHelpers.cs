@@ -387,6 +387,7 @@ namespace Orang.CommandLine
             out ImmutableArray<FileProperty> fileProperties,
             out string? indent,
             out string? separator,
+            out bool noAlign,
             OptionValueProvider? contentDisplayStyleProvider = null,
             OptionValueProvider? pathDisplayStyleProvider = null)
         {
@@ -398,6 +399,7 @@ namespace Orang.CommandLine
             fileProperties = ImmutableArray<FileProperty>.Empty;
             indent = null;
             separator = null;
+            noAlign = false;
 
             ImmutableArray<FileProperty>.Builder? builder = null;
 
@@ -506,6 +508,10 @@ namespace Orang.CommandLine
                 else if (OptionValues.Display_TrimLine.IsValueOrShortValue(value))
                 {
                     lineDisplayOptions |= LineDisplayOptions.TrimLine;
+                }
+                else if (OptionValues.Display_NoAlign.IsValueOrShortValue(value))
+                {
+                    noAlign = true;
                 }
                 else
                 {

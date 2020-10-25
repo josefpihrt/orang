@@ -88,7 +88,12 @@ namespace Orang.CommandLine
 
             if (CanUseResults)
             {
-                if (Options.SortOptions != null || Options.Format.FileProperties.Any())
+                if (Options.SortOptions != null)
+                {
+                    results = new List<SearchResult>();
+                }
+                else if (Options.Format.AlignColumns
+                    && Options.Format.FileProperties.Any())
                 {
                     results = new List<SearchResult>();
                 }
@@ -241,7 +246,8 @@ namespace Orang.CommandLine
             ImmutableArray<FileProperty> fileProperties = Options.Format.FileProperties;
             ColumnWidths? columnWidths = null;
 
-            if (fileProperties.Any())
+            if (fileProperties.Any()
+                && Options.Format.AlignColumns)
             {
                 List<SearchResult> resultList = results.ToList();
 
@@ -488,11 +494,8 @@ namespace Orang.CommandLine
             if (!ShouldLog(Verbosity.Minimal))
                 return;
 
-            if (columnWidths == null
-                && (CanUseResults || !Options.Format.FileProperties.Any()))
-            {
+            if (!Options.Format.FileProperties.Any())
                 return;
-            }
 
             StringBuilder sb = StringBuilderCache.GetInstance();
 

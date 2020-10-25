@@ -65,7 +65,7 @@ namespace Orang.CommandLine
         {
             var writer = new ConsoleHelpWriter(new HelpWriterOptions(filter: filter));
 
-            command = command.WithOptions(command.Options.Sort((f, f2) => CompareOptions(f, f2)));
+            command = command.WithOptions(command.Options.Sort(CommandOptionComparer.Name));
 
             CommandHelp commandHelp = CommandHelp.Create(command, OptionValueProviders.Providers, filter: filter);
 
@@ -183,11 +183,6 @@ namespace Orang.CommandLine
         {
             return CommandLoader.LoadCommands(typeof(HelpCommand).Assembly)
                 .OrderBy(f => f.Name, StringComparer.CurrentCulture);
-        }
-
-        private static int CompareOptions(CommandOption x, CommandOption y)
-        {
-            return StringComparer.InvariantCulture.Compare(x.Name, y.Name);
         }
 
         internal static string GetHeadingText()

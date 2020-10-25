@@ -106,7 +106,7 @@ namespace Orang.CommandLine
                 verbAttribute.Name,
                 verbAttribute.HelpText,
                 arguments.OrderBy(f => f.Index),
-                options.OrderBy(f => f.Name, StringComparer.InvariantCulture));
+                options.OrderBy(f => f, CommandOptionComparer.Name));
         }
     }
 }

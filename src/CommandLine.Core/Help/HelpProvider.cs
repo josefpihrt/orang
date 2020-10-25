@@ -104,15 +104,20 @@ namespace Orang.CommandLine.Help
                 {
                     sb.Append("-");
                     sb.Append(option.ShortName);
-                    sb.Append(", ");
+
+                    if (!string.IsNullOrEmpty(option.Name))
+                        sb.Append(", ");
                 }
                 else if (anyHasShortName)
                 {
                     sb.Append(' ', 4);
                 }
 
-                sb.Append("--");
-                sb.Append(option.Name);
+                if (!string.IsNullOrEmpty(option.Name))
+                {
+                    sb.Append("--");
+                    sb.Append(option.Name);
+                }
 
                 if (!option.IsRequired)
                     sb.Append("]");

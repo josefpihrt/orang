@@ -38,6 +38,7 @@ namespace Orang.CommandLine
         public const string NoRecurse = "no-recurse";
         public const string Options = "options";
         public const string Output = "output";
+        public const string Paths = "paths";
         public const string PathsFrom = "paths-from";
         public const string Progress = "progress";
         public const string Properties = "properties";

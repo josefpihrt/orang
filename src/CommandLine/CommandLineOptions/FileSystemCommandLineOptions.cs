@@ -71,6 +71,12 @@ namespace Orang.CommandLine
         public bool NoRecurse { get; set; }
 
         [Option(
+            longName: OptionNames.Paths,
+            HelpText = "Path to one or more files and/or directories that should be searched.",
+            MetaValue = MetaValues.Path)]
+        public IEnumerable<string> Paths { get; set; } = null!;
+
+        [Option(
             longName: OptionNames.PathsFrom,
             HelpText = "Read the list of paths to search from a file. Paths should be separated by newlines.",
             MetaValue = MetaValues.FilePath)]
@@ -217,6 +223,14 @@ namespace Orang.CommandLine
                 && !TryEnsureFullPath(Path, PathOrigin.Argument, out paths))
             {
                 return false;
+            }
+
+            if (Paths.Any())
+            {
+                if (!TryEnsureFullPath(Paths, PathOrigin.Option, out ImmutableArray<PathInfo> paths2))
+                    return false;
+
+                paths = paths.AddRange(paths2);
             }
 
             ImmutableArray<PathInfo> pathsFromFile = ImmutableArray<PathInfo>.Empty;

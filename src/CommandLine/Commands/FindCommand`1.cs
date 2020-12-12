@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using Orang.FileSystem;
 using static Orang.CommandLine.LogHelpers;
 using static Orang.Logger;
@@ -52,7 +53,7 @@ namespace Orang.CommandLine
             base.ExecuteCore(context);
 
             if (aggregate)
-                WriteAggregatedValues();
+                WriteAggregatedValues(context.CancellationToken);
         }
 
         protected override void ExecuteDirectory(string directoryPath, SearchContext context)
@@ -226,7 +227,7 @@ namespace Orang.CommandLine
             }
         }
 
-        private void WriteAggregatedValues()
+        private void WriteAggregatedValues(CancellationToken cancellationToken)
         {
             int count = 0;
             ModifyOptions modifyOptions = Options.ModifyOptions;
@@ -279,6 +280,8 @@ namespace Orang.CommandLine
 
                     do
                     {
+                        cancellationToken.ThrowIfCancellationRequested();
+
                         valueWriter.Write(en.Current, symbols, colors, boundaryColors);
                         WriteLine(Verbosity.Minimal);
                         count++;

@@ -250,7 +250,7 @@ namespace Orang.CommandLine
 
                     allValues = allValues
                         .Take(index)
-                        .Except(GetRange(index, allValues.Count))
+                        .Except(GetRange(index, allValues.Count), modifyOptions.StringComparer)
                         .ToList();
                 }
                 else if ((modifyOptions.Functions & ModifyFunctions.Intersect) != 0)

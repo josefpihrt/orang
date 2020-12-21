@@ -1,13 +1,9 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading;
+using Orang.Aggregation;
 using Orang.FileSystem;
-using static Orang.CommandLine.LogHelpers;
 using static Orang.Logger;
 
 namespace Orang.CommandLine
@@ -15,8 +11,7 @@ namespace Orang.CommandLine
     internal sealed class FindCommand<TOptions> : CommonFindCommand<TOptions> where TOptions : FindCommandOptions
     {
         private OutputSymbols? _symbols;
-        private IResultStorage? _storage;
-        private List<int>? _storageIndexes;
+        private AggregateManager? _aggregate;
         private IResultStorage? _fileStorage;
         private List<string>? _fileValues;
 
@@ -37,23 +32,11 @@ namespace Orang.CommandLine
 
         protected override void ExecuteCore(SearchContext context)
         {
-            bool aggregate = (Options.ModifyOptions.Functions & ModifyFunctions.ExceptIntersect) != 0
-                || (Options.ModifyOptions.Aggregate
-                    && (Options.ModifyOptions.Method != null
-                        || (Options.ModifyOptions.Functions & ModifyFunctions.Enumerable) != 0));
-
-            if (aggregate)
-            {
-                _storage = new ListResultStorage();
-
-                if ((Options.ModifyOptions.Functions & ModifyFunctions.ExceptIntersect) != 0)
-                    _storageIndexes = new List<int>();
-            }
+            _aggregate = AggregateManager.TryCreate(Options);
 
             base.ExecuteCore(context);
 
-            if (aggregate)
-                WriteAggregatedValues(context.CancellationToken);
+            _aggregate?.WriteAggregatedValues(context.CancellationToken);
         }
 
         protected override void ExecuteDirectory(string directoryPath, SearchContext context)
@@ -61,7 +44,7 @@ namespace Orang.CommandLine
             base.ExecuteDirectory(directoryPath, context);
 
             if (ContentFilter == null)
-                _storageIndexes?.Add(_storage!.Count);
+                _aggregate?.Sections?.Add(new StorageSection(null!, null, _aggregate.Storage.Count));
         }
 
         protected override void ExecuteMatchWithContentCore(
@@ -83,7 +66,7 @@ namespace Orang.CommandLine
             }
             else
             {
-                WriteContent(fileMatch, writerOptions, context);
+                WriteContent(fileMatch, writerOptions, baseDirectoryPath, context);
             }
 
             AskToContinue(context, indent);
@@ -100,11 +83,11 @@ namespace Orang.CommandLine
             if (!Options.OmitPath)
                 WritePath(context, fileMatch, baseDirectoryPath, indent, columnWidths);
 
-            if (_storage != null
+            if (_aggregate?.Storage != null
                 && fileMatch.NameMatch != null
                 && !object.ReferenceEquals(fileMatch.NameMatch, Match.Empty))
             {
-                _storage.Add(fileMatch.NameMatch.Value);
+                _aggregate.Storage.Add(fileMatch.NameMatch.Value);
             }
 
             AskToContinue(context, indent);
@@ -113,6 +96,7 @@ namespace Orang.CommandLine
         private void WriteContent(
             FileMatch fileMatch,
             ContentWriterOptions writerOptions,
+            string? baseDirectoryPath,
             SearchContext context)
         {
             SearchTelemetry telemetry = context.Telemetry;
@@ -157,7 +141,7 @@ namespace Orang.CommandLine
                         contentDisplayStyle: Options.ContentDisplayStyle,
                         input: fileMatch.ContentText,
                         options: writerOptions,
-                        storage: (hasAnyFunction) ? _fileStorage : _storage,
+                        storage: (hasAnyFunction) ? _fileStorage : _aggregate?.Storage,
                         outputInfo: Options.CreateOutputInfo(fileMatch.ContentText, fileMatch.ContentMatch!, ContentFilter),
                         writer: (hasAnyFunction) ? null : ContentTextWriter.Default,
                         ask: AskMode == AskMode.Value);
@@ -185,11 +169,11 @@ namespace Orang.CommandLine
                         valueWriter.Write(value, Symbols, colors, boundaryColors);
                         WriteLine(Verbosity.Normal);
 
-                        _storage?.Add(value);
+                        _aggregate?.Storage.Add(value);
                         telemetry.MatchCount++;
                     }
 
-                    _storageIndexes?.Add(_storage!.Count);
+                    _aggregate?.Sections?.Add(new StorageSection(fileMatch, baseDirectoryPath, _aggregate.Storage.Count));
                 }
                 else
                 {
@@ -224,100 +208,6 @@ namespace Orang.CommandLine
 
                 if (captures != null)
                     ListCache<Capture>.Free(captures);
-            }
-        }
-
-        private void WriteAggregatedValues(CancellationToken cancellationToken)
-        {
-            int count = 0;
-            ModifyOptions modifyOptions = Options.ModifyOptions;
-            List<string> allValues = ((ListResultStorage)_storage!).Values;
-
-            if (_storageIndexes?.Count > 1)
-            {
-                Debug.Assert(
-                    (modifyOptions.Functions & ModifyFunctions.ExceptIntersect) != 0,
-                    modifyOptions.Functions.ToString());
-
-                if ((modifyOptions.Functions & ModifyFunctions.Except) != 0)
-                {
-                    allValues = ExceptOrIntersect((x, y, c) => x.Except(y, c));
-                }
-                else if ((modifyOptions.Functions & ModifyFunctions.Intersect) != 0)
-                {
-                    allValues = ExceptOrIntersect((x, y, c) => x.Intersect(y, c));
-                }
-            }
-
-            using (IEnumerator<string> en = allValues
-                .Modify(modifyOptions, filter: ModifyFunctions.Enumerable)
-                .GetEnumerator())
-            {
-                if (en.MoveNext())
-                {
-                    OutputSymbols symbols = OutputSymbols.Create(Options.HighlightOptions);
-
-                    ConsoleColors colors = ((Options.HighlightOptions & HighlightOptions.Match) != 0)
-                        ? Colors.Match
-                        : default;
-
-                    ConsoleColors boundaryColors = (Options.HighlightBoundary) ? Colors.MatchBoundary : default;
-                    var valueWriter = new ValueWriter(new ContentTextWriter(Verbosity.Minimal), includeEndingIndent: false);
-
-                    ConsoleOut.WriteLineIf(ShouldWriteLine(ConsoleOut.Verbosity));
-                    Out?.WriteLineIf(ShouldWriteLine(Out.Verbosity));
-
-                    do
-                    {
-                        cancellationToken.ThrowIfCancellationRequested();
-
-                        valueWriter.Write(en.Current, symbols, colors, boundaryColors);
-                        WriteLine(Verbosity.Minimal);
-                        count++;
-
-                    } while (en.MoveNext());
-
-                    if (ShouldLog(Verbosity.Detailed)
-                        || Options.IncludeSummary)
-                    {
-                        WriteLine(Verbosity.Minimal);
-                        WriteCount("Values", count, verbosity: Verbosity.Minimal);
-                        WriteLine(Verbosity.Minimal);
-                    }
-                }
-            }
-
-            List<string> ExceptOrIntersect(
-                Func<IEnumerable<string>, IEnumerable<string>, IEqualityComparer<string>, IEnumerable<string>> operation)
-            {
-                var list = new List<string>(GetRange(0, _storageIndexes[0]));
-
-                for (int i = 1; i < _storageIndexes.Count; i++)
-                {
-                    if (list.Count == 0)
-                        break;
-
-                    IEnumerable<string> second = GetRange(_storageIndexes[i - 1], _storageIndexes[i]);
-
-                    list = operation(list, second, modifyOptions.StringComparer).ToList();
-                }
-
-                return list;
-            }
-
-            IEnumerable<string> GetRange(int start, int end)
-            {
-                for (int i = start; i < end; i++)
-                    yield return allValues[i];
-            }
-
-            bool ShouldWriteLine(Verbosity verbosity)
-            {
-                if (verbosity > Verbosity.Minimal)
-                    return true;
-
-                return verbosity == Verbosity.Minimal
-                    && (Options.PathDisplayStyle != PathDisplayStyle.Omit || Options.IncludeSummary);
             }
         }
     }

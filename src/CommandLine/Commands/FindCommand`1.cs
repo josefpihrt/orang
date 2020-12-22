@@ -10,16 +10,12 @@ namespace Orang.CommandLine
 {
     internal sealed class FindCommand<TOptions> : CommonFindCommand<TOptions> where TOptions : FindCommandOptions
     {
-        private OutputSymbols? _symbols;
         private AggregateManager? _aggregate;
-        private IResultStorage? _fileStorage;
-        private List<string>? _fileValues;
+        private ModifyManager? _modify;
 
         public FindCommand(TOptions options) : base(options)
         {
         }
-
-        private OutputSymbols Symbols => _symbols ??= OutputSymbols.Create(Options.HighlightOptions);
 
         public override bool CanEndProgress
         {
@@ -123,25 +119,13 @@ namespace Orang.CommandLine
                     || ShouldLog(Verbosity.Normal))
                 {
                     if (hasAnyFunction)
-                    {
-                        if (_fileValues == null)
-                        {
-                            _fileValues = new List<string>();
-                        }
-                        else
-                        {
-                            _fileValues.Clear();
-                        }
-
-                        if (_fileStorage == null)
-                            _fileStorage = new ListResultStorage(_fileValues);
-                    }
+                        (_modify ??= new ModifyManager(Options)).Reset();
 
                     contentWriter = ContentWriter.CreateFind(
                         contentDisplayStyle: Options.ContentDisplayStyle,
                         input: fileMatch.ContentText,
                         options: writerOptions,
-                        storage: (hasAnyFunction) ? _fileStorage : _aggregate?.Storage,
+                        storage: (hasAnyFunction) ? _modify?.FileStorage : _aggregate?.Storage,
                         outputInfo: Options.CreateOutputInfo(fileMatch.ContentText, fileMatch.ContentMatch!, ContentFilter),
                         writer: (hasAnyFunction) ? null : ContentTextWriter.Default,
                         ask: AskMode == AskMode.Value);
@@ -155,23 +139,7 @@ namespace Orang.CommandLine
 
                 if (hasAnyFunction)
                 {
-                    ConsoleColors colors = (Options.HighlightMatch) ? Colors.Match : default;
-                    ConsoleColors boundaryColors = (Options.HighlightBoundary) ? Colors.MatchBoundary : default;
-
-                    var valueWriter = new ValueWriter(
-                        ContentTextWriter.Default,
-                        writerOptions.Indent,
-                        includeEndingIndent: false);
-
-                    foreach (string value in _fileValues!.Modify(Options.ModifyOptions))
-                    {
-                        Write(writerOptions.Indent, Verbosity.Normal);
-                        valueWriter.Write(value, Symbols, colors, boundaryColors);
-                        WriteLine(Verbosity.Normal);
-
-                        _aggregate?.Storage.Add(value);
-                        telemetry.MatchCount++;
-                    }
+                    _modify!.WriteValues(writerOptions.Indent, telemetry, _aggregate);
 
                     _aggregate?.Sections?.Add(new StorageSection(fileMatch, baseDirectoryPath, _aggregate.Storage.Count));
                 }

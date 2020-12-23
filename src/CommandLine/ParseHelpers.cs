@@ -314,9 +314,17 @@ namespace Orang.CommandLine
             if ((modifyFlags & ModifyFlags.ToUpper) != 0)
                 functions |= ModifyFunctions.ToUpper;
 
+            if (sortProperty != ValueSortProperty.None
+                && (functions & ModifyFunctions.Sort) == 0
+                && (functions & ModifyFunctions.SortDescending) == 0)
+            {
+                functions |= ModifyFunctions.Sort;
+            }
+
             aggregateOnly = (modifyFlags & ModifyFlags.AggregateOnly) != 0;
 
-            if (modifyFlags != ModifyFlags.None)
+            if (modifyFlags != ModifyFlags.None
+                || functions != ModifyFunctions.None)
             {
                 modifyOptions = new ModifyOptions(
                     functions: functions,

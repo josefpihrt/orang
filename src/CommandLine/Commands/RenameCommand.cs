@@ -138,6 +138,10 @@ namespace Orang.CommandLine
                     {
                         Directory.Move(path, newPath);
                     }
+                    else if (Options.KeepOriginalFile)
+                    {
+                        File.Copy(path, newPath);
+                    }
                     else
                     {
                         File.Move(path, newPath);

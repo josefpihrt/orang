@@ -50,6 +50,11 @@ namespace Orang.CommandLine
         public string Evaluator { get; set; } = null!;
 
         [Option(
+            longName: OptionNames.KeepOriginalFile,
+            HelpText = "Create a new file instead of renaming original file.")]
+        public bool KeepOriginalFile { get; set; }
+
+        [Option(
             shortName: OptionShortNames.MaxCount,
             longName: OptionNames.MaxCount,
             HelpText = "Stop renaming after specified number is reached.",
@@ -196,6 +201,7 @@ namespace Orang.CommandLine
             options.ContentFilter = contentFilter;
             options.MaxMatchingFiles = MaxCount;
             options.ConflictResolution = conflictResolution;
+            options.KeepOriginalFile = KeepOriginalFile;
 
             return true;
         }

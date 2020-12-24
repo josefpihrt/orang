@@ -64,7 +64,7 @@ namespace Orang.CommandLine
                     writerOptions,
                     fileMatch: null,
                     baseDirectoryPath: null,
-                    isPathWritten: false);
+                    isPathDisplayed: false);
             }
 
             stopwatch.Stop();
@@ -117,7 +117,7 @@ namespace Orang.CommandLine
                     writerOptions,
                     fileMatch,
                     baseDirectoryPath,
-                    isPathWritten: isPathDisplayed);
+                    isPathDisplayed: isPathDisplayed);
             }
 
             AskToContinue(context, indent);
@@ -155,7 +155,7 @@ namespace Orang.CommandLine
             ContentWriterOptions writerOptions,
             FileMatch? fileMatch,
             string? baseDirectoryPath,
-            bool isPathWritten)
+            bool isPathDisplayed)
         {
             SearchTelemetry telemetry = context.Telemetry;
 
@@ -170,7 +170,7 @@ namespace Orang.CommandLine
                     contentMatch!,
                     writerOptions.GroupNumber,
                     context,
-                    isPathWritten: isPathWritten,
+                    isPathDisplayed: isPathDisplayed,
                     predicate: ContentFilter!.Predicate,
                     captures: captures);
 

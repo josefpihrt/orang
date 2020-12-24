@@ -231,7 +231,7 @@ namespace Orang.CommandLine
             int groupNumber,
             SearchContext context,
             bool isPathWritten,
-            Func<Capture, bool>? predicate,
+            Func<string, bool>? predicate,
             List<Capture> captures)
         {
             int maxMatchesInFile = Options.MaxMatchesInFile;
@@ -339,17 +339,7 @@ namespace Orang.CommandLine
 
             if (ContentFilter != null)
             {
-                WriteCount("Matches", telemetry.MatchCount, Colors.Message_OK, verbosity);
-                Write("  ", Colors.Message_OK, verbosity);
-
-                if (telemetry.MatchingLineCount > 0)
-                {
-                    WriteCount("Matching lines", telemetry.MatchingLineCount, Colors.Message_OK, verbosity);
-                    Write("  ", Colors.Message_OK, verbosity);
-                }
-
-                if (telemetry.MatchingFileCount > 0)
-                    WriteCount("Matching files", telemetry.MatchingFileCount, Colors.Message_OK, verbosity);
+                WriteContentSummary(telemetry, verbosity);
             }
             else
             {
@@ -366,6 +356,21 @@ namespace Orang.CommandLine
             }
 
             WriteLine(verbosity);
+        }
+
+        protected static void WriteContentSummary(SearchTelemetry telemetry, Verbosity verbosity)
+        {
+            WriteCount("Matches", telemetry.MatchCount, Colors.Message_OK, verbosity);
+            Write("  ", Colors.Message_OK, verbosity);
+
+            if (telemetry.MatchingLineCount > 0)
+            {
+                WriteCount("Matching lines", telemetry.MatchingLineCount, Colors.Message_OK, verbosity);
+                Write("  ", Colors.Message_OK, verbosity);
+            }
+
+            if (telemetry.MatchingFileCount > 0)
+                WriteCount("Matching files", telemetry.MatchingFileCount, Colors.Message_OK, verbosity);
         }
     }
 }

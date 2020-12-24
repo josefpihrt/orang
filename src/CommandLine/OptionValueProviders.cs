@@ -250,6 +250,7 @@ namespace Orang.CommandLine
             SimpleOptionValue.Create(ModifyFlags.Distinct, shortValue: "di", description: "Return distinct values."),
             OptionValues.ModifyFlags_Except,
             OptionValues.ModifyFlags_Intersect,
+            OptionValues.ModifyFlags_GroupBy,
             SimpleOptionValue.Create(ModifyFlags.IgnoreCase, description: "Use case-insensitive matching."),
             SimpleOptionValue.Create(
                 ModifyFlags.RemoveEmpty,
@@ -498,6 +499,11 @@ namespace Orang.CommandLine
                 description: "Compare time a file was last modified."),
             SimpleOptionValue.Create(FileCompareOptions.Size, description: "Compare file size.")
         );
+
+        public static OptionValueProvider PipeMode { get; } = new OptionValueProvider(
+            MetaValues.PipeMode,
+            SimpleOptionValue.Create(CommandLine.PipeMode.Text, description: "Use redirected input as a text to be searched (default)."),
+            SimpleOptionValue.Create(CommandLine.PipeMode.Paths, description: "Use redirected input as a list of paths separated with newlines."));
 
         public static ImmutableDictionary<string, OptionValueProvider> ProvidersByName
         {

@@ -27,6 +27,10 @@ namespace Orang.CommandLine
             }
         }
 
+        public bool AggregateOnly => Options.AggregateOnly;
+
+        protected override bool CanDisplaySummary => !AggregateOnly && base.CanDisplaySummary;
+
         protected override void ExecuteCore(SearchContext context)
         {
             if (Options.Input != null)
@@ -94,13 +98,15 @@ namespace Orang.CommandLine
         {
             string indent = GetPathIndent(baseDirectoryPath);
 
-            if (!Options.OmitPath)
+            bool isPathDisplayed = !Options.OmitPath && !AggregateOnly;
+
+            if (isPathDisplayed)
                 WritePath(context, fileMatch, baseDirectoryPath, indent, columnWidths);
 
             if (ContentFilter!.IsNegative
                 || fileMatch.IsDirectory)
             {
-                WriteLineIf(!Options.OmitPath, Verbosity.Minimal);
+                WriteLineIf(isPathDisplayed, Verbosity.Minimal);
             }
             else
             {
@@ -111,7 +117,7 @@ namespace Orang.CommandLine
                     writerOptions,
                     fileMatch,
                     baseDirectoryPath,
-                    isPathWritten: !Options.OmitPath);
+                    isPathWritten: isPathDisplayed);
             }
 
             AskToContinue(context, indent);
@@ -125,14 +131,18 @@ namespace Orang.CommandLine
         {
             string indent = GetPathIndent(baseDirectoryPath);
 
-            if (!Options.OmitPath)
+            if (!Options.OmitPath
+                && !AggregateOnly)
+            {
                 WritePath(context, fileMatch, baseDirectoryPath, indent, columnWidths);
+            }
 
             if (_aggregate?.Storage != null
                 && fileMatch.NameMatch != null
                 && !object.ReferenceEquals(fileMatch.NameMatch, Match.Empty))
             {
                 _aggregate.Storage.Add(fileMatch.NameMatch.Value);
+                _aggregate.Sections?.Add(new StorageSection(fileMatch, baseDirectoryPath, 0));
             }
 
             AskToContinue(context, indent);
@@ -191,7 +201,18 @@ namespace Orang.CommandLine
 
                 if (hasAnyFunction)
                 {
-                    _modify!.WriteValues(writerOptions.Indent, telemetry, _aggregate);
+                    if (AggregateOnly)
+                    {
+                        IEnumerable<string> values = _modify!.FileValues!.Modify(
+                            Options.ModifyOptions,
+                            filter: Options.ModifyOptions.Functions & ~(ModifyFunctions.Enumerable | ModifyFunctions.Except_Intersect_GroupBy));
+
+                        _aggregate?.Storage.AddRange(values);
+                    }
+                    else
+                    {
+                        _modify!.WriteValues(writerOptions.Indent, telemetry, _aggregate);
+                    }
 
                     _aggregate?.Sections?.Add(new StorageSection(fileMatch!, baseDirectoryPath, _aggregate.Storage.Count));
                 }

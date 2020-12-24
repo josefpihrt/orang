@@ -87,16 +87,9 @@ namespace Orang.CommandLine
                 contentDisplayStyle = ContentDisplayStyle.Value;
             }
 
-            if (aggregateOnly)
-            {
-                if (ConsoleOut.Verbosity > Orang.Verbosity.Minimal)
-                    ConsoleOut.Verbosity = Orang.Verbosity.Minimal;
-
-                pathDisplayStyle = PathDisplayStyle.Omit;
-            }
-
             options.Input = input;
             options.ModifyOptions = modifyOptions;
+            options.AggregateOnly = aggregateOnly;
 
             options.Format = new OutputDisplayFormat(
                 contentDisplayStyle: contentDisplayStyle,

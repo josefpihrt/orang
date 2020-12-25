@@ -11,6 +11,7 @@ namespace Orang.CommandLine
         HelpText = "Splits the input string into an list of substrings at the positions defined by a regular expression.")]
     [OptionValueProvider(nameof(Content), OptionValueProviderNames.PatternOptionsWithoutGroupAndPartAndNegative)]
     [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.SplitHighlightOptions)]
+    [CommandGroup("Regex", 2)]
     internal sealed class SplitCommandLineOptions : RegexCommandLineOptions
     {
         [Option(

@@ -7,6 +7,7 @@ using static Orang.CommandLine.ParseHelpers;
 namespace Orang.CommandLine
 {
     [Verb("copy", HelpText = "Searches the file system for files and directories and copy them to a destination directory.")]
+    [CommandGroup("File System", 1)]
     internal sealed class CopyCommandLineOptions : CommonCopyCommandLineOptions
     {
         [Option(

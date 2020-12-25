@@ -9,6 +9,7 @@ using static Orang.Logger;
 namespace Orang.CommandLine
 {
     [Verb("find", HelpText = "Searches the file system for files and directories and optionally searches files' content.")]
+    [CommandGroup("Main", 0)]
     internal sealed class FindCommandLineOptions : CommonFindCommandLineOptions
     {
         [Option(

@@ -15,6 +15,7 @@ namespace Orang.CommandLine
     [Verb("replace", HelpText = "Searches the file system for files and replaces its content.")]
     [OptionValueProvider(nameof(Content), OptionValueProviderNames.PatternOptionsWithoutGroupAndPartAndNegative)]
     [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.ReplaceHighlightOptions)]
+    [CommandGroup("Main", 0)]
     internal sealed class ReplaceCommandLineOptions : FileSystemCommandLineOptions
     {
         [Option(

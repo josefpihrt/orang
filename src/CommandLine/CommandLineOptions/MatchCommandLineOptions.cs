@@ -9,6 +9,7 @@ namespace Orang.CommandLine
     [Verb("match", HelpText = "Searches the input string for occurrences of the regular expression.")]
     [OptionValueProvider(nameof(Content), OptionValueProviderNames.PatternOptionsWithoutPartAndNegative)]
     [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.MatchHighlightOptions)]
+    [CommandGroup("Regex", 2)]
     internal sealed class MatchCommandLineOptions : RegexCommandLineOptions
     {
         [Option(

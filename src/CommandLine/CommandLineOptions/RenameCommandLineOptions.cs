@@ -15,6 +15,7 @@ namespace Orang.CommandLine
     [OptionValueProvider(nameof(Display), OptionValueProviderNames.Display_NonContent)]
     [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.RenameHighlightOptions)]
     [OptionValueProvider(nameof(Name), OptionValueProviderNames.PatternOptionsWithoutGroupAndNegative)]
+    [CommandGroup("File System", 1)]
     internal sealed class RenameCommandLineOptions : DeleteOrRenameCommandLineOptions
     {
         [Option(

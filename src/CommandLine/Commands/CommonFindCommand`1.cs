@@ -230,7 +230,7 @@ namespace Orang.CommandLine
             Match match,
             int groupNumber,
             SearchContext context,
-            bool isPathWritten,
+            bool isPathDisplayed,
             Func<string, bool>? predicate,
             List<Capture> captures)
         {
@@ -274,7 +274,7 @@ namespace Orang.CommandLine
                 context.TerminationReason = TerminationReason.MaxReached;
             }
 
-            if (isPathWritten)
+            if (isPathDisplayed)
             {
                 Verbosity verbosity = ConsoleOut.Verbosity;
 

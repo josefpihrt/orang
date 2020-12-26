@@ -106,8 +106,8 @@ namespace Orang.CommandLine
 
                 string helpValue2 = OptionValueProviders.AskModeProvider.GetValue(nameof(AskMode.Value)).HelpValue;
 
-                WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Display)}' cannot have value '{helpValue}' " +
-                    $"when option '{OptionNames.GetHelpText(OptionNames.Ask)}' has value '{helpValue2}'.");
+                WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Display)}' cannot have value '{helpValue}' "
+                    + $"when option '{OptionNames.GetHelpText(OptionNames.Ask)}' has value '{helpValue2}'.");
 
                 return false;
             }

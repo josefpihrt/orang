@@ -35,8 +35,8 @@ namespace Orang.CommandLine
         [Option(
             shortName: OptionShortNames.DryRun,
             longName: OptionNames.DryRun,
-            HelpText = "Display which files/directories should be deleted " +
-                "but do not actually delete any file/directory.")]
+            HelpText = "Display which files/directories should be deleted "
+                + "but do not actually delete any file/directory.")]
         public bool DryRun { get; set; }
 
         [Option(
@@ -92,8 +92,8 @@ namespace Orang.CommandLine
                 && options.Paths.Length == 1
                 && options.Paths[0].Origin == PathOrigin.CurrentDirectory)
             {
-                Logger.WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Name)}' " +
-                    "is required when no path is specified (i.e. current directory is used).");
+                Logger.WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Name)}' "
+                    + "is required when no path is specified (i.e. current directory is used).");
                 return false;
             }
 

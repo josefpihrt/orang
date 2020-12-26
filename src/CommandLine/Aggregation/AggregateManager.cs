@@ -205,9 +205,10 @@ namespace Orang.Aggregation
 
         private Dictionary<string, List<StorageSection>> GroupByValues(List<string> values)
         {
-            var sectionsValues = new List<(StorageSection section, IEnumerable<string> values)>();
-
-            sectionsValues.Add((Sections![0], GetRange(values, 0, Sections[0].Count)));
+            var sectionsValues = new List<(StorageSection section, IEnumerable<string> values)>()
+            {
+                (Sections![0], GetRange(values, 0, Sections[0].Count))
+            };
 
             for (int i = 1; i < Sections.Count; i++)
             {

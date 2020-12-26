@@ -990,10 +990,10 @@ namespace Orang.CommandLine
             if (askMode == AskMode.Value
                 && ConsoleOut.Verbosity < Verbosity.Normal)
             {
-                WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Ask)}' cannot have value " +
-                    $"'{OptionValueProviders.AskModeProvider.GetValue(nameof(AskMode.Value)).HelpValue}' when " +
-                    $"'{OptionNames.GetHelpText(OptionNames.Verbosity)}' is set to " +
-                    $"'{OptionValueProviders.VerbosityProvider.GetValue(ConsoleOut.Verbosity.ToString()).HelpValue}'.");
+                WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Ask)}' cannot have value "
+                    + $"'{OptionValueProviders.AskModeProvider.GetValue(nameof(AskMode.Value)).HelpValue}' when "
+                    + $"'{OptionNames.GetHelpText(OptionNames.Verbosity)}' is set to "
+                    + $"'{OptionValueProviders.VerbosityProvider.GetValue(ConsoleOut.Verbosity.ToString()).HelpValue}'.");
 
                 return false;
             }

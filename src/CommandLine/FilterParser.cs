@@ -226,8 +226,8 @@ namespace Orang.CommandLine
 
                     if (groupNames.Length > 1)
                     {
-                        message += " Existing group names: " +
-                            $"{TextHelpers.Join(", ", " and ", groupNames.Where(f => f != "0"))}.";
+                        message += " Existing group names: "
+                            + $"{TextHelpers.Join(", ", " and ", groupNames.Where(f => f != "0"))}.";
                     }
 
                     WriteError(message);

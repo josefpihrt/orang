@@ -19,8 +19,8 @@ namespace Orang.CommandLine
         [Option(
             shortName: OptionShortNames.DryRun,
             longName: OptionNames.DryRun,
-            HelpText = "Display which files/directories should be copied " +
-                "but do not actually copy any file/directory.")]
+            HelpText = "Display which files/directories should be copied "
+                + "but do not actually copy any file/directory.")]
         public bool DryRun { get; set; }
 
         [Option(

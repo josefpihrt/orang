@@ -19,8 +19,8 @@ namespace Orang.CommandLine
         [Option(
             shortName: OptionShortNames.DryRun,
             longName: OptionNames.DryRun,
-            HelpText = "Display which files/directories should be moved " +
-                "but do not actually move any file/directory.")]
+            HelpText = "Display which files/directories should be moved "
+                + "but do not actually move any file/directory.")]
         public bool DryRun { get; set; }
 
         [Option(

@@ -147,8 +147,8 @@ namespace Orang.CommandLine
             if (matchEvaluator == null
                 && Evaluator != null)
             {
-                WriteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Evaluator)}' is obsolete. " +
-                    $"Use option '{OptionNames.GetHelpText(OptionNames.Replacement)}' instead.");
+                WriteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Evaluator)}' is obsolete. "
+                    + $"Use option '{OptionNames.GetHelpText(OptionNames.Replacement)}' instead.");
 
                 if (!DelegateFactory.TryCreateFromAssembly(Evaluator, out matchEvaluator))
                     return false;
@@ -180,16 +180,16 @@ namespace Orang.CommandLine
             {
                 if (input != null)
                 {
-                    WriteError("Cannot use both redirected/piped input and " +
-                        $"option '{OptionNames.GetHelpText(OptionNames.Input)}'.");
+                    WriteError("Cannot use both redirected/piped input and "
+                        + $"option '{OptionNames.GetHelpText(OptionNames.Input)}'.");
 
                     return false;
                 }
 
                 if (options.ContentFilter == null)
                 {
-                    WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Content)}' is required " +
-                        "when redirected/piped input is used as a text to be searched.");
+                    WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Content)}' is required "
+                        + "when redirected/piped input is used as a text to be searched.");
 
                     return false;
                 }
@@ -229,8 +229,8 @@ namespace Orang.CommandLine
 
                     string helpValue2 = OptionValueProviders.AskModeProvider.GetValue(nameof(AskMode.Value)).HelpValue;
 
-                    WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Display)}' cannot have value " +
-                        $"'{helpValue}' when option '{OptionNames.GetHelpText(OptionNames.Ask)}' has value '{helpValue2}'.");
+                    WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Display)}' cannot have value "
+                        + $"'{helpValue}' when option '{OptionNames.GetHelpText(OptionNames.Ask)}' has value '{helpValue2}'.");
 
                     return false;
                 }
@@ -283,8 +283,8 @@ namespace Orang.CommandLine
             if (Path.Any()
                 && Input.Any())
             {
-                WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Input)}' and " +
-                    $"argument '{ArgumentMetaNames.Path}' cannot be set both at the same time.");
+                WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Input)}' and "
+                    + $"argument '{ArgumentMetaNames.Path}' cannot be set both at the same time.");
 
                 return false;
             }

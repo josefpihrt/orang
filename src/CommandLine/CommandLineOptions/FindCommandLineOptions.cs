@@ -71,8 +71,8 @@ namespace Orang.CommandLine
             {
                 if (options.ContentFilter == null)
                 {
-                    WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Content)}' is required " +
-                        "when redirected/piped input is used as a text to be searched.");
+                    WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Content)}' is required "
+                        + "when redirected/piped input is used as a text to be searched.");
 
                     return false;
                 }

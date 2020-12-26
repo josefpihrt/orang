@@ -105,8 +105,8 @@ namespace Orang.CommandLine
                 description: "Exclude unescaped white-space from the pattern and enable comments after a number sign (#)."),
             SimpleOptionValue.Create(
                 RegexOptions.Multiline,
-                description: "^ and $ match the beginning and end of each line " +
-                    "(instead of the beginning and end of the input string)."),
+                description: "^ and $ match the beginning and end of each line "
+                    + "(instead of the beginning and end of the input string)."),
             SimpleOptionValue.Create(
                 RegexOptions.RightToLeft,
                 description: "Specifies that the search will be from right to left."),
@@ -130,22 +130,22 @@ namespace Orang.CommandLine
                 ReplacementOptions.CSharp,
                 shortValue: "cs",
                 description:
-                    $"{MetaValues.Replacement} is either expression-body of a method with signature " +
-                        "'string M(Match match)'" +
-                        Environment.NewLine +
-                        "or a path to a code file that contains public method with signature 'string M(Match match)'." +
-                        Environment.NewLine +
-                        "Imported namespaces (when inline expression is specified):" +
-                        Environment.NewLine +
-                        "  System" +
-                        Environment.NewLine +
-                        "  System.Collections.Generic" +
-                        Environment.NewLine +
-                        "  System.Linq" +
-                        Environment.NewLine +
-                        "  System.Text" +
-                        Environment.NewLine +
-                        "  System.Text.RegularExpressions"),
+                    $"{MetaValues.Replacement} is either expression-body of a method with signature "
+                        + "'string M(Match match)'"
+                        + Environment.NewLine
+                        + "or a path to a code file that contains public method with signature 'string M(Match match)'."
+                        + Environment.NewLine
+                        + "Imported namespaces (when inline expression is specified):"
+                        + Environment.NewLine
+                        + "  System"
+                        + Environment.NewLine
+                        + "  System.Collections.Generic"
+                        + Environment.NewLine
+                        + "  System.Linq"
+                        + Environment.NewLine
+                        + "  System.Text"
+                        + Environment.NewLine
+                        + "  System.Text.RegularExpressions"),
             OptionValues.ReplacementOptions_FromDll
         );
 
@@ -295,7 +295,7 @@ namespace Orang.CommandLine
         );
 
         public static OptionValueProvider FindHighlightOptionsProvider { get; }
-            = HighlightOptionsProvider .WithoutValues(
+            = HighlightOptionsProvider.WithoutValues(
                 OptionValueProviderNames.FindHighlightOptions,
                 OptionValues.HighlightOptions_Replacement,
                 OptionValues.HighlightOptions_EmptyReplacement,

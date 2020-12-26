@@ -48,8 +48,8 @@ namespace Orang.CommandLine
             {
                 if (input != null)
                 {
-                    WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Input)}' and " +
-                        $"argument '{ArgumentMetaNames.Path}' cannot be set both at the same time.");
+                    WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Input)}' and "
+                        + $"argument '{ArgumentMetaNames.Path}' cannot be set both at the same time.");
 
                     return false;
                 }

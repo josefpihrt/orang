@@ -39,8 +39,8 @@ namespace Orang.CommandLine
         [Option(
             shortName: OptionShortNames.DryRun,
             longName: OptionNames.DryRun,
-            HelpText = "Display which files/directories should be renamed " +
-                "but do not actually rename any file/directory.")]
+            HelpText = "Display which files/directories should be renamed "
+                + "but do not actually rename any file/directory.")]
         public bool DryRun { get; set; }
 
         [Hidden]
@@ -124,8 +124,8 @@ namespace Orang.CommandLine
             if (matchEvaluator == null
                 && Evaluator != null)
             {
-                WriteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Evaluator)}' is obsolete. " +
-                    $"Use option '{OptionNames.GetHelpText(OptionNames.Replacement)}' instead.");
+                WriteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Evaluator)}' is obsolete. "
+                    + $"Use option '{OptionNames.GetHelpText(OptionNames.Replacement)}' instead.");
 
                 if (!DelegateFactory.TryCreateFromAssembly(Evaluator, out matchEvaluator))
                     return false;

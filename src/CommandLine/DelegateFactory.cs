@@ -93,8 +93,8 @@ namespace Orang.CommandLine
             if (index <= 0
                 || index >= path.Length - 1)
             {
-                WriteError($"Invalid value: {path}. " +
-                    "The expected format is \"MyLib.dll,MyNamespace.MyClass.MyMethod\".");
+                WriteError($"Invalid value: {path}. "
+                    + "The expected format is \"MyLib.dll,MyNamespace.MyClass.MyMethod\".");
 
                 return false;
             }
@@ -108,8 +108,8 @@ namespace Orang.CommandLine
             if (index < 0
                 || index >= path.Length - 1)
             {
-                WriteError($"Invalid method full name: {methodFullName}. " +
-                    "The expected format is \"MyNamespace.MyClass.MyMethod\".");
+                WriteError($"Invalid method full name: {methodFullName}. "
+                    + "The expected format is \"MyNamespace.MyClass.MyMethod\".");
 
                 return false;
             }
@@ -194,8 +194,8 @@ namespace Orang.CommandLine
 
                     if (method == null)
                     {
-                        WriteError("Cannot find public method with signature 'string M(Match)' in type " +
-                            $"'{typeName}'");
+                        WriteError("Cannot find public method with signature 'string M(Match)' in type "
+                            + $"'{typeName}'");
 
                         return null;
                     }
@@ -209,8 +209,8 @@ namespace Orang.CommandLine
 
                 if (method == null)
                 {
-                    WriteError($"Cannot find public method with signature 'string {methodName ?? "M"}(Match)' in type " +
-                        $"'{typeName}'");
+                    WriteError($"Cannot find public method with signature 'string {methodName ?? "M"}(Match)' in type "
+                        + $"'{typeName}'");
 
                     return null;
                 }

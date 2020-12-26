@@ -24,6 +24,11 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.ModifyOptions)]
         public IEnumerable<string> Modify { get; set; } = null!;
 
+        [Option(
+            longName: "split",
+            HelpText = "Execute regex in a split mode.")]
+        public bool Split { get; set; }
+
         public bool TryParse(FindCommandOptions options)
         {
             if (!TryParseAsEnum(
@@ -91,6 +96,7 @@ namespace Orang.CommandLine
             options.Input = input;
             options.ModifyOptions = modifyOptions;
             options.AggregateOnly = aggregateOnly;
+            options.Split = Split;
 
             options.Format = new OutputDisplayFormat(
                 contentDisplayStyle: contentDisplayStyle,

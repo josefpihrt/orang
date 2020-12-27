@@ -129,6 +129,7 @@ namespace Orang.CommandLine
             WriteOption("progress", options.Progress);
             WriteOption("recurse subdirectories", options.RecurseSubdirectories);
             WriteOption("search target", options.SearchTarget);
+            WriteOption("split", options.Split);
             WriteSortOptions("sort", options.SortOptions);
         }
 

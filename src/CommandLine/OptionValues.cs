@@ -92,7 +92,7 @@ namespace Orang.CommandLine
         public static readonly SimpleOptionValue ReplacementOptions_FromDll = SimpleOptionValue.Create(
             ReplacementOptions.FromDll,
             shortValue: "",
-            description: $"{MetaValues.Replacement} is a path to a method in DLL file. "
+            description: "<REPLACEMENT> is a path to a method in DLL file. "
                 + "The format is 'DllPath,FullTypeName.MethodName'.");
 
         public static readonly KeyValuePairOptionValue Display_Context = KeyValuePairOptionValue.Create("context", "<NUM>", shortKey: "t", description: "A number of lines to display before and after matching line.");

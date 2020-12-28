@@ -93,8 +93,27 @@ namespace Orang.Documentation
                         Heading2(provider.Name),
                         Table(
                             TableRow("Value", "Description"),
-                            provider.Values.Select(
-                                f => TableRow(f.HelpValue, _removeNewlineRegex.Replace(f.Description ?? "", " "))))
+                            provider.Values.Select(f =>
+                            {
+                                string value = f.HelpValue;
+                                MInline mvalue = Inline(value);
+
+                                Match metaValueMatch = Regex.Match(value, @"(?<==)\<[\p{Lu}_]+>\z");
+
+                                if (metaValueMatch.Success)
+                                {
+                                    string metaValue = metaValueMatch.Value;
+
+                                    if (providers.Any(f => f.Name == metaValue))
+                                    {
+                                        mvalue = Inline(
+                                            value.Remove(metaValueMatch.Index),
+                                            Link(metaValue, MarkdownHelpers.CreateGitHubHeadingLink(metaValue)));
+                                    }
+                                }
+
+                                return TableRow(mvalue, _removeNewlineRegex.Replace(f.Description ?? "", " "));
+                            }))
                     };
                 }));
 

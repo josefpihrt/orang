@@ -48,7 +48,23 @@ namespace Orang.Documentation
                     {
                         while (true)
                         {
-                            _writer.WriteInlineCode(en.Current);
+                            string value = en.Current;
+
+                            Match metaValueMatch = Regex.Match(value, @"(?<==)\<[\p{Lu}_]+>\z");
+
+                            if (metaValueMatch.Success
+                                && OptionValueProviders.ProvidersByName.ContainsKey(metaValueMatch.Value))
+                            {
+                                _writer.WriteInlineCode(value.Remove(metaValueMatch.Index));
+                                _writer.WriteLink(
+                                    metaValueMatch.Value,
+                                    "AllowedValues.md" + MarkdownHelpers.CreateGitHubHeadingLink(metaValueMatch.Value));
+                            }
+                            else
+                            {
+                                _writer.WriteInlineCode(en.Current);
+                            }
+
 
                             if (en.MoveNext())
                             {

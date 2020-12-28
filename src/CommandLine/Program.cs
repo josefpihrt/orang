@@ -17,10 +17,29 @@ namespace Orang.CommandLine
     {
         private static int Main(string[] args)
         {
-            //WriteLine($"Orang Command Line Tool version {typeof(Program).GetTypeInfo().Assembly.GetName().Version}");
-            //WriteLine("Copyright (c) Josef Pihrt. All rights reserved.");
-            //WriteLine();
-
+#if DEBUG
+            if (args?.Length > 0)
+            {
+                switch (args[0])
+                {
+                    case "f":
+                        {
+                            args[0] = "find";
+                            break;
+                        }
+                    case "h":
+                        {
+                            args[0] = "help";
+                            break;
+                        }
+                    case "r":
+                        {
+                            args[0] = "replace";
+                            break;
+                        }
+                }
+            }
+#endif
             try
             {
                 Parser parser = CreateParser(ignoreUnknownArguments: true);

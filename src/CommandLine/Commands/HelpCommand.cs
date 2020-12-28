@@ -3,8 +3,10 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading;
 using Orang.CommandLine.Help;
 using static Orang.Logger;
@@ -44,12 +46,19 @@ namespace Orang.CommandLine
         {
             if (commandName != null)
             {
-                Command? command = CommandLoader.LoadCommand(typeof(HelpCommand).Assembly, commandName);
+                if (filter != null || includeValues)
+                {
+                    Command? command = CommandLoader.LoadCommand(typeof(HelpCommand).Assembly, commandName);
 
-                if (command == null)
-                    throw new ArgumentException($"Command '{commandName}' does not exist.", nameof(commandName));
+                    if (command == null)
+                        throw new ArgumentException($"Command '{commandName}' does not exist.", nameof(commandName));
 
-                WriteCommandHelp(command, includeValues: includeValues, filter: filter);
+                    WriteCommandHelp(command, includeValues: includeValues, filter: filter);
+                }
+                else
+                {
+                    OpenHelpInBrowser(commandName);
+                }
             }
             else if (manual)
             {
@@ -58,6 +67,42 @@ namespace Orang.CommandLine
             else
             {
                 WriteCommandsHelp(includeValues: includeValues, filter: filter);
+            }
+        }
+
+        // https://github.com/dotnet/corefx/issues/10361
+        private static void OpenHelpInBrowser(string commandName)
+        {
+            string url = "http://pihrt.net/redirect?id=orang-" + commandName;
+
+            try
+            {
+                Process.Start(url);
+            }
+            catch
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    var psi = new ProcessStartInfo()
+                    {
+                        FileName = url,
+                        UseShellExecute = true
+                    };
+
+                    Process.Start(psi);
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    Process.Start("xdg-open", url);
+                }
+                else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
+                {
+                    Process.Start("open", url);
+                }
+                else
+                {
+                    throw;
+                }
             }
         }
 

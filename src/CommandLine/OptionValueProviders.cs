@@ -115,6 +115,17 @@ namespace Orang.CommandLine
                 description: "The period (.) matches every character (instead of every character except \\n).")
         );
 
+        public static OptionValueProvider ModifierOptionsProvider { get; } = new OptionValueProvider(
+            MetaValues.ModifierOptions,
+            SimpleOptionValue.Create(
+                ModifierOptions.FromDll,
+                shortValue: "",
+                description: "<MODIFIER> is a path to a method in DLL file. "
+                    + "The format is 'DllPath,FullTypeName.MethodName'."),
+            SimpleOptionValue.Create(
+                ModifierOptions.FromFile,
+                description: "Load text from a file whose path is specified in <MODIFIER> value."));
+
         public static OptionValueProvider ReplacementOptionsProvider { get; } = new OptionValueProvider(
             MetaValues.ReplacementOptions,
             SimpleOptionValue.Create(

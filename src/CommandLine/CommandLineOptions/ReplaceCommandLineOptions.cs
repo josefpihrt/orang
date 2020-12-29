@@ -150,7 +150,7 @@ namespace Orang.CommandLine
                 WriteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Evaluator)}' is obsolete. "
                     + $"Use option '{OptionNames.GetHelpText(OptionNames.Replacement)}' instead.");
 
-                if (!DelegateFactory.TryCreateFromAssembly(Evaluator, out matchEvaluator))
+                if (!DelegateFactory.TryCreateFromAssembly(Evaluator, typeof(string), typeof(Match), out matchEvaluator))
                     return false;
             }
 

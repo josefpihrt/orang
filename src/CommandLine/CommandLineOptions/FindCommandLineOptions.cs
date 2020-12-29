@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using CommandLine;
 using static Orang.CommandLine.ParseHelpers;
 using static Orang.Logger;
@@ -17,7 +18,13 @@ namespace Orang.CommandLine
             HelpText = "Defines how to use redirected/piped input.",
             MetaValue = MetaValues.PipeMode)]
         public string Pipe { get; set; } = null!;
-
+#if DEBUG // --modifier
+        [Option(
+            longName: OptionNames.Modifier,
+            HelpText = OptionHelpText.Modifier,
+            MetaValue = MetaValues.Modifier)]
+        public IEnumerable<string> Modifier { get; set; } = null!;
+#endif
         [Option(
             longName: OptionNames.Modify,
             HelpText = "Functions to modify results.",
@@ -80,7 +87,15 @@ namespace Orang.CommandLine
                 input = ConsoleHelpers.ReadRedirectedInput();
             }
 
-            if (!TryParseModifyOptions(Modify, OptionNames.Modify, out ModifyOptions? modifyOptions, out bool aggregateOnly))
+            EnumerableModifier<string>? modifier = null;
+#if DEBUG // --modifier
+            if (Modifier.Any()
+                && !TryParseModifier(Modifier, OptionNames.Modifier, out modifier))
+            {
+                return false;
+            }
+#endif
+            if (!TryParseModifyOptions(Modify, OptionNames.Modify, modifier, out ModifyOptions? modifyOptions, out bool aggregateOnly))
                 return false;
 
             OutputDisplayFormat format = options.Format;

@@ -17,7 +17,7 @@ namespace Orang.CommandLine
     {
         private static int Main(string[] args)
         {
-#if DEBUG
+#if DEBUG // short command names
             if (args?.Length > 0)
             {
                 switch (args[0])

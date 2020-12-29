@@ -209,6 +209,7 @@ namespace Orang.CommandLine
         public static bool TryParseModifyOptions(
             IEnumerable<string> values,
             string optionName,
+            EnumerableModifier<string>? modifier,
             [NotNullWhen(true)] out ModifyOptions? modifyOptions,
             out bool aggregateOnly)
         {
@@ -324,14 +325,16 @@ namespace Orang.CommandLine
             aggregateOnly = (modifyFlags & ModifyFlags.AggregateOnly) != 0;
 
             if (modifyFlags != ModifyFlags.None
-                || functions != ModifyFunctions.None)
+                || functions != ModifyFunctions.None
+                || modifier != null)
             {
                 modifyOptions = new ModifyOptions(
                     functions: functions,
                     aggregate: (modifyFlags & ModifyFlags.Aggregate) != 0 || aggregateOnly,
                     ignoreCase: (modifyFlags & ModifyFlags.IgnoreCase) != 0,
                     cultureInvariant: (modifyFlags & ModifyFlags.CultureInvariant) != 0,
-                    sortProperty: sortProperty);
+                    sortProperty: sortProperty,
+                    modifier: modifier);
             }
             else
             {
@@ -339,6 +342,65 @@ namespace Orang.CommandLine
             }
 
             return true;
+        }
+
+        public static bool TryParseModifier(
+            IEnumerable<string> values,
+            string optionName,
+            [NotNullWhen(true)] out EnumerableModifier<string>? modifier)
+        {
+            modifier = null;
+
+            if (!values.Any())
+                return false;
+
+            string value = values.First();
+
+            if (!TryParseAsEnumFlags(
+                values.Skip(1),
+                optionName,
+                out ModifierOptions options,
+                ModifierOptions.None,
+                OptionValueProviders.ModifierOptionsProvider))
+            {
+                return false;
+            }
+
+            if ((options & ModifierOptions.FromFile) != 0
+                && !FileSystemHelpers.TryReadAllText(value, out value!, ex => WriteError(ex)))
+            {
+                return false;
+            }
+
+            if ((options & ModifierOptions.FromDll) != 0)
+            {
+                return DelegateFactory.TryCreateFromAssembly(
+                    value,
+                    typeof(IEnumerable<string>),
+                    typeof(IEnumerable<string>),
+                    out modifier);
+            }
+            else if ((options & ModifierOptions.FromFile) != 0)
+            {
+                return DelegateFactory.TryCreateFromSourceText(
+                    value,
+                    typeof(IEnumerable<string>),
+                    typeof(IEnumerable<string>),
+                    out modifier);
+            }
+            else
+            {
+                return DelegateFactory.TryCreateFromExpression(
+                    value,
+                    "ModifierClass",
+                    "ModifierMethod",
+                    "IEnumerable<string>",
+                    typeof(IEnumerable<string>),
+                    "IEnumerable<string>",
+                    typeof(IEnumerable<string>),
+                    "items",
+                    out modifier);
+            }
         }
 
         public static bool TryParseReplaceOptions(
@@ -636,16 +698,25 @@ namespace Orang.CommandLine
             {
                 if ((options & ReplacementOptions.FromFile) != 0)
                 {
-                    return DelegateFactory.TryCreateFromSourceText(value, out matchEvaluator);
+                    return DelegateFactory.TryCreateFromSourceText(value, typeof(string), typeof(Match), out matchEvaluator);
                 }
                 else
                 {
-                    return DelegateFactory.TryCreateFromExpression(value, out matchEvaluator);
+                    return DelegateFactory.TryCreateFromExpression(
+                        value,
+                        "EvaluatorClass",
+                        "EvaluatorMethod",
+                        "string",
+                        typeof(string),
+                        "Match",
+                        typeof(Match),
+                        "match",
+                        out matchEvaluator);
                 }
             }
             else if ((options & ReplacementOptions.FromDll) != 0)
             {
-                return DelegateFactory.TryCreateFromAssembly(value, out matchEvaluator);
+                return DelegateFactory.TryCreateFromAssembly(value, typeof(string), typeof(Match), out matchEvaluator);
             }
             else
             {

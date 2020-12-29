@@ -36,7 +36,7 @@ namespace Orang.Aggregation
 
             bool shouldCreate = modifyOptions.HasFunction(ModifyFunctions.Except_Intersect_GroupBy)
                 || (modifyOptions.Aggregate
-                    && (modifyOptions.Method != null
+                    && (modifyOptions.Modifier != null
                         || modifyOptions.HasFunction(ModifyFunctions.Enumerable)));
 
             if (!shouldCreate)

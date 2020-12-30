@@ -74,7 +74,7 @@ namespace Orang.Documentation
                 Console.WriteLine(readmeFilePath);
             }
 
-            string valuesFilePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "AllowedValues.md"));
+            string valuesFilePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "OptionValues.md"));
 
             ImmutableArray<OptionValueProvider> providers = OptionValueProvider.GetProviders(
                 commands.SelectMany(f => f.Options),
@@ -82,7 +82,7 @@ namespace Orang.Documentation
                 .ToImmutableArray();
 
             MDocument document = Document(
-                Heading1("List of Allowed Values"),
+                Heading1("List of Option Values"),
                 BulletList(providers.Select(f => Link(
                     f.Name,
                     MarkdownHelpers.CreateGitHubHeadingLink(f.Name)))),

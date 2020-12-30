@@ -145,7 +145,7 @@ namespace Orang.CommandLine.Help
                 : builder.ToImmutableArray();
         }
 
-        public static ImmutableArray<OptionValueList> GetAllowedValues(
+        public static ImmutableArray<OptionValueList> GetOptionValues(
             IEnumerable<CommandOption> options,
             IEnumerable<OptionValueProvider> providers,
             Filter? filter = null)
@@ -167,7 +167,7 @@ namespace Orang.CommandLine.Help
             }
 
             return (filter != null)
-                ? FilterAllowedValues(builder, filter)
+                ? FilterOptionValues(builder, filter)
                 : builder.ToImmutableArray();
         }
 
@@ -229,7 +229,7 @@ namespace Orang.CommandLine.Help
             }
         }
 
-        private static ImmutableArray<OptionValueList> FilterAllowedValues(
+        private static ImmutableArray<OptionValueList> FilterOptionValues(
             IEnumerable<OptionValueList> values,
             Filter filter)
         {

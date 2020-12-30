@@ -130,7 +130,7 @@ namespace Orang.CommandLine
                 if (metaValues.Any())
                 {
                     WriteLine();
-                    Write($"Run 'orang help {command.Name} -v d' to display list of allowed values for ");
+                    Write($"Run 'orang help {command.Name} -v d' to display list of option values for ");
                     Write(TextHelpers.Join(", ", " and ", metaValues));
                     WriteLine(".");
                 }
@@ -170,7 +170,7 @@ namespace Orang.CommandLine
 
             if (commandItems.Any())
             {
-                values = HelpProvider.GetAllowedValues(
+                values = HelpProvider.GetOptionValues(
                     commandHelps.SelectMany(f => f.Command.Options),
                     OptionValueProviders.Providers,
                     filter);
@@ -207,7 +207,7 @@ namespace Orang.CommandLine
 
                 if (includeValues)
                 {
-                    values = HelpProvider.GetAllowedValues(
+                    values = HelpProvider.GetOptionValues(
                         commands.Select(f => CommandHelp.Create(f)).SelectMany(f => f.Command.Options),
                         OptionValueProviders.Providers,
                         filter);
@@ -239,7 +239,7 @@ namespace Orang.CommandLine
         {
             return $"Run 'orang help {command ?? "[command]"}' for more information on a command."
                 + Environment.NewLine
-                + $"Run 'orang help {command ?? "[command]"} -v d' for more information on allowed values.";
+                + $"Run 'orang help {command ?? "[command]"} -v d' for more information on option values.";
         }
     }
 }

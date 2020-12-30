@@ -829,10 +829,10 @@ namespace Orang.CommandLine
         {
             if (!TryParseAsEnum(value, out result, defaultValue, provider))
             {
-                string allowedValues = OptionValueProviders.GetHelpText(provider, multiline: true)
+                string optionValues = OptionValueProviders.GetHelpText(provider, multiline: true)
                     ?? OptionValue.GetDefaultHelpText<TEnum>(multiline: true);
 
-                WriteOptionError(value, optionName, allowedValues);
+                WriteOptionError(value, optionName, optionValues);
                 return false;
             }
 

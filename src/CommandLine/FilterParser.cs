@@ -201,6 +201,12 @@ namespace Orang.CommandLine
 
             pattern = BuildPattern(pattern, patternOptions, separator);
 
+            if (pattern.Length == 0)
+            {
+                throw new InvalidOperationException(
+                    $"Option '{OptionNames.GetHelpText(optionName)}' is invalid: pattern cannot be empty.");
+            }
+
             Regex? regex = null;
 
             try

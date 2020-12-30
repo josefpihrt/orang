@@ -29,6 +29,12 @@ namespace Orang.CommandLine
             HelpText = "Display full manual.")]
         public bool Manual { get; set; }
 
+        [Option(
+            shortName: OptionShortNames.Online,
+            longName: OptionNames.Online,
+            HelpText = "Launch online help in a default browser.")]
+        public bool Online { get; set; }
+
         public bool TryParse(HelpCommandOptions options)
         {
             if (!FilterParser.TryParse(
@@ -44,6 +50,7 @@ namespace Orang.CommandLine
             options.Command = Command;
             options.Filter = filter;
             options.Manual = Manual;
+            options.Online = Online;
 
             return true;
         }

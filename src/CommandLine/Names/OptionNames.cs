@@ -37,6 +37,7 @@ namespace Orang.CommandLine
         public const string Name = "name";
         public const string NoGroups = "no-groups";
         public const string NoRecurse = "no-recurse";
+        public const string Online = "online";
         public const string Options = "options";
         public const string Output = "output";
         public const string Paths = "paths";

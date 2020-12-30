@@ -25,6 +25,7 @@ namespace Orang.CommandLine
             {
                 WriteHelp(
                     commandName: Options.Command,
+                    online: Options.Online,
                     manual: Options.Manual,
                     includeValues: ConsoleOut.Verbosity > Verbosity.Normal,
                     filter: Options.Filter);
@@ -40,25 +41,23 @@ namespace Orang.CommandLine
 
         private static void WriteHelp(
             string? commandName,
+            bool online,
             bool manual,
             bool includeValues,
             Filter? filter = null)
         {
-            if (commandName != null)
+            if (online)
             {
-                if (filter != null || includeValues)
-                {
-                    Command? command = CommandLoader.LoadCommand(typeof(HelpCommand).Assembly, commandName);
+                OpenHelpInBrowser(commandName);
+            }
+            else if (commandName != null)
+            {
+                Command? command = CommandLoader.LoadCommand(typeof(HelpCommand).Assembly, commandName);
 
-                    if (command == null)
-                        throw new ArgumentException($"Command '{commandName}' does not exist.", nameof(commandName));
+                if (command == null)
+                    throw new ArgumentException($"Command '{commandName}' does not exist.", nameof(commandName));
 
-                    WriteCommandHelp(command, includeValues: includeValues, filter: filter);
-                }
-                else
-                {
-                    OpenHelpInBrowser(commandName);
-                }
+                WriteCommandHelp(command, includeValues: includeValues, filter: filter);
             }
             else if (manual)
             {
@@ -71,9 +70,12 @@ namespace Orang.CommandLine
         }
 
         // https://github.com/dotnet/corefx/issues/10361
-        private static void OpenHelpInBrowser(string commandName)
+        private static void OpenHelpInBrowser(string? commandName)
         {
-            string url = "http://pihrt.net/redirect?id=orang-" + commandName;
+            var url = "http://pihrt.net/redirect?id=orang";
+
+            if (commandName != null)
+                url += "-" + commandName;
 
             try
             {

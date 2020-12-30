@@ -44,7 +44,12 @@ namespace Orang.CommandLine
             HelpText = "[deprecated] Use option -r, --replacement instead.",
             MetaValue = MetaValues.Evaluator)]
         public string Evaluator { get; set; } = null!;
-
+#if DEBUG // --find
+        [Option(
+            longName: "find",
+            HelpText = "Equivalent to --replacement \"\" --highlight match --dry-run.")]
+        public bool Find { get; set; }
+#endif
         [Option(
             longName: OptionNames.Pipe,
             HelpText = "Defines how to use redirected/piped input.",
@@ -274,7 +279,14 @@ namespace Orang.CommandLine
             options.MaxMatchesInFile = maxMatchesInFile;
             options.MaxMatchingFiles = maxMatchingFiles;
             options.MaxTotalMatches = 0;
-
+#if DEBUG // --find
+            if (Find)
+            {
+                options.ReplaceOptions = ReplaceOptions.Empty;
+                options.HighlightOptions = HighlightOptions.Match;
+                options.DryRun = true;
+            }
+#endif
             return true;
         }
 

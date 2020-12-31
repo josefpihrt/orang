@@ -17,7 +17,7 @@ if errorlevel 1 (
  exit
 )
 
-dotnet "..\src\DocumentationGenerator\bin\Debug\netcoreapp3.0\Orang.DocumentationGenerator.dll" "..\docs\cli"
+dotnet "..\src\DocumentationGenerator\bin\Debug\netcoreapp3.1\Orang.DocumentationGenerator.dll" "..\docs\cli"
 
 if errorlevel 1 (
  pause

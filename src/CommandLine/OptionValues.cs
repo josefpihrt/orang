@@ -19,6 +19,7 @@ namespace Orang.CommandLine
         public static readonly SimpleOptionValue ContentDisplayStyle_UnmatchedLines = SimpleOptionValue.Create(ContentDisplayStyle.UnmatchedLines, description: "Display all lines that do not contain the matched value.");
         public static readonly SimpleOptionValue ContentDisplayStyle_Value = SimpleOptionValue.Create(ContentDisplayStyle.Value, description: "Display just the matched value.");
         public static readonly SimpleOptionValue ContentDisplayStyle_ValueDetail = SimpleOptionValue.Create(ContentDisplayStyle.ValueDetail, shortValue: "d", description: "Display matched value and include information about each value such as index or length.");
+        public static readonly SimpleOptionValue ContentDisplayStyle_Omit = SimpleOptionValue.Create(ContentDisplayStyle.Omit, shortValue: "o", description: "Do not display file's content.");
 
         public static readonly SimpleOptionValue Display_Count = SimpleOptionValue.Create("Count", description: "Include number of matches in file.");
         public static readonly SimpleOptionValue Display_CreationTime = SimpleOptionValue.Create("CreationTime", shortValue: "ct", helpValue: "c[reation-]t[ime]", description: "Include file creation time.");

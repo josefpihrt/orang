@@ -33,7 +33,9 @@ namespace Orang.CommandLine
             get
             {
                 return !Options.OmitPath
-                    || (ContentFilter != null && ConsoleOut.Verbosity > Verbosity.Minimal);
+                    || (ContentFilter != null
+                        && Options.ContentDisplayStyle != ContentDisplayStyle.Omit
+                        && ConsoleOut.Verbosity > Verbosity.Minimal);
             }
         }
 

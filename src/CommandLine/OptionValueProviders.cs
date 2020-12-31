@@ -361,6 +361,10 @@ namespace Orang.CommandLine
             OptionValues.ContentDisplayStyle_UnmatchedLines,
             OptionValues.ContentDisplayStyle_Value,
             OptionValues.ContentDisplayStyle_ValueDetail
+#if DEBUG // ContentDisplayStyle.Omit
+            ,
+            OptionValues.ContentDisplayStyle_Omit
+#endif
         );
 
         public static OptionValueProvider ContentDisplayStyleProvider_WithoutUnmatchedLines { get; }
@@ -374,6 +378,10 @@ namespace Orang.CommandLine
                 OptionValueProviderNames.ContentDisplayStyle_WithoutLineAndUnmatchedLines,
                 OptionValues.ContentDisplayStyle_Line,
                 OptionValues.ContentDisplayStyle_UnmatchedLines
+#if DEBUG // ContentDisplayStyle.Omit
+                ,
+                OptionValues.ContentDisplayStyle_Omit
+#endif
         );
 
         public static OptionValueProvider AskModeProvider { get; } = new OptionValueProvider(

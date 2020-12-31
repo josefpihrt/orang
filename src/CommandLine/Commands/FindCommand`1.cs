@@ -28,7 +28,9 @@ namespace Orang.CommandLine
             get
             {
                 return !Options.OmitPath
-                    || (ContentFilter != null && ConsoleOut.Verbosity > Verbosity.Minimal);
+                    || (ContentFilter != null
+                        && Options.ContentDisplayStyle != ContentDisplayStyle.Omit
+                        && ConsoleOut.Verbosity > Verbosity.Minimal);
             }
         }
 
@@ -239,7 +241,8 @@ namespace Orang.CommandLine
 
             if (hasAnyFunction
                 || Options.AskMode == AskMode.Value
-                || ShouldLog(Verbosity.Normal))
+                || (Options.ContentDisplayStyle != ContentDisplayStyle.Omit
+                    && ShouldLog(Verbosity.Normal)))
             {
                 if (hasAnyFunction)
                     (_modify ??= new ModifyManager(Options)).Reset();
@@ -322,7 +325,8 @@ namespace Orang.CommandLine
 
                 if (hasAnyFunction
                     || Options.AskMode == AskMode.Value
-                    || ShouldLog(Verbosity.Normal))
+                    || (Options.ContentDisplayStyle != ContentDisplayStyle.Omit
+                        && ShouldLog(Verbosity.Normal)))
                 {
                     if (hasAnyFunction)
                         (_modify ??= new ModifyManager(Options)).Reset();

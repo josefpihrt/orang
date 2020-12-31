@@ -159,7 +159,8 @@ namespace Orang.CommandLine
                 }
 
                 if (Options.AskMode == AskMode.Value
-                    || ShouldLog(Verbosity.Normal))
+                    || (Options.ContentDisplayStyle != ContentDisplayStyle.Omit
+                        && ShouldLog(Verbosity.Normal)))
                 {
                     MatchOutputInfo? outputInfo = Options.CreateOutputInfo(
                         fileMatch.ContentText,

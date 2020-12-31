@@ -133,7 +133,7 @@ namespace Orang.CommandLine
             }
 
             options.Format = new OutputDisplayFormat(
-                contentDisplayStyle: ContentDisplayStyle.None,
+                contentDisplayStyle: ContentDisplayStyle.Omit,
                 pathDisplayStyle: pathDisplayStyle ?? PathDisplayStyle.Full,
                 lineOptions: lineDisplayOptions,
                 lineContext: lineContext,

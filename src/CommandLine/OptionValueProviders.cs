@@ -261,7 +261,7 @@ namespace Orang.CommandLine
             SimpleOptionValue.Create(ModifyFlags.Distinct, shortValue: "di", description: "Return distinct values."),
             OptionValues.ModifyFlags_Except,
             OptionValues.ModifyFlags_Intersect,
-            OptionValues.ModifyFlags_GroupBy,
+            OptionValues.ModifyFlags_Group,
             SimpleOptionValue.Create(ModifyFlags.IgnoreCase, description: "Use case-insensitive matching."),
             SimpleOptionValue.Create(
                 ModifyFlags.RemoveEmpty,

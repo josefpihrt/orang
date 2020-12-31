@@ -184,7 +184,7 @@ namespace Orang.CommandLine
                     {
                         IEnumerable<string> values = _modify!.FileValues!.Modify(
                             Options.ModifyOptions,
-                            filter: Options.ModifyOptions.Functions & ~(ModifyFunctions.Enumerable | ModifyFunctions.Except_Intersect_GroupBy));
+                            filter: Options.ModifyOptions.Functions & ~(ModifyFunctions.Enumerable | ModifyFunctions.Except_Intersect_Group));
 
                         _aggregate?.Storage.AddRange(values);
                     }

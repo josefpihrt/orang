@@ -263,16 +263,16 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            ModifyFlags except_Intersect_GroupBy = modifyFlags & ModifyFlags.Except_Intersect_GroupBy;
+            ModifyFlags except_Intersect_Group = modifyFlags & ModifyFlags.Except_Intersect_Group;
 
-            if (except_Intersect_GroupBy != ModifyFlags.None
-                && except_Intersect_GroupBy != ModifyFlags.Except
-                && except_Intersect_GroupBy != ModifyFlags.Intersect
-                && except_Intersect_GroupBy != ModifyFlags.GroupBy)
+            if (except_Intersect_Group != ModifyFlags.None
+                && except_Intersect_Group != ModifyFlags.Except
+                && except_Intersect_Group != ModifyFlags.Intersect
+                && except_Intersect_Group != ModifyFlags.Group)
             {
                 WriteError($"Values '{OptionValues.ModifyFlags_Except.HelpValue}', "
                     + $"'{OptionValues.ModifyFlags_Intersect.HelpValue}' and "
-                    + $"'{OptionValues.ModifyFlags_GroupBy.HelpValue}' cannot be used at the same time.");
+                    + $"'{OptionValues.ModifyFlags_Group.HelpValue}' cannot be used at the same time.");
 
                 return false;
             }
@@ -294,8 +294,8 @@ namespace Orang.CommandLine
             if ((modifyFlags & ModifyFlags.Intersect) != 0)
                 functions |= ModifyFunctions.Intersect;
 
-            if ((modifyFlags & ModifyFlags.GroupBy) != 0)
-                functions |= ModifyFunctions.GroupBy;
+            if ((modifyFlags & ModifyFlags.Group) != 0)
+                functions |= ModifyFunctions.Group;
 
             if ((modifyFlags & ModifyFlags.RemoveEmpty) != 0)
                 functions |= ModifyFunctions.RemoveEmpty;

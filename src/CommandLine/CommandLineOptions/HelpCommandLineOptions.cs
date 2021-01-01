@@ -6,7 +6,7 @@ using CommandLine;
 namespace Orang.CommandLine
 {
     [Verb("help", HelpText = "Displays help.")]
-    [OptionValueProvider(nameof(Filter), OptionValueProviderNames.PatternOptionsWithoutPartAndNegative)]
+    [OptionValueProvider(nameof(Filter), OptionValueProviderNames.PatternOptions_List)]
     [CommandGroup("Main", 0)]
     internal sealed class HelpCommandLineOptions : AbstractCommandLineOptions
     {
@@ -19,7 +19,7 @@ namespace Orang.CommandLine
         [Option(
             shortName: OptionShortNames.Filter,
             longName: OptionNames.Filter,
-            HelpText = "Regular expression for filtering help text.",
+            HelpText = "Regular expression to filter results.",
             MetaValue = MetaValues.Regex)]
         public IEnumerable<string> Filter { get; set; } = null!;
 
@@ -40,8 +40,9 @@ namespace Orang.CommandLine
             if (!FilterParser.TryParse(
                 Filter,
                 OptionNames.Filter,
-                OptionValueProviders.PatternOptionsWithoutPartAndNegativeProvider,
+                OptionValueProviders.PatternOptions_List_Provider,
                 out Filter? filter,
+                includedPatternOptions: PatternOptions.IgnoreCase,
                 allowNull: true))
             {
                 return false;

@@ -45,6 +45,27 @@ namespace Orang.CommandLine
             OptionValues.PatternOptions_WholeWord
         );
 
+        public static OptionValueProvider PatternOptions_List_Provider { get; } = new OptionValueProvider(
+            OptionValueProviderNames.PatternOptions_List,
+            OptionValues.PatternOptions_CaseSensitive,
+            OptionValues.PatternOptions_Compiled,
+            OptionValues.PatternOptions_CultureInvariant,
+            OptionValues.PatternOptions_ECMAScript,
+            OptionValues.PatternOptions_ExplicitCapture,
+            OptionValues.PatternOptions_FromFile,
+            OptionValues.Group,
+            OptionValues.PatternOptions_IgnorePatternWhitespace,
+            OptionValues.PatternOptions_List,
+            OptionValues.ListSeparator,
+            OptionValues.PatternOptions_Literal,
+            OptionValues.PatternOptions_Multiline,
+            OptionValues.PatternOptions_Negative,
+            OptionValues.PatternOptions_RightToLeft,
+            OptionValues.PatternOptions_Singleline,
+            OptionValues.Timeout,
+            OptionValues.PatternOptions_WholeLine
+        );
+
         public static OptionValueProvider PatternOptionsWithoutPartProvider { get; }
             = PatternOptionsProvider.WithoutValues(
                 OptionValueProviderNames.PatternOptionsWithoutPart,
@@ -56,9 +77,9 @@ namespace Orang.CommandLine
                 OptionValues.Group,
                 OptionValues.PatternOptions_Negative);
 
-        public static OptionValueProvider PatternOptionsWithoutPartAndNegativeProvider { get; }
+        public static OptionValueProvider PatternOptions_Match_Provider { get; }
             = PatternOptionsProvider.WithoutValues(
-                OptionValueProviderNames.PatternOptionsWithoutPartAndNegative,
+                OptionValueProviderNames.PatternOptions_Match,
                 OptionValues.Part,
                 OptionValues.PatternOptions_Negative);
 

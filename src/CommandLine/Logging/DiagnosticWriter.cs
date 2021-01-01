@@ -153,7 +153,7 @@ namespace Orang.CommandLine
         {
             WriteOption("char", options.Value);
             WriteOption("char group", options.InCharGroup);
-            WriteOption("filter", options.Filter);
+            WriteFilter("filter", options.Filter);
             WriteOption("regex options", options.RegexOptions);
             WriteOption("sections", options.Sections);
         }

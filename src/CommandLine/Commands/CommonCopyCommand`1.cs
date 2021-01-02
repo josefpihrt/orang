@@ -170,7 +170,7 @@ namespace Orang.CommandLine
                     destinationPath,
                     basePath: Target,
                     relativePath: Options.DisplayRelativePath,
-                    colors: Colors.Matched_Path,
+                    colors: default,
                     indent: indent,
                     verbosity: Verbosity.Minimal);
 

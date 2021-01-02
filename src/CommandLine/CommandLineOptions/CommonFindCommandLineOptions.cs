@@ -12,6 +12,8 @@ namespace Orang.CommandLine
     [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.FindHighlightOptions)]
     internal abstract class CommonFindCommandLineOptions : FileSystemCommandLineOptions
     {
+        public abstract ContentDisplayStyle DefaultContentDisplayStyle { get; }
+
         [Option(
             longName: OptionNames.Ask,
             HelpText = "Ask for permission after each file or value.",
@@ -116,7 +118,7 @@ namespace Orang.CommandLine
                 return false;
 
             options.Format = new OutputDisplayFormat(
-                contentDisplayStyle: contentDisplayStyle ?? ContentDisplayStyle.Line,
+                contentDisplayStyle: contentDisplayStyle ?? DefaultContentDisplayStyle,
                 pathDisplayStyle: pathDisplayStyle ?? PathDisplayStyle.Full,
                 lineOptions: lineDisplayOptions,
                 lineContext: lineContext,

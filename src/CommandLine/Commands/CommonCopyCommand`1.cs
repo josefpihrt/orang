@@ -58,16 +58,6 @@ namespace Orang.CommandLine
             base.ExecuteDirectory(directoryPath, context);
         }
 
-        protected override void ExecuteMatchWithContentCore(
-            FileMatch fileMatch,
-            SearchContext context,
-            ContentWriterOptions writerOptions,
-            string? baseDirectoryPath = null,
-            ColumnWidths? columnWidths = null)
-        {
-            ExecuteMatchCore(fileMatch, context, baseDirectoryPath, columnWidths);
-        }
-
         protected sealed override void ExecuteMatchCore(
             FileMatch fileMatch,
             SearchContext context,
@@ -373,15 +363,6 @@ namespace Orang.CommandLine
                     Directory.CreateDirectory(destinationPath);
                 }
             }
-        }
-
-        protected sealed override void WritePath(
-            SearchContext context,
-            FileMatch fileMatch,
-            string? baseDirectoryPath,
-            string indent,
-            ColumnWidths? columnWidths)
-        {
         }
 
         protected virtual void WriteError(

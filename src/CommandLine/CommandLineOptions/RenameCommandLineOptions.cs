@@ -154,7 +154,7 @@ namespace Orang.CommandLine
             if (!TryParseDisplay(
                 values: Display,
                 optionName: OptionNames.Display,
-                contentDisplayStyle: out ContentDisplayStyle? _,
+                contentDisplayStyle: out ContentDisplayStyle? contentDisplayStyle,
                 pathDisplayStyle: out PathDisplayStyle? pathDisplayStyle,
                 lineDisplayOptions: out LineDisplayOptions lineDisplayOptions,
                 lineContext: out LineContext lineContext,
@@ -177,7 +177,7 @@ namespace Orang.CommandLine
             }
 
             options.Format = new OutputDisplayFormat(
-                contentDisplayStyle: ContentDisplayStyle.Omit,
+                contentDisplayStyle: contentDisplayStyle ?? ContentDisplayStyle.Omit,
                 pathDisplayStyle: pathDisplayStyle ?? PathDisplayStyle.Full,
                 lineOptions: lineDisplayOptions,
                 lineContext: lineContext,

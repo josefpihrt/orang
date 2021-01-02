@@ -108,7 +108,7 @@ namespace Orang.CommandLine
             bool isPathDisplayed = !Options.OmitPath && !AggregateOnly;
 
             if (isPathDisplayed)
-                WritePath(context, fileMatch, baseDirectoryPath, indent, columnWidths);
+                WritePath(context, fileMatch, baseDirectoryPath, indent, columnWidths, includeNewline: false);
 
             if (ContentFilter!.IsNegative
                 || fileMatch.IsDirectory)
@@ -141,7 +141,7 @@ namespace Orang.CommandLine
             if (!Options.OmitPath
                 && !AggregateOnly)
             {
-                WritePath(context, fileMatch, baseDirectoryPath, indent, columnWidths);
+                WritePath(context, fileMatch, baseDirectoryPath, indent, columnWidths, includeNewline: true);
             }
 
             if (_aggregate?.Storage != null
@@ -261,27 +261,7 @@ namespace Orang.CommandLine
                 contentWriter = new EmptyContentWriter(writerOptions);
             }
 
-            List<Capture>? captures = null;
-
-            try
-            {
-                captures = ListCache<Capture>.GetInstance();
-
-                GetCaptures(
-                    match,
-                    writerOptions.GroupNumber,
-                    context,
-                    isPathDisplayed: isPathDisplayed,
-                    predicate: ContentFilter!.Predicate,
-                    captures: captures);
-
-                WriteMatches(contentWriter, captures, context);
-            }
-            finally
-            {
-                if (captures != null)
-                    ListCache<Capture>.Free(captures);
-            }
+            WriteMatches(context, match, writerOptions, contentWriter, isPathDisplayed);
 
             return contentWriter;
         }

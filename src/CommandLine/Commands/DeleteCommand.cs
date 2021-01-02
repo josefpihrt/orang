@@ -31,7 +31,7 @@ namespace Orang.CommandLine
             string indent = GetPathIndent(baseDirectoryPath);
 
             if (!Options.OmitPath)
-                WritePath(context, fileMatch, baseDirectoryPath, indent, columnWidths);
+                WritePath(context, fileMatch, baseDirectoryPath, indent, columnWidths, includeNewline: true);
 
             if (!Options.Ask || AskToExecute(context, (Options.ContentOnly) ? "Delete content?" : "Delete?", indent))
             {

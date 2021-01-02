@@ -13,6 +13,8 @@ namespace Orang.CommandLine
     [CommandGroup("Main", 0)]
     internal sealed class FindCommandLineOptions : CommonFindCommandLineOptions
     {
+        public override ContentDisplayStyle DefaultContentDisplayStyle => ContentDisplayStyle.Line;
+
         [Option(
             longName: OptionNames.Pipe,
             HelpText = "Defines how to use redirected/piped input.",

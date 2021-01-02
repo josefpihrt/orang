@@ -123,7 +123,7 @@ namespace Orang.CommandLine
             string indent = GetPathIndent(baseDirectoryPath);
 
             if (!Options.OmitPath)
-                WritePath(context, fileMatch, baseDirectoryPath, indent, columnWidths);
+                WritePath(context, fileMatch, baseDirectoryPath, indent, columnWidths, includeNewline: false);
 
             SearchTelemetry telemetry = context.Telemetry;
 

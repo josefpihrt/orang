@@ -2,7 +2,7 @@
 
 namespace Orang.CommandLine
 {
-    internal abstract class DeleteOrRenameCommandOptions : FileSystemCommandOptions
+    internal abstract class DeleteOrRenameCommandOptions : CommonFindCommandOptions
     {
         protected DeleteOrRenameCommandOptions()
         {

@@ -7,6 +7,8 @@ namespace Orang.CommandLine
 {
     internal abstract class CommonCopyCommandLineOptions : CommonFindCommandLineOptions
     {
+        public override ContentDisplayStyle DefaultContentDisplayStyle => ContentDisplayStyle.Omit;
+
         [Option(
             longName: OptionNames.Compare,
             HelpText = "File properties to be compared.",

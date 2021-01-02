@@ -451,6 +451,39 @@ namespace Orang.CommandLine
             }
         }
 
+        protected bool AskToExecute(SearchContext context, string question, string indent)
+        {
+            DialogResult result = ConsoleHelpers.Ask(question, indent);
+
+            switch (result)
+            {
+                case DialogResult.Yes:
+                    {
+                        return true;
+                    }
+                case DialogResult.YesToAll:
+                    {
+                        Options.AskMode = AskMode.None;
+                        return true;
+                    }
+                case DialogResult.No:
+                case DialogResult.None:
+                    {
+                        return false;
+                    }
+                case DialogResult.NoToAll:
+                case DialogResult.Cancel:
+                    {
+                        context.TerminationReason = TerminationReason.Canceled;
+                        return false;
+                    }
+                default:
+                    {
+                        throw new InvalidOperationException($"Unknown enum value '{result}'.");
+                    }
+            }
+        }
+
         protected override void WriteSummary(SearchTelemetry telemetry, Verbosity verbosity)
         {
             WriteSearchedFilesAndDirectories(telemetry, Options.SearchTarget, verbosity);

@@ -16,6 +16,12 @@ namespace Orang.CommandLine
         public override ContentDisplayStyle DefaultContentDisplayStyle => ContentDisplayStyle.Line;
 
         [Option(
+            longName: OptionNames.Ask,
+            HelpText = "Ask for permission after each file or value.",
+            MetaValue = MetaValues.AskMode)]
+        public string Ask { get; set; } = null!;
+
+        [Option(
             longName: OptionNames.Pipe,
             HelpText = "Defines how to use redirected/piped input.",
             MetaValue = MetaValues.PipeMode)]
@@ -72,6 +78,9 @@ namespace Orang.CommandLine
                 return false;
 
             options = (FindCommandOptions)baseOptions;
+
+            if (!TryParseProperties(Ask, Name, options))
+                return false;
 
             string? input = null;
 

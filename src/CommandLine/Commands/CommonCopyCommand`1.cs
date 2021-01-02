@@ -39,6 +39,8 @@ namespace Orang.CommandLine
             return search;
         }
 
+        protected abstract string GetQuestionText(bool isDirectory);
+
         protected abstract void ExecuteOperation(string sourcePath, string destinationPath);
 
         protected override void ExecuteDirectory(string directoryPath, SearchContext context)
@@ -65,9 +67,6 @@ namespace Orang.CommandLine
             ColumnWidths? columnWidths = null)
         {
             ExecuteOperation(fileMatch, context, baseDirectoryPath, GetPathIndent(baseDirectoryPath));
-
-            if (context.TerminationReason != TerminationReason.Canceled)
-                AskToContinue(context, GetPathIndent(baseDirectoryPath));
         }
 
         private void ExecuteOperation(
@@ -223,6 +222,11 @@ namespace Orang.CommandLine
                             throw new InvalidOperationException($"Unknown enum value '{dialogResult}'.");
                         }
                 }
+            }
+            else if (Options.AskMode == AskMode.File
+                && !AskToExecute(context, GetQuestionText(isDirectory), indent))
+            {
+                return DialogResult.No;
             }
 
             if (isDirectory)

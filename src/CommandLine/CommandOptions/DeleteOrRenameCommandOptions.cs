@@ -8,8 +8,6 @@ namespace Orang.CommandLine
         {
         }
 
-        public bool Ask { get; internal set; }
-
         public bool DryRun { get; internal set; }
     }
 }

@@ -143,7 +143,7 @@ namespace Orang.CommandLine
                 separator: separator,
                 alignColumns: !noAlign);
 
-            options.Ask = Ask;
+            options.AskMode = (Ask) ? AskMode.File : AskMode.None;
             options.DryRun = DryRun;
             options.HighlightOptions = highlightOptions;
             options.SearchTarget = GetSearchTarget();

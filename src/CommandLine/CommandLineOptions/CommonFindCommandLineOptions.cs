@@ -15,12 +15,6 @@ namespace Orang.CommandLine
         public abstract ContentDisplayStyle DefaultContentDisplayStyle { get; }
 
         [Option(
-            longName: OptionNames.Ask,
-            HelpText = "Ask for permission after each file or value.",
-            MetaValue = MetaValues.AskMode)]
-        public string Ask { get; set; } = null!;
-
-        [Option(
             shortName: OptionShortNames.Content,
             longName: OptionNames.Content,
             HelpText = "Regular expression for files' content.",
@@ -49,9 +43,6 @@ namespace Orang.CommandLine
                 return false;
 
             options = (CommonFindCommandOptions)baseOptions;
-
-            if (!TryParseProperties(Ask, Name, options))
-                return false;
 
             if (!TryParseAsEnumFlags(
                 Highlight,

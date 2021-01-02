@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using CommandLine;
+using Orang.FileSystem;
 
 namespace Orang.CommandLine
 {
@@ -23,6 +24,20 @@ namespace Orang.CommandLine
                 return false;
 
             options = (CommonCopyCommandOptions)baseOptions;
+
+            if (!FilterParser.TryParse(
+                Name,
+                OptionNames.Name,
+                OptionValueProviders.PatternOptionsProvider,
+                out Filter? nameFilter,
+                out FileNamePart namePart,
+                allowNull: true))
+            {
+                return false;
+            }
+
+            options.NameFilter = nameFilter;
+            options.NamePart = namePart;
 
             return true;
         }

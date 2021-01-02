@@ -190,7 +190,7 @@ namespace Orang.CommandLine
             options.HighlightOptions = highlightOptions;
             options.SearchTarget = GetSearchTarget();
             options.ReplaceOptions = replaceOptions;
-            options.Ask = Ask;
+            options.AskMode = (Ask) ? AskMode.File : AskMode.None;
             options.DryRun = DryRun;
             options.NameFilter = nameFilter;
             options.NamePart = namePart;

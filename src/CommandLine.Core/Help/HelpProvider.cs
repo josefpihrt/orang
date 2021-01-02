@@ -10,7 +10,7 @@ namespace Orang.CommandLine.Help
 {
     internal static class HelpProvider
     {
-        private const int SeparatorWidth = 2;
+        public const int SeparatorWidth = 2;
 
         public static ImmutableArray<CommandItem> GetCommandItems(IEnumerable<Command> commands, Filter? filter = null)
         {

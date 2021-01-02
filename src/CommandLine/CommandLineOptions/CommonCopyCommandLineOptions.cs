@@ -2,11 +2,14 @@
 
 using System.Collections.Generic;
 using CommandLine;
+using Orang.FileSystem;
 
 namespace Orang.CommandLine
 {
     internal abstract class CommonCopyCommandLineOptions : CommonFindCommandLineOptions
     {
+        public override ContentDisplayStyle DefaultContentDisplayStyle => ContentDisplayStyle.Omit;
+
         [Option(
             longName: OptionNames.Compare,
             HelpText = "File properties to be compared.",
@@ -21,6 +24,20 @@ namespace Orang.CommandLine
                 return false;
 
             options = (CommonCopyCommandOptions)baseOptions;
+
+            if (!FilterParser.TryParse(
+                Name,
+                OptionNames.Name,
+                OptionValueProviders.PatternOptionsProvider,
+                out Filter? nameFilter,
+                out FileNamePart namePart,
+                allowNull: true))
+            {
+                return false;
+            }
+
+            options.NameFilter = nameFilter;
+            options.NamePart = namePart;
 
             return true;
         }

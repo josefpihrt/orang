@@ -138,7 +138,7 @@ namespace Orang.CommandLine
                     {
                         Directory.Move(path, newPath);
                     }
-                    else if (Options.KeepOriginalFile)
+                    else if (Options.KeepOriginal)
                     {
                         File.Copy(path, newPath);
                     }

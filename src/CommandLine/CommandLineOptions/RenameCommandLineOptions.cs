@@ -51,9 +51,9 @@ namespace Orang.CommandLine
         public string Evaluator { get; set; } = null!;
 
         [Option(
-            longName: OptionNames.KeepOriginalFile,
+            longName: OptionNames.KeepOriginal,
             HelpText = "Create a new file instead of renaming original file.")]
-        public bool KeepOriginalFile { get; set; }
+        public bool KeepOriginal { get; set; }
 
         [Option(
             shortName: OptionShortNames.MaxCount,
@@ -202,7 +202,7 @@ namespace Orang.CommandLine
             options.ContentFilter = contentFilter;
             options.MaxMatchingFiles = MaxCount;
             options.ConflictResolution = conflictResolution;
-            options.KeepOriginalFile = KeepOriginalFile;
+            options.KeepOriginal = KeepOriginal;
 
             return true;
         }

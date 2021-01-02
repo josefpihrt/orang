@@ -30,7 +30,7 @@ namespace Orang.CommandLine
         public const string IncludeDirectory = "include-directory";
         public const string IncludingBom = "including-bom";
         public const string Input = "input";
-        public const string KeepOriginalFile = "keep-original-file";
+        public const string KeepOriginal = "keep-original";
         public const string Manual = "manual";
         public const string MaxCount = "max-count";
         public const string Modifier = "modifier";

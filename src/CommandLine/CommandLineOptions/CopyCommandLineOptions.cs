@@ -14,7 +14,7 @@ namespace Orang.CommandLine
             longName: OptionNames.Conflict,
             HelpText = "Defines how to resolve conflict when a file/directory already exists.",
             MetaValue = MetaValues.ConflictResolution)]
-        public string OnConflict { get; set; } = null!;
+        public string Conflict { get; set; } = null!;
 
         [Option(
             shortName: OptionShortNames.DryRun,
@@ -58,7 +58,7 @@ namespace Orang.CommandLine
                 return false;
 
             if (!TryParseAsEnum(
-                OnConflict,
+                Conflict,
                 OptionNames.Conflict,
                 out ConflictResolution conflictResolution,
                 defaultValue: ConflictResolution.Ask,

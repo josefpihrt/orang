@@ -27,7 +27,6 @@ namespace Orang.CommandLine
         public bool CharGroup { get; set; }
 
         [Option(
-            shortName: OptionShortNames.Options,
             longName: OptionNames.Options,
             HelpText = "Regex options that should be used. Relevant values are [e]cma-[s]cript or [i]gnore-case.",
             MetaValue = MetaValues.RegexOptions)]

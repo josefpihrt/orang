@@ -18,6 +18,50 @@ namespace Orang.CommandLine
 {
     internal static class ParseHelpers
     {
+        public static bool TryParseHighlightOptions(
+            IEnumerable<string> values,
+            out HighlightOptions highlightOptions,
+            HighlightOptions? defaultValue = null,
+            OptionValueProvider? provider = null)
+        {
+            if (values.Any())
+            {
+                string[] arr = values.ToArray();
+
+                for (int i = 0; i < arr.Length; i++)
+                {
+                    switch (arr[i])
+                    {
+                        case "new-line":
+                            {
+                                LogHelpers.WriteObsoleteWarning($"Value '{arr[i]}' is obsolete. "
+                                    + $"Use value '{OptionValues.HighlightOptions_Newline.HelpValue}' instead.");
+
+                                arr[i] = OptionValues.HighlightOptions_Newline.Value;
+                                break;
+                            }
+                        case "nl":
+                            {
+                                LogHelpers.WriteObsoleteWarning($"Value '{arr[i]}' is obsolete. "
+                                    + $"Use value '{OptionValues.HighlightOptions_Newline.HelpValue}' instead.");
+
+                                arr[i] = OptionValues.HighlightOptions_Newline.Value;
+                                break;
+                            }
+                    }
+                }
+
+                values = arr;
+            }
+
+            return TryParseAsEnumFlags(
+                values,
+                OptionNames.Highlight,
+                out highlightOptions,
+                defaultValue: defaultValue,
+                provider: provider ?? OptionValueProviders.HighlightOptionsProvider);
+        }
+
         public static bool TryParseFileProperties(
             IEnumerable<string> values,
             string optionName,

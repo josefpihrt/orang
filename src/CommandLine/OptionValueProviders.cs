@@ -314,7 +314,7 @@ namespace Orang.CommandLine
             OptionValues.HighlightOptions_Tab,
             OptionValues.HighlightOptions_CarriageReturn,
             OptionValues.HighlightOptions_Linefeed,
-            OptionValues.HighlightOptions_NewLine,
+            OptionValues.HighlightOptions_Newline,
             OptionValues.HighlightOptions_Space
         );
 

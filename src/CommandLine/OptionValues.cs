@@ -41,7 +41,7 @@ namespace Orang.CommandLine
         public static readonly SimpleOptionValue HighlightOptions_EmptySplit = SimpleOptionValue.Create(HighlightOptions.EmptySplit, shortValue: "es", helpValue: "e[mpty-]s[plit]", description: "Highlight split value that is empty string.");
         public static readonly SimpleOptionValue HighlightOptions_Linefeed = SimpleOptionValue.Create(HighlightOptions.Linefeed, shortValue: "lf", helpValue: "l[ine]f[eed]", description: "Highlight linefeed character.");
         public static readonly SimpleOptionValue HighlightOptions_Match = SimpleOptionValue.Create(HighlightOptions.Match, description: "Highlight match value.");
-        public static readonly SimpleOptionValue HighlightOptions_NewLine = SimpleOptionValue.Create(HighlightOptions.NewLine, shortValue: "nl", helpValue: "n[ew-]l[ine]", description: "Highlight carriage return and linefeed characters.");
+        public static readonly SimpleOptionValue HighlightOptions_Newline = SimpleOptionValue.Create(HighlightOptions.Newline, shortValue: "", description: "Highlight carriage return and linefeed characters.");
         public static readonly SimpleOptionValue HighlightOptions_None = SimpleOptionValue.Create(HighlightOptions.None, description: "No highlighting.");
         public static readonly SimpleOptionValue HighlightOptions_Replacement = SimpleOptionValue.Create(HighlightOptions.Replacement, description: "Highlight replacement value.");
         public static readonly SimpleOptionValue HighlightOptions_Space = SimpleOptionValue.Create(HighlightOptions.Space, shortValue: "", description: "Highlight space character.");

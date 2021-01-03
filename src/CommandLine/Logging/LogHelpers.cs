@@ -16,13 +16,7 @@ namespace Orang.CommandLine
         public static void WriteObsoleteWarning(string message)
         {
             WriteWarning(message);
-
-            if (!Console.IsInputRedirected)
-            {
-                Write("Press any key to continue...");
-                Console.ReadKey();
-                WriteLine();
-            }
+            ConsoleHelpers.WaitForKeyPress();
         }
 
         public static void WriteFilePathEnd(int count, MaxReason maxReason, bool includeCount)

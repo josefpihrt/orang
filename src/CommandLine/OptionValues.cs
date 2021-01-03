@@ -48,6 +48,8 @@ namespace Orang.CommandLine
         public static readonly SimpleOptionValue HighlightOptions_Split = SimpleOptionValue.Create(HighlightOptions.Split, description: "Highlight split value.");
         public static readonly SimpleOptionValue HighlightOptions_Tab = SimpleOptionValue.Create(HighlightOptions.Tab, description: "Highlight tab character.");
 
+        public static readonly SimpleOptionValue ModifyFlags_Aggregate = SimpleOptionValue.Create(ModifyFlags.Aggregate, shortValue: "ag", description: "Display list of all values at the end of search.");
+        public static readonly SimpleOptionValue ModifyFlags_AggregateOnly = SimpleOptionValue.Create(ModifyFlags.AggregateOnly, shortValue: "o", description: "Display only list of all values at the end of search.");
         public static readonly SimpleOptionValue ModifyFlags_Except = SimpleOptionValue.Create(ModifyFlags.Except, shortValue: "", description: "Return values from first file except values from second file.");
         public static readonly SimpleOptionValue ModifyFlags_Intersect = SimpleOptionValue.Create(ModifyFlags.Intersect, shortValue: "", description: "Return values that were found in all files.");
         public static readonly SimpleOptionValue ModifyFlags_Group = SimpleOptionValue.Create(ModifyFlags.Group, shortValue: "", description: "Group matching files by matched values.");

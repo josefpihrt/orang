@@ -291,7 +291,17 @@ namespace Orang.CommandLine
                 }
                 else
                 {
-                    (options ??= new List<string>()).Add(value);
+                    string value2 = value;
+
+                    if (value2 == "ao")
+                    {
+                        LogHelpers.WriteObsoleteWarning(
+                            $"Value '{value2}' is obsolete. Use value '{OptionValues.ModifyFlags_AggregateOnly.HelpValue}' instead.");
+
+                        value2 = OptionValues.ModifyFlags_AggregateOnly.ShortValue;
+                    }
+
+                    (options ??= new List<string>()).Add(value2);
                 }
             }
 

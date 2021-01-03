@@ -265,14 +265,8 @@ namespace Orang.CommandLine
 
         public static OptionValueProvider ModifyFlagsProvider { get; } = new OptionValueProvider(
             MetaValues.ModifyOptions,
-            SimpleOptionValue.Create(
-                ModifyFlags.Aggregate,
-                shortValue: "ag",
-                description: "Display list of all values at the end of search."),
-            SimpleOptionValue.Create(
-                ModifyFlags.AggregateOnly,
-                shortValue: "ao",
-                description: "Display only list of all values at the end of search."),
+            OptionValues.ModifyFlags_Aggregate,
+            OptionValues.ModifyFlags_AggregateOnly,
             SimpleOptionValue.Create(ModifyFlags.Ascending, description: "Sort values in an ascending order."),
             SimpleOptionValue.Create(
                 ModifyFlags.CultureInvariant,

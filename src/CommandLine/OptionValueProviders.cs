@@ -539,7 +539,7 @@ namespace Orang.CommandLine
 
         public static OptionValueProvider PipeMode { get; } = new OptionValueProvider(
             MetaValues.PipeMode,
-            SimpleOptionValue.Create(CommandLine.PipeMode.Text, description: "Use redirected input as a text to be searched (default)."),
+            SimpleOptionValue.Create(CommandLine.PipeMode.Text, description: "Use redirected input as a text to be searched."),
             SimpleOptionValue.Create(CommandLine.PipeMode.Paths, description: "Use redirected input as a list of paths separated with newlines."));
 
         public static ImmutableDictionary<string, OptionValueProvider> ProvidersByName

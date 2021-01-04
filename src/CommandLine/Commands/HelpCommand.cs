@@ -72,15 +72,12 @@ namespace Orang.CommandLine
         // https://github.com/dotnet/corefx/issues/10361
         private static void OpenHelpInBrowser(string? commandName)
         {
-            var url = "http://pihrt.net/redirect?id=orang";
+            var url = "http://pihrt.net/redirect?id=orang-cli";
 
             if (commandName != null)
                 url += "-" + commandName;
 
-            Version? version = typeof(Program).GetTypeInfo().Assembly.GetName().Version;
-
-            if (version != null)
-                url += "&version=" + version.ToString(3);
+            url += $"&version={PackageInfo.Version}";
 #if DEBUG
             WriteLine(url, Verbosity.Normal);
 #endif

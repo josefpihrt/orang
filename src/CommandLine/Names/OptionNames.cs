@@ -79,7 +79,7 @@ namespace Orang.CommandLine
 
         public static string GetHelpText(string name)
         {
-            if (NamesToShortNames.TryGetValue(name, out string shortName))
+            if (NamesToShortNames.TryGetValue(name, out string? shortName))
             {
                 return $"-{shortName}, --{name}";
             }

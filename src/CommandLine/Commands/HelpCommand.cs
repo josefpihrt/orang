@@ -77,6 +77,13 @@ namespace Orang.CommandLine
             if (commandName != null)
                 url += "-" + commandName;
 
+            Version? version = typeof(Program).GetTypeInfo().Assembly.GetName().Version;
+
+            if (version != null)
+                url += "&version=" + version.ToString(3);
+#if DEBUG
+            WriteLine(url, Verbosity.Normal);
+#endif
             try
             {
                 Process.Start(url);

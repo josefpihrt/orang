@@ -250,7 +250,7 @@ namespace Orang.CommandLine
             if (!commandLineOptions.TryParse(options))
                 return ExitCodes.Error;
 
-            return Execute(new CopyCommand(options));
+            return Execute(new CopyCommand(options), commandLineOptions);
         }
 
         private static int Delete(DeleteCommandLineOptions commandLineOptions)
@@ -260,7 +260,7 @@ namespace Orang.CommandLine
             if (!commandLineOptions.TryParse(options))
                 return ExitCodes.Error;
 
-            return Execute(new DeleteCommand(options));
+            return Execute(new DeleteCommand(options), commandLineOptions);
         }
 
         private static int Escape(EscapeCommandLineOptions commandLineOptions)
@@ -270,7 +270,7 @@ namespace Orang.CommandLine
             if (!commandLineOptions.TryParse(options))
                 return ExitCodes.Error;
 
-            return Execute(new EscapeCommand(options));
+            return Execute(new EscapeCommand(options), commandLineOptions);
         }
 
         private static int Find(FindCommandLineOptions commandLineOptions)
@@ -280,7 +280,7 @@ namespace Orang.CommandLine
             if (!commandLineOptions.TryParse(options))
                 return ExitCodes.Error;
 
-            return Execute(new FindCommand<FindCommandOptions>(options));
+            return Execute(new FindCommand<FindCommandOptions>(options), commandLineOptions);
         }
 
         private static int Help(HelpCommandLineOptions commandLineOptions)
@@ -290,7 +290,7 @@ namespace Orang.CommandLine
             if (!commandLineOptions.TryParse(options))
                 return ExitCodes.Error;
 
-            return Execute(new HelpCommand(options));
+            return Execute(new HelpCommand(options), commandLineOptions);
         }
 
         private static int ListPatterns(ListPatternsCommandLineOptions commandLineOptions)
@@ -300,7 +300,7 @@ namespace Orang.CommandLine
             if (!commandLineOptions.TryParse(options))
                 return ExitCodes.Error;
 
-            return Execute(new ListPatternsCommand(options));
+            return Execute(new ListPatternsCommand(options), commandLineOptions);
         }
 
         private static int Match(MatchCommandLineOptions commandLineOptions)
@@ -310,7 +310,7 @@ namespace Orang.CommandLine
             if (!commandLineOptions.TryParse(options))
                 return ExitCodes.Error;
 
-            return Execute(new MatchCommand(options));
+            return Execute(new MatchCommand(options), commandLineOptions);
         }
 
         private static int Move(MoveCommandLineOptions commandLineOptions)
@@ -320,7 +320,7 @@ namespace Orang.CommandLine
             if (!commandLineOptions.TryParse(options))
                 return ExitCodes.Error;
 
-            return Execute(new MoveCommand(options));
+            return Execute(new MoveCommand(options), commandLineOptions);
         }
 
         private static int Rename(RenameCommandLineOptions commandLineOptions)
@@ -330,7 +330,7 @@ namespace Orang.CommandLine
             if (!commandLineOptions.TryParse(options))
                 return ExitCodes.Error;
 
-            return Execute(new RenameCommand(options));
+            return Execute(new RenameCommand(options), commandLineOptions);
         }
 
         private static int Replace(ReplaceCommandLineOptions commandLineOptions)
@@ -340,7 +340,7 @@ namespace Orang.CommandLine
             if (!commandLineOptions.TryParse(options))
                 return ExitCodes.Error;
 
-            return Execute(new ReplaceCommand(options));
+            return Execute(new ReplaceCommand(options), commandLineOptions);
         }
 
         private static int Split(SplitCommandLineOptions commandLineOptions)
@@ -350,14 +350,24 @@ namespace Orang.CommandLine
             if (!commandLineOptions.TryParse(options))
                 return ExitCodes.Error;
 
-            return Execute(new SplitCommand(options));
+            return Execute(new SplitCommand(options), commandLineOptions);
         }
 
-        private static int Execute<TOptions>(AbstractCommand<TOptions> command) where TOptions : AbstractCommandOptions
+        private static int Execute<TOptions>(
+            AbstractCommand<TOptions> command,
+            AbstractCommandLineOptions options) where TOptions : AbstractCommandOptions
         {
 #if DEBUG
             if (ShouldLog(Verbosity.Diagnostic))
+            {
+                WriteLine("--- RAW PARAMETERS ---", Verbosity.Diagnostic);
+                DiagnosticWriter.WriteParameters(options);
+                WriteLine("--- END OF RAW PARAMETERS ---", Verbosity.Diagnostic);
+
+                WriteLine("--- APP PARAMETERS ---", Verbosity.Diagnostic);
                 command.Options.WriteDiagnostic();
+                WriteLine("--- END OF APP PARAMETERS ---", Verbosity.Diagnostic);
+            }
 #endif
             CommandResult result = command.Execute();
 

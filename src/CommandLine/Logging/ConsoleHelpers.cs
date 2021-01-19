@@ -51,7 +51,7 @@ namespace Orang.CommandLine
 
         public static bool AskToExecute(string text, string? indent = null)
         {
-            switch (Ask(text, " (Y/N/C): ", "Y (Yes), N (No), C (Cancel)", DialogResultMap.YesNoCancel, indent))
+            switch (Ask(text, " (Y/N/C): ", "Y (Yes), N (No), C (Cancel)", DialogResultMap.Yes_No_Cancel, indent))
             {
                 case DialogResult.Yes:
                     return true;
@@ -71,7 +71,7 @@ namespace Orang.CommandLine
                 question: "Continue?",
                 suffix: " (Y[A]/C): ",
                 helpText: "Y (Yes), YA (Yes to All), C (Cancel)",
-                map: DialogResultMap.YesYesToAllCancel,
+                map: DialogResultMap.Yes_YesToAll_Cancel,
                 indent: indent))
             {
                 case DialogResult.None:

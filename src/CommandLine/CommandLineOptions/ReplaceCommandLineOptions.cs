@@ -127,15 +127,6 @@ namespace Orang.CommandLine
             if (!TryParseProperties(Ask, Name, options))
                 return false;
 
-            if (!TryParseHighlightOptions(
-                Highlight,
-                out HighlightOptions highlightOptions,
-                defaultValue: HighlightOptions.Replacement,
-                provider: OptionValueProviders.ReplaceHighlightOptionsProvider))
-            {
-                return false;
-            }
-
             if (!FilterParser.TryParse(
                 Content,
                 OptionNames.Content,
@@ -258,6 +249,16 @@ namespace Orang.CommandLine
                 && options.SortOptions != null)
             {
                 pathDisplayStyle = PathDisplayStyle.Full;
+            }
+
+            if (!TryParseHighlightOptions(
+                Highlight,
+                out HighlightOptions highlightOptions,
+                defaultValue: HighlightOptions.Replacement,
+                contentDisplayStyle: contentDisplayStyle,
+                provider: OptionValueProviders.ReplaceHighlightOptionsProvider))
+            {
+                return false;
             }
 
             options.Format = new OutputDisplayFormat(

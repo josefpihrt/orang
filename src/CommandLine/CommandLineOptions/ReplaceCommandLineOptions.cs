@@ -51,6 +51,11 @@ namespace Orang.CommandLine
         public bool Find { get; set; }
 #endif
         [Option(
+            longName: OptionNames.Interactive,
+            HelpText = "Enable editing of a replacement.")]
+        public bool Interactive { get; set; }
+
+        [Option(
             longName: OptionNames.Pipe,
             HelpText = "Defines how to use redirected/piped input.",
             MetaValue = MetaValues.PipeMode)]
@@ -280,6 +285,7 @@ namespace Orang.CommandLine
             options.MaxMatchesInFile = maxMatchesInFile;
             options.MaxMatchingFiles = maxMatchingFiles;
             options.MaxTotalMatches = 0;
+            options.Interactive = Interactive;
 #if DEBUG // --find
             if (Find)
             {

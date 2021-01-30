@@ -151,7 +151,7 @@ namespace Orang.CommandLine
             MetaValues.ReplacementOptions,
             SimpleOptionValue.Create(
                 ReplacementOptions.FromFile,
-                description: $"Load text from a file whose path is specified in <REPLACEMENT> value."),
+                description: "Load text from a file whose path is specified in <REPLACEMENT> value."),
             SimpleOptionValue.Create(
                 ReplacementOptions.Literal,
                 description: "Replacement should be treated as a literal expression and not as a replacement expression."),
@@ -162,7 +162,7 @@ namespace Orang.CommandLine
                 ReplacementOptions.CSharp,
                 shortValue: "cs",
                 description:
-                    $"<REPLACEMENT> is either expression-body of a method with signature "
+                    "<REPLACEMENT> is either expression-body of a method with signature "
                         + "'string M(Match match)'"
                         + Environment.NewLine
                         + "or a path to a code file that contains public method with signature 'string M(Match match)'."

@@ -474,6 +474,10 @@ namespace Orang.CommandLine
                 shortValue: "ct",
                 helpValue: "c[reation-]t[ime]",
                 description: "Sort items by creation time."),
+            SimpleOptionValue.Create(
+                SortFlags.CultureInvariant,
+                shortValue: "ci",
+                description: "Ignore cultural differences between languages."),
             SimpleOptionValue.Create(SortFlags.Descending, description: "Sort items in descending order."),
             OptionValues.MaxCount,
             SimpleOptionValue.Create(

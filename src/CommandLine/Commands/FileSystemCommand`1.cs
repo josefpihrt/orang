@@ -247,7 +247,7 @@ namespace Orang.CommandLine
                     pathDisplayStyle = PathDisplayStyle.Full;
                 }
 
-                results = SortHelpers.SortResults(context.Results!, sortOptions.Descriptors, pathDisplayStyle);
+                results = SortHelpers.SortResults(context.Results!, sortOptions, pathDisplayStyle);
 
                 if (sortOptions.MaxCount > 0)
                     results = results.Take(sortOptions.MaxCount);

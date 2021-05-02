@@ -51,7 +51,8 @@ namespace Orang.CommandLine
 
                 base.ExecuteCore(context);
 
-                _aggregate?.WriteAggregatedValues(context.CancellationToken);
+                if (context.TerminationReason != TerminationReason.Canceled)
+                    _aggregate?.WriteAggregatedValues(context.CancellationToken);
             }
         }
 

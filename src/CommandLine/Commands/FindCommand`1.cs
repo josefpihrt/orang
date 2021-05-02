@@ -30,7 +30,7 @@ namespace Orang.CommandLine
             {
                 return !Options.OmitPath
                     || (ContentFilter != null
-                        && Options.ContentDisplayStyle != ContentDisplayStyle.Omit
+                        && !Options.OmitContent
                         && ConsoleOut.Verbosity > Verbosity.Minimal);
             }
         }
@@ -193,7 +193,7 @@ namespace Orang.CommandLine
 
                         _aggregate?.Storage.AddRange(values);
                     }
-                    else if (Options.ContentDisplayStyle == ContentDisplayStyle.Omit)
+                    else if (Options.OmitContent)
                     {
                         foreach (string value in _modify!.FileValues!.Modify(ModifyOptions))
                         {
@@ -276,7 +276,7 @@ namespace Orang.CommandLine
 
             if (ModifyOptions.HasAnyFunction
                 || Options.AskMode == AskMode.Value
-                || (Options.ContentDisplayStyle != ContentDisplayStyle.Omit
+                || (!Options.OmitContent
                     && ShouldLog(Verbosity.Normal)))
             {
                 MatchOutputInfo? outputInfo = Options.CreateOutputInfo(content, match, ContentFilter!);
@@ -330,7 +330,7 @@ namespace Orang.CommandLine
 
                 if (ModifyOptions.HasAnyFunction
                     || Options.AskMode == AskMode.Value
-                    || (Options.ContentDisplayStyle != ContentDisplayStyle.Omit
+                    || (!Options.OmitContent
                         && ShouldLog(Verbosity.Normal)))
                 {
                     MatchOutputInfo? outputInfo = (Options.ContentDisplayStyle == ContentDisplayStyle.ValueDetail)
@@ -367,15 +367,13 @@ namespace Orang.CommandLine
             if (ModifyOptions.HasAnyFunction)
                 (_modify ??= new ModifyManager(Options)).Reset();
 
-            bool omitContent = Options.ContentDisplayStyle == ContentDisplayStyle.Omit;
-
             return ContentWriter.CreateFind(
-                contentDisplayStyle: (omitContent) ? ContentDisplayStyle.Value : Options.ContentDisplayStyle,
+                contentDisplayStyle: (Options.OmitContent) ? ContentDisplayStyle.Value : Options.ContentDisplayStyle,
                 input: content,
                 options: writerOptions,
                 storage: (ModifyOptions.HasAnyFunction) ? _modify?.FileStorage : _aggregate?.Storage,
                 outputInfo: outputInfo,
-                writer: (ModifyOptions.HasAnyFunction || omitContent) ? null : ContentTextWriter.Default,
+                writer: (ModifyOptions.HasAnyFunction || Options.OmitContent) ? null : ContentTextWriter.Default,
                 ask: AskMode == AskMode.Value);
         }
     }

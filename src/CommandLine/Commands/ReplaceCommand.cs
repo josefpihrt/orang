@@ -161,7 +161,7 @@ namespace Orang.CommandLine
 
                 if (Options.AskMode == AskMode.Value
                     || Options.Interactive
-                    || (Options.ContentDisplayStyle != ContentDisplayStyle.Omit
+                    || (!Options.OmitContent
                         && ShouldLog(Verbosity.Normal)))
                 {
                     MatchOutputInfo? outputInfo = Options.CreateOutputInfo(

@@ -124,15 +124,15 @@ namespace Orang.CommandLine
                 PipeMode = pipeMode;
             }
 
+            if (!TryParseProperties(Ask, Name, options))
+                return false;
+
             var baseOptions = (FileSystemCommandOptions)options;
 
             if (!TryParse(baseOptions))
                 return false;
 
             options = (ReplaceCommandOptions)baseOptions;
-
-            if (!TryParseProperties(Ask, Name, options))
-                return false;
 
             if (!FilterParser.TryParse(
                 Content,

@@ -60,6 +60,7 @@ namespace Orang.CommandLine
         public static readonly SimpleOptionValue NamePart_NameWithoutExtension = SimpleOptionValue.Create(FileNamePart.NameWithoutExtension, shortValue: "w", description: "Search in file name without extension.");
 
         public static readonly SimpleOptionValue Output_Append = SimpleOptionValue.Create("Append", description: "If the file exists output will be appended to the end of the file.");
+        public static readonly SimpleOptionValue Output_Delay = SimpleOptionValue.Create("Delay", description: "Write output to the file at the end of execution.");
 
         public static readonly SimpleOptionValue PathDisplayStyle_Full = SimpleOptionValue.Create(PathDisplayStyle.Full, description: "Display full path.");
         public static readonly SimpleOptionValue PathDisplayStyle_Match = SimpleOptionValue.Create(PathDisplayStyle.Match, description: "Display only match.");

@@ -366,7 +366,8 @@ namespace Orang.CommandLine
             MetaValues.OutputOptions,
             OptionValues.Encoding,
             OptionValues.Verbosity,
-            OptionValues.Output_Append
+            OptionValues.Output_Append,
+            OptionValues.Output_Delay
         );
 
         public static OptionValueProvider ContentDisplayStyleProvider { get; } = new OptionValueProvider(

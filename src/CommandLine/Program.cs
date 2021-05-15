@@ -46,6 +46,8 @@ namespace Orang.CommandLine
                 }
             }
 #endif
+            OutputOptions? outputOptions = null;
+
             try
             {
                 Parser parser = CreateParser(ignoreUnknownArguments: true);
@@ -72,7 +74,7 @@ namespace Orang.CommandLine
                             ? CommandLoader.LoadCommand(typeof(Program).Assembly, commandName)
                             : null;
 
-                        success = ParseVerbosityAndOutput(options);
+                        (success, outputOptions) = ParseVerbosityAndOutput(options);
 
                         if (!success)
                             return;
@@ -142,8 +144,10 @@ namespace Orang.CommandLine
 
                 parserResult.WithParsed<AbstractCommandLineOptions>(options =>
                 {
-                    success = ParseVerbosityAndOutput(options);
-                    WriteArgs(args);
+                    (success, outputOptions) = ParseVerbosityAndOutput(options);
+
+                    if (success)
+                        WriteArgs(args);
                 });
 
                 if (!success)
@@ -169,8 +173,24 @@ namespace Orang.CommandLine
             }
             finally
             {
-                Out?.Dispose();
-                Out = null;
+                if (Out != null)
+                {
+                    if (outputOptions?.Delay == true)
+                    {
+                        FileMode fileMode = (outputOptions.Append) ? FileMode.Append : FileMode.Create;
+
+                        using (var fileStream = new FileStream(outputOptions.Path, fileMode, FileAccess.Write, FileShare.Read))
+                        {
+                            var streamWriter = (StreamWriter)Out.Writer;
+                            var memoryStream = (MemoryStream)streamWriter.BaseStream;
+
+                            memoryStream.WriteTo(fileStream);
+                        }
+                    }
+
+                    Out?.Dispose();
+                    Out = null;
+                }
             }
 
             return ExitCodes.Error;
@@ -194,14 +214,14 @@ namespace Orang.CommandLine
             });
         }
 
-        private static bool ParseVerbosityAndOutput(AbstractCommandLineOptions options)
+        private static (bool success, OutputOptions? outputOptions) ParseVerbosityAndOutput(AbstractCommandLineOptions options)
         {
             var defaultVerbosity = Verbosity.Normal;
 
             if (options.Verbosity != null
                 && !TryParseVerbosity(options.Verbosity, out defaultVerbosity))
             {
-                return false;
+                return (false, null);
             }
 
             ConsoleOut.Verbosity = defaultVerbosity;
@@ -214,24 +234,38 @@ namespace Orang.CommandLine
                     out string? filePath,
                     out Verbosity fileVerbosity,
                     out Encoding? encoding,
-                    out bool append))
+                    out bool append,
+                    out bool delay))
                 {
-                    return false;
+                    return (false, null);
                 }
 
                 if (filePath != null)
                 {
-                    FileMode fileMode = (append)
-                        ? FileMode.Append
-                        : FileMode.Create;
+                    if (delay)
+                    {
+                        var stream = new MemoryStream();
+                        var writer = new StreamWriter(stream, encoding, bufferSize: 4096, leaveOpen: false);
+                        Out = new TextWriterWithVerbosity(writer) { Verbosity = fileVerbosity };
 
-                    var stream = new FileStream(filePath, fileMode, FileAccess.Write, FileShare.Read);
-                    var writer = new StreamWriter(stream, encoding, bufferSize: 4096, leaveOpen: false);
-                    Out = new TextWriterWithVerbosity(writer) { Verbosity = fileVerbosity };
+                        var outputOptions = new OutputOptions(filePath, encoding, append, delay);
+
+                        return (true, outputOptions);
+                    }
+                    else
+                    {
+                        FileMode fileMode = (append)
+                            ? FileMode.Append
+                            : FileMode.Create;
+
+                        var stream = new FileStream(filePath, fileMode, FileAccess.Write, FileShare.Read);
+                        var writer = new StreamWriter(stream, encoding, bufferSize: 4096, leaveOpen: false);
+                        Out = new TextWriterWithVerbosity(writer) { Verbosity = fileVerbosity };
+                    }
                 }
             }
 
-            return true;
+            return (true, null);
         }
 
         [Conditional("DEBUG")]

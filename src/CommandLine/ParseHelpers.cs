@@ -712,12 +712,14 @@ namespace Orang.CommandLine
             out string? path,
             out Verbosity verbosity,
             [NotNullWhen(true)] out Encoding? encoding,
-            out bool append)
+            out bool append,
+            out bool delay)
         {
             path = null;
             verbosity = Verbosity.Normal;
             encoding = Encoding.UTF8;
             append = false;
+            delay = false;
 
             if (!values.Any())
                 return true;
@@ -755,6 +757,10 @@ namespace Orang.CommandLine
                 else if (OptionValues.Output_Append.IsValueOrShortValue(value))
                 {
                     append = true;
+                }
+                else if (OptionValues.Output_Delay.IsValueOrShortValue(value))
+                {
+                    delay = true;
                 }
                 else
                 {

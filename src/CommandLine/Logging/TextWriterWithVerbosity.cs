@@ -23,7 +23,7 @@ namespace Orang
 
         public override Encoding Encoding => Writer.Encoding;
 
-        protected TextWriter Writer { get; }
+        internal TextWriter Writer { get; }
 
         public void Write(char value, int repeatCount)
         {

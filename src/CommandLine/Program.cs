@@ -57,6 +57,7 @@ namespace Orang.CommandLine
                     return ExitCodes.Match;
                 }
 
+                var success = true;
                 var help = false;
 
                 ParserResult<BaseCommandLineOptions> defaultResult = parser
@@ -71,7 +72,11 @@ namespace Orang.CommandLine
                             ? CommandLoader.LoadCommand(typeof(Program).Assembly, commandName)
                             : null;
 
-                        ParseVerbosityAndOutput(options);
+                        success = ParseVerbosityAndOutput(options);
+
+                        if (!success)
+                            return;
+
                         WriteArgs(args);
 
                         if (command != null)
@@ -92,11 +97,11 @@ namespace Orang.CommandLine
 #else
                     ;
 #endif
+                if (!success)
+                    return ExitCodes.Error;
 
                 if (help)
                     return ExitCodes.Match;
-
-                var success = true;
 
                 parser = CreateParser();
 

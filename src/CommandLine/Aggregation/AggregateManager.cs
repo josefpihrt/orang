@@ -2,11 +2,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using Orang.CommandLine;
 using static Orang.CommandLine.LogHelpers;
 using static Orang.Logger;
+using Orang.FileSystem;
 
 namespace Orang.Aggregation
 {
@@ -60,6 +63,45 @@ namespace Orang.Aggregation
         }
 
         public void WriteAggregatedValues(CancellationToken cancellationToken)
+        {
+            PathInfo pathInfo = Options.Paths[0];
+
+            if (Options.SaveToInput
+                && pathInfo.Origin != PathOrigin.CurrentDirectory
+                && File.Exists(pathInfo.Path))
+            {
+                TextWriterWithVerbosity? originalOut = Out;
+
+                try
+                {
+                    using (var stream = new FileStream(pathInfo.Path, FileMode.Create, FileAccess.Write, FileShare.Read))
+                    using (var writer = new StreamWriter(stream, Encoding.UTF8))
+                    {
+                        if (originalOut != null)
+                        {
+                            var writer2 = new TextWriter<TextWriter, TextWriter>(originalOut.Writer, writer);
+                            Out = new TextWriterWithVerbosity(writer2) { Verbosity = originalOut.Verbosity };
+                        }
+                        else
+                        {
+                            Out = new TextWriterWithVerbosity(writer) { Verbosity = Verbosity.Normal };
+                        }
+
+                        WriteAggregatedValuesImpl(cancellationToken);
+                    }
+                }
+                finally
+                {
+                    Out = originalOut;
+                }
+            }
+            else
+            {
+                WriteAggregatedValuesImpl(cancellationToken);
+            }
+        }
+
+        public void WriteAggregatedValuesImpl(CancellationToken cancellationToken)
         {
             int count = 0;
 

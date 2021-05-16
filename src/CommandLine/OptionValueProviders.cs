@@ -272,6 +272,10 @@ namespace Orang.CommandLine
                 ModifyFlags.CultureInvariant,
                 shortValue: "ci",
                 description: "Ignore cultural differences between languages."),
+            SimpleOptionValue.Create(
+                ModifyFlags.SaveToInput,
+                shortValue: "",
+                description: "Save aggregated results to the first file."),
             SimpleOptionValue.Create(ModifyFlags.Descending, description: "Sort values in a descending order."),
             SimpleOptionValue.Create(ModifyFlags.Distinct, shortValue: "di", description: "Return distinct values."),
             OptionValues.ModifyFlags_Except,

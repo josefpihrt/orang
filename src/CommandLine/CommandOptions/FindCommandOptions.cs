@@ -16,6 +16,8 @@ namespace Orang.CommandLine
 
         public bool AggregateOnly { get; internal set; }
 
+        public bool SaveToInput { get; internal set; }
+
         protected override void WriteDiagnosticCore()
         {
             DiagnosticWriter.WriteFindCommand(this);

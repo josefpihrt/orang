@@ -143,7 +143,9 @@ namespace Orang.CommandLine
                 parserResult.WithParsed<AbstractCommandLineOptions>(options =>
                 {
                     success = ParseVerbosityAndOutput(options);
-                    WriteArgs(args);
+
+                    if (success)
+                        WriteArgs(args);
                 });
 
                 if (!success)

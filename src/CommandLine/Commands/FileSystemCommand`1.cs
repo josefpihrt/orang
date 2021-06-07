@@ -90,6 +90,10 @@ namespace Orang.CommandLine
 
         protected abstract void WriteSummary(SearchTelemetry telemetry, Verbosity verbosity);
 
+        protected virtual void WriteBeforeSummary()
+        {
+        }
+
         protected sealed override CommandResult ExecuteCore(CancellationToken cancellationToken = default)
         {
             List<SearchResult>? results = null;
@@ -202,6 +206,8 @@ namespace Orang.CommandLine
             }
 
             stopwatch.Stop();
+
+            WriteBeforeSummary();
 
             if (ShouldWriteSummary())
             {

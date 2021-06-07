@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Orang.Aggregation;
 using Orang.FileSystem;
+using Orang.Text.RegularExpressions;
 using static Orang.Logger;
 
 namespace Orang.CommandLine
@@ -301,11 +302,11 @@ namespace Orang.CommandLine
             SearchContext context)
         {
             ContentWriter? contentWriter = null;
-            List<CaptureInfo>? splits = null;
+            List<ICapture>? splits = null;
 
             try
             {
-                splits = ListCache<CaptureInfo>.GetInstance();
+                splits = ListCache<ICapture>.GetInstance();
 
                 (int maxMatchesInFile, int maxTotalMatches, int count) = CalculateMaxCount(context);
 
@@ -353,7 +354,7 @@ namespace Orang.CommandLine
             finally
             {
                 if (splits != null)
-                    ListCache<CaptureInfo>.Free(splits);
+                    ListCache<ICapture>.Free(splits);
             }
 
             return contentWriter!;

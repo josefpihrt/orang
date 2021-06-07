@@ -90,6 +90,16 @@ namespace Orang.CommandLine
                 OptionValues.Part,
                 OptionValues.PatternOptions_Negative);
 
+        public static OptionValueProvider PatternOptions_Word_Provider { get; }
+            = PatternOptionsProvider.WithoutValues(
+                OptionValueProviderNames.PatternOptions_Word,
+                OptionValues.Group,
+                OptionValues.Length,
+                OptionValues.PatternOptions_Negative,
+                OptionValues.Part,
+                OptionValues.PatternOptions_RightToLeft
+        );
+
         public static OptionValueProvider ExtensionOptionsProvider { get; } = new OptionValueProvider(
             MetaValues.ExtensionOptions,
             OptionValues.PatternOptions_CaseSensitive,

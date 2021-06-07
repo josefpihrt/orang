@@ -246,7 +246,7 @@ namespace Orang.CommandLine
             }
         }
 
-        protected void WriteMatches(ContentWriter writer, IEnumerable<Capture> captures, SearchContext context)
+        protected virtual void WriteMatches(ContentWriter writer, IEnumerable<Capture> captures, SearchContext context)
         {
             try
             {

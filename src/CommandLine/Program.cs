@@ -114,6 +114,7 @@ namespace Orang.CommandLine
                     ListPatternsCommandLineOptions,
                     MatchCommandLineOptions,
                     MoveCommandLineOptions,
+                    SpellcheckCommandLineOptions,
                     RenameCommandLineOptions,
                     ReplaceCommandLineOptions,
                     SplitCommandLineOptions
@@ -160,6 +161,7 @@ namespace Orang.CommandLine
                     (HelpCommandLineOptions options) => Help(options),
                     (ListPatternsCommandLineOptions options) => ListPatterns(options),
                     (MatchCommandLineOptions options) => Match(options),
+                    (SpellcheckCommandLineOptions options) => Spellcheck(options),
                     (RenameCommandLineOptions options) => Rename(options),
                     (ReplaceCommandLineOptions options) => Replace(options),
                     (SplitCommandLineOptions options) => Split(options),
@@ -328,6 +330,16 @@ namespace Orang.CommandLine
                 return ExitCodes.Error;
 
             return Execute(new MoveCommand(options), commandLineOptions);
+        }
+
+        private static int Spellcheck(SpellcheckCommandLineOptions commandLineOptions)
+        {
+            var options = new SpellcheckCommandOptions();
+
+            if (!commandLineOptions.TryParse(options))
+                return ExitCodes.Error;
+
+            return Execute(new SpellcheckCommand(options), commandLineOptions);
         }
 
         private static int Rename(RenameCommandLineOptions commandLineOptions)

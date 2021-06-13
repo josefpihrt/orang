@@ -214,16 +214,16 @@ namespace Orang.CommandLine
                                     Write(" ", Verbosity.Detailed);
                                 }
 
-                                string line = newWord.Line;
+                                ReadOnlyMemory<char> line = newWord.Line;
                                 string value = newWord.Value;
                                 int lineCharIndex = newWord.LineCharIndex;
                                 int endIndex = lineCharIndex + value.Length;
 
-                                Write(line.Substring(0, lineCharIndex), Verbosity.Detailed);
+                                Write(line.Slice(0, lineCharIndex).Span, Verbosity.Detailed);
                                 Out?.Write(">>>", Verbosity.Detailed);
-                                Write(line.Substring(lineCharIndex, value.Length), Colors.Match, Verbosity.Detailed);
+                                Write(line.Slice(lineCharIndex, value.Length).Span, Colors.Match, Verbosity.Detailed);
                                 Out?.Write("<<<", Verbosity.Detailed);
-                                WriteLine(line[endIndex..], Verbosity.Detailed);
+                                WriteLine(line.Slice(endIndex).Span, Verbosity.Detailed);
                             }
                         }
                     }
@@ -373,16 +373,16 @@ namespace Orang.CommandLine
                                     writer.Write(" ");
                                 }
 
-                                string line = newWord.Line;
+                                ReadOnlyMemory<char> line = newWord.Line;
                                 string value = newWord.Value;
                                 int lineCharIndex = newWord.LineCharIndex;
                                 int endIndex = lineCharIndex + value.Length;
 
-                                writer.Write(line.AsSpan(0, lineCharIndex));
+                                writer.Write(line.Slice(0, lineCharIndex).Span);
                                 writer.Write(">>>");
-                                writer.Write(line.AsSpan(lineCharIndex, value.Length));
+                                writer.Write(line.Slice(lineCharIndex, value.Length).Span);
                                 writer.Write("<<<");
-                                writer.WriteLine(line.AsSpan(endIndex, line.Length - endIndex));
+                                writer.WriteLine(line.Slice(endIndex).Span);
                             }
                         }
                     }

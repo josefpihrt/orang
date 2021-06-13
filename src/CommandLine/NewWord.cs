@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Diagnostics;
 
 namespace Orang.CommandLine
@@ -9,7 +10,7 @@ namespace Orang.CommandLine
     {
         public NewWord(
             string value,
-            string line,
+            ReadOnlyMemory<char> line,
             int lineCharIndex,
             int? lineNumber = null,
             string? filePath = null,
@@ -25,7 +26,7 @@ namespace Orang.CommandLine
 
         public string Value { get; }
 
-        public string Line { get; }
+        public ReadOnlyMemory<char> Line { get; }
 
         public int LineCharIndex { get; }
 

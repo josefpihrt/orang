@@ -95,7 +95,7 @@ namespace Orang.CommandLine
 
             var newWord = new NewWord(
                 capture.Value,
-                input[startIndex..endIndex],
+                input.AsMemory(startIndex, endIndex - startIndex),
                 lineCharIndex,
                 lineNumber,
                 CurrentPath,

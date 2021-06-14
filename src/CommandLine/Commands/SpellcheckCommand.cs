@@ -141,6 +141,9 @@ namespace Orang.CommandLine
             if (!ShouldLog(Verbosity.Normal))
                 return;
 
+            WriteAppliedFixes(SpellingFixKind.Predefined, "Auto fixes:");
+            WriteAppliedFixes(SpellingFixKind.User, "User-applied fixes:");
+
             List<NewWord> newWords = SpellcheckState.NewWords;
 
             if (newWords.Count == 0)
@@ -164,8 +167,6 @@ namespace Orang.CommandLine
 
                 Write(grouping.Key, Verbosity.Normal);
 
-                var isFix = false;
-
                 if (SpellcheckState.Data.Fixes.TryGetValue(grouping.Key, out ImmutableHashSet<SpellingFix>? possibleFixes))
                 {
                     ImmutableArray<SpellingFix> fixes = possibleFixes
@@ -178,17 +179,14 @@ namespace Orang.CommandLine
                     {
                         Write(": ", Colors.ContextLine, Verbosity.Normal);
 
-                        WriteLine(
+                        Write(
                             string.Join(", ", fixes.Select(f => TextUtility.SetTextCasing(f.Value, TextUtility.GetTextCasing(grouping.Key)))),
                             Colors.Replacement,
                             Verbosity.Normal);
-
-                        isFix = true;
                     }
                 }
 
-                if (!isFix)
-                    WriteLine(Verbosity.Normal);
+                WriteLine(Verbosity.Normal);
 
                 if (isDetailed)
                 {
@@ -250,6 +248,28 @@ namespace Orang.CommandLine
 
                     WriteLine(containingValue, Verbosity.Normal);
                 }
+            }
+        }
+
+        private void WriteAppliedFixes(SpellingFixKind kind, string heading)
+        {
+            var isFirst = true;
+
+            foreach (IGrouping<string, KeyValuePair<string, SpellingFix>> grouping in SpellcheckState.AppliedFixes
+                .Where(f => f.Value.Kind == kind)
+                .OrderBy(f => f.Key, StringComparer.InvariantCulture)
+                .GroupBy(f => f.Key, StringComparer.InvariantCultureIgnoreCase))
+            {
+                if (isFirst)
+                {
+                    WriteLine(Verbosity.Normal);
+                    WriteLine(heading, Verbosity.Normal);
+                    isFirst = false;
+                }
+
+                KeyValuePair<string, SpellingFix> fix = grouping.OrderBy(f => f.Key, StringComparer.InvariantCulture).First();
+
+                WriteLine($"{fix.Key}: {fix.Value.Value}", Verbosity.Normal);
             }
         }
 

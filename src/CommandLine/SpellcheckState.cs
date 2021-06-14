@@ -31,6 +31,8 @@ namespace Orang.CommandLine
 
         public List<NewWord> NewWords { get; } = new List<NewWord>();
 
+        public Dictionary<string, SpellingFix> AppliedFixes { get; } = new Dictionary<string, SpellingFix>(WordList.CaseSensitive.Comparer);
+
         public string? CurrentPath { get; set; }
 
         public string Replace(ICapture capture)
@@ -65,6 +67,8 @@ namespace Orang.CommandLine
                 if (!string.Equals(capture.Value, newValue, StringComparison.Ordinal))
                 {
                     var fix = new SpellingFix(newValue, (isUserInput) ? SpellingFixKind.User : SpellingFixKind.Predefined);
+
+                    AppliedFixes[capture.Value] = fix;
 
                     if (fix.Kind != SpellingFixKind.Predefined
                         && (fix.Kind != SpellingFixKind.User

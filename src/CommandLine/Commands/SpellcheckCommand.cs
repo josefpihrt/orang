@@ -141,13 +141,7 @@ namespace Orang.CommandLine
             if (!ShouldLog(Verbosity.Normal))
                 return;
 
-            WriteAppliedFixes(SpellingFixKind.Predefined, "Auto fixes:");
-            WriteAppliedFixes(SpellingFixKind.User, "User-applied fixes:");
-
             List<NewWord> newWords = SpellcheckState.NewWords;
-
-            if (newWords.Count == 0)
-                return;
 
             var isFirst = true;
             bool isDetailed = ShouldLog(Verbosity.Detailed);
@@ -249,16 +243,20 @@ namespace Orang.CommandLine
                     WriteLine(containingValue, Verbosity.Normal);
                 }
             }
+
+            WriteResults(SpellingFixKind.Predefined, "Auto fixes:");
+            WriteResults(SpellingFixKind.User, "User-applied fixes:");
         }
 
-        private void WriteAppliedFixes(SpellingFixKind kind, string heading)
+        private void WriteResults(SpellingFixKind kind, string heading)
         {
             var isFirst = true;
 
-            foreach (IGrouping<string, KeyValuePair<string, SpellingFix>> grouping in SpellcheckState.AppliedFixes
-                .Where(f => f.Value.Kind == kind)
-                .OrderBy(f => f.Key, StringComparer.InvariantCulture)
-                .GroupBy(f => f.Key, StringComparer.InvariantCultureIgnoreCase))
+            foreach (IGrouping<SpellingFixResult, SpellingFixResult> grouping in SpellcheckState.Results
+                .Where(f => f.Kind == kind)
+                .OrderBy(f => f.OldValue)
+                .ThenBy(f => f.NewValue)
+                .GroupBy(f => f, SpellingFixResultEqualityComparer.OldValueAndNewValue))
             {
                 if (isFirst)
                 {
@@ -267,9 +265,7 @@ namespace Orang.CommandLine
                     isFirst = false;
                 }
 
-                KeyValuePair<string, SpellingFix> fix = grouping.OrderBy(f => f.Key, StringComparer.InvariantCulture).First();
-
-                WriteLine($"{fix.Key}: {fix.Value.Value}", Verbosity.Normal);
+                WriteLine($"{grouping.Key.OldValue}: {grouping.Key.NewValue}", Verbosity.Normal);
             }
         }
 

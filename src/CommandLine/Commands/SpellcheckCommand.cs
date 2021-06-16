@@ -143,9 +143,6 @@ namespace Orang.CommandLine
 
             List<NewWord> newWords = SpellcheckState.NewWords;
 
-            if (newWords.Count == 0)
-                return;
-
             var isFirst = true;
             bool isDetailed = ShouldLog(Verbosity.Detailed);
             StringComparer comparer = StringComparer.InvariantCulture;
@@ -164,8 +161,6 @@ namespace Orang.CommandLine
 
                 Write(grouping.Key, Verbosity.Normal);
 
-                var isFix = false;
-
                 if (SpellcheckState.Data.Fixes.TryGetValue(grouping.Key, out ImmutableHashSet<SpellingFix>? possibleFixes))
                 {
                     ImmutableArray<SpellingFix> fixes = possibleFixes
@@ -178,17 +173,14 @@ namespace Orang.CommandLine
                     {
                         Write(": ", Colors.ContextLine, Verbosity.Normal);
 
-                        WriteLine(
+                        Write(
                             string.Join(", ", fixes.Select(f => TextUtility.SetTextCasing(f.Value, TextUtility.GetTextCasing(grouping.Key)))),
                             Colors.Replacement,
                             Verbosity.Normal);
-
-                        isFix = true;
                     }
                 }
 
-                if (!isFix)
-                    WriteLine(Verbosity.Normal);
+                WriteLine(Verbosity.Normal);
 
                 if (isDetailed)
                 {
@@ -214,16 +206,16 @@ namespace Orang.CommandLine
                                     Write(" ", Verbosity.Detailed);
                                 }
 
-                                string line = newWord.Line;
+                                ReadOnlyMemory<char> line = newWord.Line;
                                 string value = newWord.Value;
                                 int lineCharIndex = newWord.LineCharIndex;
                                 int endIndex = lineCharIndex + value.Length;
 
-                                Write(line.Substring(0, lineCharIndex), Verbosity.Detailed);
+                                Write(line.Slice(0, lineCharIndex).Span, Verbosity.Detailed);
                                 Out?.Write(">>>", Verbosity.Detailed);
-                                Write(line.Substring(lineCharIndex, value.Length), Colors.Match, Verbosity.Detailed);
+                                Write(line.Slice(lineCharIndex, value.Length).Span, Colors.Match, Verbosity.Detailed);
                                 Out?.Write("<<<", Verbosity.Detailed);
-                                WriteLine(line[endIndex..], Verbosity.Detailed);
+                                WriteLine(line.Slice(endIndex).Span, Verbosity.Detailed);
                             }
                         }
                     }
@@ -250,6 +242,30 @@ namespace Orang.CommandLine
 
                     WriteLine(containingValue, Verbosity.Normal);
                 }
+            }
+
+            WriteResults(SpellingFixKind.Predefined, "Auto fixes:");
+            WriteResults(SpellingFixKind.User, "User-applied fixes:");
+        }
+
+        private void WriteResults(SpellingFixKind kind, string heading)
+        {
+            var isFirst = true;
+
+            foreach (IGrouping<SpellingFixResult, SpellingFixResult> grouping in SpellcheckState.Results
+                .Where(f => f.Kind == kind)
+                .OrderBy(f => f.OldValue)
+                .ThenBy(f => f.NewValue)
+                .GroupBy(f => f, SpellingFixResultEqualityComparer.OldValueAndNewValue))
+            {
+                if (isFirst)
+                {
+                    WriteLine(Verbosity.Normal);
+                    WriteLine(heading, Verbosity.Normal);
+                    isFirst = false;
+                }
+
+                WriteLine($"{grouping.Key.OldValue}: {grouping.Key.NewValue}", Verbosity.Normal);
             }
         }
 
@@ -373,16 +389,16 @@ namespace Orang.CommandLine
                                     writer.Write(" ");
                                 }
 
-                                string line = newWord.Line;
+                                ReadOnlyMemory<char> line = newWord.Line;
                                 string value = newWord.Value;
                                 int lineCharIndex = newWord.LineCharIndex;
                                 int endIndex = lineCharIndex + value.Length;
 
-                                writer.Write(line.AsSpan(0, lineCharIndex));
+                                writer.Write(line.Slice(0, lineCharIndex).Span);
                                 writer.Write(">>>");
-                                writer.Write(line.AsSpan(lineCharIndex, value.Length));
+                                writer.Write(line.Slice(lineCharIndex, value.Length).Span);
                                 writer.Write("<<<");
-                                writer.WriteLine(line.AsSpan(endIndex, line.Length - endIndex));
+                                writer.WriteLine(line.Slice(endIndex).Span);
                             }
                         }
                     }

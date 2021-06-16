@@ -31,6 +31,8 @@ namespace Orang.CommandLine
 
         public List<NewWord> NewWords { get; } = new List<NewWord>();
 
+        public List<SpellingFixResult> Results { get; } = new List<SpellingFixResult>();
+
         public string? CurrentPath { get; set; }
 
         public string Replace(ICapture capture)
@@ -66,6 +68,8 @@ namespace Orang.CommandLine
                 {
                     var fix = new SpellingFix(newValue, (isUserInput) ? SpellingFixKind.User : SpellingFixKind.Predefined);
 
+                    Results.Add(new SpellingFixResult(capture.Value, newValue, fix.Kind));
+
                     if (fix.Kind != SpellingFixKind.Predefined
                         && (fix.Kind != SpellingFixKind.User
                             || TextUtility.TextCasingEquals(capture.Value, fix.Value)))
@@ -95,7 +99,7 @@ namespace Orang.CommandLine
 
             var newWord = new NewWord(
                 capture.Value,
-                input[startIndex..endIndex],
+                input.AsMemory(startIndex, endIndex - startIndex),
                 lineCharIndex,
                 lineNumber,
                 CurrentPath,

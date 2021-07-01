@@ -52,9 +52,17 @@ namespace Orang.CommandLine
             string newPath = ReplaceHelpers.GetNewPath(fileMatch, replaceItems);
             bool changed = !string.Equals(path, newPath, StringComparison.Ordinal);
 
+            bool isInvalidName = changed
+                && FileSystemHelpers.ContainsInvalidFileNameChars(newPath, FileSystemHelpers.GetFileNameIndex(path));
+
             if (Options.Interactive
                 || (!Options.OmitPath && changed))
             {
+                ConsoleColors replaceColors = default;
+
+                if (Options.HighlightReplacement)
+                    replaceColors = (isInvalidName) ? Colors.InvalidReplacement : Colors.Replacement;
+
                 LogHelpers.WritePath(
                     fileMatch,
                     replaceItems,
@@ -62,7 +70,7 @@ namespace Orang.CommandLine
                     relativePath: Options.DisplayRelativePath,
                     colors: Colors.Matched_Path,
                     matchColors: (Options.HighlightMatch) ? Colors.Match : default,
-                    replaceColors: (Options.HighlightReplacement) ? Colors.Replacement : default,
+                    replaceColors: replaceColors,
                     indent: indent,
                     verbosity: Verbosity.Minimal);
 
@@ -81,14 +89,25 @@ namespace Orang.CommandLine
                 newPath = newPath.Substring(0, newPath.Length - newName.Length) + newName2;
 
                 changed = !string.Equals(path, newPath, StringComparison.Ordinal);
+
+                if (changed)
+                {
+                    isInvalidName = FileSystemHelpers.ContainsInvalidFileNameChars(newName2);
+
+                    if (isInvalidName)
+                    {
+                        WriteLine($"{indent}New file name contains invalid character(s).", Colors.Message_Warning);
+                        return;
+                    }
+                }
             }
 
             if (!changed)
                 return;
 
-            if (FileSystemHelpers.ContainsInvalidFileNameChars(newPath, FileSystemHelpers.GetFileNameIndex(path)))
+            if (isInvalidName)
             {
-                WriteWarning($"{indent}New file name contains invalid character(s).", verbosity: Verbosity.Normal);
+                WriteWarning($"{indent}New file name contains invalid character(s).", verbosity: Verbosity.Detailed);
                 return;
             }
 
@@ -117,7 +136,8 @@ namespace Orang.CommandLine
             }
 
             if ((fileExists || directoryExists)
-                && ConflictResolution == ConflictResolution.Ask)
+                && ConflictResolution == ConflictResolution.Ask
+                && !Options.DryRun)
             {
                 if (!AskToOverwrite(context, question, indent))
                     return;

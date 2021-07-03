@@ -162,7 +162,19 @@ namespace Orang.Aggregation
                     if (!Options.AggregateOnly)
                     {
                         ConsoleOut.WriteLineIf(ShouldWriteLine(ConsoleOut.Verbosity));
-                        Out?.WriteLineIf(ShouldWriteLine(Out.Verbosity));
+
+                        if (Out != null
+                            && ShouldWriteLine(Out.Verbosity))
+                        {
+                            if (Out.Writer is TextWriter<TextWriter, TextWriter> writer2)
+                            {
+                                writer2.Writer1.WriteLine();
+                            }
+                            else
+                            {
+                                Out.WriteLine();
+                            }
+                        }
                     }
 
                     do

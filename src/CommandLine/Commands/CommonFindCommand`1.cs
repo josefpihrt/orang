@@ -72,7 +72,7 @@ namespace Orang.CommandLine
                     return Options.PathDisplayStyle switch
                     {
                         PathDisplayStyle.Full => Options.Indent,
-                        PathDisplayStyle.Relative => (Options.IncludeBaseDirectory) ? Options.DoubleIndent : Options.Indent,
+                        PathDisplayStyle.Relative => Options.Indent,
                         PathDisplayStyle.Omit => "",
                         _ => throw new InvalidOperationException(),
                     };

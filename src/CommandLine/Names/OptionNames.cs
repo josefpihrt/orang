@@ -40,8 +40,6 @@ namespace Orang.CommandLine
         public const string Modifier = "modifier";
         public const string Modify = "modify";
         public const string Name = "name";
-        public const string NewWords = "new-words";
-        public const string NewFixes = "new-fixes";
         public const string NoGroups = "no-groups";
         public const string NoRecurse = "no-recurse";
         public const string Online = "online";

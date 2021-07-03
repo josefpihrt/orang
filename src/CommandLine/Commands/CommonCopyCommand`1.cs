@@ -14,6 +14,12 @@ namespace Orang.CommandLine
     {
         protected CommonCopyCommand(TOptions options) : base(options)
         {
+            if (ShouldLog(Verbosity.Minimal))
+            {
+                PathWriter = new PathWriter(
+                    pathColors: default,
+                    relativePath: Options.DisplayRelativePath);
+            }
         }
 
         public string Target => Options.Target;
@@ -25,6 +31,8 @@ namespace Orang.CommandLine
         }
 
         protected HashSet<string>? IgnoredPaths { get; set; }
+
+        private PathWriter? PathWriter { get; }
 
         protected override void OnSearchCreating(FileSystemSearch search)
         {
@@ -100,7 +108,7 @@ namespace Orang.CommandLine
             catch (Exception ex) when (ex is IOException
                 || ex is UnauthorizedAccessException)
             {
-                WriteError(ex, sourcePath, indent: indent);
+                LogHelpers.WriteFileError(ex, sourcePath, indent: indent);
             }
         }
 
@@ -162,13 +170,7 @@ namespace Orang.CommandLine
 
             if (!Options.OmitPath)
             {
-                LogHelpers.WritePath(
-                    destinationPath,
-                    basePath: Target,
-                    relativePath: Options.DisplayRelativePath,
-                    colors: default,
-                    indent: indent,
-                    verbosity: Verbosity.Minimal);
+                PathWriter?.WritePath(destinationPath, Target, indent);
 
                 WriteLine(Verbosity.Minimal);
             }
@@ -365,14 +367,6 @@ namespace Orang.CommandLine
                     Directory.CreateDirectory(destinationPath);
                 }
             }
-        }
-
-        protected virtual void WriteError(
-            Exception ex,
-            string path,
-            string indent)
-        {
-            LogHelpers.WriteFileError(ex, path, relativePath: Options.DisplayRelativePath, indent: indent);
         }
     }
 }

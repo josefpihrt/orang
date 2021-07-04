@@ -23,6 +23,14 @@ namespace Orang.Aggregation
             Storage = storage;
             Sections = sections;
             Options = options;
+
+            if (ShouldLog(Verbosity.Minimal))
+            {
+                PathWriter = new PathWriter(
+                    pathColors: Colors.Matched_Path,
+                    relativePath: Options.DisplayRelativePath,
+                    indent: "  ");
+            }
         }
 
         public ListResultStorage Storage { get; set; }
@@ -32,6 +40,8 @@ namespace Orang.Aggregation
         public FindCommandOptions Options { get; }
 
         public ModifyOptions ModifyOptions => Options.ModifyOptions;
+
+        private PathWriter? PathWriter { get; }
 
         public static AggregateManager? TryCreate(FindCommandOptions Options)
         {
@@ -311,14 +321,7 @@ namespace Orang.Aggregation
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                WritePath(
-                    grouping.Key.FileMatch,
-                    grouping.Key.BaseDirectoryPath,
-                    relativePath: Options.DisplayRelativePath,
-                    colors: Colors.Matched_Path,
-                    matchColors: default,
-                    indent: "  ",
-                    verbosity: Verbosity.Minimal);
+                PathWriter?.WritePath(grouping.Key.FileMatch, grouping.Key.BaseDirectoryPath);
 
                 int pathCount = grouping.Count();
 

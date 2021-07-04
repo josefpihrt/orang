@@ -16,6 +16,14 @@ namespace Orang.CommandLine
         public RenameCommand(RenameCommandOptions options) : base(options)
         {
             Debug.Assert(options.NameFilter?.IsNegative == false);
+
+            if (ShouldLog(Verbosity.Minimal))
+            {
+                PathWriter = new PathWriter(
+                    pathColors: Colors.Matched_Path,
+                    matchColors: (Options.HighlightMatch) ? Colors.Match : default,
+                    Options.DisplayRelativePath);
+            }
         }
 
         public ConflictResolution ConflictResolution
@@ -25,6 +33,8 @@ namespace Orang.CommandLine
         }
 
         public override bool CanUseResults => false;
+
+        private PathWriter? PathWriter { get; }
 
         protected override void OnSearchCreating(FileSystemSearch search)
         {
@@ -63,16 +73,12 @@ namespace Orang.CommandLine
                 if (Options.HighlightReplacement)
                     replaceColors = (isInvalidName) ? Colors.InvalidReplacement : Colors.Replacement;
 
-                LogHelpers.WritePath(
+                PathWriter?.WritePath(
                     fileMatch,
                     replaceItems,
+                    replaceColors,
                     baseDirectoryPath,
-                    relativePath: Options.DisplayRelativePath,
-                    colors: Colors.Matched_Path,
-                    matchColors: (Options.HighlightMatch) ? Colors.Match : default,
-                    replaceColors: replaceColors,
-                    indent: indent,
-                    verbosity: Verbosity.Minimal);
+                    indent);
 
                 WriteProperties(context, fileMatch, columnWidths);
                 WriteLine(Verbosity.Minimal);

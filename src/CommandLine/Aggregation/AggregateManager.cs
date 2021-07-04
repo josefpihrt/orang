@@ -48,7 +48,7 @@ namespace Orang.Aggregation
             ModifyOptions modifyOptions = Options.ModifyOptions;
 
             bool shouldCreate = modifyOptions.HasFunction(ModifyFunctions.Except_Intersect_Group)
-                || (modifyOptions.Aggregate
+                || ((modifyOptions.Aggregate || Options.SaveAggregatedValues)
                     && (modifyOptions.Modifier != null
                         || modifyOptions.HasFunction(ModifyFunctions.Enumerable)));
 
@@ -76,9 +76,11 @@ namespace Orang.Aggregation
         {
             PathInfo pathInfo = Options.Paths[0];
 
-            if (Options.SaveToInput
+            bool savingAggregatedValues = Options.SaveAggregatedValues
                 && pathInfo.Origin != PathOrigin.CurrentDirectory
-                && File.Exists(pathInfo.Path))
+                && File.Exists(pathInfo.Path);
+
+            if (savingAggregatedValues)
             {
                 TextWriterWithVerbosity? originalOut = Out;
 
@@ -97,7 +99,7 @@ namespace Orang.Aggregation
                             Out = new TextWriterWithVerbosity(writer) { Verbosity = Verbosity.Normal };
                         }
 
-                        WriteAggregatedValuesImpl(cancellationToken);
+                        WriteAggregatedValuesImpl(savingAggregatedValues, cancellationToken);
                     }
                 }
                 finally
@@ -107,11 +109,11 @@ namespace Orang.Aggregation
             }
             else
             {
-                WriteAggregatedValuesImpl(cancellationToken);
+                WriteAggregatedValuesImpl(savingAggregatedValues, cancellationToken);
             }
         }
 
-        public void WriteAggregatedValuesImpl(CancellationToken cancellationToken)
+        private void WriteAggregatedValuesImpl(bool savingAggregatedValues, CancellationToken cancellationToken)
         {
             int count = 0;
 
@@ -180,7 +182,7 @@ namespace Orang.Aggregation
                             {
                                 writer2.Writer1.WriteLine();
                             }
-                            else
+                            else if (!savingAggregatedValues)
                             {
                                 Out.WriteLine();
                             }

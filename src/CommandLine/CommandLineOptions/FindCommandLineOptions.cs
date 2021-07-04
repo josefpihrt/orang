@@ -114,7 +114,7 @@ namespace Orang.CommandLine
                 modifier,
                 out ModifyOptions? modifyOptions,
                 out bool aggregateOnly,
-                out bool saveToInput))
+                out bool saveAggregatedValues))
             {
                 return false;
             }
@@ -132,7 +132,7 @@ namespace Orang.CommandLine
             options.Input = input;
             options.ModifyOptions = modifyOptions;
             options.AggregateOnly = aggregateOnly;
-            options.SaveToInput = saveToInput;
+            options.SaveAggregatedValues = saveAggregatedValues;
             options.Split = Split;
 
             options.Format = new OutputDisplayFormat(

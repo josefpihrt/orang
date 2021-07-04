@@ -281,11 +281,11 @@ namespace Orang.CommandLine
             EnumerableModifier<string>? modifier,
             [NotNullWhen(true)] out ModifyOptions? modifyOptions,
             out bool aggregateOnly,
-            out bool saveToInput)
+            out bool saveAggregatedValues)
         {
             modifyOptions = null;
             aggregateOnly = false;
-            saveToInput = false;
+            saveAggregatedValues = false;
 
             var sortProperty = ValueSortProperty.None;
             List<string>? options = null;
@@ -404,7 +404,7 @@ namespace Orang.CommandLine
             }
 
             aggregateOnly = (modifyFlags & ModifyFlags.AggregateOnly) != 0;
-            saveToInput = (modifyFlags & ModifyFlags.SaveToInput) != 0;
+            saveAggregatedValues = (modifyFlags & ModifyFlags.Save) != 0;
 
             if (modifyFlags != ModifyFlags.None
                 || functions != ModifyFunctions.None

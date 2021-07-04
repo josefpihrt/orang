@@ -297,7 +297,7 @@ namespace Orang.CommandLine
                 shortValue: "rw",
                 description: "Remove values that are empty or consist of white-space."),
             SimpleOptionValue.Create(
-                ModifyFlags.SaveToInput,
+                ModifyFlags.Save,
                 shortValue: "",
                 description: "Save aggregated results to the first file."),
             OptionValues.SortBy,

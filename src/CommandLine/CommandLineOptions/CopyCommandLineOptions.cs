@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using CommandLine;
 using Orang.FileSystem;
 using static Orang.CommandLine.ParseHelpers;
@@ -10,6 +11,12 @@ namespace Orang.CommandLine
     [CommandGroup("File System", 1)]
     internal sealed class CopyCommandLineOptions : CommonCopyCommandLineOptions
     {
+        [Value(
+            index: 0,
+            HelpText = "Paths to one or more source directories and optionally a target directory.",
+            MetaName = ArgumentMetaNames.Path)]
+        public override IEnumerable<string> Path { get; set; } = null!;
+
         [Option(
             longName: OptionNames.Ask,
             HelpText = "Ask for a permission to copy file or directory.")]
@@ -35,8 +42,7 @@ namespace Orang.CommandLine
 
         [Option(
             longName: OptionNames.Target,
-            Required = true,
-            HelpText = "A directory to copy files and directories to.",
+            HelpText = "A directory to copy files and directories to. It can be also specified as a last unnamed parameter.",
             MetaValue = MetaValues.DirectoryPath)]
         public string Target { get; set; } = null!;
 
@@ -59,7 +65,7 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            if (!TryEnsureFullPath(Target, out string? target))
+            if (!TryParseTargetDirectory(Target, out string? target, options, nameof(Target), OptionNames.Target))
                 return false;
 
             if (!TryParseAsEnum(

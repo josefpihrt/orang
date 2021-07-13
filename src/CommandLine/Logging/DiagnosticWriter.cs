@@ -459,7 +459,7 @@ namespace Orang.CommandLine
             WriteOption("recurse subdirectories", options.RecurseSubdirectories);
             WriteOption("search target", options.SearchTarget);
             WriteSortOptions("sort", options.SortOptions);
-            WriteOption("target", options.Target);
+            WriteOption("second", options.Target);
         }
 
         private static void WriteInput(string? value)

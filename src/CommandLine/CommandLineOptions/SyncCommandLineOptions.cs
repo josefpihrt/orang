@@ -13,7 +13,7 @@ namespace Orang.CommandLine
     {
         [Value(
             index: 0,
-            HelpText = "Paths to two directories that should be synchronized.",
+            HelpText = "Paths to a first directory to be synchronized and optionally a second directory.",
             MetaName = ArgumentMetaNames.Path)]
         public override IEnumerable<string> Path { get; set; } = null!;
 
@@ -40,6 +40,12 @@ namespace Orang.CommandLine
                 + "but do not actually copy/delete any file or directory.")]
         public bool DryRun { get; set; }
 
+        [Option(
+            longName: OptionNames.Second,
+            HelpText = "A directory to be synchronized with a first directory. It can be also specified as a last unnamed parameter.",
+            MetaValue = MetaValues.DirectoryPath)]
+        public string Second { get; set; } = null!;
+
         public bool TryParse(SyncCommandOptions options)
         {
             var baseOptions = (CommonCopyCommandOptions)options;
@@ -49,11 +55,8 @@ namespace Orang.CommandLine
 
             options = (SyncCommandOptions)baseOptions;
 
-            if (options.Paths.Length != 2)
-            {
-                Logger.WriteError("It is required to specify two directories to be synchronized.");
+            if (!TryParseTargetDirectory(Second, out string? second, options, nameof(Second), OptionNames.Second))
                 return false;
-            }
 
             if (!TryParseAsEnumFlags(
                 Compare,
@@ -78,7 +81,7 @@ namespace Orang.CommandLine
             options.SearchTarget = SearchTarget.All;
             options.CompareOptions = compareOptions;
             options.DryRun = DryRun;
-            options.Target = options.Paths[1].Path;
+            options.Target = second;
             options.ConflictResolution = conflictResolution;
             options.AskMode = (Ask) ? AskMode.File : AskMode.None;
 #if DEBUG

@@ -8,6 +8,7 @@ Orang is a cross-platform command-line tool for:
 * [moving](docs/cli/move-command.md) files and directories,
 * [renaming](docs/cli/rename-command.md) files and directories,
 * [deleting](docs/cli/delete-command.md) files, directories or its content,
+* [synchronizing](docs/cli/sync-command.md) content of two directories,
 * [spellchecking](docs/cli/spellcheck-command.md) files' content,
 * executing [Regex](https://docs.microsoft.com/cs-cz/dotnet/api/system.text.regularexpressions.regex?view=netcore-3.0) functions such as [match](docs/cli/match-command.md) or [split](docs/cli/split-command.md)
 

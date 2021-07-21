@@ -1,3 +1,8 @@
+## 0.2.2 (2021-07-21)
+
+* Add command `sync` ([commit](https://github.com/JosefPihrt/Roslynator/commit/81b2f412f81edb4f205195226777f0a7f565a350))
+* Target directory can be also specified as a last unnamed parameter (applies to `copy` and `move` commands) ([commit](https://github.com/JosefPihrt/Roslynator/commit/fe08b08a567d2da0756cb3a3a2524ea593367847))
+
 ## 0.2.1 (2021-06-08)
 
 * Add command `spellcheck` ([commit](https://github.com/JosefPihrt/Roslynator/commit/6d815be953b0d01b9f777d4a6323cb26cc944c33))

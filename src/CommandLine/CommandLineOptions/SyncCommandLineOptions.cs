@@ -13,7 +13,7 @@ namespace Orang.CommandLine
     {
         [Value(
             index: 0,
-            HelpText = "Paths to a first directory to be synchronized and optionally a second directory.",
+            HelpText = "Path to a first directory to be synchronized and optionally a second directory.",
             MetaName = ArgumentMetaNames.Path)]
         public override IEnumerable<string> Path { get; set; } = null!;
 

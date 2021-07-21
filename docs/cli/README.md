@@ -18,6 +18,7 @@ Search, replace, rename and delete files and its content using the power of \.NE
 | [replace](replace-command.md)             | Searches the file system for files and replaces its content\.                                         |
 | [spellcheck](spellcheck-command.md)       | Searches the files' content for potential misspellings and typos\.                                    |
 | [split](split-command.md)                 | Splits the input string into an list of substrings at the positions defined by a regular expression\. |
+| [sync](sync-command.md)                   | Synchronizes content of two directories\.                                                             |
 
 
 ## Exit Code
@@ -43,6 +44,7 @@ Command | Piped Input
 [rename](rename-command.md) | list of paths
 [replace](replace-command.md) | text (default) or list of paths when `--pipe p[aths]` is specified
 [split](split-command.md) | text
+[sync](sync-command.md) | list of paths
 
 ## Multi-value Parameters
 

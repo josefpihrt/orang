@@ -13,7 +13,7 @@ namespace Orang.CommandLine
     {
         [Value(
             index: 0,
-            HelpText = "Paths to one or more source directories and optionally a target directory.",
+            HelpText = "Path to one or more source directories and optionally a target directory.",
             MetaName = ArgumentMetaNames.Path)]
         public override IEnumerable<string> Path { get; set; } = null!;
 

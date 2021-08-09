@@ -3,6 +3,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using Orang.FileSystem;
 using static Orang.Logger;
@@ -216,8 +217,9 @@ namespace Orang.CommandLine
 
                     if (method == null)
                     {
-                        WriteError("Cannot find public method with signature 'string M(Match)' in type "
-                            + $"'{typeName}'");
+                        WriteError("Cannot find public method with signature "
+                            + $"'{returnType.Name} M({string.Join(", ", parameters.Select(f => f.Name))})'"
+                            + $" in type '{typeName}'");
 
                         return null;
                     }
@@ -231,8 +233,8 @@ namespace Orang.CommandLine
 
                 if (method == null)
                 {
-                    WriteError($"Cannot find public method with signature 'string {methodName ?? "M"}(Match)' in type "
-                        + $"'{typeName}'");
+                    WriteError("Cannot find public method with signature "
+                        + $"'{returnType.Name} {methodName ?? "M"}({string.Join(", ", parameters.Select(f => f.Name))})'");
 
                     return null;
                 }

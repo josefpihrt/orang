@@ -107,7 +107,9 @@ namespace Orang.CommandLine
             return new Command(
                 verbAttribute.Name,
                 verbAttribute.HelpText,
-                new CommandGroup(commandGroupAttribute.Name, commandGroupAttribute.Ordinal),
+                (commandGroupAttribute != null)
+                    ? new CommandGroup(commandGroupAttribute.Name, commandGroupAttribute.Ordinal)
+                    : CommandGroup.Default,
                 arguments.OrderBy(f => f.Index),
                 options.OrderBy(f => f, CommandOptionComparer.Name));
         }

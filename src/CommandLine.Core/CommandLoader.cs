@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
 
-namespace Orang.CommandLine
+namespace Orang
 {
     internal static class CommandLoader
     {

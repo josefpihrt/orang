@@ -17,11 +17,13 @@ namespace Orang.Documentation
 
         public override void WriteOptionDescription(CommandOption option)
         {
-            _writer.WriteString(option.Description);
+            string description = option.FullDescription;
+
+            _writer.WriteString(description);
 
             if (TryGetProvider(option, out OptionValueProvider? provider))
             {
-                if (!string.IsNullOrEmpty(option.Description))
+                if (!string.IsNullOrEmpty(description))
                 {
                     _writer.WriteLine();
                     _writer.WriteLine();
@@ -80,7 +82,7 @@ namespace Orang.Documentation
                 }
             }
 
-            if (!string.IsNullOrEmpty(option.Description)
+            if (!string.IsNullOrEmpty(description)
                 || provider != null)
             {
                 _writer.WriteLine();

@@ -93,6 +93,7 @@ namespace Orang
                         shortName: optionAttribute.ShortName,
                         metaValue: optionAttribute.MetaValue,
                         description: optionAttribute.HelpText,
+                        additionalDescription: propertyInfo.GetCustomAttribute<AdditionalDescriptionAttribute>()?.Text,
                         isRequired: optionAttribute.Required,
                         valueProviderName: (providerMap.TryGetValue(propertyInfo.Name, out string? valueProviderName))
                             ? valueProviderName

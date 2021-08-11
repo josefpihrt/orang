@@ -232,9 +232,11 @@ namespace Orang
 
         public virtual void WriteOptionDescription(CommandOption option)
         {
-            if (!string.IsNullOrEmpty(option.Description))
+            string description = option.FullDescription;
+
+            if (!string.IsNullOrEmpty(description))
             {
-                _writer.WriteString(option.Description);
+                _writer.WriteString(description);
                 _writer.WriteLine();
                 _writer.WriteLine();
             }

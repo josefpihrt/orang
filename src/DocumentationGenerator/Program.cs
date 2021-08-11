@@ -22,7 +22,7 @@ namespace Orang.Documentation
 
         private static void Main(params string[] args)
         {
-            IEnumerable<Command> commands = CommandLoader.LoadCommands(typeof(CommandLoader).Assembly)
+            IEnumerable<Command> commands = CommandLoader.LoadCommands(typeof(AbstractCommandLineOptions).Assembly)
                 .Select(c => c.WithOptions(c.Options.OrderBy(f => f, CommandOptionComparer.Name)))
                 .OrderBy(c => c.Name, StringComparer.InvariantCulture);
 

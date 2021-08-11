@@ -82,7 +82,7 @@ namespace Orang.CommandLine.Help
 
         public static ImmutableArray<OptionItem> GetOptionItems(IEnumerable<CommandOption> options, Filter? filter = null)
         {
-            (int width1, int width2) = CalculateOptionsWidths(options);
+            int width = CalculateOptionsWidths(options);
 
             bool anyIsOptional = options.Any(f => !f.IsRequired);
             bool anyHasShortName = options.Any(f => !string.IsNullOrEmpty(f.ShortName));
@@ -124,17 +124,12 @@ namespace Orang.CommandLine.Help
                 if (!option.IsRequired)
                     sb.Append("]");
 
-                sb.AppendSpaces(width1 - sb.Length);
+                sb.AppendSpaces(1);
 
                 if (!string.IsNullOrEmpty(option.MetaValue))
-                {
                     sb.Append(option.MetaValue);
-                    sb.AppendSpaces(width2 - option.MetaValue!.Length);
-                }
-                else
-                {
-                    sb.AppendSpaces(width2);
-                }
+
+                sb.AppendSpaces(width - sb.Length + SeparatorWidth);
 
                 sb.Append(option.Description);
 
@@ -318,26 +313,33 @@ namespace Orang.CommandLine.Help
                 : default;
         }
 
-        public static (int width1, int width2) CalculateOptionsWidths(IEnumerable<CommandOption> options)
+        public static int CalculateOptionsWidths(IEnumerable<CommandOption> options)
         {
             if (!options.Any())
                 return default;
 
-            int width1 = options.Max(f => f.Name.Length + ((f.IsRequired) ? 0 : 2)) + 2 + SeparatorWidth;
+            int width = 2; // --
+
+            if (options.Any(f => !f.IsRequired))
+                width += 2; // []
 
             if (options.Any(f => !string.IsNullOrEmpty(f.ShortName)))
-                width1 += 4;
+                width += 4; // -x, 
 
-            if (options.Any(f => !string.IsNullOrEmpty(f.MetaValue)))
+            width += options.Max(f =>
             {
-                int width2 = options.Max(f => f.MetaValue?.Length ?? 0);
+                int length = f.Name.Length;
 
-                return (width1, width2 + SeparatorWidth);
-            }
-            else
-            {
-                return (width1, 0);
-            }
+                if (f.MetaValue != null)
+                {
+                    length++; // separator between option name and meta value;
+                    length += f.MetaValue.Length;
+                }
+
+                return length;
+            });
+
+            return width;
         }
 
         public static (int width1, int width2) CalculateOptionValuesWidths(IEnumerable<OptionValue> optionValues)

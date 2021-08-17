@@ -4,6 +4,8 @@ namespace Orang
 {
     public readonly struct CommandGroup
     {
+        public static CommandGroup Default { get; } = new CommandGroup("", -1);
+
         public CommandGroup(string name, int ordinal)
         {
             Name = name;

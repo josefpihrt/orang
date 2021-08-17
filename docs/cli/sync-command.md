@@ -1,24 +1,23 @@
-﻿# `orang move`
+﻿# `orang sync`
 
-Searches the file system for files and directories and move them to a destination directory\.
+Synchronizes content of two directories\.
 
 [Home](README.md#readme) &#x2022; [Synopsis](#Synopsis) &#x2022; [Arguments](#Arguments) &#x2022; [Options](#Options) &#x2022; [Samples](#Samples)
 
 ## Synopsis
 
 ```
-orang move [<PATH>]
+orang sync [<PATH>]
 [   --ask]
 [-a|--attributes]         <ATTRIBUTES>
 [-b|--attributes-to-skip] <ATTRIBUTES>
 [   --compare]            <COMPARE_OPTIONS>
-[   --conflict]           <CONFLICT_RESOLUTION>
+[   --conflict]           <SYNC_CONFLICT_RESOLUTION>
 [-c|--content]            <PATTERN> [<PATTERN_OPTIONS>]
 [-y|--display]            <DISPLAY_OPTIONS>
 [-d|--dry-run]
 [   --encoding]           <ENCODING>
 [-e|--extension]          EXT1[,EXT2] [<EXTENSION_OPTIONS>]
-[   --flat]
 [-h|--help]
 [-t|--highlight]          <HIGHLIGHT>
 [-i|--include-directory]  <PATTERN> [<PATTERN_OPTIONS>]
@@ -30,8 +29,8 @@ orang move [<PATH>]
 [   --paths-from]         <FILE_PATH>
 [   --progress]
 [-p|--properties]         <FILE_PROPERTIES>
+[   --second]             <DIRECTORY_PATH>
 [-s|--sort]               <SORT_OPTIONS>
-[   --target]             <DIRECTORY_PATH>
 [-v|--verbosity]          <VERBOSITY>
 ```
 
@@ -39,13 +38,13 @@ orang move [<PATH>]
 
 **`<PATH>`**
 
-Path to one or more source directories and optionally a target directory\.
+Path to a first directory to be synchronized and optionally a second directory\.
 
 ## Options
 
 ##### `[--ask]`
 
-Ask for a permission to move file or directory\.
+Ask for a permission to synchronize file or directory\.
 
 ##### `[-a|--attributes] <ATTRIBUTES>`
 
@@ -65,11 +64,11 @@ File properties to be compared\.
 
 [\<COMPARE_OPTIONS>](OptionValues.md#compare_options): `n[one]`, `a[ttributes]`, `c[ontent]`, `m[odified-]t[ime]`, `s[ize]`\.
 
-##### `[--conflict] <CONFLICT_RESOLUTION>`
+##### `[--conflict] <SYNC_CONFLICT_RESOLUTION>`
 
-Defines how to resolve conflict when a file/directory already exists\.
+Action to choose if a file or directory exists in one directory and it is missing in the second directory\.
 
-[\<CONFLICT_RESOLUTION>](OptionValues.md#conflict_resolution): `a[sk]`, `o[verwrite]`, `suffix`, `s[kip]`\.
+[\<SYNC_CONFLICT_RESOLUTION>](OptionValues.md#sync_conflict_resolution): `a[sk]`, `f[irst-wins]`, `s[econd-wins]`\.
 
 ##### `[-c|--content] <PATTERN> [<PATTERN_OPTIONS>]`
 
@@ -85,7 +84,7 @@ Display of the results\.
 
 ##### `[-d|--dry-run]`
 
-Display which files/directories should be moved but do not actually move any file/directory\.
+Display which files or directories should be copied/deleted but do not actually copy/delete any file or directory\.
 
 ##### `[--encoding] <ENCODING>`
 
@@ -96,10 +95,6 @@ Encoding to use when a file does not contain BOM\. Default encoding is UTF\-8\.
 A filter for file extensions \(case\-insensitive by default\)\.
 
 [\<EXTENSION_OPTIONS>](OptionValues.md#extension_options): `c[ase-]s[ensitive]`, `c[ulture-]i[nvariant]`, `f[rom-file]`, `l[ist-]s[eparator]`, `l[iteral]`, `ne[gative]`, `timeout=<NUM>`\.
-
-##### `[--flat]`
-
-Move files directly into target directory\.
 
 ##### `[-h|--help]`
 
@@ -151,15 +146,15 @@ A filter for file properties\.
 
 [\<FILE_PROPERTIES>](OptionValues.md#file_properties): `c[reation-]t[ime]`, `m[odified-]t[ime]`, `s[ize]=<NUM>`\.
 
+##### `[--second] <DIRECTORY_PATH>`
+
+A directory to be synchronized with a first directory\. It can be also specified as a last unnamed parameter\.
+
 ##### `[-s|--sort] <SORT_OPTIONS>`
 
 Sort matched files and directories\.
 
 [\<SORT_OPTIONS>](OptionValues.md#sort_options): `a[scending]`, `c[reation-]t[ime]`, `ci [culture-invariant]`, `d[escending]`, `m[ax-count]=<NUM>`, `m[odified-]t[ime]`, `n[ame]`, `s[ize]`\.
-
-##### `[--target] <DIRECTORY_PATH>`
-
-A directory to move files and directories to\. It can be also specified as a last unnamed parameter\.
 
 ##### `[-v|--verbosity] <VERBOSITY>`
 
@@ -167,8 +162,5 @@ The amount of information to display in the log\.
 
 [\<VERBOSITY>](OptionValues.md#verbosity): `q[uiet]`, `m[inimal]`, `n[ormal]`, `d[etailed]`, `di[agnostic]`\.
 
-## Redirected/Piped Input
-
-Redirected/piped input will be used as a list of paths separated with newlines.
 
 *\(Generated with [DotMarkdown](http://github.com/JosefPihrt/DotMarkdown)\)*

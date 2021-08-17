@@ -22,6 +22,7 @@
 * [\<REPLACEMENT_OPTIONS>](#replacement_options)
 * [\<SORT_OPTIONS>](#sort_options)
 * [\<SORT_PROPERTY>](#sort_property)
+* [\<SYNC_CONFLICT_RESOLUTION>](#sync_conflict_resolution)
 * [\<SYNTAX_SECTIONS>](#syntax_sections)
 * [\<VERBOSITY>](#verbosity)
 
@@ -293,6 +294,14 @@
 | Value  |     | Description                     |
 | ------ | --- | ------------------------------- |
 | length | l   | Sort values by value's length\. |
+
+## \<SYNC\_CONFLICT\_RESOLUTION>
+
+| Value        |     | Description |
+| ------------ | --- | ----------- |
+| ask          | a   |             |
+| first\-wins  | f   |             |
+| second\-wins | s   |             |
 
 ## \<SYNTAX\_SECTIONS>
 

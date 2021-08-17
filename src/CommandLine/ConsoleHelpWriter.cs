@@ -53,7 +53,7 @@ namespace Orang.CommandLine
                     {
                         while (true)
                         {
-                            WriteHeading(en.Current.Key + " commands");
+                            WriteHeading((string.IsNullOrEmpty(en.Current.Key)) ? "Commands" : $"{en.Current.Key} commands");
 
                             int width = commands.Commands.Max(f => f.Command.Name.Length) + 1;
 

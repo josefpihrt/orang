@@ -21,6 +21,7 @@ Command | Piped Input
 [rename](rename-command.md) | list of paths
 [replace](replace-command.md) | text (default) or list of paths when `--pipe p[aths]` is specified
 [split](split-command.md) | text
+[sync](sync-command.md) | list of paths
 
 ## Multi-value Parameters
 

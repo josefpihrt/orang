@@ -1190,5 +1190,40 @@ namespace Orang.CommandLine
 
             return true;
         }
+
+        public static bool TryParseTargetDirectory(
+            string value,
+            [NotNullWhen(true)] out string? result,
+            CommonCopyCommandOptions options,
+            string directoryName,
+            string optionName)
+        {
+            result = null;
+
+            if (value != null)
+            {
+                if (!TryEnsureFullPath(value, out result))
+                    return false;
+            }
+            else
+            {
+                int length = options.Paths.Length;
+
+                if (length < 2)
+                {
+                    WriteError($"{directoryName} directory is required. It can be specified either as a last unnamed parameter "
+                        + $"or using option '{OptionNames.GetHelpText(optionName)}'.");
+
+                    return false;
+                }
+                else
+                {
+                    result = options.Paths[length - 1].Path;
+                    options.Paths = options.Paths.RemoveAt(length - 1);
+                }
+            }
+
+            return true;
+        }
     }
 }

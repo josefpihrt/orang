@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
 
-namespace Orang.CommandLine
+namespace Orang
 {
     internal static class CommandLoader
     {
@@ -93,6 +93,7 @@ namespace Orang.CommandLine
                         shortName: optionAttribute.ShortName,
                         metaValue: optionAttribute.MetaValue,
                         description: optionAttribute.HelpText,
+                        additionalDescription: propertyInfo.GetCustomAttribute<AdditionalDescriptionAttribute>()?.Text,
                         isRequired: optionAttribute.Required,
                         valueProviderName: (providerMap.TryGetValue(propertyInfo.Name, out string? valueProviderName))
                             ? valueProviderName
@@ -107,7 +108,9 @@ namespace Orang.CommandLine
             return new Command(
                 verbAttribute.Name,
                 verbAttribute.HelpText,
-                new CommandGroup(commandGroupAttribute.Name, commandGroupAttribute.Ordinal),
+                (commandGroupAttribute != null)
+                    ? new CommandGroup(commandGroupAttribute.Name, commandGroupAttribute.Ordinal)
+                    : CommandGroup.Default,
                 arguments.OrderBy(f => f.Index),
                 options.OrderBy(f => f, CommandOptionComparer.Name));
         }

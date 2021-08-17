@@ -23,7 +23,7 @@ namespace Orang.CommandLine
             index: 0,
             HelpText = "Path to one or more files and/or directories that should be searched.",
             MetaName = ArgumentMetaNames.Path)]
-        public IEnumerable<string> Path { get; set; } = null!;
+        public virtual IEnumerable<string> Path { get; set; } = null!;
 
         [Option(
             shortName: OptionShortNames.Attributes,
@@ -288,7 +288,7 @@ namespace Orang.CommandLine
             return true;
         }
 
-        private FileAttributes GetFileAttributes(FileSystemAttributes attributes)
+        protected FileAttributes GetFileAttributes(FileSystemAttributes attributes)
         {
             FileAttributes fileAttributes = 0;
 

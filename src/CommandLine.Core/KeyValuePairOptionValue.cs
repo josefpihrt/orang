@@ -36,7 +36,8 @@ namespace Orang
 
         public bool IsKeyOrShortKey(string value)
         {
-            return value == Key || (ShortKey != null && value == ShortKey);
+            return !string.IsNullOrEmpty(value)
+                && (value == Key || value == ShortKey);
         }
 
         public static KeyValuePairOptionValue Create(

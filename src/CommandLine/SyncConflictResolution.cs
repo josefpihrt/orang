@@ -1,9 +1,11 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-namespace Orang.CommandLine
+namespace Orang
 {
-    internal static class PackageInfo
+    internal enum SyncConflictResolution
     {
-        public const string Version = "0.2.2";
+        FirstWins = 0,
+        SecondWins = 1,
+        Ask = 2,
     }
 }

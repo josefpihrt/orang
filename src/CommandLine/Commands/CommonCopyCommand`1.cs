@@ -22,7 +22,7 @@ namespace Orang.CommandLine
             }
         }
 
-        public string Target => Options.Target;
+        private string Target => Options.Target;
 
         public ConflictResolution ConflictResolution
         {
@@ -49,13 +49,11 @@ namespace Orang.CommandLine
 
         protected override void ExecuteDirectory(string directoryPath, SearchContext context)
         {
-            if (Options.TargetNormalized == null)
-                Options.TargetNormalized = Target.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
-
+            string targetNormalized = Target.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
             string pathNormalized = directoryPath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
 
-            if (FileSystemHelpers.IsSubdirectory(Options.TargetNormalized, pathNormalized)
-                || FileSystemHelpers.IsSubdirectory(pathNormalized, Options.TargetNormalized))
+            if (FileSystemHelpers.IsSubdirectory(targetNormalized, pathNormalized)
+                || FileSystemHelpers.IsSubdirectory(pathNormalized, targetNormalized))
             {
                 WriteWarning("Source directory cannot be subdirectory of a destination directory or vice versa.");
                 return;
@@ -98,9 +96,6 @@ namespace Orang.CommandLine
                 destinationPath = Path.Combine(Target, fileName);
             }
 
-            if (IgnoredPaths?.Contains(sourcePath) == true)
-                return;
-
             try
             {
                 ExecuteOperation(context, sourcePath, destinationPath, fileMatch.IsDirectory, indent);
@@ -108,7 +103,7 @@ namespace Orang.CommandLine
             catch (Exception ex) when (ex is IOException
                 || ex is UnauthorizedAccessException)
             {
-                LogHelpers.WriteFileError(ex, sourcePath, indent: indent);
+                WriteError(context, ex, sourcePath, indent: indent);
             }
         }
 
@@ -132,7 +127,7 @@ namespace Orang.CommandLine
                 else if (directoryExists)
                 {
                     if (Options.StructureOnly
-                        && File.GetAttributes(sourcePath) == File.GetAttributes(destinationPath))
+                        && FileSystemHelpers.AttributeEquals(sourcePath, destinationPath, Options.NoCompareAttributes))
                     {
                         return null;
                     }
@@ -143,7 +138,12 @@ namespace Orang.CommandLine
             else if (fileExists)
             {
                 if (Options.CompareOptions != FileCompareOptions.None
-                    && FileSystemHelpers.FileEquals(sourcePath, destinationPath, Options.CompareOptions))
+                    && FileSystemHelpers.FileEquals(
+                        sourcePath,
+                        destinationPath,
+                        Options.CompareOptions,
+                        Options.NoCompareAttributes,
+                        Options.AllowedTimeDiff))
                 {
                     return null;
                 }
@@ -367,6 +367,15 @@ namespace Orang.CommandLine
                     Directory.CreateDirectory(destinationPath);
                 }
             }
+        }
+
+        protected virtual void WriteError(
+            SearchContext context,
+            Exception ex,
+            string path,
+            string indent)
+        {
+            LogHelpers.WriteFileError(ex, path, indent: indent);
         }
     }
 }

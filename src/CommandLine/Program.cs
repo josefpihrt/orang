@@ -57,8 +57,7 @@ namespace Orang.CommandLine
                     return ExitCodes.Match;
                 }
 
-                var success = true;
-                var help = false;
+                bool? success = null;
 
                 ParserResult<BaseCommandLineOptions> defaultResult = parser
                     .ParseArguments<BaseCommandLineOptions>(args)
@@ -72,10 +71,11 @@ namespace Orang.CommandLine
                             ? CommandLoader.LoadCommand(typeof(Program).Assembly, commandName)
                             : null;
 
-                        success = ParseVerbosityAndOutput(options);
-
-                        if (!success)
+                        if (!ParseVerbosityAndOutput(options))
+                        {
+                            success = false;
                             return;
+                        }
 
                         WriteArgs(args);
 
@@ -88,19 +88,13 @@ namespace Orang.CommandLine
                             HelpCommand.WriteCommandsHelp();
                         }
 
-                        help = true;
-                    })
-#if DEBUG
-                    .WithNotParsed(_ =>
-                    {
+                        success = true;
                     });
-#else
-                    ;
-#endif
-                if (!success)
+
+                if (success == false)
                     return ExitCodes.Error;
 
-                if (help)
+                if (success == true)
                     return ExitCodes.Match;
 
                 parser = CreateParser();
@@ -121,8 +115,15 @@ namespace Orang.CommandLine
                     SyncCommandLineOptions
                     >(args);
 
-                parserResult.WithNotParsed(_ =>
+                parserResult.WithNotParsed(e =>
                 {
+                    if (e.Any(f => f.Tag == ErrorType.VersionRequestedError))
+                    {
+                        Console.WriteLine(typeof(Program).GetTypeInfo().Assembly.GetName().Version);
+                        success = true;
+                        return;
+                    }
+
                     var helpText = new HelpText(SentenceBuilder.Create(), HelpCommand.GetHeadingText());
 
                     helpText = HelpText.DefaultParsingErrorsHandler(parserResult, helpText);
@@ -139,18 +140,25 @@ namespace Orang.CommandLine
                     success = false;
                 });
 
-                if (!success)
+                if (success == true)
+                    return ExitCodes.Match;
+
+                if (success == false)
                     return ExitCodes.Error;
 
                 parserResult.WithParsed<AbstractCommandLineOptions>(options =>
                 {
-                    success = ParseVerbosityAndOutput(options);
-
-                    if (success)
+                    if (ParseVerbosityAndOutput(options))
+                    {
                         WriteArgs(args);
+                    }
+                    else
+                    {
+                        success = false;
+                    }
                 });
 
-                if (!success)
+                if (success == false)
                     return ExitCodes.Error;
 
                 return parserResult.MapResult(

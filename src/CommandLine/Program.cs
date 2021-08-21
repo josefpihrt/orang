@@ -17,7 +17,14 @@ namespace Orang.CommandLine
     {
         private static int Main(string[] args)
         {
-#if DEBUG // short command syntax
+#if DEBUG
+            if (args.LastOrDefault() == "--debug")
+            {
+                WriteArgs(args.Take(args.Length - 1).ToArray(), Verbosity.Quiet);
+                return ExitCodes.NoMatch;
+            }
+
+            // short command syntax
             if (args?.Length > 0)
             {
                 switch (args[0])
@@ -77,7 +84,7 @@ namespace Orang.CommandLine
                             return;
                         }
 
-                        WriteArgs(args);
+                        WriteArgs(args, Verbosity.Diagnostic);
 
                         if (command != null)
                         {
@@ -150,7 +157,7 @@ namespace Orang.CommandLine
                 {
                     if (ParseVerbosityAndOutput(options))
                     {
-                        WriteArgs(args);
+                        WriteArgs(args, Verbosity.Diagnostic);
                     }
                     else
                     {
@@ -249,16 +256,17 @@ namespace Orang.CommandLine
         }
 
         [Conditional("DEBUG")]
-        private static void WriteArgs(string[]? args)
+        private static void WriteArgs(string[]? args, Verbosity verbosity)
         {
-            if (args != null)
+            if (args != null
+                && ShouldLog(verbosity))
             {
-                WriteLine("--- ARGS ---", Verbosity.Diagnostic);
+                WriteLine("--- ARGS ---", verbosity);
 
                 foreach (string arg in args)
-                    WriteLine(arg, Verbosity.Diagnostic);
+                    WriteLine(arg, verbosity);
 
-                WriteLine("--- END OF ARGS ---", Verbosity.Diagnostic);
+                WriteLine("--- END OF ARGS ---", verbosity);
             }
         }
 

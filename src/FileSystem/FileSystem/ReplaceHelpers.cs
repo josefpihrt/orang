@@ -97,14 +97,12 @@ namespace Orang.FileSystem
             return replaceItems;
         }
 
-        public static string GetNewPath(FileMatch fileMatch, List<ReplaceItem> replaceItems)
+        public static string GetNewName(FileMatch fileMatch, List<ReplaceItem> replaceItems)
         {
             StringBuilder sb = StringBuilderCache.GetInstance();
 
             string path = fileMatch.Path;
             FileNameSpan span = fileMatch.NameSpan;
-
-            sb.Append(path, 0, span.Start);
 
             int lastPos = span.Start;
 

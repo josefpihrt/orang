@@ -97,11 +97,16 @@ namespace Orang.CommandLine
                 ? new GroupDefinition(groupNumber, ContentFilter.GroupName)
                 : default(GroupDefinition?);
 
+            HighlightOptions highlightOptions = Options.HighlightOptions;
+
+            if (ReferenceEquals(ContentFilter, Filter.EntireInput))
+                highlightOptions &= ~HighlightOptions.DefaultOrMatch;
+
             return new ContentWriterOptions(
                 format: Options.Format,
                 groupDefinition,
                 symbols: Symbols,
-                highlightOptions: Options.HighlightOptions,
+                highlightOptions: highlightOptions,
                 indent: indent);
         }
 

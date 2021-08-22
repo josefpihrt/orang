@@ -26,6 +26,7 @@ namespace Orang.CommandLine
             OptionValueProvider provider,
             out Filter? filter,
             bool allowNull = false,
+            bool allowEmptyPattern = false,
             OptionValueProvider? namePartProvider = null,
             FileNamePart defaultNamePart = FileNamePart.Name,
             PatternOptions includedPatternOptions = PatternOptions.None)
@@ -37,6 +38,7 @@ namespace Orang.CommandLine
                 filter: out filter,
                 namePart: out _,
                 allowNull: allowNull,
+                allowEmptyPattern: allowEmptyPattern,
                 namePartProvider: namePartProvider,
                 defaultNamePart: defaultNamePart,
                 includedPatternOptions: includedPatternOptions);
@@ -49,6 +51,7 @@ namespace Orang.CommandLine
             out Filter? filter,
             out FileNamePart namePart,
             bool allowNull = false,
+            bool allowEmptyPattern = false,
             OptionValueProvider? namePartProvider = null,
             FileNamePart defaultNamePart = FileNamePart.Name,
             PatternOptions includedPatternOptions = PatternOptions.None)
@@ -68,6 +71,13 @@ namespace Orang.CommandLine
                 {
                     throw new InvalidOperationException($"Option '{OptionNames.GetHelpText(optionName)}' is required.");
                 }
+            }
+
+            if (pattern.Length == 0
+                && allowEmptyPattern)
+            {
+                filter = Filter.EntireInput;
+                return true;
             }
 
             TimeSpan matchTimeout = Regex.InfiniteMatchTimeout;

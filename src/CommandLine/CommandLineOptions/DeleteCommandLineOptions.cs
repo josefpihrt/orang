@@ -101,7 +101,8 @@ namespace Orang.CommandLine
                 OptionNames.Content,
                 OptionValueProviders.PatternOptionsWithoutPartProvider,
                 out Filter? contentFilter,
-                allowNull: true))
+                allowNull: true,
+                allowEmptyPattern: true))
             {
                 return false;
             }
@@ -132,7 +133,8 @@ namespace Orang.CommandLine
             }
 
             options.Format = new OutputDisplayFormat(
-                contentDisplayStyle: contentDisplayStyle ?? ContentDisplayStyle.Omit,
+                contentDisplayStyle: contentDisplayStyle
+                    ?? ((ReferenceEquals(contentFilter, Filter.EntireInput)) ? ContentDisplayStyle.AllLines : ContentDisplayStyle.Omit),
                 pathDisplayStyle: pathDisplayStyle ?? PathDisplayStyle.Full,
                 lineOptions: lineDisplayOptions,
                 lineContext: lineContext,

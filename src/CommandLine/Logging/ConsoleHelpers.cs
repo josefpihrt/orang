@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using static Orang.Logger;
 
 namespace Orang.CommandLine
@@ -106,7 +107,34 @@ namespace Orang.CommandLine
                 ConsoleOut.Write(question);
                 ConsoleOut.Write(suffix);
 
-                string? s = Console.ReadLine()?.Trim();
+                string? s = null;
+                var isCanceled = false;
+                ConsoleCancelEventHandler? handler = null;
+
+                try
+                {
+                    if (throwOnCancel)
+                    {
+                        handler = (s, e) => isCanceled = true;
+                        Console.CancelKeyPress += handler;
+                    }
+
+                    s = Console.ReadLine()?.Trim();
+                }
+                finally
+                {
+                    if (handler != null)
+                        Console.CancelKeyPress -= handler;
+                }
+
+                Thread.Sleep(50);
+
+                if (throwOnCancel
+                    && isCanceled)
+                {
+                    ConsoleOut.WriteLine();
+                    throw new OperationCanceledException();
+                }
 
                 if (s != null)
                 {

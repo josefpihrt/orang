@@ -37,18 +37,35 @@ namespace Orang.Operations
                 CancellationToken);
 
             string path = fileMatch.Path;
-            string newPath = ReplaceHelpers.GetNewPath(fileMatch, replaceItems);
+
+            string newName = ReplaceHelpers.GetNewName(fileMatch, replaceItems);
 
             ListCache<ReplaceItem>.Free(replaceItems);
 
-            if (string.Equals(path, newPath, StringComparison.Ordinal))
-                return;
-
-            if (FileSystemHelpers.ContainsInvalidFileNameChars(newPath, FileSystemHelpers.GetFileNameIndex(path)))
+            if (string.IsNullOrWhiteSpace(newName))
             {
-                Report(fileMatch, newPath, new IOException("New file name contains invalid characters."));
+                Report(fileMatch, null, new IOException("New file name cannot be empty or contains only white-space."));
                 return;
             }
+
+            if (string.Compare(
+                path,
+                fileMatch.NameSpan.Start,
+                newName,
+                0,
+                fileMatch.NameSpan.Length,
+                StringComparison.Ordinal) == 0)
+            {
+                return;
+            }
+
+            if (FileSystemHelpers.ContainsInvalidFileNameChars(newName))
+            {
+                Report(fileMatch, newName, new IOException("New file name contains invalid characters."));
+                return;
+            }
+
+            string newPath = path.Substring(0, fileMatch.NameSpan.Start) + newName;
 
             if (File.Exists(newPath))
             {

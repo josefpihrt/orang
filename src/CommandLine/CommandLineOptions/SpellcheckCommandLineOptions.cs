@@ -94,7 +94,7 @@ namespace Orang.CommandLine
 
         protected override Filter? GetDefaultContentFilter()
         {
-            return new Filter(@"\A.*\z", RegexOptions.Singleline);
+            return Filter.EntireInput;
         }
     }
 }

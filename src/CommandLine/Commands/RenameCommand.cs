@@ -59,11 +59,27 @@ namespace Orang.CommandLine
                 context.CancellationToken);
 
             string path = fileMatch.Path;
-            string newPath = ReplaceHelpers.GetNewPath(fileMatch, replaceItems);
-            bool changed = !string.Equals(path, newPath, StringComparison.Ordinal);
+
+            string newName = ReplaceHelpers.GetNewName(fileMatch, replaceItems);
+
+            if (string.IsNullOrWhiteSpace(newName))
+            {
+                WriteLine($"{indent}New file name cannot be empty or contains only white-space.", Colors.Message_Warning);
+                return;
+            }
+
+            bool changed = string.Compare(
+                path,
+                fileMatch.NameSpan.Start,
+                newName,
+                0,
+                fileMatch.NameSpan.Length,
+                StringComparison.Ordinal) != 0;
 
             bool isInvalidName = changed
-                && FileSystemHelpers.ContainsInvalidFileNameChars(newPath, FileSystemHelpers.GetFileNameIndex(path));
+                && FileSystemHelpers.ContainsInvalidFileNameChars(newName);
+
+            string newPath = path.Substring(0, fileMatch.NameSpan.Start) + newName;
 
             if (Options.Interactive
                 || (!Options.OmitPath && changed))
@@ -88,8 +104,6 @@ namespace Orang.CommandLine
 
             if (Options.Interactive)
             {
-                string newName = Path.GetFileName(newPath);
-
                 string newName2 = ConsoleHelpers.ReadUserInput(newName, indent + "New name: ");
 
                 newPath = newPath.Substring(0, newPath.Length - newName.Length) + newName2;

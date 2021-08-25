@@ -17,7 +17,14 @@ namespace Orang.CommandLine
     {
         private static int Main(string[] args)
         {
-#if DEBUG // short command syntax
+#if DEBUG
+            if (args.LastOrDefault() == "--debug")
+            {
+                WriteArgs(args.Take(args.Length - 1).ToArray(), Verbosity.Quiet);
+                return ExitCodes.NoMatch;
+            }
+
+            // short command syntax
             if (args?.Length > 0)
             {
                 switch (args[0])
@@ -57,8 +64,7 @@ namespace Orang.CommandLine
                     return ExitCodes.Match;
                 }
 
-                var success = true;
-                var help = false;
+                bool? success = null;
 
                 ParserResult<BaseCommandLineOptions> defaultResult = parser
                     .ParseArguments<BaseCommandLineOptions>(args)
@@ -72,12 +78,13 @@ namespace Orang.CommandLine
                             ? CommandLoader.LoadCommand(typeof(Program).Assembly, commandName)
                             : null;
 
-                        success = ParseVerbosityAndOutput(options);
-
-                        if (!success)
+                        if (!ParseVerbosityAndOutput(options))
+                        {
+                            success = false;
                             return;
+                        }
 
-                        WriteArgs(args);
+                        WriteArgs(args, Verbosity.Diagnostic);
 
                         if (command != null)
                         {
@@ -88,19 +95,13 @@ namespace Orang.CommandLine
                             HelpCommand.WriteCommandsHelp();
                         }
 
-                        help = true;
-                    })
-#if DEBUG
-                    .WithNotParsed(_ =>
-                    {
+                        success = true;
                     });
-#else
-                    ;
-#endif
-                if (!success)
+
+                if (success == false)
                     return ExitCodes.Error;
 
-                if (help)
+                if (success == true)
                     return ExitCodes.Match;
 
                 parser = CreateParser();
@@ -121,8 +122,15 @@ namespace Orang.CommandLine
                     SyncCommandLineOptions
                     >(args);
 
-                parserResult.WithNotParsed(_ =>
+                parserResult.WithNotParsed(e =>
                 {
+                    if (e.Any(f => f.Tag == ErrorType.VersionRequestedError))
+                    {
+                        Console.WriteLine(typeof(Program).GetTypeInfo().Assembly.GetName().Version);
+                        success = true;
+                        return;
+                    }
+
                     var helpText = new HelpText(SentenceBuilder.Create(), HelpCommand.GetHeadingText());
 
                     helpText = HelpText.DefaultParsingErrorsHandler(parserResult, helpText);
@@ -139,18 +147,25 @@ namespace Orang.CommandLine
                     success = false;
                 });
 
-                if (!success)
+                if (success == true)
+                    return ExitCodes.Match;
+
+                if (success == false)
                     return ExitCodes.Error;
 
                 parserResult.WithParsed<AbstractCommandLineOptions>(options =>
                 {
-                    success = ParseVerbosityAndOutput(options);
-
-                    if (success)
-                        WriteArgs(args);
+                    if (ParseVerbosityAndOutput(options))
+                    {
+                        WriteArgs(args, Verbosity.Diagnostic);
+                    }
+                    else
+                    {
+                        success = false;
+                    }
                 });
 
-                if (!success)
+                if (success == false)
                     return ExitCodes.Error;
 
                 return parserResult.MapResult(
@@ -241,16 +256,17 @@ namespace Orang.CommandLine
         }
 
         [Conditional("DEBUG")]
-        private static void WriteArgs(string[]? args)
+        private static void WriteArgs(string[]? args, Verbosity verbosity)
         {
-            if (args != null)
+            if (args != null
+                && ShouldLog(verbosity))
             {
-                WriteLine("--- ARGS ---", Verbosity.Diagnostic);
+                WriteLine("--- ARGS ---", verbosity);
 
                 foreach (string arg in args)
-                    WriteLine(arg, Verbosity.Diagnostic);
+                    WriteLine(arg, verbosity);
 
-                WriteLine("--- END OF ARGS ---", Verbosity.Diagnostic);
+                WriteLine("--- END OF ARGS ---", verbosity);
             }
         }
 

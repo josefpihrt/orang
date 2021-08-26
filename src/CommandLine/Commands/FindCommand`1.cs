@@ -129,6 +129,12 @@ namespace Orang.CommandLine
                     fileMatch,
                     baseDirectoryPath,
                     isPathDisplayed: isPathDisplayed);
+
+                if (AskMode == AskMode.File
+                    && isPathDisplayed)
+                {
+                    WritePath(context, fileMatch, baseDirectoryPath, indent, columnWidths, includeNewline: true);
+                }
             }
 
             AskToContinue(context, indent);

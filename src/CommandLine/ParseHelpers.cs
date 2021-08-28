@@ -101,6 +101,22 @@ namespace Orang.CommandLine
 
                 try
                 {
+                    if (OptionValues.FileProperty_CreationTime.IsKeyOrShortKey(value)
+                        || OptionValues.FileProperty_ModifiedTime.IsKeyOrShortKey(value)
+                        || OptionValues.FileProperty_Size.IsKeyOrShortKey(value))
+                    {
+                        string allowedValues = HelpProvider.GetExpressionsText(
+                            variableName: value,
+                            indent: "  ",
+                            includeDate: optionValue != OptionValues.FileProperty_Size);
+
+                        string message = $"Option '{OptionNames.GetHelpText(optionName)}' has invalid value '{value}'."
+                            + $"{Environment.NewLine}{Environment.NewLine}Allowed values:{Environment.NewLine}{allowedValues}";
+
+                        WriteError(message);
+                        return false;
+                    }
+
                     expression = Expression.Parse(value);
 
                     if (OptionValues.FileProperty_CreationTime.IsKeyOrShortKey(expression.Identifier))

@@ -258,16 +258,16 @@ namespace Orang.CommandLine.Help
                 : ImmutableArray<string>.Empty;
         }
 
-        public static string GetExpressionsText(string indent, bool includeDate = true)
+        public static string GetExpressionsText(string? variableName = null, string? indent = null, bool includeDate = true)
         {
-            ImmutableArray<string> expressions = GetExpressionLines(includeDate: includeDate);
+            ImmutableArray<string> expressions = GetExpressionLines(variableName: variableName, includeDate: includeDate);
 
             return indent + string.Join(Environment.NewLine + indent, expressions);
         }
 
-        public static ImmutableArray<string> GetExpressionLines(bool includeDate = true)
+        public static ImmutableArray<string> GetExpressionLines(string? variableName = null, bool includeDate = true)
         {
-            ImmutableArray<(string expression, string description)> items = GetExpressionItems(includeDate);
+            ImmutableArray<(string expression, string description)> items = GetExpressionItems(variableName, includeDate);
 
             int maxWidth = items.Max(f => f.expression.Length);
 
@@ -288,20 +288,23 @@ namespace Orang.CommandLine.Help
         }
 
         public static ImmutableArray<(string expression, string description)> GetExpressionItems(
+            string? variableName = null,
             bool includeDate = true)
         {
             ImmutableArray<(string, string)>.Builder builder = ImmutableArray.CreateBuilder<(string, string)>();
 
-            builder.Add(("x=n", ""));
-            builder.Add(("x<n", ""));
-            builder.Add(("x>n", ""));
-            builder.Add(("x<=n", ""));
-            builder.Add(("x>=n", ""));
-            builder.Add(("x=<min;max>", "Inclusive interval"));
-            builder.Add(("x=(min;max)", "Exclusive interval"));
+            variableName ??= "x";
+
+            builder.Add(($"{variableName}=n", ""));
+            builder.Add(($"{variableName}<n", ""));
+            builder.Add(($"{variableName}>n", ""));
+            builder.Add(($"{variableName}<=n", ""));
+            builder.Add(($"{variableName}>=n", ""));
+            builder.Add(($"{variableName}=<min;max>", "Inclusive interval"));
+            builder.Add(($"{variableName}=(min;max)", "Exclusive interval"));
 
             if (includeDate)
-                builder.Add(("x=-d|[d.]hh:mm[:ss]", "x is greater than actual date - <VALUE>"));
+                builder.Add(($"{variableName}=-d|[d.]hh:mm[:ss]", $"{variableName} is greater than actual date - <VALUE>"));
 
             return builder.ToImmutableArray();
         }

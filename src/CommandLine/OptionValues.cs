@@ -107,8 +107,8 @@ namespace Orang.CommandLine
 
         public static readonly KeyValuePairOptionValue Encoding = KeyValuePairOptionValue.Create("encoding", MetaValues.Encoding, shortKey: "e");
 
-        public static readonly KeyValuePairOptionValue FileProperty_CreationTime = KeyValuePairOptionValue.Create("creation-time", "<DATE>", shortKey: "ct", helpValue: "c[reation-]t[ime]", description: "Filter files by creation time (See 'Expression syntax' for other expressions).", canContainExpression: true);
-        public static readonly KeyValuePairOptionValue FileProperty_ModifiedTime = KeyValuePairOptionValue.Create("modified-time", "<DATE>", shortKey: "mt", helpValue: "m[odified-]t[ime]", description: "Filter files by modified time (See 'Expression syntax' for other expressions).", canContainExpression: true);
+        public static readonly KeyValuePairOptionValue FileProperty_CreationTime = KeyValuePairOptionValue.Create("creation-time", "<DATE>", shortKey: "ct", helpValue: "c[reation-]t[ime]=<DATE>", description: "Filter files by creation time (See 'Expression syntax' for other expressions).", canContainExpression: true);
+        public static readonly KeyValuePairOptionValue FileProperty_ModifiedTime = KeyValuePairOptionValue.Create("modified-time", "<DATE>", shortKey: "mt", helpValue: "m[odified-]t[ime]=<DATE>", description: "Filter files by modified time (See 'Expression syntax' for other expressions).", canContainExpression: true);
         public static readonly KeyValuePairOptionValue FileProperty_Size = KeyValuePairOptionValue.Create("size", "<NUM>", description: "Filter files by size (See 'Expression syntax' for other expressions).", canContainExpression: true);
 
         public static readonly KeyValuePairOptionValue Group = KeyValuePairOptionValue.Create("group", "<GROUP_NAME>", shortKey: "g");

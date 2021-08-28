@@ -7,8 +7,6 @@ namespace Orang.CommandLine
 {
     internal class OutputDisplayFormat
     {
-        internal static readonly string DefaultIndent = "  ";
-
         public OutputDisplayFormat(
             ContentDisplayStyle contentDisplayStyle,
             PathDisplayStyle pathDisplayStyle = PathDisplayStyle.Full,
@@ -26,7 +24,7 @@ namespace Orang.CommandLine
             LineContext = lineContext;
             DisplayParts = displayParts;
             FileProperties = fileProperties?.ToImmutableArray() ?? ImmutableArray<FileProperty>.Empty;
-            Indent = indent ?? DefaultIndent;
+            Indent = indent ?? ApplicationOptions.Default.ContentIndent;
             Separator = separator;
             AlignColumns = alignColumns;
         }

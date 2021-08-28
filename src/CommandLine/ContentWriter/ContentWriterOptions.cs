@@ -17,7 +17,7 @@ namespace Orang.CommandLine
             GroupDefinition = groupDefinition;
             Symbols = symbols ?? OutputSymbols.Empty;
             HighlightOptions = highlightOptions;
-            Indent = indent ?? OutputDisplayFormat.DefaultIndent;
+            Indent = indent ?? ApplicationOptions.Default.ContentIndent;
         }
 
         public OutputDisplayFormat Format { get; }

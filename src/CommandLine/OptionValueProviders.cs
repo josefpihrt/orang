@@ -538,7 +538,8 @@ namespace Orang.CommandLine
                 OptionValues.ConflictResolution_Suffix
         );
 
-        public static OptionValueProvider ConflictResolutionProvider_Sync { get; } = new OptionValueProvider(OptionValueProviderNames.ConflictResolution_Sync,
+        public static OptionValueProvider ConflictResolutionProvider_Sync { get; } = new OptionValueProvider(
+            OptionValueProviderNames.ConflictResolution_Sync,
             OptionValues.ConflictResolution_Ask,
             OptionValues.ConflictResolution_Overwrite,
             OptionValues.ConflictResolution_Skip
@@ -557,7 +558,8 @@ namespace Orang.CommandLine
             SimpleOptionValue.Create(FileCompareOptions.Size, description: "Compare file size.")
         );
 
-        public static OptionValueProvider SyncConflictResolutionProvider { get; } = new OptionValueProvider(MetaValues.SyncConflictResolution,
+        public static OptionValueProvider SyncConflictResolutionProvider { get; } = new OptionValueProvider(
+            MetaValues.SyncConflictResolution,
             SimpleOptionValue.Create(SyncConflictResolution.Ask, description: ""),
             SimpleOptionValue.Create(SyncConflictResolution.FirstWins, description: ""),
             SimpleOptionValue.Create(SyncConflictResolution.SecondWins, description: "")
@@ -638,12 +640,11 @@ namespace Orang.CommandLine
 
                 StringBuilder sb = StringBuilderCache.GetInstance();
 
-                (int width1, int width2) = HelpProvider.CalculateOptionValuesWidths(optionValues);
+                int width = HelpProvider.CalculateOptionValuesWidth(optionValues);
 
                 ImmutableArray<OptionValueItem>.Enumerator en = HelpProvider.GetOptionValueItems(
                     optionValues,
-                    width1,
-                    width2)
+                    width)
                     .GetEnumerator();
 
                 if (en.MoveNext())

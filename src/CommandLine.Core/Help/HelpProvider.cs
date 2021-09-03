@@ -27,12 +27,14 @@ namespace Orang.CommandLine.Help
 
                 sb.Append(command.Name);
                 sb.AppendSpaces(width - command.Name.Length);
-                sb.Append(command.Description);
 
-                string text = StringBuilderCache.GetStringAndFree(sb);
+                string syntax = StringBuilderCache.GetStringAndFree(sb);
+                string description = command.Description ?? "";
 
-                if (filter?.IsMatch(text) != false)
-                    builder.Add(new CommandItem(command, text));
+                var commandItem = new CommandItem(command, syntax, description);
+
+                if (filter?.IsMatch(commandItem.Text) != false)
+                    builder.Add(commandItem);
             }
 
             return builder.ToImmutableArray();
@@ -52,32 +54,25 @@ namespace Orang.CommandLine.Help
             {
                 StringBuilder sb = StringBuilderCache.GetInstance();
 
-                if (!argument.IsRequired)
-                {
-                    sb.Append("[");
-                }
-                else if (anyIsOptional)
-                {
-                    sb.Append(" ");
-                }
-
                 sb.Append(argument.Name);
-
-                if (!argument.IsRequired)
-                    sb.Append("]");
 
                 if (!string.IsNullOrEmpty(argument.Description))
                 {
                     sb.AppendSpaces(width - argument.Name.Length - ((argument.IsRequired) ? 0 : 2));
-                    sb.Append(argument.Description);
                 }
 
-                builder.Add(new ArgumentItem(argument, StringBuilderCache.GetStringAndFree(sb)));
+                string syntax = StringBuilderCache.GetStringAndFree(sb);
+                string description = argument.Description ?? "";
+
+                var argumentItem = new ArgumentItem(argument, syntax, description);
+
+                if (filter?.IsMatch(argumentItem.Text) != false)
+                {
+                    builder.Add(argumentItem);
+                }
             }
 
-            return (filter != null)
-                ? builder.Where(f => filter.IsMatch(f.Text)).ToImmutableArray()
-                : builder.ToImmutableArray();
+            return builder.ToImmutableArray();
         }
 
         public static ImmutableArray<OptionItem> GetOptionItems(IEnumerable<CommandOption> options, Filter? filter = null)
@@ -92,15 +87,6 @@ namespace Orang.CommandLine.Help
             foreach (CommandOption option in options)
             {
                 StringBuilder sb = StringBuilderCache.GetInstance();
-
-                if (!option.IsRequired)
-                {
-                    sb.Append("[");
-                }
-                else if (anyIsOptional)
-                {
-                    sb.Append(" ");
-                }
 
                 if (!string.IsNullOrEmpty(option.ShortName))
                 {
@@ -121,9 +107,6 @@ namespace Orang.CommandLine.Help
                     sb.Append(option.Name);
                 }
 
-                if (!option.IsRequired)
-                    sb.Append("]");
-
                 sb.AppendSpaces(1);
 
                 if (!string.IsNullOrEmpty(option.MetaValue))
@@ -131,14 +114,16 @@ namespace Orang.CommandLine.Help
 
                 sb.AppendSpaces(width - sb.Length + SeparatorWidth);
 
-                sb.Append(option.Description);
+                string syntax = StringBuilderCache.GetStringAndFree(sb);
+                string description = option.Description ?? "";
 
-                builder.Add(new OptionItem(option, StringBuilderCache.GetStringAndFree(sb)));
+                var optionItem = new OptionItem(option, syntax: syntax, description);
+
+                if (filter?.IsMatch(optionItem.Text) != false)
+                    builder.Add(optionItem);
             }
 
-            return (filter != null)
-                ? builder.Where(f => filter.IsMatch(f.Text)).ToImmutableArray()
-                : builder.ToImmutableArray();
+            return builder.ToImmutableArray();
         }
 
         public static ImmutableArray<OptionValueList> GetOptionValues(
@@ -152,12 +137,12 @@ namespace Orang.CommandLine.Help
 
             ImmutableArray<OptionValueList>.Builder builder = ImmutableArray.CreateBuilder<OptionValueList>();
 
-            (int width1, int width2) = CalculateOptionValuesWidths(allValues);
+            int width = CalculateOptionValuesWidth(allValues);
 
             foreach (OptionValueProvider provider in providers)
             {
                 IEnumerable<OptionValue> values = provider.Values.Where(f => !f.Hidden);
-                ImmutableArray<OptionValueItem> valueItems = GetOptionValueItems(values, width1, width2);
+                ImmutableArray<OptionValueItem> valueItems = GetOptionValueItems(values, width);
 
                 builder.Add(new OptionValueList(provider.Name, valueItems));
             }
@@ -169,60 +154,40 @@ namespace Orang.CommandLine.Help
 
         public static ImmutableArray<OptionValueItem> GetOptionValueItems(
             IEnumerable<OptionValue> optionValues,
-            int width1,
-            int width2)
+            int maxWidth)
         {
+            int maxShortNameWidth = optionValues.Max(f => GetShortValue(f).Length);
+
             ImmutableArray<OptionValueItem>.Builder builder = ImmutableArray.CreateBuilder<OptionValueItem>();
 
             foreach (OptionValue optionValue in optionValues)
             {
                 StringBuilder sb = StringBuilderCache.GetInstance();
 
+                string shortValue = GetShortValue(optionValue);
+
+                if (!string.IsNullOrEmpty(shortValue))
+                {
+                    sb.Append(' ', maxShortNameWidth - shortValue.Length);
+                    sb.Append(shortValue);
+                    sb.Append(", ");
+                }
+                else
+                {
+                    sb.Append(' ', maxShortNameWidth + 2);
+                }
+
                 string value = GetValue(optionValue);
 
                 sb.Append(value);
-                sb.AppendSpaces(width1 - value.Length);
+                sb.AppendSpaces(maxWidth - sb.Length);
 
-                string shortValue = GetShortValue(optionValue);
+                string description = optionValue.Description ?? "";
 
-                if (string.IsNullOrEmpty(shortValue))
-                    shortValue = "-";
-
-                sb.Append(shortValue);
-
-                string? description = optionValue.Description;
-
-                if (!string.IsNullOrEmpty(description))
-                {
-                    sb.AppendSpaces(width2 - shortValue.Length);
-
-                    TextHelpers.Indent(description!, width1 + width2, ref sb);
-                }
-
-                builder.Add(new OptionValueItem(optionValue, StringBuilderCache.GetStringAndFree(sb)));
+                builder.Add(new OptionValueItem(optionValue, StringBuilderCache.GetStringAndFree(sb), description));
             }
 
             return builder.ToImmutableArray();
-
-            static string GetValue(OptionValue value)
-            {
-                return value switch
-                {
-                    SimpleOptionValue enumOptionValue => enumOptionValue.Value,
-                    KeyValuePairOptionValue keyOptionValue => $"{keyOptionValue.Key}={keyOptionValue.Value}",
-                    _ => throw new InvalidOperationException(),
-                };
-            }
-
-            static string GetShortValue(OptionValue value)
-            {
-                return value switch
-                {
-                    SimpleOptionValue enumOptionValue => enumOptionValue.ShortValue,
-                    KeyValuePairOptionValue keyOptionValue => keyOptionValue.ShortKey,
-                    _ => throw new InvalidOperationException(),
-                };
-            }
         }
 
         private static ImmutableArray<OptionValueList> FilterOptionValues(
@@ -323,9 +288,6 @@ namespace Orang.CommandLine.Help
 
             int width = 2; // --
 
-            if (options.Any(f => !f.IsRequired))
-                width += 2; // []
-
             if (options.Any(f => !string.IsNullOrEmpty(f.ShortName)))
                 width += 4; // -x, 
 
@@ -345,33 +307,35 @@ namespace Orang.CommandLine.Help
             return width;
         }
 
-        public static (int width1, int width2) CalculateOptionValuesWidths(IEnumerable<OptionValue> optionValues)
+        public static int CalculateOptionValuesWidth(IEnumerable<OptionValue> optionValues)
         {
             if (!optionValues.Any())
-                return default;
+                return 0;
 
-            int width1 = optionValues.DefaultIfEmpty().Max(f =>
-            {
-                return f switch
-                {
-                    SimpleOptionValue enumOptionValue => enumOptionValue.Value.Length,
-                    KeyValuePairOptionValue keyOptionValue => keyOptionValue.Key.Length + 1 + keyOptionValue.Value.Length,
-                    _ => throw new InvalidOperationException(),
-                };
-            })
-                + SeparatorWidth;
-            int width2 = optionValues.DefaultIfEmpty().Max(f =>
-            {
-                return f switch
-                {
-                    SimpleOptionValue enumOptionValue => enumOptionValue.ShortValue.Length,
-                    KeyValuePairOptionValue keyOptionValue => keyOptionValue.ShortKey.Length,
-                    _ => throw new InvalidOperationException(),
-                };
-            })
-                + SeparatorWidth;
+            int maxShortNameWidth = optionValues.Max(f => GetShortValue(f).Length);
+            int maxNameWidth = optionValues.Max(f => GetValue(f).Length);
 
-            return (width1, width2);
+            return maxShortNameWidth + maxNameWidth + 4;
+        }
+
+        private static string GetValue(OptionValue value)
+        {
+            return value switch
+            {
+                SimpleOptionValue enumOptionValue => enumOptionValue.Value,
+                KeyValuePairOptionValue keyOptionValue => $"{keyOptionValue.Key}={keyOptionValue.Value}",
+                _ => throw new InvalidOperationException(),
+            };
+        }
+
+        private static string GetShortValue(OptionValue value)
+        {
+            return value switch
+            {
+                SimpleOptionValue enumOptionValue => enumOptionValue.ShortValue,
+                KeyValuePairOptionValue keyOptionValue => keyOptionValue.ShortKey,
+                _ => throw new InvalidOperationException(),
+            };
         }
     }
 }

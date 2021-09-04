@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 
@@ -25,7 +26,7 @@ namespace Orang.CommandLine
             DisplayParts = displayParts;
             FileProperties = fileProperties?.ToImmutableArray() ?? ImmutableArray<FileProperty>.Empty;
             Indent = indent ?? ApplicationOptions.Default.ContentIndent;
-            Separator = separator;
+            Separator = separator ?? ApplicationOptions.Default.ContentSeparator;
             AlignColumns = alignColumns;
         }
 

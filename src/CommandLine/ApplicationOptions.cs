@@ -14,7 +14,7 @@ namespace Orang.CommandLine
             string? dateFormat = null,
             string? sizeFormat = null)
         {
-            ContentIndent = contentIndent ?? "  ";
+            ContentIndent = contentIndent ?? "";
             ContentSeparator = contentSeparator;
             DateFormat = dateFormat ?? "yyyy-MM-dd HH:mm:ss";
             SizeFormat = sizeFormat ?? "n0";

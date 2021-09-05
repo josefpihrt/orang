@@ -55,7 +55,8 @@ namespace Orang.CommandLine
                     {
                         case "new-line":
                             {
-                                LogHelpers.WriteObsoleteWarning($"Value '{arr[i]}' is obsolete. "
+                                LogHelpers.WriteObsoleteWarning($"Value '{arr[i]}' is has been deprecated "
+                                    + "and will be removed in future versions. "
                                     + $"Use value '{OptionValues.HighlightOptions_Newline.HelpValue}' instead.");
 
                                 arr[i] = OptionValues.HighlightOptions_Newline.Value;
@@ -63,7 +64,8 @@ namespace Orang.CommandLine
                             }
                         case "nl":
                             {
-                                LogHelpers.WriteObsoleteWarning($"Value '{arr[i]}' is obsolete. "
+                                LogHelpers.WriteObsoleteWarning($"Value '{arr[i]}' is has been deprecated "
+                                    + "and will be removed in future versions. "
                                     + $"Use value '{OptionValues.HighlightOptions_Newline.HelpValue}' instead.");
 
                                 arr[i] = OptionValues.HighlightOptions_Newline.Value;
@@ -336,8 +338,9 @@ namespace Orang.CommandLine
 
                     if (value2 == "ao")
                     {
-                        LogHelpers.WriteObsoleteWarning(
-                            $"Value '{value2}' is obsolete. Use value '{OptionValues.ModifyFlags_AggregateOnly.HelpValue}' instead.");
+                        LogHelpers.WriteObsoleteWarning($"Value '{value2}' is has been deprecated "
+                            + "and will be removed in future versions. "
+                            + $"Use value '{OptionValues.ModifyFlags_AggregateOnly.HelpValue}' instead.");
 
                         value2 = OptionValues.ModifyFlags_AggregateOnly.ShortValue;
                     }
@@ -588,21 +591,24 @@ namespace Orang.CommandLine
 
                     if (key == "t")
                     {
-                        LogHelpers.WriteObsoleteWarning($"Value '{key}' is obsolete. "
+                        LogHelpers.WriteObsoleteWarning($"Value '{key}' is has been deprecated "
+                            + "and will be removed in future versions. "
                             + $"Use value '{OptionValues.Display_Context.HelpValue}' instead.");
 
                         key = OptionValues.Display_Context.ShortKey;
                     }
                     else if (key == "ta")
                     {
-                        LogHelpers.WriteObsoleteWarning($"Value '{key}' is obsolete. "
+                        LogHelpers.WriteObsoleteWarning($"Value '{key}' is has been deprecated "
+                            + "and will be removed in future versions. "
                             + $"Use value '{OptionValues.Display_ContextAfter.HelpValue}' instead.");
 
                         key = OptionValues.Display_ContextAfter.ShortKey;
                     }
                     else if (key == "tb")
                     {
-                        LogHelpers.WriteObsoleteWarning($"Value '{key}' is obsolete. "
+                        LogHelpers.WriteObsoleteWarning($"Value '{key}' is has been deprecated "
+                            + "and will be removed in future versions. "
                             + $"Use value '{OptionValues.Display_ContextBefore.HelpValue}' instead.");
 
                         key = OptionValues.Display_ContextBefore.ShortKey;

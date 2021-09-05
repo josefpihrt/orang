@@ -128,9 +128,9 @@ namespace Orang.CommandLine
             if (matchEvaluator == null
                 && Evaluator != null)
             {
-                LogHelpers.WriteObsoleteWarning(
-                    $"Option '{OptionNames.GetHelpText(OptionNames.Evaluator)}' is obsolete. "
-                        + $"Use option '{OptionNames.GetHelpText(OptionNames.Replacement)}' instead.");
+                LogHelpers.WriteObsoleteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Evaluator)}' is has been deprecated "
+                    + "and will be removed in future versions. "
+                    + $"Use option '{OptionNames.GetHelpText(OptionNames.Replacement)}' instead.");
 
                 if (!DelegateFactory.TryCreateFromAssembly(Evaluator, typeof(string), typeof(Match), out matchEvaluator))
                     return false;

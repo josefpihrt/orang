@@ -11,10 +11,12 @@ namespace Orang.CommandLine
 {
     internal static class LogHelpers
     {
-        public static void WriteObsoleteWarning(string message)
+        public static void WriteObsoleteWarning(string message, bool waitForKeyPress = false)
         {
             WriteWarning(message);
-            ConsoleHelpers.WaitForKeyPress();
+
+            if (waitForKeyPress)
+                ConsoleHelpers.WaitForKeyPress();
         }
 
         public static void WriteFilePathEnd(int count, MaxReason maxReason, bool includeCount)

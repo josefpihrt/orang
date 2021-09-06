@@ -371,59 +371,84 @@
     <Description>x-mode comment (continues to the end of the line).</Description>
   </Item>
   <Item>
-    <Text><![CDATA[%Compiled%]]></Text>
-    <Category>Options</Category>
-    <Description>Compile the regular expression to an assembly.</Description>
-  </Item>
-  <Item>
-    <Text><![CDATA[%CultureInvariant%]]></Text>
-    <Category>Options</Category>
-    <Description>Ignore cultural differences between languages.</Description>
-  </Item>
-  <Item>
-    <Text><![CDATA[%ECMAScript%]]></Text>
-    <Category>Options</Category>
-    <Description>Enable ECMAScript-compliant behavior for the expression.</Description>
-  </Item>
-  <Item>
-    <Text><![CDATA[%ExplicitCapture% n]]></Text>
-    <Category>Options</Category>
-    <Description>Do not capture unnamed groups.</Description>
-  </Item>
-  <Item>
-    <Text><![CDATA[%IgnoreCase% i]]></Text>
+    <Text><![CDATA[i]]></Text>
     <Category>Options</Category>
     <Description>Use case-insensitive matching.</Description>
   </Item>
   <Item>
-    <Text><![CDATA[%IgnorePatternWhitespace% x]]></Text>
-    <Category>Options</Category>
-    <Description>Exclude unescaped white-space from the pattern and enable comments after a number sign (#).</Description>
-  </Item>
-  <Item>
-    <Text><![CDATA[%Multiline% m]]></Text>
+    <Text><![CDATA[m]]></Text>
     <Category>Options</Category>
     <Description>^ and $ match the beginning and end of each line (instead of the beginning and end of the input string).</Description>
   </Item>
   <Item>
-    <Text><![CDATA[%None%]]></Text>
+    <Text><![CDATA[n]]></Text>
     <Category>Options</Category>
-    <Description>Use default behavior.</Description>
+    <Description>Do not capture unnamed groups.</Description>
   </Item>
   <Item>
-    <Text><![CDATA[%Singleline% s]]></Text>
+    <Text><![CDATA[s]]></Text>
     <Category>Options</Category>
     <Description>The period (.) matches every character (instead of every character except \n).</Description>
   </Item>
   <Item>
-    <Text><![CDATA[%RightToLeft%]]></Text>
+    <Text><![CDATA[x]]></Text>
     <Category>Options</Category>
-    <Description>Search moves from right to left instead of from left to right.</Description>
+    <Description>Exclude unescaped white-space from the pattern and enable comments after a number sign (#).</Description>
   </Item>
   <Item>
     <Text><![CDATA[(?imnsx-imnsx)]]></Text>
     <Category>Options</Category>
     <Description>Sets or disables options.</Description>
+  </Item>
+  <Item>
+    <Text><![CDATA[%Compiled%]]></Text>
+    <Category>RegexOptions</Category>
+    <Description>Compile the regular expression to an assembly.</Description>
+  </Item>
+  <Item>
+    <Text><![CDATA[%CultureInvariant%]]></Text>
+    <Category>RegexOptions</Category>
+    <Description>Ignore cultural differences between languages.</Description>
+  </Item>
+  <Item>
+    <Text><![CDATA[%ECMAScript%]]></Text>
+    <Category>RegexOptions</Category>
+    <Description>Enable ECMAScript-compliant behavior for the expression.</Description>
+  </Item>
+  <Item>
+    <Text><![CDATA[%ExplicitCapture%]]></Text>
+    <Category>RegexOptions</Category>
+    <Description>Do not capture unnamed groups.</Description>
+  </Item>
+  <Item>
+    <Text><![CDATA[%IgnoreCase%]]></Text>
+    <Category>RegexOptions</Category>
+    <Description>Use case-insensitive matching.</Description>
+  </Item>
+  <Item>
+    <Text><![CDATA[%IgnorePatternWhitespace%]]></Text>
+    <Category>RegexOptions</Category>
+    <Description>Exclude unescaped white-space from the pattern and enable comments after a number sign (#).</Description>
+  </Item>
+  <Item>
+    <Text><![CDATA[%Multiline%]]></Text>
+    <Category>RegexOptions</Category>
+    <Description>^ and $ match the beginning and end of each line (instead of the beginning and end of the input string).</Description>
+  </Item>
+  <Item>
+    <Text><![CDATA[%None%]]></Text>
+    <Category>RegexOptions</Category>
+    <Description>Use default behavior.</Description>
+  </Item>
+  <Item>
+    <Text><![CDATA[%Singleline%]]></Text>
+    <Category>RegexOptions</Category>
+    <Description>The period (.) matches every character (instead of every character except \n).</Description>
+  </Item>
+  <Item>
+    <Text><![CDATA[%RightToLeft%]]></Text>
+    <Category>RegexOptions</Category>
+    <Description>Search moves from right to left instead of from left to right.</Description>
   </Item>
   <Item>
     <Text>Lu</Text>

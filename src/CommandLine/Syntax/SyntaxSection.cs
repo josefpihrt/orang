@@ -16,6 +16,7 @@ namespace Orang.Syntax
         Quantifiers = 9,
         Substitutions = 10,
         GeneralCategories = 11,
-        NamedBlocks = 12
+        NamedBlocks = 12,
+        RegexOptions = 13,
     }
 }

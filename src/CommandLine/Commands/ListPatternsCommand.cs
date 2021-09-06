@@ -73,7 +73,15 @@ namespace Orang.CommandLine
                 foreach (IGrouping<SyntaxSection, SyntaxItem> grouping in list.GroupBy(f => f.Section))
                 {
                     WriteLine();
-                    WriteLine(TextHelpers.SplitCamelCase(grouping.Key.ToString()).ToUpper());
+
+                    if (grouping.Key == SyntaxSection.RegexOptions)
+                    {
+                        WriteLine("RegexOptions");
+                    }
+                    else
+                    {
+                        WriteLine(TextHelpers.SplitCamelCase(grouping.Key.ToString()).ToUpper());
+                    }
 
                     foreach (SyntaxItem item in grouping)
                     {

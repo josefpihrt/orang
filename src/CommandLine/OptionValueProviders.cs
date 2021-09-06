@@ -269,6 +269,7 @@ namespace Orang.CommandLine
             SimpleOptionValue.Create(SyntaxSection.Miscellaneous),
             SimpleOptionValue.Create(SyntaxSection.NamedBlocks),
             SimpleOptionValue.Create(SyntaxSection.Options),
+            SimpleOptionValue.Create(SyntaxSection.RegexOptions, shortValue: "ro", helpValue: "r[egex-]o[ptions]"),
             SimpleOptionValue.Create(SyntaxSection.Quantifiers),
             SimpleOptionValue.Create(SyntaxSection.Substitutions)
         );

@@ -268,7 +268,7 @@ namespace Orang.CommandLine
             return true;
         }
 
-        private static string BuildPattern(
+        internal static string BuildPattern(
             string pattern,
             PatternOptions patternOptions,
             string? separator)

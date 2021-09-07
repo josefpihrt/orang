@@ -108,6 +108,7 @@ namespace Orang.CommandLine
 
                 ParserResult<object> parserResult = parser.ParseArguments<
                     CopyCommandLineOptions,
+                    CreatePatternCommandLineOptions,
                     DeleteCommandLineOptions,
                     EscapeCommandLineOptions,
                     FindCommandLineOptions,
@@ -170,6 +171,7 @@ namespace Orang.CommandLine
 
                 return parserResult.MapResult(
                     (CopyCommandLineOptions options) => Copy(options),
+                    (CreatePatternCommandLineOptions options) => CreatePattern(options),
                     (MoveCommandLineOptions options) => Move(options),
                     (SyncCommandLineOptions options) => Sync(options),
                     (DeleteCommandLineOptions options) => Delete(options),
@@ -278,6 +280,16 @@ namespace Orang.CommandLine
                 return ExitCodes.Error;
 
             return Execute(new CopyCommand(options), commandLineOptions);
+        }
+
+        private static int CreatePattern(CreatePatternCommandLineOptions commandLineOptions)
+        {
+            var options = new CreatePatternCommandOptions();
+
+            if (!commandLineOptions.TryParse(options))
+                return ExitCodes.Error;
+
+            return Execute(new CreatePatternCommand(options), commandLineOptions);
         }
 
         private static int Delete(DeleteCommandLineOptions commandLineOptions)

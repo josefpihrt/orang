@@ -4,6 +4,15 @@ namespace Orang.CommandLine
 {
     internal static class OptionShortNames
     {
+        public const char FromFile = 'f';
+        public const char IgnoreCase = 'i';
+        public const char Literal = 'l';
+        public const char Multiline = 'm';
+        public const char ExplicitCapture = 'n';
+        public const char Singleline = 's';
+        public const char WholeWord = 'w';
+        public const char IgnorePatternWhitespace = 'x';
+
         public const char Attributes = 'a';
         public const char AttributesToSkip = 'b';
         public const char Content = 'c';

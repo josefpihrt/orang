@@ -2,7 +2,7 @@
   "profiles": {
     "CommandLine": {
       "commandName": "Project",
-      "commandLineArgs": "help -v d"
+      "commandLineArgs": "create-pattern \"(abc)\" --literal --ends-with --multiline"
     }
   }
 }

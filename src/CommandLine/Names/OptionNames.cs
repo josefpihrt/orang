@@ -10,6 +10,20 @@ namespace Orang.CommandLine
 {
     internal static class OptionNames
     {
+        public const string EndsWith = "ends-with";
+        public const string Equals_ = "equals";
+        public const string ExplicitCapture = "explicit-capture";
+        public const string FromFile = "from-file";
+        public const string IgnorePatternWhitespace = "ignore-pattern-whitespace";
+        public const string List = "list";
+        public const string ListSeparator = "list-separator";
+        public const string Literal = "literal";
+        public const string Multiline = "multiline";
+        public const string Singleline = "singleline";
+        public const string StartsWith = "starts-with";
+        public const string WholeLine = "whole-line";
+        public const string WholeWord = "whole-word";
+
         public const string AllowedTimeDiff = "allowed-time-diff";
         public const string Ask = "ask";
         public const string Attributes = "attributes";

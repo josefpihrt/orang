@@ -671,9 +671,14 @@
     <Description>0300 - 036F</Description>
   </Item>
   <Item>
-    <Text>IsGreek or IsGreekandCoptic</Text>
+    <Text>IsGreek</Text>
     <Category>NamedBlocks</Category>
-    <Description>0370 - 03FF</Description>
+    <Description>0370 - 03FF (or IsGreekandCoptic)</Description>
+  </Item>
+  <Item>
+    <Text>IsGreekandCoptic</Text>
+    <Category>NamedBlocks</Category>
+    <Description>0370 - 03FF (or IsGreek)</Description>
   </Item>
   <Item>
     <Text>IsCyrillic</Text>
@@ -891,9 +896,14 @@
     <Description>20A0 - 20CF</Description>
   </Item>
   <Item>
-    <Text>IsCombiningDiacriticalMarksforSymbols or IsCombiningMarksforSymbols</Text>
+    <Text>IsCombiningDiacriticalMarksforSymbols</Text>
     <Category>NamedBlocks</Category>
-    <Description>20D0 - 20FF</Description>
+    <Description>20D0 - 20FF (or IsCombiningMarksforSymbols)</Description>
+  </Item>
+  <Item>
+    <Text>IsCombiningMarksforSymbols</Text>
+    <Category>NamedBlocks</Category>
+    <Description>20D0 - 20FF (or IsCombiningDiacriticalMarksforSymbols)</Description>
   </Item>
   <Item>
     <Text>IsLetterlikeSymbols</Text>
@@ -1106,52 +1116,57 @@
     <Description>DC00 - DFFF</Description>
   </Item>
   <Item>
-    <Text>IsPrivateUse or IsPrivateUseArea</Text>
+    <Text>IsPrivateUse</Text>
     <Category>NamedBlocks</Category>
-    <Description>E000 - F8FF</Description>
+    <Description>E000 - F8FF (or IsPrivateUseArea)</Description>
   </Item>
   <Item>
-    <Text>IsCJKCompatibilityIdeographs </Text>
+    <Text>IsPrivateUseArea</Text>
+    <Category>NamedBlocks</Category>
+    <Description>E000 - F8FF (or IsPrivateUse)</Description>
+  </Item>
+  <Item>
+    <Text>IsCJKCompatibilityIdeographs</Text>
     <Category>NamedBlocks</Category>
     <Description>F900 - FAFF</Description>
   </Item>
   <Item>
-    <Text>IsAlphabeticPresentationForms </Text>
+    <Text>IsAlphabeticPresentationForms</Text>
     <Category>NamedBlocks</Category>
     <Description>FB00 - FB4F</Description>
   </Item>
   <Item>
-    <Text>IsArabicPresentationForms-A </Text>
+    <Text>IsArabicPresentationForms-A</Text>
     <Category>NamedBlocks</Category>
     <Description>FB50 - FDFF</Description>
   </Item>
   <Item>
-    <Text>IsVariationSelectors </Text>
+    <Text>IsVariationSelectors</Text>
     <Category>NamedBlocks</Category>
     <Description>FE00 - FE0F</Description>
   </Item>
   <Item>
-    <Text>IsCombiningHalfMarks </Text>
+    <Text>IsCombiningHalfMarks</Text>
     <Category>NamedBlocks</Category>
     <Description>FE20 - FE2F</Description>
   </Item>
   <Item>
-    <Text>IsCJKCompatibilityForms </Text>
+    <Text>IsCJKCompatibilityForms</Text>
     <Category>NamedBlocks</Category>
     <Description>FE30 - FE4F</Description>
   </Item>
   <Item>
-    <Text>IsSmallFormVariants </Text>
+    <Text>IsSmallFormVariants</Text>
     <Category>NamedBlocks</Category>
     <Description>FE50 - FE6F</Description>
   </Item>
   <Item>
-    <Text>IsArabicPresentationForms-B </Text>
+    <Text>IsArabicPresentationForms-B</Text>
     <Category>NamedBlocks</Category>
     <Description>FE70 - FEFF</Description>
   </Item>
   <Item>
-    <Text>IsHalfwidthandFullwidthForms </Text>
+    <Text>IsHalfwidthandFullwidthForms</Text>
     <Category>NamedBlocks</Category>
     <Description>FF00 - FFEF</Description>
   </Item>

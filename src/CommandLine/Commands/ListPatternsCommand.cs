@@ -40,6 +40,13 @@ namespace Orang.CommandLine
 
             ImmutableArray<SyntaxSection> sections = Options.Sections;
 
+            if (sections.Contains(SyntaxSection.All))
+            {
+                sections = Enum.GetValues(typeof(SyntaxSection)).Cast<SyntaxSection>()
+                    .Where(f => f != SyntaxSection.None && f != SyntaxSection.All)
+                    .ToImmutableArray();
+            }
+
             if (filter != null)
             {
                 items = items.Where(f => filter.IsMatch(f.Text)

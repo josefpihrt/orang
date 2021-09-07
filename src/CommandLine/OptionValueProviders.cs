@@ -271,7 +271,8 @@ namespace Orang.CommandLine
             SimpleOptionValue.Create(SyntaxSection.Options),
             SimpleOptionValue.Create(SyntaxSection.RegexOptions, shortValue: "ro", helpValue: "r[egex-]o[ptions]"),
             SimpleOptionValue.Create(SyntaxSection.Quantifiers),
-            SimpleOptionValue.Create(SyntaxSection.Substitutions)
+            SimpleOptionValue.Create(SyntaxSection.Substitutions),
+            SimpleOptionValue.Create(SyntaxSection.All, shortValue: "")
         );
 
         public static OptionValueProvider ModifyFlagsProvider { get; } = new OptionValueProvider(

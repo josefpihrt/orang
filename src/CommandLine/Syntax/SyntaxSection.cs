@@ -18,5 +18,6 @@ namespace Orang.Syntax
         GeneralCategories = 11,
         NamedBlocks = 12,
         RegexOptions = 13,
+        All = 14,
     }
 }

@@ -15,7 +15,7 @@ namespace Orang.CommandLine
         {
             PatternOptions patternOptions = Options.PatternOptions;
 
-            string pattern = Options.PatternOrPath;
+            string pattern = Options.Input;
 
             if ((patternOptions & PatternOptions.FromFile) != 0
                 && !FileSystemHelpers.TryReadAllText(pattern, out pattern!, ex => Logger.WriteError(ex)))

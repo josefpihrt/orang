@@ -1,19 +1,21 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using CommandLine;
+using Orang.Text.RegularExpressions;
 
 namespace Orang.CommandLine
 {
+    //TODO: --split <PATTERN> [<PATTERN_OPTIONS>]
+    //TODO: --whole {word|line|input}
     [Verb("create-pattern", HelpText = "")]
     [CommandGroup("Regex", 2)]
     internal sealed class CreatePatternCommandLineOptions : AbstractCommandLineOptions
     {
         [Value(
             index: 0,
-            Required = true,
             HelpText = "",
             MetaName = "<PATTERN|PATH>")]
-        public string Value { get; set; } = null!;
+        public string Input { get; set; } = null!;
 
         [Option(
             longName: OptionNames.EndsWith,
@@ -55,9 +57,9 @@ namespace Orang.CommandLine
         public bool List { get; set; }
 
         [Option(
-            longName: OptionNames.ListSeparator,
+            longName: OptionNames.Separator,
             HelpText = "")]
-        public string ListSeparator { get; set; } = null!;
+        public string Separator { get; set; } = null!;
 
         [Option(
             shortName: OptionShortNames.Literal,
@@ -96,6 +98,21 @@ namespace Orang.CommandLine
         public bool TryParse(CreatePatternCommandOptions options)
         {
             var patternOptions = PatternOptions.None;
+
+            string input = Input;
+
+            if (input == null)
+            {
+                string? redirectedInput = ConsoleHelpers.ReadRedirectedInput();
+
+                if (redirectedInput == null)
+                {
+                    Logger.WriteError("Input is missing.");
+                    return false;
+                }
+
+                input = redirectedInput;
+            }
 
             if (ExplicitCapture)
                 patternOptions |= PatternOptions.ExplicitCapture;
@@ -136,9 +153,14 @@ namespace Orang.CommandLine
             if (WholeWord)
                 patternOptions |= PatternOptions.WholeWord;
 
+            string separator = Separator;
+
+            if (separator != null)
+                separator = RegexEscape.ConvertCharacterEscapes(separator);
+
             options.PatternOptions = patternOptions;
-            options.PatternOrPath = Value!;
-            options.Separator = ListSeparator;
+            options.Input = input;
+            options.Separator = separator;
 
             return true;
         }

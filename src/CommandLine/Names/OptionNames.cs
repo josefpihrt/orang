@@ -16,9 +16,9 @@ namespace Orang.CommandLine
         public const string FromFile = "from-file";
         public const string IgnorePatternWhitespace = "ignore-pattern-whitespace";
         public const string List = "list";
-        public const string ListSeparator = "list-separator";
         public const string Literal = "literal";
         public const string Multiline = "multiline";
+        public const string Separator = "separator";
         public const string Singleline = "singleline";
         public const string StartsWith = "starts-with";
         public const string WholeLine = "whole-line";

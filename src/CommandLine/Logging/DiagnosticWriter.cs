@@ -138,6 +138,13 @@ namespace Orang.CommandLine
             WriteLine();
         }
 
+        internal static void WriteCreatePatternCommand(CreatePatternCommandOptions options)
+        {
+            WriteOption("input", options.Input);
+            WriteOption("pattern options", options.PatternOptions);
+            WriteOption("separator", options.Separator);
+        }
+
         internal static void WriteCopyCommand(CopyCommandOptions options)
         {
 #if DEBUG

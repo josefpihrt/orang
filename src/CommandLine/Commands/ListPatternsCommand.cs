@@ -40,6 +40,13 @@ namespace Orang.CommandLine
 
             ImmutableArray<SyntaxSection> sections = Options.Sections;
 
+            if (sections.Contains(SyntaxSection.All))
+            {
+                sections = Enum.GetValues(typeof(SyntaxSection)).Cast<SyntaxSection>()
+                    .Where(f => f != SyntaxSection.None && f != SyntaxSection.All)
+                    .ToImmutableArray();
+            }
+
             if (filter != null)
             {
                 items = items.Where(f => filter.IsMatch(f.Text)
@@ -73,7 +80,15 @@ namespace Orang.CommandLine
                 foreach (IGrouping<SyntaxSection, SyntaxItem> grouping in list.GroupBy(f => f.Section))
                 {
                     WriteLine();
-                    WriteLine(TextHelpers.SplitCamelCase(grouping.Key.ToString()).ToUpper());
+
+                    if (grouping.Key == SyntaxSection.RegexOptions)
+                    {
+                        WriteLine("RegexOptions");
+                    }
+                    else
+                    {
+                        WriteLine(TextHelpers.SplitCamelCase(grouping.Key.ToString()).ToUpper());
+                    }
 
                     foreach (SyntaxItem item in grouping)
                     {

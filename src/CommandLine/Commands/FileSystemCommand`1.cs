@@ -488,7 +488,7 @@ namespace Orang.CommandLine
                         ? (context.DirectorySizeMap?[fileMatch.Path] ?? FileSystemHelpers.GetDirectorySize(fileMatch.Path))
                         : new FileInfo(fileMatch.Path).Length;
 
-                    string sizeText = size.ToString("n0");
+                    string sizeText = size.ToString(ApplicationOptions.Default.SizeFormat);
 
                     if (columnWidths != null)
                         sb.Append(' ', columnWidths.SizeWidth - sizeText.Length);
@@ -500,12 +500,12 @@ namespace Orang.CommandLine
                 else if (fileProperty == FileProperty.CreationTime)
                 {
                     sb.Append("  ");
-                    sb.Append(File.GetCreationTime(fileMatch.Path).ToString("yyyy-MM-dd HH:mm:ss"));
+                    sb.Append(File.GetCreationTime(fileMatch.Path).ToString(ApplicationOptions.Default.DateFormat));
                 }
                 else if (fileProperty == FileProperty.ModifiedTime)
                 {
                     sb.Append("  ");
-                    sb.Append(File.GetLastWriteTime(fileMatch.Path).ToString("yyyy-MM-dd HH:mm:ss"));
+                    sb.Append(File.GetLastWriteTime(fileMatch.Path).ToString(ApplicationOptions.Default.DateFormat));
                 }
                 else
                 {

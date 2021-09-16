@@ -60,7 +60,7 @@ namespace Orang.CommandLine
                             foreach (CommandItem command in en.Current)
                             {
                                 Write(Options.Indent);
-                                WriteTextLine(command.Text);
+                                WriteTextLine(command);
                             }
 
                             if (en.MoveNext())
@@ -129,8 +129,10 @@ namespace Orang.CommandLine
             ConsoleOut.WriteLine(value);
         }
 
-        protected override void WriteTextLine(string value)
+        protected override void WriteTextLine(HelpItem helpItem)
         {
+            string value = helpItem.Text;
+
             if (Filter != null)
             {
                 Match? match = Filter.Match(value);

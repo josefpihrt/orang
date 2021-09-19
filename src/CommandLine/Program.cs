@@ -131,6 +131,13 @@ namespace Orang.CommandLine
                         return;
                     }
 
+                    UnknownOptionError oldAttributesToSkipShortName = e
+                        .OfType<UnknownOptionError>()
+                        .FirstOrDefault(f => f.Token == "b");
+
+                    if (oldAttributesToSkipShortName != null)
+                        WriteWarning("Shortcut '-b' has been deprecated. Use '-A' instead.");
+
                     var helpText = new HelpText(SentenceBuilder.Create(), HelpCommand.GetHeadingText());
 
                     helpText = HelpText.DefaultParsingErrorsHandler(parserResult, helpText);

@@ -6,8 +6,8 @@ namespace Orang.CommandLine
     {
         public const string ConflictResolution_WithoutSuffix = nameof(ConflictResolution_WithoutSuffix);
 
-        public const string ContentDisplayStyle_WithoutLineAndUnmatchedLines
-            = nameof(ContentDisplayStyle_WithoutLineAndUnmatchedLines);
+        public const string ContentDisplayStyle_WithoutLineAndUnmatchedLinesAndOmit
+            = nameof(ContentDisplayStyle_WithoutLineAndUnmatchedLinesAndOmit);
 
         public const string ContentDisplayStyle_WithoutUnmatchedLines = nameof(ContentDisplayStyle_WithoutUnmatchedLines);
         public const string DeleteHighlightOptions = nameof(DeleteHighlightOptions);

@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using CommandLine;
+using Orang.Text.RegularExpressions;
 using static Orang.CommandLine.ParseHelpers;
 using static Orang.Logger;
 
@@ -89,6 +90,19 @@ namespace Orang.CommandLine
                 return false;
             }
 
+            if (Display.Any())
+            {
+                LogHelpers.WriteObsoleteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Display)}' has been deprecated "
+                    + "and will be removed in future version. Use following options instead:"
+                    + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.ContentMode)}"
+                    + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.Summary)}"
+#if DEBUG
+                    + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.ContentIndent)}"
+                    + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.ContentSeparator)}"
+#endif
+                    );
+            }
+
             if (!TryParseDisplay(
                 values: Display,
                 optionName: OptionNames.Display,
@@ -97,7 +111,9 @@ namespace Orang.CommandLine
                 lineDisplayOptions: out LineDisplayOptions lineDisplayOptions,
                 lineContext: out LineContext _,
                 displayParts: out DisplayParts displayParts,
-                fileProperties: out ImmutableArray<FileProperty> fileProperties,
+                includeCreationTime: out bool includeCreationTime,
+                includeModifiedTime: out bool includeModifiedTime,
+                includeSize: out bool includeSize,
                 indent: out string? indent,
                 separator: out string? separator,
                 noAlign: out bool _,
@@ -107,6 +123,31 @@ namespace Orang.CommandLine
                 return false;
             }
 
+            if (Summary)
+                displayParts |= DisplayParts.Summary;
+
+            if (ContentMode != null)
+            {
+                if (TryParseAsEnum(
+                    ContentMode,
+                    OptionNames.ContentMode,
+                    out ContentDisplayStyle contentDisplayStyle2,
+                    provider: OptionValueProviders.ContentDisplayStyleProvider_WithoutLineAndUnmatchedLines))
+                {
+                    contentDisplayStyle = contentDisplayStyle2;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+#if DEBUG
+            if (ContentIndent != null)
+                indent = RegexEscape.ConvertCharacterEscapes(ContentIndent);
+
+            if (ContentSeparator != null)
+                separator = ContentSeparator;
+#endif
             EnumerableModifier<string>? modifier = null;
 #if DEBUG // --modifier
             if (Modifier.Any()
@@ -139,7 +180,6 @@ namespace Orang.CommandLine
                 pathDisplayStyle: PathDisplayStyle.Full,
                 lineOptions: lineDisplayOptions,
                 displayParts: displayParts,
-                fileProperties: fileProperties,
                 indent: indent,
                 separator: separator ?? Environment.NewLine);
 

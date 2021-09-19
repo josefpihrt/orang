@@ -48,7 +48,7 @@ namespace Orang.CommandLine
 
         public SortOptions? SortOptions { get; internal set; }
 
-        public FilePropertyFilter? FilePropertyFilter { get; internal set; }
+        public FilePropertyOptions FilePropertyOptions { get; internal set; } = null!;
 
         public FilterPredicate<DateTime>? CreationTimePredicate { get; internal set; }
 

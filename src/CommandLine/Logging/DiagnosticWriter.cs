@@ -170,6 +170,7 @@ namespace Orang.CommandLine
 #endif
             WritePaths("paths", options.Paths);
             WriteOption("progress", options.Progress);
+            WriteProperties(options);
             WriteOption("recurse subdirectories", options.RecurseSubdirectories);
             WriteOption("search target", options.SearchTarget);
             WriteSortOptions("sort", options.SortOptions);
@@ -202,6 +203,7 @@ namespace Orang.CommandLine
             WriteFilter("name filter", options.NameFilter, options.NamePart);
             WritePaths("paths", options.Paths);
             WriteOption("progress", options.Progress);
+            WriteProperties(options);
             WriteOption("recurse subdirectories", options.RecurseSubdirectories);
             WriteOption("search target", options.SearchTarget);
             WriteSortOptions("sort", options.SortOptions);
@@ -238,6 +240,7 @@ namespace Orang.CommandLine
             WriteFilter("name filter", options.NameFilter, options.NamePart);
             WritePaths("paths", options.Paths);
             WriteOption("progress", options.Progress);
+            WriteProperties(options);
             WriteOption("recurse subdirectories", options.RecurseSubdirectories);
             WriteOption("search target", options.SearchTarget);
             WriteOption("split", options.Split);
@@ -301,6 +304,7 @@ namespace Orang.CommandLine
 #endif
             WritePaths("paths", options.Paths);
             WriteOption("progress", options.Progress);
+            WriteProperties(options);
             WriteOption("recurse subdirectories", options.RecurseSubdirectories);
             WriteOption("search target", options.SearchTarget);
             WriteSortOptions("sort", options.SortOptions);
@@ -333,6 +337,7 @@ namespace Orang.CommandLine
             WriteFilter("name filter", options.NameFilter, options.NamePart);
             WritePaths("paths", options.Paths);
             WriteOption("progress", options.Progress);
+            WriteProperties(options);
             WriteOption("recurse subdirectories", options.RecurseSubdirectories);
             WriteOption("replacement", options.ReplaceOptions.Replacement);
             WriteOption("search target", options.SearchTarget);
@@ -368,6 +373,7 @@ namespace Orang.CommandLine
             WriteFilter("name filter", options.NameFilter, options.NamePart);
             WritePaths("paths", options.Paths);
             WriteOption("progress", options.Progress);
+            WriteProperties(options);
             WriteOption("recurse subdirectories", options.RecurseSubdirectories);
             WriteOption("replacement", replaceOptions.Replacement);
             WriteOption("search target", options.SearchTarget);
@@ -403,6 +409,7 @@ namespace Orang.CommandLine
             WriteFilter("name filter", options.NameFilter, options.NamePart);
             WritePaths("paths", options.Paths);
             WriteOption("progress", options.Progress);
+            WriteProperties(options);
             WriteOption("recurse subdirectories", options.RecurseSubdirectories);
             WriteOption("search target", options.SearchTarget);
             WriteSortOptions("sort", options.SortOptions);
@@ -456,6 +463,7 @@ namespace Orang.CommandLine
             WriteFilter("name filter", options.NameFilter, options.NamePart);
             WritePaths("paths", options.Paths);
             WriteOption("progress", options.Progress);
+            WriteProperties(options);
             WriteOption("recurse subdirectories", options.RecurseSubdirectories);
             WriteOption("search target", options.SearchTarget);
             WriteSortOptions("sort", options.SortOptions);
@@ -679,7 +687,6 @@ namespace Orang.CommandLine
             WriteIndent();
             WriteOption("display parts", format.DisplayParts);
             WriteIndent();
-            WriteOption("file properties", format.FileProperties);
             WriteIndent();
             WriteOption("indent", format.Indent, replaceAllSymbols: true);
             WriteIndent();
@@ -707,8 +714,41 @@ namespace Orang.CommandLine
 
             if (format.Separator?.EndsWith("\n") != true)
                 WriteLine();
+        }
 
-            WriteOption("no align", !format.AlignColumns);
+        private static void WriteProperties(FileSystemCommandOptions options)
+        {
+            WriteName("properties");
+
+            FilePropertyOptions filePropertyOptions = options.FilePropertyOptions;
+
+            if (!filePropertyOptions.IncludeCreationTime
+                && !filePropertyOptions.IncludeModifiedTime
+                && !filePropertyOptions.IncludeSize
+                && filePropertyOptions.CreationTimePredicate == null
+                && filePropertyOptions.ModifiedTimePredicate == null
+                && filePropertyOptions.SizePredicate == null)
+            {
+                WriteNullValue();
+                WriteLine();
+                return;
+            }
+
+            WriteLine();
+            WriteIndent();
+            WriteOption("creation time", filePropertyOptions.IncludeCreationTime);
+            WriteIndent();
+            WriteOption("creation time condition", options.CreationTimePredicate?.Expression.Text);
+            WriteIndent();
+            WriteOption("modified time", filePropertyOptions.IncludeModifiedTime);
+            WriteIndent();
+            WriteOption("modified time condition", options.ModifiedTimePredicate?.Expression.Text);
+            WriteIndent();
+            WriteOption("size", filePropertyOptions.IncludeSize);
+            WriteIndent();
+            WriteOption("size condition", options.SizePredicate?.Expression.Text);
+            WriteIndent();
+            WriteOption("align columns", filePropertyOptions.AlignColumns);
         }
 
         private static void WriteSortOptions(string name, SortOptions? options)

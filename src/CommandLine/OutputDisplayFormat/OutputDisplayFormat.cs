@@ -1,9 +1,5 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
-using System.Collections.Generic;
-using System.Collections.Immutable;
-
 namespace Orang.CommandLine
 {
     internal class OutputDisplayFormat
@@ -14,20 +10,16 @@ namespace Orang.CommandLine
             LineDisplayOptions lineOptions = LineDisplayOptions.None,
             LineContext lineContext = default,
             DisplayParts displayParts = DisplayParts.None,
-            IEnumerable<FileProperty>? fileProperties = null,
             string? indent = null,
-            string? separator = null,
-            bool alignColumns = true)
+            string? separator = null)
         {
             ContentDisplayStyle = contentDisplayStyle;
             PathDisplayStyle = pathDisplayStyle;
             LineOptions = lineOptions;
             LineContext = lineContext;
             DisplayParts = displayParts;
-            FileProperties = fileProperties?.ToImmutableArray() ?? ImmutableArray<FileProperty>.Empty;
             Indent = indent ?? ApplicationOptions.Default.ContentIndent;
             Separator = separator ?? ApplicationOptions.Default.ContentSeparator;
-            AlignColumns = alignColumns;
         }
 
         public ContentDisplayStyle ContentDisplayStyle { get; }
@@ -40,13 +32,9 @@ namespace Orang.CommandLine
 
         public DisplayParts DisplayParts { get; }
 
-        public ImmutableArray<FileProperty> FileProperties { get; }
-
         public string Indent { get; }
 
         public string? Separator { get; }
-
-        public bool AlignColumns { get; }
 
         public bool Includes(LineDisplayOptions options) => (LineOptions & options) == options;
 

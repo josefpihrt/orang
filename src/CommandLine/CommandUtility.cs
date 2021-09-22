@@ -11,6 +11,7 @@ namespace Orang.CommandLine
         {
             switch (command)
             {
+                case "regex-create":
                 case "regex-escape":
                 case "regex-list":
                 case "regex-match":
@@ -25,6 +26,7 @@ namespace Orang.CommandLine
         {
             switch (args[0])
             {
+                case "regex-create":
                 case "regex-escape":
                 case "regex-list":
                 case "regex-match":
@@ -61,6 +63,11 @@ namespace Orang.CommandLine
                         {
                             switch (args[1])
                             {
+                                case "create":
+                                    {
+                                        ReplaceArgs("regex-create", ref args);
+                                        break;
+                                    }
                                 case "escape":
                                     {
                                         ReplaceArgs("regex-escape", ref args);
@@ -113,6 +120,7 @@ namespace Orang.CommandLine
             {
                 WriteError($"Command '{commandName}' is invalid. "
                     + $"Use following commands instead:{Environment.NewLine}"
+                    + $"  regex create{Environment.NewLine}"
                     + $"  regex escape{Environment.NewLine}"
                     + $"  regex list{Environment.NewLine}"
                     + $"  regex match{Environment.NewLine}"

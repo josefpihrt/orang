@@ -138,7 +138,7 @@ namespace Orang.CommandLine
             WriteLine();
         }
 
-        internal static void WriteCreatePatternCommand(CreatePatternCommandOptions options)
+        internal static void WriteRegexCreateCommand(RegexCreateCommandOptions options)
         {
             WriteOption("input", options.Input);
             WriteOption("pattern options", options.PatternOptions);

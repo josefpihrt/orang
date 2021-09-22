@@ -5,9 +5,9 @@ using Orang.FileSystem;
 
 namespace Orang.CommandLine
 {
-    internal class CreatePatternCommand : AbstractCommand<CreatePatternCommandOptions>
+    internal class RegexCreateCommand : AbstractCommand<RegexCreateCommandOptions>
     {
-        public CreatePatternCommand(CreatePatternCommandOptions options) : base(options)
+        public RegexCreateCommand(RegexCreateCommandOptions options) : base(options)
         {
         }
 

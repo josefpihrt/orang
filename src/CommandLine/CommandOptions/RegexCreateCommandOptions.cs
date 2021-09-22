@@ -2,9 +2,9 @@
 
 namespace Orang.CommandLine
 {
-    internal sealed class CreatePatternCommandOptions : AbstractCommandOptions
+    internal sealed class RegexCreateCommandOptions : AbstractCommandOptions
     {
-        internal CreatePatternCommandOptions()
+        internal RegexCreateCommandOptions()
         {
         }
 
@@ -16,7 +16,7 @@ namespace Orang.CommandLine
 
         protected override void WriteDiagnosticCore()
         {
-            DiagnosticWriter.WriteCreatePatternCommand(this);
+            DiagnosticWriter.WriteRegexCreateCommand(this);
         }
     }
 }

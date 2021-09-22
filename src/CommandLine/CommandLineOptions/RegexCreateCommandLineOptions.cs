@@ -7,9 +7,10 @@ namespace Orang.CommandLine
 {
     //TODO: --split <PATTERN> [<PATTERN_OPTIONS>]
     //TODO: --whole {word|line|input}
-    [Verb("create-pattern", HelpText = "")]
+    [Verb("regex-create", HelpText = "")]
     [CommandGroup("Regex", 2)]
-    internal sealed class CreatePatternCommandLineOptions : AbstractCommandLineOptions
+    [CommandAlias("regex create")]
+    internal sealed class RegexCreateCommandLineOptions : AbstractCommandLineOptions
     {
         [Value(
             index: 0,
@@ -95,7 +96,7 @@ namespace Orang.CommandLine
             HelpText = "")]
         public bool WholeWord { get; set; }
 
-        public bool TryParse(CreatePatternCommandOptions options)
+        public bool TryParse(RegexCreateCommandOptions options)
         {
             var patternOptions = PatternOptions.None;
 

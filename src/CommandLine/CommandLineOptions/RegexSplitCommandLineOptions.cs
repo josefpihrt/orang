@@ -7,12 +7,13 @@ using static Orang.CommandLine.ParseHelpers;
 namespace Orang.CommandLine
 {
     [Verb(
-        "split",
+        "regex-split",
         HelpText = "Splits the input string into an list of substrings at the positions defined by a regular expression.")]
     [OptionValueProvider(nameof(Content), OptionValueProviderNames.PatternOptionsWithoutGroupAndPartAndNegative)]
     [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.SplitHighlightOptions)]
     [CommandGroup("Regex", 2)]
-    internal sealed class SplitCommandLineOptions : RegexCommandLineOptions
+    [CommandAlias("regex split")]
+    internal sealed class RegexSplitCommandLineOptions : RegexCommandLineOptions
     {
         [Option(
             shortName: OptionShortNames.Content,
@@ -35,14 +36,14 @@ namespace Orang.CommandLine
             HelpText = "Do not include groups in the results.")]
         public bool NoGroups { get; set; }
 
-        public bool TryParse(SplitCommandOptions options)
+        public bool TryParse(RegexSplitCommandOptions options)
         {
             var baseOptions = (RegexCommandOptions)options;
 
             if (!TryParse(baseOptions))
                 return false;
 
-            options = (SplitCommandOptions)baseOptions;
+            options = (RegexSplitCommandOptions)baseOptions;
 
             if (!FilterParser.TryParse(
                 Content,

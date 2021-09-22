@@ -9,9 +9,10 @@ using static Orang.CommandLine.ParseHelpers;
 
 namespace Orang.CommandLine
 {
-    [Verb("list-patterns", HelpText = "Lists regular expression patterns.")]
+    [Verb("regex-list", HelpText = "Lists regular expression patterns.")]
     [CommandGroup("Regex", 2)]
-    internal sealed class ListPatternsCommandLineOptions : AbstractCommandLineOptions
+    [CommandAlias("regex list")]
+    internal sealed class RegexListCommandLineOptions : AbstractCommandLineOptions
     {
         [Value(
             index: 0,
@@ -47,7 +48,7 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.SyntaxSections)]
         public IEnumerable<string> Section { get; set; } = null!;
 
-        public bool TryParse(ListPatternsCommandOptions options)
+        public bool TryParse(RegexListCommandOptions options)
         {
             char? value = null;
 

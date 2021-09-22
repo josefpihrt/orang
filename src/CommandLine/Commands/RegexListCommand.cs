@@ -14,9 +14,9 @@ using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
-    internal class ListPatternsCommand : AbstractCommand<ListPatternsCommandOptions>
+    internal class RegexListCommand : AbstractCommand<RegexListCommandOptions>
     {
-        public ListPatternsCommand(ListPatternsCommandOptions options) : base(options)
+        public RegexListCommand(RegexListCommandOptions options) : base(options)
         {
         }
 

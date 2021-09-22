@@ -209,13 +209,6 @@ namespace Orang.CommandLine
             WriteSortOptions("sort", options.SortOptions);
         }
 
-        internal static void WriteEscapeCommand(EscapeCommandOptions options)
-        {
-            WriteOption("char group", options.InCharGroup);
-            WriteInput(options.Input);
-            WriteOption("replacement", options.Replacement);
-        }
-
         internal static void WriteFindCommand(FindCommandOptions options)
         {
             WriteOption("ask", options.AskMode);
@@ -249,27 +242,9 @@ namespace Orang.CommandLine
 
         internal static void WriteHelpCommand(HelpCommandOptions options)
         {
-            WriteOption("command", options.Command);
+            WriteOption("command", string.Join(' ', options.Command));
             WriteOption("manual", options.Manual);
             WriteFilter("filter", options.Filter);
-        }
-
-        internal static void WriteMatchCommand(MatchCommandOptions options)
-        {
-            WriteDisplayFormat("display", options.Format);
-            WriteFilter("filter", options.Filter);
-            WriteOption("highlight options", options.HighlightOptions);
-            WriteInput(options.Input);
-            WriteOption("max count", options.MaxCount);
-        }
-
-        internal static void WriteListPatternsCommand(ListPatternsCommandOptions options)
-        {
-            WriteOption("char", options.Value);
-            WriteOption("char group", options.InCharGroup);
-            WriteFilter("filter", options.Filter);
-            WriteOption("regex options", options.RegexOptions);
-            WriteOption("sections", options.Sections);
         }
 
         internal static void WriteMoveCommand(MoveCommandOptions options)
@@ -309,6 +284,41 @@ namespace Orang.CommandLine
             WriteOption("search target", options.SearchTarget);
             WriteSortOptions("sort", options.SortOptions);
             WriteOption("target", options.Target);
+        }
+
+        internal static void WriteRegexEscapeCommand(RegexEscapeCommandOptions options)
+        {
+            WriteOption("char group", options.InCharGroup);
+            WriteInput(options.Input);
+            WriteOption("replacement", options.Replacement);
+        }
+
+        internal static void WriteRegexMatchCommand(RegexMatchCommandOptions options)
+        {
+            WriteDisplayFormat("display", options.Format);
+            WriteFilter("filter", options.Filter);
+            WriteOption("highlight options", options.HighlightOptions);
+            WriteInput(options.Input);
+            WriteOption("max count", options.MaxCount);
+        }
+
+        internal static void WriteRegexListCommand(RegexListCommandOptions options)
+        {
+            WriteOption("char", options.Value);
+            WriteOption("char group", options.InCharGroup);
+            WriteFilter("filter", options.Filter);
+            WriteOption("regex options", options.RegexOptions);
+            WriteOption("sections", options.Sections);
+        }
+
+        internal static void WriteRegexSplitCommand(RegexSplitCommandOptions options)
+        {
+            WriteDisplayFormat("display", options.Format);
+            WriteFilter("filter", options.Filter);
+            WriteOption("highlight options", options.HighlightOptions);
+            WriteInput(options.Input);
+            WriteOption("max count", options.MaxCount);
+            WriteOption("omit groups", options.OmitGroups);
         }
 
         internal static void WriteRenameCommand(RenameCommandOptions options)
@@ -418,16 +428,6 @@ namespace Orang.CommandLine
             WriteRegex("word", spellcheckState.Spellchecker.WordRegex);
 #endif
             WriteOption("words", spellcheckState.Data.Words.Values.Count + spellcheckState.Data.CaseSensitiveWords.Values.Count);
-        }
-
-        internal static void WriteSplitCommand(SplitCommandOptions options)
-        {
-            WriteDisplayFormat("display", options.Format);
-            WriteFilter("filter", options.Filter);
-            WriteOption("highlight options", options.HighlightOptions);
-            WriteInput(options.Input);
-            WriteOption("max count", options.MaxCount);
-            WriteOption("omit groups", options.OmitGroups);
         }
 
         internal static void WriteSyncCommand(SyncCommandOptions options)

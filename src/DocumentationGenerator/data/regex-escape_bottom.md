@@ -11,11 +11,11 @@ Escape a given path so it will be treated as a literal string and not a regular 
 #### Syntax
 
 ```
-orang escape --input "foo\bar.txt"
+orang regex escape --input "foo\bar.txt"
 ```
 
 #### Short Syntax
 
 ```
-orang escape -i "foo\bar.txt"
+orang regex escape -i "foo\bar.txt"
 ```

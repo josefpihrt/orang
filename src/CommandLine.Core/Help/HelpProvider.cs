@@ -17,7 +17,7 @@ namespace Orang.CommandLine.Help
             if (!commands.Any())
                 return ImmutableArray<CommandItem>.Empty;
 
-            int width = commands.Max(f => f.Name.Length) + SeparatorWidth;
+            int width = commands.Max(f => f.DisplayName.Length) + SeparatorWidth;
 
             ImmutableArray<CommandItem>.Builder builder = ImmutableArray.CreateBuilder<CommandItem>();
 
@@ -25,8 +25,8 @@ namespace Orang.CommandLine.Help
             {
                 StringBuilder sb = StringBuilderCache.GetInstance();
 
-                sb.Append(command.Name);
-                sb.AppendSpaces(width - command.Name.Length);
+                sb.Append(command.DisplayName);
+                sb.AppendSpaces(width - command.DisplayName.Length);
 
                 string syntax = StringBuilderCache.GetStringAndFree(sb);
                 string description = command.Description ?? "";

@@ -7,9 +7,9 @@ using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
-    internal class MatchCommand : RegexCommand<MatchCommandOptions>
+    internal class RegexMatchCommand : RegexCommand<RegexMatchCommandOptions>
     {
-        public MatchCommand(MatchCommandOptions options) : base(options)
+        public RegexMatchCommand(RegexMatchCommandOptions options) : base(options)
         {
         }
 

@@ -2,15 +2,17 @@
 
 namespace Orang.CommandLine
 {
-    internal sealed class MatchCommandOptions : RegexCommandOptions
+    internal sealed class RegexSplitCommandOptions : RegexCommandOptions
     {
-        internal MatchCommandOptions()
+        internal RegexSplitCommandOptions()
         {
         }
 
+        public bool OmitGroups { get; internal set; }
+
         protected override void WriteDiagnosticCore()
         {
-            DiagnosticWriter.WriteMatchCommand(this);
+            DiagnosticWriter.WriteRegexSplitCommand(this);
         }
     }
 }

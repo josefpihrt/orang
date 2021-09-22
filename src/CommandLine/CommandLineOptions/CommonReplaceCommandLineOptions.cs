@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using CommandLine;
 using Orang.FileSystem;
+using Orang.Text.RegularExpressions;
 using static Orang.CommandLine.ParseHelpers;
 using static Orang.Logger;
 
@@ -160,15 +161,82 @@ namespace Orang.CommandLine
                 lineDisplayOptions: out LineDisplayOptions lineDisplayOptions,
                 lineContext: out LineContext lineContext,
                 displayParts: out DisplayParts displayParts,
-                fileProperties: out ImmutableArray<FileProperty> fileProperties,
+                includeCreationTime: out bool includeCreationTime,
+                includeModifiedTime: out bool includeModifiedTime,
+                includeSize: out bool includeSize,
                 indent: out string? indent,
                 separator: out string? separator,
-                noAlign: out bool noAlign,
+                noAlign: out bool _,
                 contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider_WithoutUnmatchedLines,
                 pathDisplayStyleProvider: OptionValueProviders.PathDisplayStyleProvider))
             {
                 return false;
             }
+
+            if (ContentMode != null)
+            {
+                if (TryParseAsEnum(
+                    ContentMode,
+                    OptionNames.ContentMode,
+                    out ContentDisplayStyle contentDisplayStyle3,
+                    provider: OptionValueProviders.ContentDisplayStyleProvider_WithoutUnmatchedLines))
+                {
+                    contentDisplayStyle2 = contentDisplayStyle3;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            if (PathMode != null)
+            {
+                if (TryParseAsEnum(
+                    PathMode,
+                    OptionNames.PathMode,
+                    out PathDisplayStyle pathDisplayStyle3,
+                    provider: OptionValueProviders.PathDisplayStyleProvider))
+                {
+                    pathDisplayStyle2 = pathDisplayStyle3;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            if (Count)
+                displayParts |= DisplayParts.Count;
+
+            if (Summary)
+                displayParts |= DisplayParts.Summary;
+
+            if (Context >= 0)
+                lineContext = new LineContext(Context);
+
+            if (LineNumber)
+                lineDisplayOptions |= LineDisplayOptions.IncludeLineNumber;
+#if DEBUG
+            if (ContentIndent != null)
+                indent = RegexEscape.ConvertCharacterEscapes(ContentIndent);
+
+            if (ContentSeparator != null)
+                separator = ContentSeparator;
+
+            if (NoContent)
+                contentDisplayStyle2 = ContentDisplayStyle.Omit;
+
+            if (NoPath)
+                pathDisplayStyle2 = PathDisplayStyle.Omit;
+#endif
+            if (includeCreationTime)
+                options.FilePropertyOptions = options.FilePropertyOptions.WithIncludeCreationTime(true);
+
+            if (includeModifiedTime)
+                options.FilePropertyOptions = options.FilePropertyOptions.WithIncludeModifiedTime(true);
+
+            if (includeSize)
+                options.FilePropertyOptions = options.FilePropertyOptions.WithIncludeSize(true);
 
             if (contentDisplayStyle2 != null)
             {
@@ -223,10 +291,8 @@ namespace Orang.CommandLine
                 lineOptions: lineDisplayOptions,
                 lineContext: lineContext,
                 displayParts: displayParts,
-                fileProperties: fileProperties,
                 indent: indent,
-                separator: separator,
-                alignColumns: !noAlign);
+                separator: separator);
 
             options.HighlightOptions = highlightOptions;
             options.ContentFilter = contentFilter;

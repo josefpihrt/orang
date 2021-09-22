@@ -23,7 +23,7 @@ namespace Orang.CommandLine
 
         public int WriteMatches(
             MatchData matchData,
-            MatchCommandOptions options,
+            RegexMatchCommandOptions options,
             in CancellationToken cancellationToken = default)
         {
             string input = options.Input;
@@ -194,7 +194,7 @@ namespace Orang.CommandLine
 
         public int WriteSplits(
             SplitData splitData,
-            SplitCommandOptions options,
+            RegexSplitCommandOptions options,
             in CancellationToken cancellationToken = default)
         {
             OutputSymbols symbols = OutputSymbols.Create(HighlightOptions);

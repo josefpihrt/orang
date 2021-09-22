@@ -45,7 +45,10 @@ namespace Orang.CommandLine
                 part: Options.NamePart,
                 extension: Options.ExtensionFilter,
                 content: Options.ContentFilter,
-                properties: Options.FilePropertyFilter,
+                properties: new FilePropertyFilter(
+                    Options.FilePropertyOptions.CreationTimePredicate,
+                    Options.FilePropertyOptions.ModifiedTimePredicate,
+                    Options.FilePropertyOptions.SizePredicate),
                 attributes: Options.Attributes,
                 attributesToSkip: Options.AttributesToSkip,
                 emptyOption: Options.EmptyOption);
@@ -115,8 +118,8 @@ namespace Orang.CommandLine
                 {
                     results = new List<SearchResult>();
                 }
-                else if (Options.Format.AlignColumns
-                    && Options.Format.FileProperties.Any())
+                else if (Options.FilePropertyOptions.AlignColumns
+                    && !Options.FilePropertyOptions.IsEmpty)
                 {
                     results = new List<SearchResult>();
                 }
@@ -270,18 +273,17 @@ namespace Orang.CommandLine
                     results = results.Take(sortOptions.MaxCount);
             }
 
-            ImmutableArray<FileProperty> fileProperties = Options.Format.FileProperties;
             ColumnWidths? columnWidths = null;
 
-            if (fileProperties.Any()
-                && Options.Format.AlignColumns)
+            if (!Options.FilePropertyOptions.IsEmpty
+                && Options.FilePropertyOptions.AlignColumns)
             {
                 List<SearchResult> resultList = results.ToList();
 
                 int maxNameWidth = resultList.Max(f => f.Path.Length);
                 int maxSizeWidth = 0;
 
-                if (fileProperties.Contains(FileProperty.Size))
+                if (Options.FilePropertyOptions.IncludeSize)
                 {
                     long maxSize = 0;
 
@@ -335,7 +337,7 @@ namespace Orang.CommandLine
                 OperationCanceled();
             }
 
-            if (Options.Format.FileProperties.Contains(FileProperty.Size)
+            if (Options.FilePropertyOptions.IncludeSize
                 && context.Telemetry.FilesTotalSize == 0)
             {
                 foreach (SearchResult result in results.Take(i))
@@ -470,7 +472,7 @@ namespace Orang.CommandLine
             if (!ShouldLog(Verbosity.Minimal))
                 return;
 
-            if (!Options.Format.FileProperties.Any())
+            if (Options.FilePropertyOptions.IsEmpty)
                 return;
 
             StringBuilder sb = StringBuilderCache.GetInstance();
@@ -478,39 +480,34 @@ namespace Orang.CommandLine
             if (columnWidths != null)
                 sb.Append(' ', columnWidths.NameWidth - fileMatch.Path.Length);
 
-            foreach (FileProperty fileProperty in Options.Format.FileProperties)
+            if (Options.FilePropertyOptions.IncludeSize)
             {
-                if (fileProperty == FileProperty.Size)
-                {
-                    sb.Append("  ");
+                sb.Append("  ");
 
-                    long size = (fileMatch.IsDirectory)
-                        ? (context.DirectorySizeMap?[fileMatch.Path] ?? FileSystemHelpers.GetDirectorySize(fileMatch.Path))
-                        : new FileInfo(fileMatch.Path).Length;
+                long size = (fileMatch.IsDirectory)
+                    ? (context.DirectorySizeMap?[fileMatch.Path] ?? FileSystemHelpers.GetDirectorySize(fileMatch.Path))
+                    : new FileInfo(fileMatch.Path).Length;
 
-                    string sizeText = size.ToString(ApplicationOptions.Default.SizeFormat);
+                string sizeText = size.ToString(ApplicationOptions.Default.SizeFormat);
 
-                    if (columnWidths != null)
-                        sb.Append(' ', columnWidths.SizeWidth - sizeText.Length);
+                if (columnWidths != null)
+                    sb.Append(' ', columnWidths.SizeWidth - sizeText.Length);
 
-                    sb.Append(sizeText);
+                sb.Append(sizeText);
 
-                    context.Telemetry.FilesTotalSize += size;
-                }
-                else if (fileProperty == FileProperty.CreationTime)
-                {
-                    sb.Append("  ");
-                    sb.Append(File.GetCreationTime(fileMatch.Path).ToString(ApplicationOptions.Default.DateFormat));
-                }
-                else if (fileProperty == FileProperty.ModifiedTime)
-                {
-                    sb.Append("  ");
-                    sb.Append(File.GetLastWriteTime(fileMatch.Path).ToString(ApplicationOptions.Default.DateFormat));
-                }
-                else
-                {
-                    throw new InvalidOperationException($"Unknown enum value '{fileProperty}'.");
-                }
+                context.Telemetry.FilesTotalSize += size;
+            }
+
+            if (Options.FilePropertyOptions.IncludeCreationTime)
+            {
+                sb.Append("  ");
+                sb.Append(File.GetCreationTime(fileMatch.Path).ToString(ApplicationOptions.Default.DateFormat));
+            }
+
+            if (Options.FilePropertyOptions.IncludeModifiedTime)
+            {
+                sb.Append("  ");
+                sb.Append(File.GetLastWriteTime(fileMatch.Path).ToString(ApplicationOptions.Default.DateFormat));
             }
 
             Write(StringBuilderCache.GetStringAndFree(sb), Verbosity.Minimal);

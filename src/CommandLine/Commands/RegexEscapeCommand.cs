@@ -6,9 +6,9 @@ using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
-    internal class EscapeCommand : AbstractCommand<EscapeCommandOptions>
+    internal class RegexEscapeCommand : AbstractCommand<RegexEscapeCommandOptions>
     {
-        public EscapeCommand(EscapeCommandOptions options) : base(options)
+        public RegexEscapeCommand(RegexEscapeCommandOptions options) : base(options)
         {
         }
 

@@ -4,9 +4,10 @@ using CommandLine;
 
 namespace Orang.CommandLine
 {
-    [Verb("escape", HelpText = "Escapes special characters by replacing them with their escape codes.")]
+    [Verb("regex-escape", HelpText = "Escapes special characters by replacing them with their escape codes.")]
     [CommandGroup("Regex", 2)]
-    internal sealed class EscapeCommandLineOptions : BaseCommandLineOptions
+    [CommandAlias("regex escape")]
+    internal sealed class RegexEscapeCommandLineOptions : BaseCommandLineOptions
     {
         [Option(
             shortName: OptionShortNames.Input,
@@ -26,7 +27,7 @@ namespace Orang.CommandLine
             HelpText = "Text is a replacement string.")]
         public bool Replacement { get; set; }
 
-        public bool TryParse(EscapeCommandOptions options)
+        public bool TryParse(RegexEscapeCommandOptions options)
         {
             string input = Input;
 

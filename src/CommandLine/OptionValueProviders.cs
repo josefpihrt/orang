@@ -386,7 +386,7 @@ namespace Orang.CommandLine
         );
 
         public static OptionValueProvider ContentDisplayStyleProvider { get; } = new OptionValueProvider(
-            MetaValues.ContentDisplay,
+            MetaValues.ContentMode,
             OptionValues.ContentDisplayStyle_AllLines,
             OptionValues.ContentDisplayStyle_Line,
             OptionValues.ContentDisplayStyle_UnmatchedLines,
@@ -403,7 +403,7 @@ namespace Orang.CommandLine
 
         public static OptionValueProvider ContentDisplayStyleProvider_WithoutLineAndUnmatchedLines { get; }
             = ContentDisplayStyleProvider.WithoutValues(
-                OptionValueProviderNames.ContentDisplayStyle_WithoutLineAndUnmatchedLines,
+                OptionValueProviderNames.ContentDisplayStyle_WithoutLineAndUnmatchedLinesAndOmit,
                 OptionValues.ContentDisplayStyle_Line,
                 OptionValues.ContentDisplayStyle_UnmatchedLines,
                 OptionValues.ContentDisplayStyle_Omit
@@ -426,7 +426,7 @@ namespace Orang.CommandLine
         );
 
         public static OptionValueProvider PathDisplayStyleProvider { get; } = new OptionValueProvider(
-            MetaValues.PathDisplay,
+            MetaValues.PathMode,
             OptionValues.PathDisplayStyle_Full,
             OptionValues.PathDisplayStyle_Relative,
             OptionValues.PathDisplayStyle_Match,
@@ -509,7 +509,8 @@ namespace Orang.CommandLine
             MetaValues.FileProperties,
             OptionValues.FileProperty_CreationTime,
             OptionValues.FileProperty_ModifiedTime,
-            OptionValues.FileProperty_Size
+            OptionValues.FileProperty_Size,
+            OptionValues.Align
         );
 
         public static OptionValueProvider ValueSortPropertyProvider { get; } = new OptionValueProvider(

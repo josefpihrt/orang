@@ -67,7 +67,7 @@ namespace Orang.Documentation
                     TableRow("Command", "Description"),
                     application
                         .Commands
-                        .Select(f => TableRow(Link(f.Name, f.Name + "-command.md"), f.Description)))
+                        .Select(f => TableRow(Link(f.DisplayName, f.Name + "-command.md"), f.Description)))
                     .WriteTo(mw);
 
                 mw.WriteLine();

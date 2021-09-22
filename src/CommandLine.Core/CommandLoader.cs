@@ -103,6 +103,7 @@ namespace Orang
                 }
             }
 
+            CommandAliasAttribute commandAliasAttribute = type.GetCustomAttribute<CommandAliasAttribute>();
             CommandGroupAttribute commandGroupAttribute = type.GetCustomAttribute<CommandGroupAttribute>()!;
 
             return new Command(
@@ -111,6 +112,7 @@ namespace Orang
                 (commandGroupAttribute != null)
                     ? new CommandGroup(commandGroupAttribute.Name, commandGroupAttribute.Ordinal)
                     : CommandGroup.Default,
+                commandAliasAttribute?.Alias,
                 arguments.OrderBy(f => f.Index),
                 options.OrderBy(f => f, CommandOptionComparer.Name));
         }

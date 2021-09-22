@@ -7,9 +7,9 @@ using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
-    internal class SplitCommand : RegexCommand<SplitCommandOptions>
+    internal class RegexSplitCommand : RegexCommand<RegexSplitCommandOptions>
     {
-        public SplitCommand(SplitCommandOptions options) : base(options)
+        public RegexSplitCommand(RegexSplitCommandOptions options) : base(options)
         {
         }
 

@@ -5,13 +5,13 @@ Display regular expression anchors.
 #### Syntax
 
 ```
-orang list-patterns --section anchors
+orang regex list --section anchors
 ```
 
 #### Short Syntax
 
 ```
-orang list-patterns -s a
+orang regex list -s a
 ```
 
 ### Sample
@@ -21,14 +21,14 @@ Display general categories that matches filter string "num".
 #### Syntax
 
 ```
-orang list-patterns --section general-categories --filter num
+orang regex list --section general-categories --filter num
 
 ```
 
 #### Short Syntax
 
 ```
-orang list-patterns -s gc -f num
+orang regex list -s gc -f num
 ```
 
 ### Sample
@@ -38,12 +38,12 @@ Display named blocks that matches filter string "han".
 #### Syntax
 
 ```
-orang list-patterns --section named-blocks --filter han
+orang regex list --section named-blocks --filter han
 
 ```
 
 #### Short Syntax
 
 ```
-orang list-patterns -s nb -f han
+orang regex list -s nb -f han
 ```

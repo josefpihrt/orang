@@ -104,7 +104,7 @@ namespace Orang.CommandLine.Help
             {
                 WriteStartCommands(commandsHelp);
 
-                int width = commandsHelp.Commands.Max(f => f.Command.Name.Length) + 1;
+                int width = commandsHelp.Commands.Max(f => f.Command.DisplayName.Length) + 1;
 
                 foreach (CommandItem command in commandsHelp.Commands)
                 {

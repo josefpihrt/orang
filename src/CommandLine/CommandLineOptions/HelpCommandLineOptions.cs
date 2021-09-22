@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
+using System.Linq;
 using CommandLine;
 
 namespace Orang.CommandLine
@@ -14,7 +15,7 @@ namespace Orang.CommandLine
             index: 0,
             HelpText = "Command name.",
             MetaName = ArgumentMetaNames.Command)]
-        public string Command { get; set; } = null!;
+        public IEnumerable<string> Command { get; set; } = null!;
 
         [Option(
             shortName: OptionShortNames.Filter,
@@ -48,7 +49,7 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            options.Command = Command;
+            options.Command = Command.ToArray();
             options.Filter = filter;
             options.Manual = Manual;
             options.Online = Online;

@@ -55,7 +55,7 @@ namespace Orang.CommandLine
                         {
                             WriteHeading((string.IsNullOrEmpty(en.Current.Key)) ? "Commands" : $"{en.Current.Key} commands");
 
-                            int width = commands.Commands.Max(f => f.Command.Name.Length) + 1;
+                            int width = commands.Commands.Max(f => f.Command.DisplayName.Length) + 1;
 
                             foreach (CommandItem command in en.Current)
                             {
@@ -86,7 +86,7 @@ namespace Orang.CommandLine
         public override void WriteStartCommand(CommandHelp commandHelp)
         {
             Write("Usage: orang ");
-            Write(commandHelp.Name);
+            Write(commandHelp.DisplayName);
 
             Command command = commandHelp.Command;
 

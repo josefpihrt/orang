@@ -56,7 +56,7 @@ namespace Orang.CommandLine
                         case "new-line":
                             {
                                 LogHelpers.WriteObsoleteWarning($"Value '{arr[i]}' is has been deprecated "
-                                    + "and will be removed in future versions. "
+                                    + "and will be removed in future version. "
                                     + $"Use value '{OptionValues.HighlightOptions_Newline.HelpValue}' instead.");
 
                                 arr[i] = OptionValues.HighlightOptions_Newline.Value;
@@ -65,7 +65,7 @@ namespace Orang.CommandLine
                         case "nl":
                             {
                                 LogHelpers.WriteObsoleteWarning($"Value '{arr[i]}' is has been deprecated "
-                                    + "and will be removed in future versions. "
+                                    + "and will be removed in future version. "
                                     + $"Use value '{OptionValues.HighlightOptions_Newline.HelpValue}' instead.");
 
                                 arr[i] = OptionValues.HighlightOptions_Newline.Value;
@@ -88,10 +88,18 @@ namespace Orang.CommandLine
         public static bool TryParseFileProperties(
             IEnumerable<string> values,
             string optionName,
+            out bool creationTime,
+            out bool modifiedTime,
+            out bool size,
+            out bool alignColumns,
             out FilterPredicate<DateTime>? creationTimePredicate,
             out FilterPredicate<DateTime>? modifiedTimePredicate,
             out FilterPredicate<long>? sizePredicate)
         {
+            creationTime = false;
+            modifiedTime = false;
+            size = false;
+            alignColumns = false;
             creationTimePredicate = null;
             modifiedTimePredicate = null;
             sizePredicate = null;
@@ -103,20 +111,28 @@ namespace Orang.CommandLine
 
                 try
                 {
-                    if (OptionValues.FileProperty_CreationTime.IsKeyOrShortKey(value)
-                        || OptionValues.FileProperty_ModifiedTime.IsKeyOrShortKey(value)
-                        || OptionValues.FileProperty_Size.IsKeyOrShortKey(value))
+                    if (OptionValues.FileProperty_CreationTime.IsKeyOrShortKey(value))
                     {
-                        string allowedValues = HelpProvider.GetExpressionsText(
-                            variableName: value,
-                            indent: "  ",
-                            includeDate: optionValue != OptionValues.FileProperty_Size);
+                        creationTime = true;
+                        continue;
+                    }
 
-                        string message = $"Option '{OptionNames.GetHelpText(optionName)}' has invalid value '{value}'."
-                            + $"{Environment.NewLine}{Environment.NewLine}Allowed values:{Environment.NewLine}{allowedValues}";
+                    if (OptionValues.FileProperty_ModifiedTime.IsKeyOrShortKey(value))
+                    {
+                        modifiedTime = true;
+                        continue;
+                    }
 
-                        WriteError(message);
-                        return false;
+                    if (OptionValues.FileProperty_Size.IsKeyOrShortKey(value))
+                    {
+                        size = true;
+                        continue;
+                    }
+
+                    if (OptionValues.Align.IsValueOrShortValue(value))
+                    {
+                        alignColumns = true;
+                        continue;
                     }
 
                     expression = Expression.Parse(value);
@@ -339,7 +355,7 @@ namespace Orang.CommandLine
                     if (value2 == "ao")
                     {
                         LogHelpers.WriteObsoleteWarning($"Value '{value2}' is has been deprecated "
-                            + "and will be removed in future versions. "
+                            + "and will be removed in future version. "
                             + $"Use value '{OptionValues.ModifyFlags_AggregateOnly.HelpValue}' instead.");
 
                         value2 = OptionValues.ModifyFlags_AggregateOnly.ShortValue;
@@ -561,7 +577,9 @@ namespace Orang.CommandLine
             out LineDisplayOptions lineDisplayOptions,
             out LineContext lineContext,
             out DisplayParts displayParts,
-            out ImmutableArray<FileProperty> fileProperties,
+            out bool includeCreationTime,
+            out bool includeModifiedTime,
+            out bool includeSize,
             out string? indent,
             out string? separator,
             out bool noAlign,
@@ -573,12 +591,12 @@ namespace Orang.CommandLine
             lineDisplayOptions = LineDisplayOptions.None;
             lineContext = default;
             displayParts = DisplayParts.None;
-            fileProperties = ImmutableArray<FileProperty>.Empty;
+            includeCreationTime = false;
+            includeModifiedTime = false;
+            includeSize = false;
             indent = null;
             separator = null;
             noAlign = false;
-
-            ImmutableArray<FileProperty>.Builder? builder = null;
 
             foreach (string value in values)
             {
@@ -592,7 +610,7 @@ namespace Orang.CommandLine
                     if (key == "t")
                     {
                         LogHelpers.WriteObsoleteWarning($"Value '{key}' is has been deprecated "
-                            + "and will be removed in future versions. "
+                            + "and will be removed in future version. "
                             + $"Use value '{OptionValues.Display_Context.HelpValue}' instead.");
 
                         key = OptionValues.Display_Context.ShortKey;
@@ -600,7 +618,7 @@ namespace Orang.CommandLine
                     else if (key == "ta")
                     {
                         LogHelpers.WriteObsoleteWarning($"Value '{key}' is has been deprecated "
-                            + "and will be removed in future versions. "
+                            + "and will be removed in future version. "
                             + $"Use value '{OptionValues.Display_ContextAfter.HelpValue}' instead.");
 
                         key = OptionValues.Display_ContextAfter.ShortKey;
@@ -608,7 +626,7 @@ namespace Orang.CommandLine
                     else if (key == "tb")
                     {
                         LogHelpers.WriteObsoleteWarning($"Value '{key}' is has been deprecated "
-                            + "and will be removed in future versions. "
+                            + "and will be removed in future version. "
                             + $"Use value '{OptionValues.Display_ContextBefore.HelpValue}' instead.");
 
                         key = OptionValues.Display_ContextBefore.ShortKey;
@@ -685,15 +703,15 @@ namespace Orang.CommandLine
                 }
                 else if (OptionValues.Display_CreationTime.IsValueOrShortValue(value))
                 {
-                    (builder ??= ImmutableArray.CreateBuilder<FileProperty>()).Add(FileProperty.CreationTime);
+                    includeCreationTime = true;
                 }
                 else if (OptionValues.Display_ModifiedTime.IsValueOrShortValue(value))
                 {
-                    (builder ??= ImmutableArray.CreateBuilder<FileProperty>()).Add(FileProperty.ModifiedTime);
+                    includeModifiedTime = false;
                 }
                 else if (OptionValues.Display_Size.IsValueOrShortValue(value))
                 {
-                    (builder ??= ImmutableArray.CreateBuilder<FileProperty>()).Add(FileProperty.Size);
+                    includeSize = false;
                 }
                 else if (OptionValues.Display_LineNumber.IsValueOrShortValue(value))
                 {
@@ -721,9 +739,6 @@ namespace Orang.CommandLine
                     return false;
                 }
             }
-
-            if (builder != null)
-                fileProperties = builder.ToImmutableArray();
 
             return true;
         }

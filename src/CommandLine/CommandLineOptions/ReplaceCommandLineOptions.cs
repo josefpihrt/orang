@@ -60,7 +60,7 @@ namespace Orang.CommandLine
                 && Evaluator != null)
             {
                 LogHelpers.WriteObsoleteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Evaluator)}' is has been deprecated "
-                    + "and will be removed in future versions. "
+                    + "and will be removed in future version. "
                     + $"Use option '{OptionNames.GetHelpText(OptionNames.Replacement)}' instead.");
 
                 if (!DelegateFactory.TryCreateFromAssembly(Evaluator, typeof(string), typeof(Match), out matchEvaluator))

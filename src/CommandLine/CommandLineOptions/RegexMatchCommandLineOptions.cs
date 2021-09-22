@@ -6,11 +6,12 @@ using static Orang.CommandLine.ParseHelpers;
 
 namespace Orang.CommandLine
 {
-    [Verb("match", HelpText = "Searches the input string for occurrences of the regular expression.")]
+    [Verb("regex-match", HelpText = "Searches the input string for occurrences of the regular expression.")]
     [OptionValueProvider(nameof(Content), OptionValueProviderNames.PatternOptions_Match)]
     [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.MatchHighlightOptions)]
     [CommandGroup("Regex", 2)]
-    internal sealed class MatchCommandLineOptions : RegexCommandLineOptions
+    [CommandAlias("regex match")]
+    internal sealed class RegexMatchCommandLineOptions : RegexCommandLineOptions
     {
         [Option(
             shortName: OptionShortNames.Content,
@@ -28,14 +29,14 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.Num)]
         public int MaxCount { get; set; }
 
-        public bool TryParse(MatchCommandOptions options)
+        public bool TryParse(RegexMatchCommandOptions options)
         {
             var baseOptions = (RegexCommandOptions)options;
 
             if (!TryParse(baseOptions))
                 return false;
 
-            options = (MatchCommandOptions)baseOptions;
+            options = (RegexMatchCommandOptions)baseOptions;
 
             if (!FilterParser.TryParse(
                 Content,

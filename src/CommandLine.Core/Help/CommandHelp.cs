@@ -26,6 +26,8 @@ namespace Orang.CommandLine.Help
 
         public string Name => Command.Name;
 
+        public string DisplayName => Command.DisplayName;
+
         public string Description => Command.Description;
 
         public ImmutableArray<ArgumentItem> Arguments { get; }
@@ -35,7 +37,7 @@ namespace Orang.CommandLine.Help
         public ImmutableArray<OptionValueList> Values { get; }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private string DebuggerDisplay => $"{Name}  {Description}";
+        private string DebuggerDisplay => $"{DisplayName}  {Description}";
 
         public static CommandHelp Create(
             Command command,

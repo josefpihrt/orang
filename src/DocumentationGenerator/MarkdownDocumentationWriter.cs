@@ -19,7 +19,7 @@ namespace Orang
         public void WriteCommandHeading(Command command, CommandLineApplication application)
         {
             _writer.WriteStartHeading(1);
-            _writer.WriteInlineCode(application.Name + " " + command.Name);
+            _writer.WriteInlineCode(application.Name + " " + command.DisplayName);
             _writer.WriteEndHeading();
         }
 
@@ -38,7 +38,7 @@ namespace Orang
 
             sb.Append(application.Name);
             sb.Append(" ");
-            sb.Append(command.Name);
+            sb.Append(command.DisplayName);
 
             using (IEnumerator<CommandArgument> en = command.Arguments.OrderBy(f => f.Index).GetEnumerator())
             {

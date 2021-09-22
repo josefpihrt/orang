@@ -2,9 +2,9 @@
 
 namespace Orang.CommandLine
 {
-    internal sealed class EscapeCommandOptions : AbstractCommandOptions
+    internal sealed class RegexEscapeCommandOptions : AbstractCommandOptions
     {
-        internal EscapeCommandOptions()
+        internal RegexEscapeCommandOptions()
         {
         }
 
@@ -16,7 +16,7 @@ namespace Orang.CommandLine
 
         protected override void WriteDiagnosticCore()
         {
-            DiagnosticWriter.WriteEscapeCommand(this);
+            DiagnosticWriter.WriteRegexEscapeCommand(this);
         }
     }
 }

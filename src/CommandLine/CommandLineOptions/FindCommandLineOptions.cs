@@ -139,10 +139,8 @@ namespace Orang.CommandLine
                 lineOptions: format.LineOptions,
                 lineContext: format.LineContext,
                 displayParts: format.DisplayParts,
-                fileProperties: format.FileProperties,
                 indent: format.Indent,
-                separator: format.Separator,
-                alignColumns: format.AlignColumns);
+                separator: format.Separator);
 
             return true;
         }

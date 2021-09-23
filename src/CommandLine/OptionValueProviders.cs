@@ -279,12 +279,12 @@ namespace Orang.CommandLine
             MetaValues.ModifyOptions,
             OptionValues.ModifyFlags_Aggregate,
             OptionValues.ModifyFlags_AggregateOnly,
-            SimpleOptionValue.Create(ModifyFlags.Ascending, description: "Sort values in an ascending order."),
+            OptionValues.ModifyOptions_Ascending,
             SimpleOptionValue.Create(
                 ModifyFlags.CultureInvariant,
                 shortValue: "ci",
                 description: "Ignore cultural differences between languages."),
-            SimpleOptionValue.Create(ModifyFlags.Descending, description: "Sort values in a descending order."),
+            OptionValues.ModifyOptions_Descending,
             SimpleOptionValue.Create(ModifyFlags.Distinct, shortValue: "di", description: "Return distinct values."),
             OptionValues.ModifyFlags_Except,
             OptionValues.ModifyFlags_Intersect,
@@ -480,7 +480,7 @@ namespace Orang.CommandLine
 
         public static OptionValueProvider SortFlagsProvider { get; } = new OptionValueProvider(
             MetaValues.SortOptions,
-            SimpleOptionValue.Create(SortFlags.Ascending, description: "Sort items in ascending order."),
+            OptionValues.SortFlags_Ascending,
             SimpleOptionValue.Create(
                 SortFlags.CreationTime,
                 shortValue: "ct",
@@ -490,7 +490,7 @@ namespace Orang.CommandLine
                 SortFlags.CultureInvariant,
                 shortValue: "ci",
                 description: "Ignore cultural differences between languages."),
-            SimpleOptionValue.Create(SortFlags.Descending, description: "Sort items in descending order."),
+            OptionValues.SortFlags_Descending,
             OptionValues.MaxCount,
             SimpleOptionValue.Create(
                 SortFlags.ModifiedTime,

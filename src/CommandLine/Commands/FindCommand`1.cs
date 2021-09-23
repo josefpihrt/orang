@@ -43,19 +43,20 @@ namespace Orang.CommandLine
 
         protected override void ExecuteCore(SearchContext context)
         {
+            _aggregate = AggregateManager.TryCreate(Options);
+
             if (Options.Input != null)
             {
                 ExecuteInput(context, Options.Input);
             }
             else
             {
-                _aggregate = AggregateManager.TryCreate(Options);
 
                 base.ExecuteCore(context);
-
-                if (context.TerminationReason != TerminationReason.Canceled)
-                    _aggregate?.WriteAggregatedValues(context.CancellationToken);
             }
+
+            if (context.TerminationReason != TerminationReason.Canceled)
+                _aggregate?.WriteAggregatedValues(context.CancellationToken);
         }
 
         private void ExecuteInput(SearchContext context, string input)

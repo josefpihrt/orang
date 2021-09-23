@@ -243,6 +243,15 @@ namespace Orang.CommandLine
                 return false;
             }
 
+            if (flags.Contains(SortFlags.Ascending)
+                && flags.Contains(SortFlags.Descending))
+            {
+                WriteError($"Option '{optionName}' cannot use both '{OptionValues.SortFlags_Ascending.HelpValue}' "
+                    + $"and '{OptionValues.SortFlags_Descending.HelpValue}' values.");
+
+                return false;
+            }
+
             SortDirection direction = (flags.Contains(SortFlags.Descending))
                 ? SortDirection.Descending
                 : SortDirection.Ascending;
@@ -393,14 +402,24 @@ namespace Orang.CommandLine
 
             var functions = ModifyFunctions.None;
 
-            if ((modifyFlags & ModifyFlags.Distinct) != 0)
-                functions |= ModifyFunctions.Distinct;
-
             if ((modifyFlags & ModifyFlags.Ascending) != 0)
                 functions |= ModifyFunctions.Sort;
 
             if ((modifyFlags & ModifyFlags.Descending) != 0)
                 functions |= ModifyFunctions.SortDescending;
+
+            const ModifyFunctions bothSortDirections = ModifyFunctions.Sort | ModifyFunctions.SortDescending;
+
+            if ((functions & bothSortDirections) == bothSortDirections)
+            {
+                WriteError($"Option '{optionName}' cannot use both '{OptionValues.ModifyOptions_Ascending.HelpValue}' "
+                    + $"and '{OptionValues.ModifyOptions_Descending.HelpValue}' values.");
+
+                return false;
+            }
+
+            if ((modifyFlags & ModifyFlags.Distinct) != 0)
+                functions |= ModifyFunctions.Distinct;
 
             if ((modifyFlags & ModifyFlags.Except) != 0)
                 functions |= ModifyFunctions.Except;

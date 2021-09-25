@@ -59,6 +59,7 @@ namespace Orang.CommandLine
         public const string LineNumber = "line-number";
         public const string Manual = "manual";
         public const string MaxCount = "max-count";
+        public const string MaxWordLength = "max-word-length";
         public const string MinWordLength = "min-word-length";
         public const string Modifier = "modifier";
         public const string Modify = "modify";

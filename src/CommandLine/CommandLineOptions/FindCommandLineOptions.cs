@@ -2,8 +2,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using CommandLine;
+using Orang.FileSystem;
 using static Orang.CommandLine.ParseHelpers;
 using static Orang.Logger;
 
@@ -98,6 +100,14 @@ namespace Orang.CommandLine
                 }
 
                 input = ConsoleHelpers.ReadRedirectedInput();
+
+                if (options.Paths.Length == 1
+                    && options.Paths[0].Origin == PathOrigin.CurrentDirectory
+                    && options.ExtensionFilter == null
+                    && options.NameFilter == null)
+                {
+                    options.Paths = ImmutableArray<PathInfo>.Empty;
+                }
             }
 
             EnumerableModifier<string>? modifier = null;

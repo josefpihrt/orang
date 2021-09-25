@@ -123,7 +123,11 @@ namespace Orang.CommandLine
 
                     if (verbAttribute != null)
                     {
-                        helpText.AddPreOptionsText(Environment.NewLine + HelpCommand.GetFooterText(verbAttribute.Name));
+                        CommandAliasAttribute? commandAlias = parserResult.TypeInfo.Current.GetCustomAttribute<CommandAliasAttribute>();
+
+                        string commandName = commandAlias?.Alias ?? verbAttribute.Name;
+
+                        helpText.AddPreOptionsText(Environment.NewLine + HelpCommand.GetFooterText(commandName));
                     }
 
                     Console.Error.WriteLine(helpText);

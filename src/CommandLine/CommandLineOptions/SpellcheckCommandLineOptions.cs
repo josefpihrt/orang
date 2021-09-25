@@ -30,6 +30,12 @@ namespace Orang.CommandLine
         public override IEnumerable<string> Content { get; set; } = null!;
 
         [Option(
+            longName: OptionNames.MaxWordLength,
+            Default = int.MaxValue,
+            HelpText = "Specifies maximal word length to be checked.")]
+        public int MaxWordLength { get; set; }
+
+        [Option(
             longName: OptionNames.MinWordLength,
             Default = 3,
             HelpText = "Specifies minimal word length to be checked. Default value is 3.")]
@@ -77,13 +83,15 @@ namespace Orang.CommandLine
             WordListLoaderResult result = WordListLoader.Load(
                 wordListPaths,
                 minWordLength: MinWordLength,
+                maxWordLength: MaxWordLength,
                 (CaseSensitive) ? WordListLoadOptions.None : WordListLoadOptions.IgnoreCase);
 
             var data = new SpellingData(result.List, result.CaseSensitiveList, result.FixList);
 
             var spellcheckerOptions = new SpellcheckerOptions(
                 SplitMode.CaseAndHyphen,
-                MinWordLength);
+                MinWordLength,
+                MaxWordLength);
 
             var spellchecker = new Spellchecker(data, wordRegex, spellcheckerOptions);
 

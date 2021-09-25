@@ -53,6 +53,9 @@ namespace Orang.CommandLine
         public static readonly SimpleOptionValue ModifyFlags_Intersect = SimpleOptionValue.Create(ModifyFlags.Intersect, shortValue: "", description: "Return values that were found in all files.");
         public static readonly SimpleOptionValue ModifyFlags_Group = SimpleOptionValue.Create(ModifyFlags.Group, shortValue: "", description: "Group matching files by matched values.");
 
+        public static readonly SimpleOptionValue ModifyOptions_Ascending = SimpleOptionValue.Create(ModifyFlags.Ascending, description: "Sort values in an ascending order.");
+        public static readonly SimpleOptionValue ModifyOptions_Descending = SimpleOptionValue.Create(ModifyFlags.Descending, description: "Sort values in a descending order.");
+
         public static readonly SimpleOptionValue NamePart_Extension = SimpleOptionValue.Create(FileNamePart.Extension, description: "Search in file extension.");
         public static readonly SimpleOptionValue NamePart_FullName = SimpleOptionValue.Create(FileNamePart.FullName, description: "Search in full path.");
         public static readonly SimpleOptionValue NamePart_Name = SimpleOptionValue.Create(FileNamePart.Name, description: "Search in file name and its extension.");
@@ -84,6 +87,9 @@ namespace Orang.CommandLine
         public static readonly SimpleOptionValue PatternOptions_StartsWith = SimpleOptionValue.Create(PatternOptions.StartsWith, shortValue: "sw", helpValue: "s[tarts-]w[ith]", description: "Pattern should match from the start of the input string.");
         public static readonly SimpleOptionValue PatternOptions_WholeLine = SimpleOptionValue.Create(PatternOptions.WholeLine, shortValue: "wl", helpValue: "w[hole-]l[ine]", description: "Pattern should match whole line.");
         public static readonly SimpleOptionValue PatternOptions_WholeWord = SimpleOptionValue.Create(PatternOptions.WholeWord, description: "Pattern should match whole word.");
+
+        public static readonly SimpleOptionValue SortFlags_Ascending = SimpleOptionValue.Create(SortFlags.Ascending, description: "Sort items in ascending order.");
+        public static readonly SimpleOptionValue SortFlags_Descending = SimpleOptionValue.Create(SortFlags.Descending, description: "Sort items in descending order.");
 
         public static readonly SimpleOptionValue ToLower = SimpleOptionValue.Create(ReplaceFlags.ToLower, shortValue: "tl", description: "Convert value to lowercase.");
         public static readonly SimpleOptionValue ToUpper = SimpleOptionValue.Create(ReplaceFlags.ToUpper, shortValue: "tu", description: "Convert value to uppercase.");

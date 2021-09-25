@@ -416,6 +416,7 @@ namespace Orang.CommandLine
             WriteOption("max matching files", options.MaxMatchingFiles);
             WriteOption("max matches in file", options.MaxMatchesInFile);
             WriteOption("min word length", spellcheckState.Spellchecker.Options.MinWordLength);
+            WriteOption("max word length", spellcheckState.Spellchecker.Options.MaxWordLength);
             WriteFilter("name filter", options.NameFilter, options.NamePart);
             WritePaths("paths", options.Paths);
             WriteOption("progress", options.Progress);

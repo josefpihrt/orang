@@ -43,19 +43,15 @@ namespace Orang.CommandLine
 
         protected override void ExecuteCore(SearchContext context)
         {
+            _aggregate = AggregateManager.TryCreate(Options);
+
             if (Options.Input != null)
-            {
                 ExecuteInput(context, Options.Input);
-            }
-            else
-            {
-                _aggregate = AggregateManager.TryCreate(Options);
 
-                base.ExecuteCore(context);
+            base.ExecuteCore(context);
 
-                if (context.TerminationReason != TerminationReason.Canceled)
-                    _aggregate?.WriteAggregatedValues(context.CancellationToken);
-            }
+            if (context.TerminationReason != TerminationReason.Canceled)
+                _aggregate?.WriteAggregatedValues(context.CancellationToken);
         }
 
         private void ExecuteInput(SearchContext context, string input)
@@ -188,7 +184,8 @@ namespace Orang.CommandLine
                     contentWriter = WriteMatches(match, content, writerOptions, isPathDisplayed, context);
                 }
 
-                if (ModifyOptions.HasAnyFunction)
+                if (ModifyOptions.HasAnyFunction
+                    || AggregateOnly)
                 {
                     if (AggregateOnly)
                     {
@@ -281,6 +278,7 @@ namespace Orang.CommandLine
             ContentWriter? contentWriter;
 
             if (ModifyOptions.HasAnyFunction
+                || AggregateOnly
                 || Options.AskMode == AskMode.Value
                 || (!Options.OmitContent
                     && ShouldLog(Verbosity.Normal)))
@@ -335,6 +333,7 @@ namespace Orang.CommandLine
                     LogHelpers.WriteFilePathEnd(splits.Count, maxReason, Options.IncludeCount);
 
                 if (ModifyOptions.HasAnyFunction
+                    || AggregateOnly
                     || Options.AskMode == AskMode.Value
                     || (!Options.OmitContent
                         && ShouldLog(Verbosity.Normal)))
@@ -370,16 +369,19 @@ namespace Orang.CommandLine
             ContentWriterOptions writerOptions,
             MatchOutputInfo? outputInfo)
         {
-            if (ModifyOptions.HasAnyFunction)
+            if (ModifyOptions.HasAnyFunction
+                || AggregateOnly)
+            {
                 (_modify ??= new ModifyManager(Options)).Reset();
+            }
 
             return ContentWriter.CreateFind(
                 contentDisplayStyle: (Options.OmitContent) ? ContentDisplayStyle.Value : Options.ContentDisplayStyle,
                 input: content,
                 options: writerOptions,
-                storage: (ModifyOptions.HasAnyFunction) ? _modify?.FileStorage : _aggregate?.Storage,
+                storage: (ModifyOptions.HasAnyFunction || AggregateOnly) ? _modify?.FileStorage : _aggregate?.Storage,
                 outputInfo: outputInfo,
-                writer: (ModifyOptions.HasAnyFunction || Options.OmitContent) ? null : ContentTextWriter.Default,
+                writer: (ModifyOptions.HasAnyFunction || AggregateOnly || Options.OmitContent) ? null : ContentTextWriter.Default,
                 ask: AskMode == AskMode.Value);
         }
     }

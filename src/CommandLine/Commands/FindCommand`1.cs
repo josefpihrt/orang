@@ -46,14 +46,9 @@ namespace Orang.CommandLine
             _aggregate = AggregateManager.TryCreate(Options);
 
             if (Options.Input != null)
-            {
                 ExecuteInput(context, Options.Input);
-            }
-            else
-            {
 
-                base.ExecuteCore(context);
-            }
+            base.ExecuteCore(context);
 
             if (context.TerminationReason != TerminationReason.Canceled)
                 _aggregate?.WriteAggregatedValues(context.CancellationToken);

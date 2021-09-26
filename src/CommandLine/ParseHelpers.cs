@@ -1203,7 +1203,11 @@ namespace Orang.CommandLine
             WriteError(message);
         }
 
-        internal static bool TryParseProperties(string ask, IEnumerable<string> name, CommonFindCommandOptions options)
+        internal static bool TryParseProperties(
+            string ask,
+            IEnumerable<string> name,
+            CommonFindCommandOptions options,
+            bool allowEmptyPattern = false)
         {
             if (!TryParseAsEnum(
                 ask,
@@ -1232,7 +1236,8 @@ namespace Orang.CommandLine
                 OptionValueProviders.PatternOptionsProvider,
                 out Filter? nameFilter,
                 out FileNamePart namePart,
-                allowNull: true))
+                allowNull: true,
+                allowEmptyPattern: allowEmptyPattern))
             {
                 return false;
             }

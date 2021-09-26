@@ -99,8 +99,8 @@ namespace Orang.Aggregation
                 {
                     valuesMap = Storage.Values
                         .Zip(Sections)
-                        .GroupBy(f => f.First)
-                        .ToDictionary(f => f.Key, f => f.Select(f => f.Second).ToList());
+                        .GroupBy(f => f.First, ModifyOptions.StringComparer)
+                        .ToDictionary(f => f.Key, f => f.Select(f => f.Second).ToList(), ModifyOptions.StringComparer);
                 }
 
                 values = valuesMap

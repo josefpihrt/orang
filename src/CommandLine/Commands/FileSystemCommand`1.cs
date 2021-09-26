@@ -469,6 +469,18 @@ namespace Orang.CommandLine
 
         protected void WriteProperties(SearchContext context, FileMatch fileMatch, ColumnWidths? columnWidths)
         {
+            long size = -1;
+
+            if (Options.IncludeSummary
+                && Options.FilePropertyOptions.IncludeSize)
+            {
+                size = (fileMatch.IsDirectory)
+                    ? (context.DirectorySizeMap?[fileMatch.Path] ?? FileSystemHelpers.GetDirectorySize(fileMatch.Path))
+                    : new FileInfo(fileMatch.Path).Length;
+
+                context.Telemetry.FilesTotalSize += size;
+            }
+
             if (!ShouldLog(Verbosity.Minimal))
                 return;
 
@@ -484,9 +496,12 @@ namespace Orang.CommandLine
             {
                 sb.Append("  ");
 
-                long size = (fileMatch.IsDirectory)
-                    ? (context.DirectorySizeMap?[fileMatch.Path] ?? FileSystemHelpers.GetDirectorySize(fileMatch.Path))
-                    : new FileInfo(fileMatch.Path).Length;
+                if (size == -1)
+                {
+                    size = (fileMatch.IsDirectory)
+                        ? (context.DirectorySizeMap?[fileMatch.Path] ?? FileSystemHelpers.GetDirectorySize(fileMatch.Path))
+                        : new FileInfo(fileMatch.Path).Length;
+                }
 
                 string sizeText = size.ToString(ApplicationOptions.Default.SizeFormat);
 

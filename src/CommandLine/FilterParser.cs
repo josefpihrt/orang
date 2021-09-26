@@ -73,13 +73,6 @@ namespace Orang.CommandLine
                 }
             }
 
-            if (pattern.Length == 0
-                && allowEmptyPattern)
-            {
-                filter = Filter.EntireInput;
-                return true;
-            }
-
             TimeSpan matchTimeout = Regex.InfiniteMatchTimeout;
             string? groupName = null;
             string? separator = null;
@@ -124,6 +117,7 @@ namespace Orang.CommandLine
                                 value,
                                 OptionValues.Part,
                                 namePartProvider ?? OptionValueProviders.NamePartKindProvider);
+
                             return false;
                         }
 
@@ -168,6 +162,13 @@ namespace Orang.CommandLine
                 }
 
                 (options ??= new List<string>()).Add(option);
+            }
+
+            if (pattern.Length == 0
+                && allowEmptyPattern)
+            {
+                filter = new Filter(new Regex(".+", RegexOptions.Singleline), predicate: predicate);
+                return true;
             }
 
             if (!TryParseRegexOptions(

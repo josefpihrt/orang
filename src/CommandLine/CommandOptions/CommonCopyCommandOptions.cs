@@ -1,17 +1,20 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Diagnostics.CodeAnalysis;
+using System;
+using System.IO;
 using Orang.FileSystem;
 
 namespace Orang.CommandLine
 {
     internal abstract class CommonCopyCommandOptions : CommonFindCommandOptions
     {
-        private string _target = null!;
-
         protected CommonCopyCommandOptions()
         {
         }
+
+        public TimeSpan AllowedTimeDiff { get; internal set; }
+
+        public FileAttributes NoCompareAttributes { get; internal set; }
 
         public FileCompareOptions CompareOptions { get; internal set; }
 
@@ -21,18 +24,7 @@ namespace Orang.CommandLine
 
         public bool StructureOnly { get; internal set; }
 
-        public string Target
-        {
-            get { return _target; }
-
-            internal set
-            {
-                _target = value;
-                TargetNormalized = null;
-            }
-        }
-
-        public string? TargetNormalized { get; internal set; }
+        public string Target { get; internal set; } = null!;
 
         public ConflictResolution ConflictResolution { get; internal set; }
     }

@@ -2,13 +2,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using Orang.Operations;
 using static Orang.FileSystem.FileSystemHelpers;
 
 #pragma warning disable RCS1223
@@ -18,29 +19,54 @@ namespace Orang.FileSystem
     //TODO: FileSearch, Search
     public partial class FileSystemSearch
     {
+        private readonly bool _allDirectoryFiltersArePositive;
+
         public FileSystemSearch(
             FileSystemFilter filter,
             NameFilter? directoryFilter = null,
             IProgress<SearchProgress>? searchProgress = null,
             FileSystemSearchOptions? options = null)
+            : this(
+                filter,
+                (directoryFilter != null) ? ImmutableArray.Create(directoryFilter) : ImmutableArray<NameFilter>.Empty,
+                searchProgress,
+                options)
         {
-            Filter = filter ?? throw new ArgumentNullException(nameof(filter));
+        }
 
-            if (directoryFilter?.Part == FileNamePart.Extension)
+        public FileSystemSearch(
+            FileSystemFilter filter,
+            IEnumerable<NameFilter> directoryFilters,
+            IProgress<SearchProgress>? searchProgress = null,
+            FileSystemSearchOptions? options = null)
+        {
+            if (directoryFilters == null)
+                throw new ArgumentNullException(nameof(directoryFilters));
+
+            foreach (NameFilter directoryFilter in directoryFilters)
             {
-                throw new ArgumentException(
-                    $"Directory filter has invalid part '{FileNamePart.Extension}'.",
-                    nameof(directoryFilter));
+                if (directoryFilter == null)
+                    throw new ArgumentException("", nameof(directoryFilter));
+
+                if (directoryFilter?.Part == FileNamePart.Extension)
+                {
+                    throw new ArgumentException(
+                        $"Directory filter has invalid part '{FileNamePart.Extension}'.",
+                        nameof(directoryFilter));
+                }
             }
 
-            DirectoryFilter = directoryFilter;
+            Filter = filter ?? throw new ArgumentNullException(nameof(filter));
+            DirectoryFilters = directoryFilters.ToImmutableArray();
             SearchProgress = searchProgress;
             Options = options ?? FileSystemSearchOptions.Default;
+
+            _allDirectoryFiltersArePositive = DirectoryFilters.All(f => !f.IsNegative);
         }
 
         public FileSystemFilter Filter { get; }
 
-        public NameFilter? DirectoryFilter { get; }
+        public ImmutableArray<NameFilter> DirectoryFilters { get; }
 
         public FileSystemSearchOptions Options { get; }
 
@@ -105,18 +131,29 @@ namespace Orang.FileSystem
                     += (object sender, DirectoryChangedEventArgs e) => currentDirectory = e.NewName;
             }
 
-            bool? isMatch = (DirectoryFilter?.IsNegative == false)
-                ? IncludeDirectory(directoryPath)
-                : default(bool?);
+            MatchStatus matchStatus = (DirectoryFilters.Any()) ? MatchStatus.Unknown : MatchStatus.Success;
 
-            var directory = new Directory(directoryPath, isMatch);
+            foreach (NameFilter directoryFilter in DirectoryFilters.Where(f => !f.IsNegative))
+            {
+                if (IsMatch(directoryPath, directoryFilter))
+                {
+                    matchStatus = MatchStatus.Success;
+                }
+                else
+                {
+                    matchStatus = MatchStatus.FailFromPositive;
+                    break;
+                }
+            }
+
+            var directory = new Directory(directoryPath, matchStatus);
 
             while (true)
             {
                 Report(directory.Path, SearchProgressKind.SearchDirectory, isDirectory: true);
 
                 if (SearchTarget != SearchTarget.Directories
-                    && directory.IsMatch != false)
+                    && !directory.IsFail)
                 {
                     IEnumerator<string> fi = null!;
 
@@ -171,21 +208,22 @@ namespace Orang.FileSystem
                         {
                             currentDirectory = di.Current;
 
-                            isMatch = (DirectoryFilter?.IsNegative == false && directory.IsMatch == true)
-                                ? true
-                                : default(bool?);
+                            matchStatus = (_allDirectoryFiltersArePositive && directory.IsSuccess)
+                                ? MatchStatus.Success
+                                : MatchStatus.Unknown;
 
-                            if (directory.IsMatch != false
+                            if (!directory.IsFail
                                 && SearchTarget != SearchTarget.Files
                                 && Part != FileNamePart.Extension)
                             {
-                                if (isMatch == null
-                                    && DirectoryFilter != null)
+                                if (matchStatus == MatchStatus.Unknown
+                                    && DirectoryFilters.Any())
                                 {
-                                    isMatch = IncludeDirectory(currentDirectory);
+                                    matchStatus = IncludeDirectory(currentDirectory);
                                 }
 
-                                if (isMatch != false)
+                                if (matchStatus == MatchStatus.Success
+                                    || matchStatus == MatchStatus.Unknown)
                                 {
                                     FileMatch? match = MatchDirectory(currentDirectory);
 
@@ -202,17 +240,14 @@ namespace Orang.FileSystem
                             if (currentDirectory != null
                                 && RecurseSubdirectories)
                             {
-                                if (isMatch == null
-                                    && DirectoryFilter != null)
+                                if (matchStatus == MatchStatus.Unknown
+                                    && DirectoryFilters.Any())
                                 {
-                                    isMatch = IncludeDirectory(currentDirectory);
+                                    matchStatus = IncludeDirectory(currentDirectory);
                                 }
 
-                                if (isMatch != false
-                                    || !DirectoryFilter!.IsNegative)
-                                {
-                                    subdirectories!.Enqueue(new Directory(currentDirectory, isMatch));
-                                }
+                                if (matchStatus != MatchStatus.FailFromNegative)
+                                    subdirectories!.Enqueue(new Directory(currentDirectory, matchStatus));
                             }
 
                             cancellationToken.ThrowIfCancellationRequested();
@@ -453,11 +488,22 @@ namespace Orang.FileSystem
             return (new FileMatch(span, match, directoryInfo, isDirectory: true), null);
         }
 
-        private bool IncludeDirectory(string path)
+        private MatchStatus IncludeDirectory(string path)
         {
-            FileNameSpan name = FileNameSpan.FromDirectory(path, DirectoryFilter!.Part);
+            Debug.Assert(DirectoryFilters.Any());
 
-            return DirectoryFilter.Name.IsMatch(name);
+            foreach (NameFilter filter in DirectoryFilters)
+            {
+                if (!IsMatch(path, filter))
+                    return (filter.IsNegative) ? MatchStatus.FailFromNegative : MatchStatus.FailFromPositive;
+            }
+
+            return MatchStatus.Success;
+        }
+
+        public static bool IsMatch(string directoryPath, NameFilter filter)
+        {
+            return filter.Name.IsMatch(FileNameSpan.FromDirectory(directoryPath, filter.Part));
         }
 
         private void Report(string path, SearchProgressKind kind, bool isDirectory = false, Exception? exception = null)
@@ -474,250 +520,33 @@ namespace Orang.FileSystem
                 || ex is NotSupportedException;
         }
 
-        public void Replace(
-            string directoryPath,
-            ReplaceOptions? replaceOptions = null,
-            IProgress<OperationProgress>? progress = null,
-            bool dryRun = false,
-            CancellationToken cancellationToken = default)
-        {
-            if (directoryPath == null)
-                throw new ArgumentNullException(nameof(directoryPath));
-
-            if (Filter.Content == null)
-                throw new InvalidOperationException("Content filter is not defined.");
-
-            if (Filter.Content.IsNegative)
-                throw new InvalidOperationException("Content filter cannot be negative.");
-
-            var command = new ReplaceOperation()
-            {
-                Search = this,
-                ReplaceOptions = replaceOptions ?? ReplaceOptions.Empty,
-                Progress = progress,
-                DryRun = dryRun,
-                CancellationToken = cancellationToken,
-                MaxMatchingFiles = 0,
-                MaxMatchesInFile = 0,
-                MaxTotalMatches = 0,
-            };
-
-            command.Execute(directoryPath);
-        }
-
-        public void Delete(
-            string directoryPath,
-            DeleteOptions? deleteOptions = null,
-            IProgress<OperationProgress>? progress = null,
-            bool dryRun = false,
-            CancellationToken cancellationToken = default)
-        {
-            if (directoryPath == null)
-                throw new ArgumentNullException(nameof(directoryPath));
-
-            var command = new DeleteOperation()
-            {
-                Search = this,
-                DeleteOptions = deleteOptions ?? DeleteOptions.Default,
-                Progress = progress,
-                DryRun = dryRun,
-                CancellationToken = cancellationToken,
-                MaxMatchingFiles = 0,
-            };
-
-            bool canRecurseMatch = CanRecurseMatch;
-
-            try
-            {
-                CanRecurseMatch = false;
-
-                command.Execute(directoryPath);
-            }
-            finally
-            {
-                CanRecurseMatch = canRecurseMatch;
-            }
-        }
-
-        public void Rename(
-            string directoryPath,
-            RenameOptions renameOptions,
-            IDialogProvider<OperationProgress>? dialogProvider = null,
-            IProgress<OperationProgress>? progress = null,
-            bool dryRun = false,
-            CancellationToken cancellationToken = default)
-        {
-            if (directoryPath == null)
-                throw new ArgumentNullException(nameof(directoryPath));
-
-            if (renameOptions == null)
-                throw new ArgumentNullException(nameof(renameOptions));
-
-            if (Part == FileNamePart.FullName)
-                throw new InvalidOperationException($"Invalid file name part '{nameof(FileNamePart.FullName)}'.");
-
-            if (Filter.Name == null)
-                throw new InvalidOperationException("Name filter is not defined.");
-
-            if (Filter.Name.IsNegative)
-                throw new InvalidOperationException("Name filter cannot be negative.");
-
-            VerifyConflictResolution(renameOptions.ConflictResolution, dialogProvider);
-
-            var command = new RenameOperation()
-            {
-                Search = this,
-                RenameOptions = renameOptions,
-                Progress = progress,
-                DryRun = dryRun,
-                CancellationToken = cancellationToken,
-                DialogProvider = dialogProvider,
-                MaxMatchingFiles = 0,
-            };
-
-            bool disallowEnumeration = DisallowEnumeration;
-            bool matchPartOnly = MatchPartOnly;
-
-            try
-            {
-                DisallowEnumeration = !dryRun;
-                MatchPartOnly = true;
-
-                command.Execute(directoryPath);
-            }
-            finally
-            {
-                DisallowEnumeration = disallowEnumeration;
-                MatchPartOnly = matchPartOnly;
-            }
-        }
-
-        public void Copy(
-            string directoryPath,
-            string destinationPath,
-            CopyOptions? copyOptions = null,
-            IDialogProvider<OperationProgress>? dialogProvider = null,
-            IProgress<OperationProgress>? progress = null,
-            bool dryRun = false,
-            CancellationToken cancellationToken = default)
-        {
-            copyOptions ??= CopyOptions.Default;
-
-            VerifyCopyMoveArguments(directoryPath, destinationPath, copyOptions, dialogProvider);
-
-            var command = new CopyOperation()
-            {
-                Search = this,
-                DestinationPath = destinationPath,
-                CopyOptions = copyOptions,
-                Progress = progress,
-                DryRun = dryRun,
-                CancellationToken = cancellationToken,
-                DialogProvider = dialogProvider,
-                MaxMatchingFiles = 0,
-                MaxMatchesInFile = 0,
-                MaxTotalMatches = 0,
-                ConflictResolution = copyOptions.ConflictResolution,
-            };
-
-            command.Execute(directoryPath);
-        }
-
-        public void Move(
-            string directoryPath,
-            string destinationPath,
-            CopyOptions? copyOptions = null,
-            IDialogProvider<OperationProgress>? dialogProvider = null,
-            IProgress<OperationProgress>? progress = null,
-            bool dryRun = false,
-            CancellationToken cancellationToken = default)
-        {
-            copyOptions ??= CopyOptions.Default;
-
-            VerifyCopyMoveArguments(directoryPath, destinationPath, copyOptions, dialogProvider);
-
-            var command = new MoveOperation()
-            {
-                Search = this,
-                DestinationPath = destinationPath,
-                CopyOptions = copyOptions,
-                Progress = progress,
-                DryRun = dryRun,
-                CancellationToken = cancellationToken,
-                DialogProvider = dialogProvider,
-                MaxMatchingFiles = 0,
-                MaxMatchesInFile = 0,
-                MaxTotalMatches = 0,
-                ConflictResolution = copyOptions.ConflictResolution,
-            };
-
-            command.Execute(directoryPath);
-        }
-
-        private static void VerifyCopyMoveArguments(
-            string directoryPath,
-            string destinationPath,
-            CopyOptions copyOptions,
-            IDialogProvider<OperationProgress>? dialogProvider)
-        {
-            if (directoryPath == null)
-                throw new ArgumentNullException(nameof(directoryPath));
-
-            if (destinationPath == null)
-                throw new ArgumentNullException(nameof(destinationPath));
-
-            if (!System.IO.Directory.Exists(directoryPath))
-                throw new DirectoryNotFoundException($"Directory not found: {directoryPath}");
-
-            if (!System.IO.Directory.Exists(destinationPath))
-                throw new DirectoryNotFoundException($"Directory not found: {destinationPath}");
-
-            string sourcePathNormalized = directoryPath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
-
-            string destinationPathNormalize = destinationPath.Replace(
-                Path.AltDirectorySeparatorChar,
-                Path.DirectorySeparatorChar);
-
-            if (IsSubdirectory(sourcePathNormalized, destinationPathNormalize)
-                || IsSubdirectory(destinationPathNormalize, sourcePathNormalized))
-            {
-                throw new ArgumentException(
-                    "Source directory cannot be subdirectory of a destination directory or vice versa.",
-                    nameof(directoryPath));
-            }
-
-            VerifyConflictResolution(copyOptions.ConflictResolution, dialogProvider);
-        }
-
-        private static void VerifyConflictResolution(
-            ConflictResolution conflictResolution,
-            IDialogProvider<OperationProgress>? dialogProvider)
-        {
-            if (conflictResolution == ConflictResolution.Ask
-                && dialogProvider == null)
-            {
-                throw new ArgumentNullException(
-                    nameof(dialogProvider),
-                    $"'{nameof(dialogProvider)}' cannot be null when {nameof(ConflictResolution)} "
-                        + $"is set to {nameof(ConflictResolution.Ask)}.");
-            }
-        }
-
         [DebuggerDisplay("{DebuggerDisplay,nq}")]
         private readonly struct Directory
         {
-            public Directory(string path, bool? isMatch = null)
+            public Directory(string path, MatchStatus status)
             {
                 Path = path;
-                IsMatch = isMatch;
+                Status = status;
             }
 
             public string Path { get; }
 
-            public bool? IsMatch { get; }
+            public MatchStatus Status { get; }
+
+            public bool IsSuccess => Status == MatchStatus.Success;
+
+            public bool IsFail => Status == MatchStatus.FailFromPositive || Status == MatchStatus.FailFromNegative;
 
             [DebuggerBrowsable(DebuggerBrowsableState.Never)]
             private string DebuggerDisplay => Path;
+        }
+
+        private enum MatchStatus
+        {
+            Unknown = 0,
+            Success = 1,
+            FailFromPositive = 2,
+            FailFromNegative = 3,
         }
     }
 }

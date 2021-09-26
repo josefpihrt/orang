@@ -53,14 +53,14 @@ namespace Orang.CommandLine
                     {
                         while (true)
                         {
-                            WriteHeading(en.Current.Key + " commands");
+                            WriteHeading((string.IsNullOrEmpty(en.Current.Key)) ? "Commands" : $"{en.Current.Key} commands");
 
-                            int width = commands.Commands.Max(f => f.Command.Name.Length) + 1;
+                            int width = commands.Commands.Max(f => f.Command.DisplayName.Length) + 1;
 
                             foreach (CommandItem command in en.Current)
                             {
                                 Write(Options.Indent);
-                                WriteTextLine(command.Text);
+                                WriteTextLine(command);
                             }
 
                             if (en.MoveNext())
@@ -86,7 +86,7 @@ namespace Orang.CommandLine
         public override void WriteStartCommand(CommandHelp commandHelp)
         {
             Write("Usage: orang ");
-            Write(commandHelp.Name);
+            Write(commandHelp.DisplayName);
 
             Command command = commandHelp.Command;
 
@@ -129,8 +129,10 @@ namespace Orang.CommandLine
             ConsoleOut.WriteLine(value);
         }
 
-        protected override void WriteTextLine(string value)
+        protected override void WriteTextLine(HelpItem helpItem)
         {
+            string value = helpItem.Text;
+
             if (Filter != null)
             {
                 Match? match = Filter.Match(value);

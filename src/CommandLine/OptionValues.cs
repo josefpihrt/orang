@@ -1,6 +1,5 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using Orang.FileSystem;
 
 #pragma warning disable RCS0056
@@ -54,6 +53,9 @@ namespace Orang.CommandLine
         public static readonly SimpleOptionValue ModifyFlags_Intersect = SimpleOptionValue.Create(ModifyFlags.Intersect, shortValue: "", description: "Return values that were found in all files.");
         public static readonly SimpleOptionValue ModifyFlags_Group = SimpleOptionValue.Create(ModifyFlags.Group, shortValue: "", description: "Group matching files by matched values.");
 
+        public static readonly SimpleOptionValue ModifyOptions_Ascending = SimpleOptionValue.Create(ModifyFlags.Ascending, description: "Sort values in an ascending order.");
+        public static readonly SimpleOptionValue ModifyOptions_Descending = SimpleOptionValue.Create(ModifyFlags.Descending, description: "Sort values in a descending order.");
+
         public static readonly SimpleOptionValue NamePart_Extension = SimpleOptionValue.Create(FileNamePart.Extension, description: "Search in file extension.");
         public static readonly SimpleOptionValue NamePart_FullName = SimpleOptionValue.Create(FileNamePart.FullName, description: "Search in full path.");
         public static readonly SimpleOptionValue NamePart_Name = SimpleOptionValue.Create(FileNamePart.Name, description: "Search in file name and its extension.");
@@ -86,6 +88,9 @@ namespace Orang.CommandLine
         public static readonly SimpleOptionValue PatternOptions_WholeLine = SimpleOptionValue.Create(PatternOptions.WholeLine, shortValue: "wl", helpValue: "w[hole-]l[ine]", description: "Pattern should match whole line.");
         public static readonly SimpleOptionValue PatternOptions_WholeWord = SimpleOptionValue.Create(PatternOptions.WholeWord, description: "Pattern should match whole word.");
 
+        public static readonly SimpleOptionValue SortFlags_Ascending = SimpleOptionValue.Create(SortFlags.Ascending, description: "Sort items in ascending order.");
+        public static readonly SimpleOptionValue SortFlags_Descending = SimpleOptionValue.Create(SortFlags.Descending, description: "Sort items in descending order.");
+
         public static readonly SimpleOptionValue ToLower = SimpleOptionValue.Create(ReplaceFlags.ToLower, shortValue: "tl", description: "Convert value to lowercase.");
         public static readonly SimpleOptionValue ToUpper = SimpleOptionValue.Create(ReplaceFlags.ToUpper, shortValue: "tu", description: "Convert value to uppercase.");
         public static readonly SimpleOptionValue Trim = SimpleOptionValue.Create(ReplaceFlags.Trim, description: "Trim leading and trailing white-space.");
@@ -108,9 +113,10 @@ namespace Orang.CommandLine
 
         public static readonly KeyValuePairOptionValue Encoding = KeyValuePairOptionValue.Create("encoding", MetaValues.Encoding, shortKey: "e");
 
-        public static readonly KeyValuePairOptionValue FileProperty_CreationTime = KeyValuePairOptionValue.Create("creation-time", "<DATE>", shortKey: "ct", helpValue: "c[reation-]t[ime]", description: "Filter files by creation time (See 'Expression syntax' for other expressions).", canContainExpression: true);
-        public static readonly KeyValuePairOptionValue FileProperty_ModifiedTime = KeyValuePairOptionValue.Create("modified-time", "<DATE>", shortKey: "mt", helpValue: "m[odified-]t[ime]", description: "Filter files by modified time (See 'Expression syntax' for other expressions).", canContainExpression: true);
-        public static readonly KeyValuePairOptionValue FileProperty_Size = KeyValuePairOptionValue.Create("size", "<NUM>", description: "Filter files by size (See 'Expression syntax' for other expressions).", canContainExpression: true);
+        public static readonly KeyValuePairOptionValue FileProperty_CreationTime = KeyValuePairOptionValue.Create("creation-time", "<DATE>", shortKey: "ct", helpValue: "c[reation-]t[ime][=<DATE>]", description: "Show file's creation time and optionally define condition (See 'Expression syntax' for other expressions).", canContainExpression: true);
+        public static readonly KeyValuePairOptionValue FileProperty_ModifiedTime = KeyValuePairOptionValue.Create("modified-time", "<DATE>", shortKey: "mt", helpValue: "m[odified-]t[ime][=<DATE>]", description: "Show file's modified time and optionally define condition (See 'Expression syntax' for other expressions).", canContainExpression: true);
+        public static readonly KeyValuePairOptionValue FileProperty_Size = KeyValuePairOptionValue.Create("size", "<NUM>", helpValue: "s[ize][=<NUM>]", description: "Show file's size and optionally define condition (See 'Expression syntax' for other expressions).", canContainExpression: true);
+        public static readonly SimpleOptionValue Align = SimpleOptionValue.Create("align", shortValue: "", description: "Align columns with file properties.");
 
         public static readonly KeyValuePairOptionValue Group = KeyValuePairOptionValue.Create("group", "<GROUP_NAME>", shortKey: "g");
         public static readonly KeyValuePairOptionValue Length = KeyValuePairOptionValue.Create("length", "<NUM>", shortKey: "", description: "Include matches whose length matches the expression (See 'Expression syntax' for other expressions).", canContainExpression: true);

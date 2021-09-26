@@ -12,7 +12,6 @@ using DotMarkdown;
 using DotMarkdown.Linq;
 using Orang.CommandLine;
 using static DotMarkdown.Linq.MFactory;
-using System.Collections;
 using Orang.CommandLine.Help;
 
 namespace Orang.Documentation
@@ -23,7 +22,7 @@ namespace Orang.Documentation
 
         private static void Main(params string[] args)
         {
-            IEnumerable<Command> commands = CommandLoader.LoadCommands(typeof(CommandLoader).Assembly)
+            IEnumerable<Command> commands = CommandLoader.LoadCommands(typeof(AbstractCommandLineOptions).Assembly)
                 .Select(c => c.WithOptions(c.Options.OrderBy(f => f, CommandOptionComparer.Name)))
                 .OrderBy(c => c.Name, StringComparer.InvariantCulture);
 
@@ -68,7 +67,7 @@ namespace Orang.Documentation
                     TableRow("Command", "Description"),
                     application
                         .Commands
-                        .Select(f => TableRow(Link(f.Name, f.Name + "-command.md"), f.Description)))
+                        .Select(f => TableRow(Link(f.DisplayName, f.Name + "-command.md"), f.Description)))
                     .WriteTo(mw);
 
                 mw.WriteLine();

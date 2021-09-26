@@ -6,8 +6,8 @@ namespace Orang.CommandLine
     {
         public const string ConflictResolution_WithoutSuffix = nameof(ConflictResolution_WithoutSuffix);
 
-        public const string ContentDisplayStyle_WithoutLineAndUnmatchedLines
-            = nameof(ContentDisplayStyle_WithoutLineAndUnmatchedLines);
+        public const string ContentDisplayStyle_WithoutLineAndUnmatchedLinesAndOmit
+            = nameof(ContentDisplayStyle_WithoutLineAndUnmatchedLinesAndOmit);
 
         public const string ContentDisplayStyle_WithoutUnmatchedLines = nameof(ContentDisplayStyle_WithoutUnmatchedLines);
         public const string DeleteHighlightOptions = nameof(DeleteHighlightOptions);
@@ -27,8 +27,10 @@ namespace Orang.CommandLine
         public const string PatternOptionsWithoutPart = nameof(PatternOptionsWithoutPart);
         public const string PatternOptions_Match = nameof(PatternOptions_Match);
         public const string PatternOptions_List = nameof(PatternOptions_List);
+        public const string PatternOptions_Word = nameof(PatternOptions_Word);
         public const string RenameHighlightOptions = nameof(RenameHighlightOptions);
         public const string ReplaceHighlightOptions = nameof(ReplaceHighlightOptions);
         public const string SplitHighlightOptions = nameof(SplitHighlightOptions);
+        public const string ConflictResolution_Sync = nameof(ConflictResolution_Sync);
     }
 }

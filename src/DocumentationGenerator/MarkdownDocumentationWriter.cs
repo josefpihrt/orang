@@ -19,7 +19,7 @@ namespace Orang
         public void WriteCommandHeading(Command command, CommandLineApplication application)
         {
             _writer.WriteStartHeading(1);
-            _writer.WriteInlineCode(application.Name + " " + command.Name);
+            _writer.WriteInlineCode(application.Name + " " + command.DisplayName);
             _writer.WriteEndHeading();
         }
 
@@ -38,7 +38,7 @@ namespace Orang
 
             sb.Append(application.Name);
             sb.Append(" ");
-            sb.Append(command.Name);
+            sb.Append(command.DisplayName);
 
             using (IEnumerator<CommandArgument> en = command.Arguments.OrderBy(f => f.Index).GetEnumerator())
             {
@@ -50,9 +50,6 @@ namespace Orang
                     {
                         CommandArgument argument = en.Current;
 
-                        if (!argument.IsRequired)
-                            sb.Append("[");
-
                         if (!string.IsNullOrEmpty(argument.Name))
                         {
                             sb.Append(argument.Name);
@@ -63,9 +60,6 @@ namespace Orang
                             sb.Append(argument.Index);
                             sb.Append(">");
                         }
-
-                        if (!argument.IsRequired)
-                            sb.Append("]");
 
                         if (en.MoveNext())
                         {
@@ -84,55 +78,29 @@ namespace Orang
             bool anyIsOptional = command.Options.Any(f => !f.IsRequired);
             bool anyHasShortName = command.Options.Any(f => !string.IsNullOrEmpty(f.ShortName));
 
-            var sb2 = new StringBuilder();
-            var lines = new List<string>();
-
             foreach (CommandOption option in command.Options)
             {
-                if (!option.IsRequired)
-                {
-                    sb2.Append("[");
-                }
-                else if (anyIsOptional)
-                {
-                    sb2.Append(" ");
-                }
-
                 if (!string.IsNullOrEmpty(option.ShortName))
                 {
-                    sb2.Append("-");
-                    sb2.Append(option.ShortName);
-                    sb2.Append("|");
+                    sb.Append("-");
+                    sb.Append(option.ShortName);
+                    sb.Append(", ");
                 }
                 else if (anyHasShortName)
                 {
-                    sb2.Append(' ', 3);
+                    sb.Append(' ', 4);
                 }
 
                 if (!string.IsNullOrEmpty(option.Name))
                 {
-                    sb2.Append("--");
-                    sb2.Append(option.Name);
+                    sb.Append("--");
+                    sb.Append(option.Name);
                 }
 
-                if (!option.IsRequired)
-                    sb2.Append("]");
-
-                lines.Add(sb2.ToString());
-
-                sb2.Clear();
-            }
-
-            int maxWidth = lines.Max(f => f.Length);
-
-            for (int i = 0; i < lines.Count; i++)
-            {
-                sb.Append(lines[i]);
-
-                if (!string.IsNullOrEmpty(command.Options[i].MetaValue))
+                if (!string.IsNullOrEmpty(option.MetaValue))
                 {
-                    sb.Append(' ', maxWidth - lines[i].Length + 1);
-                    sb.Append(command.Options[i].MetaValue);
+                    sb.Append(' ');
+                    sb.Append(option.MetaValue);
                 }
 
                 sb.AppendLine();
@@ -199,14 +167,11 @@ namespace Orang
 
             var sb = new StringBuilder();
 
-            if (!option.IsRequired)
-                sb.Append("[");
-
             if (!string.IsNullOrEmpty(option.ShortName))
             {
                 sb.Append("-");
                 sb.Append(option.ShortName);
-                sb.Append("|");
+                sb.Append(", ");
             }
 
             if (!string.IsNullOrEmpty(option.Name))
@@ -214,9 +179,6 @@ namespace Orang
                 sb.Append("--");
                 sb.Append(option.Name);
             }
-
-            if (!option.IsRequired)
-                sb.Append("]");
 
             if (!string.IsNullOrEmpty(option.MetaValue))
             {
@@ -232,9 +194,11 @@ namespace Orang
 
         public virtual void WriteOptionDescription(CommandOption option)
         {
-            if (!string.IsNullOrEmpty(option.Description))
+            string description = option.FullDescription;
+
+            if (!string.IsNullOrEmpty(description))
             {
-                _writer.WriteString(option.Description);
+                _writer.WriteString(description);
                 _writer.WriteLine();
                 _writer.WriteLine();
             }

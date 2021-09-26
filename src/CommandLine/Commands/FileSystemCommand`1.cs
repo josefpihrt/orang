@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
 using Orang.FileSystem;
 using static Orang.Logger;
@@ -35,37 +34,60 @@ namespace Orang.CommandLine
 
         public virtual bool CanUseResults => true;
 
-        protected virtual FileSystemSearch CreateSearch()
+        protected virtual void OnSearchCreating(FileSystemSearch search)
+        {
+        }
+
+        private FileSystemSearch CreateSearch()
         {
             var filter = new FileSystemFilter(
                 name: Options.NameFilter,
                 part: Options.NamePart,
                 extension: Options.ExtensionFilter,
                 content: Options.ContentFilter,
-                properties: Options.FilePropertyFilter,
+                properties: new FilePropertyFilter(
+                    Options.FilePropertyOptions.CreationTimePredicate,
+                    Options.FilePropertyOptions.ModifiedTimePredicate,
+                    Options.FilePropertyOptions.SizePredicate),
                 attributes: Options.Attributes,
                 attributesToSkip: Options.AttributesToSkip,
                 emptyOption: Options.EmptyOption);
 
-            NameFilter? directoryFilter = null;
+            var directoryFilters = new List<NameFilter>();
 
             if (Options.DirectoryFilter != null)
             {
-                directoryFilter = new NameFilter(
+                var directoryFilter = new NameFilter(
                     name: Options.DirectoryFilter,
                     part: Options.DirectoryNamePart);
+
+                directoryFilters.Add(directoryFilter);
             }
+
+            NameFilter? additionalDirectoryFilter = CreateAdditionalDirectoryFilter();
+
+            if (additionalDirectoryFilter != null)
+                directoryFilters.Add(additionalDirectoryFilter);
 
             var options = new FileSystemSearchOptions(
                 searchTarget: Options.SearchTarget,
                 recurseSubdirectories: Options.RecurseSubdirectories,
                 defaultEncoding: Options.DefaultEncoding);
 
-            return new FileSystemSearch(
+            var search = new FileSystemSearch(
                 filter: filter,
-                directoryFilter: directoryFilter,
+                directoryFilters: directoryFilters,
                 searchProgress: ProgressReporter,
                 options: options);
+
+            OnSearchCreating(search);
+
+            return search;
+        }
+
+        protected virtual NameFilter? CreateAdditionalDirectoryFilter()
+        {
+            return null;
         }
 
         protected abstract void ExecuteDirectory(string directoryPath, SearchContext context);
@@ -82,6 +104,10 @@ namespace Orang.CommandLine
 
         protected abstract void WriteSummary(SearchTelemetry telemetry, Verbosity verbosity);
 
+        protected virtual void WriteBeforeSummary()
+        {
+        }
+
         protected sealed override CommandResult ExecuteCore(CancellationToken cancellationToken = default)
         {
             List<SearchResult>? results = null;
@@ -92,8 +118,8 @@ namespace Orang.CommandLine
                 {
                     results = new List<SearchResult>();
                 }
-                else if (Options.Format.AlignColumns
-                    && Options.Format.FileProperties.Any())
+                else if (Options.FilePropertyOptions.AlignColumns
+                    && !Options.FilePropertyOptions.IsEmpty)
                 {
                     results = new List<SearchResult>();
                 }
@@ -195,6 +221,8 @@ namespace Orang.CommandLine
 
             stopwatch.Stop();
 
+            WriteBeforeSummary();
+
             if (ShouldWriteSummary())
             {
                 if (context.Progress != null)
@@ -239,24 +267,23 @@ namespace Orang.CommandLine
                     pathDisplayStyle = PathDisplayStyle.Full;
                 }
 
-                results = SortHelpers.SortResults(context.Results!, sortOptions.Descriptors, pathDisplayStyle);
+                results = SortHelpers.SortResults(context.Results!, sortOptions, pathDisplayStyle);
 
                 if (sortOptions.MaxCount > 0)
                     results = results.Take(sortOptions.MaxCount);
             }
 
-            ImmutableArray<FileProperty> fileProperties = Options.Format.FileProperties;
             ColumnWidths? columnWidths = null;
 
-            if (fileProperties.Any()
-                && Options.Format.AlignColumns)
+            if (!Options.FilePropertyOptions.IsEmpty
+                && Options.FilePropertyOptions.AlignColumns)
             {
                 List<SearchResult> resultList = results.ToList();
 
                 int maxNameWidth = resultList.Max(f => f.Path.Length);
                 int maxSizeWidth = 0;
 
-                if (fileProperties.Contains(FileProperty.Size))
+                if (Options.FilePropertyOptions.IncludeSize)
                 {
                     long maxSize = 0;
 
@@ -310,7 +337,7 @@ namespace Orang.CommandLine
                 OperationCanceled();
             }
 
-            if (Options.Format.FileProperties.Contains(FileProperty.Size)
+            if (Options.FilePropertyOptions.IncludeSize
                 && context.Telemetry.FilesTotalSize == 0)
             {
                 foreach (SearchResult result in results.Take(i))
@@ -325,12 +352,6 @@ namespace Orang.CommandLine
                 ProgressReporter? progress = context.Progress;
 
                 progress?.SetBaseDirectoryPath(path);
-
-                if (Options.DisplayRelativePath
-                    && Options.IncludeBaseDirectory)
-                {
-                    WriteLine(path, Colors.BasePath, Verbosity.Minimal);
-                }
 
                 try
                 {
@@ -372,8 +393,7 @@ namespace Orang.CommandLine
         {
             if (context.Progress?.ProgressReported == true
                 && ConsoleOut.Verbosity >= Verbosity.Minimal
-                && context.Results == null
-                && CanEndProgress)
+                && context.Results == null)
             {
                 ConsoleOut.WriteLine();
                 context.Progress.ProgressReported = false;
@@ -402,7 +422,8 @@ namespace Orang.CommandLine
             }
             else
             {
-                EndProgress(context);
+                if (CanEndProgress)
+                    EndProgress(context);
 
                 ExecuteMatchCore(fileMatch, context, baseDirectoryPath, columnWidths: null);
             }
@@ -412,10 +433,12 @@ namespace Orang.CommandLine
             string directoryPath,
             SearchContext context)
         {
+            var notifyDirectoryChanged = this as INotifyDirectoryChanged;
+
             return GetMatches(
                 directoryPath: directoryPath,
                 context: context,
-                notifyDirectoryChanged: default(INotifyDirectoryChanged));
+                notifyDirectoryChanged: notifyDirectoryChanged);
         }
 
         protected IEnumerable<FileMatch> GetMatches(
@@ -441,17 +464,27 @@ namespace Orang.CommandLine
 
         private string GetPathIndent()
         {
-            return (Options.DisplayRelativePath && Options.IncludeBaseDirectory)
-                ? Options.Indent
-                : "";
+            return "";
         }
 
         protected void WriteProperties(SearchContext context, FileMatch fileMatch, ColumnWidths? columnWidths)
         {
+            long size = -1;
+
+            if (Options.IncludeSummary
+                && Options.FilePropertyOptions.IncludeSize)
+            {
+                size = (fileMatch.IsDirectory)
+                    ? (context.DirectorySizeMap?[fileMatch.Path] ?? FileSystemHelpers.GetDirectorySize(fileMatch.Path))
+                    : new FileInfo(fileMatch.Path).Length;
+
+                context.Telemetry.FilesTotalSize += size;
+            }
+
             if (!ShouldLog(Verbosity.Minimal))
                 return;
 
-            if (!Options.Format.FileProperties.Any())
+            if (Options.FilePropertyOptions.IsEmpty)
                 return;
 
             StringBuilder sb = StringBuilderCache.GetInstance();
@@ -459,39 +492,37 @@ namespace Orang.CommandLine
             if (columnWidths != null)
                 sb.Append(' ', columnWidths.NameWidth - fileMatch.Path.Length);
 
-            foreach (FileProperty fileProperty in Options.Format.FileProperties)
+            if (Options.FilePropertyOptions.IncludeSize)
             {
-                if (fileProperty == FileProperty.Size)
-                {
-                    sb.Append("  ");
+                sb.Append("  ");
 
-                    long size = (fileMatch.IsDirectory)
+                if (size == -1)
+                {
+                    size = (fileMatch.IsDirectory)
                         ? (context.DirectorySizeMap?[fileMatch.Path] ?? FileSystemHelpers.GetDirectorySize(fileMatch.Path))
                         : new FileInfo(fileMatch.Path).Length;
-
-                    string sizeText = size.ToString("n0");
-
-                    if (columnWidths != null)
-                        sb.Append(' ', columnWidths.SizeWidth - sizeText.Length);
-
-                    sb.Append(sizeText);
-
-                    context.Telemetry.FilesTotalSize += size;
                 }
-                else if (fileProperty == FileProperty.CreationTime)
-                {
-                    sb.Append("  ");
-                    sb.Append(File.GetCreationTime(fileMatch.Path).ToString("yyyy-MM-dd HH:mm:ss"));
-                }
-                else if (fileProperty == FileProperty.ModifiedTime)
-                {
-                    sb.Append("  ");
-                    sb.Append(File.GetLastWriteTime(fileMatch.Path).ToString("yyyy-MM-dd HH:mm:ss"));
-                }
-                else
-                {
-                    throw new InvalidOperationException($"Unknown enum value '{fileProperty}'.");
-                }
+
+                string sizeText = size.ToString(ApplicationOptions.Default.SizeFormat);
+
+                if (columnWidths != null)
+                    sb.Append(' ', columnWidths.SizeWidth - sizeText.Length);
+
+                sb.Append(sizeText);
+
+                context.Telemetry.FilesTotalSize += size;
+            }
+
+            if (Options.FilePropertyOptions.IncludeCreationTime)
+            {
+                sb.Append("  ");
+                sb.Append(File.GetCreationTime(fileMatch.Path).ToString(ApplicationOptions.Default.DateFormat));
+            }
+
+            if (Options.FilePropertyOptions.IncludeModifiedTime)
+            {
+                sb.Append("  ");
+                sb.Append(File.GetLastWriteTime(fileMatch.Path).ToString(ApplicationOptions.Default.DateFormat));
             }
 
             Write(StringBuilderCache.GetStringAndFree(sb), Verbosity.Minimal);

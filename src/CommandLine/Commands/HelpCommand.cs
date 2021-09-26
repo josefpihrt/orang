@@ -40,22 +40,36 @@ namespace Orang.CommandLine
         }
 
         private static void WriteHelp(
-            string? commandName,
+            string[] commandName,
             bool online,
             bool manual,
             bool includeValues,
             Filter? filter = null)
         {
+            var isCompoundCommand = false;
+            string? commandName2 = commandName.FirstOrDefault();
+
+            if (commandName2 != null)
+                isCompoundCommand = CommandUtility.IsCompoundCommand(commandName2);
+
+            if (commandName.Length > 0)
+                CommandUtility.CheckCommandName(ref commandName, showErrorMessage: false);
+
+            commandName2 = commandName.FirstOrDefault();
+
             if (online)
             {
-                OpenHelpInBrowser(commandName);
+                OpenHelpInBrowser(commandName2);
             }
-            else if (commandName != null)
+            else if (commandName2 != null)
             {
-                Command? command = CommandLoader.LoadCommand(typeof(HelpCommand).Assembly, commandName);
+                Command? command = null;
+
+                if (!isCompoundCommand)
+                    command = CommandLoader.LoadCommand(typeof(HelpCommand).Assembly, commandName2);
 
                 if (command == null)
-                    throw new ArgumentException($"Command '{commandName}' does not exist.", nameof(commandName));
+                    throw new InvalidOperationException($"Command '{string.Join(' ', commandName)}' does not exist.");
 
                 WriteCommandHelp(command, includeValues: includeValues, filter: filter);
             }
@@ -136,7 +150,7 @@ namespace Orang.CommandLine
                 if (metaValues.Any())
                 {
                     WriteLine();
-                    Write($"Run 'orang help {command.Name} -v d' to display list of option values for ");
+                    Write($"Run 'orang help {command.DisplayName} -v d' to display list of option values for ");
                     Write(TextHelpers.Join(", ", " and ", metaValues));
                     WriteLine(".");
                 }
@@ -189,7 +203,7 @@ namespace Orang.CommandLine
                 {
                     WriteSeparator();
                     WriteLine();
-                    WriteLine($"Command: {commandHelp.Name}");
+                    WriteLine($"Command: {commandHelp.DisplayName}");
                     WriteLine();
 
                     string description = commandHelp.Description;

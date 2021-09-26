@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
 
@@ -192,29 +191,31 @@ namespace Orang
             Writer.Write(buffer);
         }
 
+#pragma warning disable CS0809
+        [Obsolete]
         public override void Write(string format, object? arg0)
         {
-            Debug.Fail("");
             Writer.Write(format, arg0);
         }
 
+        [Obsolete]
         public override void Write(string format, object? arg0, object? arg1)
         {
-            Debug.Fail("");
             Writer.Write(format, arg0, arg1);
         }
 
+        [Obsolete]
         public override void Write(string format, object? arg0, object? arg1, object? arg2)
         {
-            Debug.Fail("");
             Writer.Write(format, arg0, arg1, arg2);
         }
 
+        [Obsolete]
         public override void Write(string format, params object?[] arg)
         {
-            Debug.Fail("");
             Writer.Write(format, arg);
         }
+#pragma warning restore CS0809
 
         public override void Write(uint value)
         {
@@ -291,29 +292,31 @@ namespace Orang
             Writer.WriteLine(buffer);
         }
 
+#pragma warning disable CS0809
+        [Obsolete]
         public override void WriteLine(string format, object? arg0)
         {
-            Debug.Fail("");
             Writer.WriteLine(format, arg0);
         }
 
+        [Obsolete]
         public override void WriteLine(string format, object? arg0, object? arg1)
         {
-            Debug.Fail("");
             Writer.WriteLine(format, arg0, arg1);
         }
 
+        [Obsolete]
         public override void WriteLine(string format, object? arg0, object? arg1, object? arg2)
         {
-            Debug.Fail("");
             Writer.WriteLine(format, arg0, arg1, arg2);
         }
 
+        [Obsolete]
         public override void WriteLine(string format, params object?[] arg)
         {
-            Debug.Fail("");
             Writer.WriteLine(format, arg);
         }
+#pragma warning restore CS0809
 
         public override void WriteLine(uint value)
         {

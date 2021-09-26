@@ -4,7 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using Orang.FileSystem;
+using Orang.Text.RegularExpressions;
 using static Orang.Logger;
 
 namespace Orang.CommandLine
@@ -14,9 +17,15 @@ namespace Orang.CommandLine
     {
         protected CommonCopyCommand(TOptions options) : base(options)
         {
+            if (ShouldLog(Verbosity.Minimal))
+            {
+                PathWriter = new PathWriter(
+                    pathColors: default,
+                    relativePath: Options.DisplayRelativePath);
+            }
         }
 
-        public string Target => Options.Target;
+        private string Target => Options.Target;
 
         public ConflictResolution ConflictResolution
         {
@@ -26,17 +35,20 @@ namespace Orang.CommandLine
 
         protected HashSet<string>? IgnoredPaths { get; set; }
 
-        protected override FileSystemSearch CreateSearch()
-        {
-            FileSystemSearch search = base.CreateSearch();
+        private PathWriter? PathWriter { get; }
 
+        protected override void OnSearchCreating(FileSystemSearch search)
+        {
             if (Options.SearchTarget != SearchTarget.Files
                 && !Options.StructureOnly)
             {
                 search.CanRecurseMatch = false;
             }
+        }
 
-            return search;
+        protected override NameFilter? CreateAdditionalDirectoryFilter()
+        {
+            return FileSystem.NameFilter.CreateFromDirectoryPath(Target, isNegative: true);
         }
 
         protected abstract string GetQuestionText(bool isDirectory);
@@ -45,15 +57,9 @@ namespace Orang.CommandLine
 
         protected override void ExecuteDirectory(string directoryPath, SearchContext context)
         {
-            if (Options.TargetNormalized == null)
-                Options.TargetNormalized = Target.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
-
-            string pathNormalized = directoryPath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
-
-            if (FileSystemHelpers.IsSubdirectory(Options.TargetNormalized, pathNormalized)
-                || FileSystemHelpers.IsSubdirectory(pathNormalized, Options.TargetNormalized))
+            if (FileSystemHelpers.IsSubdirectory(Target, directoryPath))
             {
-                WriteWarning("Source directory cannot be subdirectory of a destination directory or vice versa.");
+                WriteWarning("Source directory cannot be subdirectory of a destination directory.");
                 return;
             }
 
@@ -94,9 +100,6 @@ namespace Orang.CommandLine
                 destinationPath = Path.Combine(Target, fileName);
             }
 
-            if (IgnoredPaths?.Contains(sourcePath) == true)
-                return;
-
             try
             {
                 ExecuteOperation(context, sourcePath, destinationPath, fileMatch.IsDirectory, indent);
@@ -104,7 +107,7 @@ namespace Orang.CommandLine
             catch (Exception ex) when (ex is IOException
                 || ex is UnauthorizedAccessException)
             {
-                WriteError(ex, sourcePath, indent: indent);
+                WriteError(context, ex, sourcePath, indent: indent);
             }
         }
 
@@ -128,7 +131,7 @@ namespace Orang.CommandLine
                 else if (directoryExists)
                 {
                     if (Options.StructureOnly
-                        && File.GetAttributes(sourcePath) == File.GetAttributes(destinationPath))
+                        && FileSystemHelpers.AttributeEquals(sourcePath, destinationPath, Options.NoCompareAttributes))
                     {
                         return null;
                     }
@@ -139,7 +142,12 @@ namespace Orang.CommandLine
             else if (fileExists)
             {
                 if (Options.CompareOptions != FileCompareOptions.None
-                    && FileSystemHelpers.FileEquals(sourcePath, destinationPath, Options.CompareOptions))
+                    && FileSystemHelpers.FileEquals(
+                        sourcePath,
+                        destinationPath,
+                        Options.CompareOptions,
+                        Options.NoCompareAttributes,
+                        Options.AllowedTimeDiff))
                 {
                     return null;
                 }
@@ -166,13 +174,7 @@ namespace Orang.CommandLine
 
             if (!Options.OmitPath)
             {
-                LogHelpers.WritePath(
-                    destinationPath,
-                    basePath: Target,
-                    relativePath: Options.DisplayRelativePath,
-                    colors: default,
-                    indent: indent,
-                    verbosity: Verbosity.Minimal);
+                PathWriter?.WritePath(destinationPath, Target, indent);
 
                 WriteLine(Verbosity.Minimal);
             }
@@ -183,7 +185,9 @@ namespace Orang.CommandLine
                 string question;
                 if (directoryExists)
                 {
-                    question = (isDirectory && Options.StructureOnly) ? "Update directory attributes?" : "Overwrite directory?";
+                    question = (isDirectory && Options.StructureOnly)
+                        ? "Update directory attributes?"
+                        : "Overwrite directory?";
                 }
                 else
                 {
@@ -370,11 +374,12 @@ namespace Orang.CommandLine
         }
 
         protected virtual void WriteError(
+            SearchContext context,
             Exception ex,
             string path,
             string indent)
         {
-            LogHelpers.WriteFileError(ex, path, relativePath: Options.DisplayRelativePath, indent: indent);
+            LogHelpers.WriteFileError(ex, path, indent: indent);
         }
     }
 }

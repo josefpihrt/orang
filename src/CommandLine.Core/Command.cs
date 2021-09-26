@@ -14,12 +14,14 @@ namespace Orang
             string name,
             string description,
             CommandGroup group,
+            string? alias = null,
             IEnumerable<CommandArgument>? arguments = null,
             IEnumerable<CommandOption>? options = null)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
             Description = description;
             Group = group;
+            Alias = alias;
             Arguments = arguments?.ToImmutableArray() ?? ImmutableArray<CommandArgument>.Empty;
             Options = options?.ToImmutableArray() ?? ImmutableArray<CommandOption>.Empty;
         }
@@ -30,21 +32,25 @@ namespace Orang
 
         public CommandGroup Group { get; }
 
+        public string? Alias { get; }
+
+        public string DisplayName => Alias ?? Name;
+
         public ImmutableArray<CommandArgument> Arguments { get; }
 
         public ImmutableArray<CommandOption> Options { get; }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private string DebuggerDisplay => Name + "  " + Description;
+        private string DebuggerDisplay => DisplayName + "  " + Description;
 
         public Command WithArguments(IEnumerable<CommandArgument> arguments)
         {
-            return new Command(Name, Description, Group, arguments, Options);
+            return new Command(Name, Description, Group, Alias, arguments, Options);
         }
 
         public Command WithOptions(IEnumerable<CommandOption> options)
         {
-            return new Command(Name, Description, Group, Arguments, options);
+            return new Command(Name, Description, Group, Alias, Arguments, options);
         }
     }
 }

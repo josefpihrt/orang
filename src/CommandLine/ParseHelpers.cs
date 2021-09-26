@@ -24,6 +24,27 @@ namespace Orang.CommandLine
             HighlightOptions? defaultValue = null,
             OptionValueProvider? provider = null)
         {
+            return TryParseHighlightOptions(
+                values,
+                out highlightOptions,
+                defaultValue,
+                default(ContentDisplayStyle?),
+                provider);
+        }
+
+        public static bool TryParseHighlightOptions(
+            IEnumerable<string> values,
+            out HighlightOptions highlightOptions,
+            HighlightOptions? defaultValue = null,
+            ContentDisplayStyle? contentDisplayStyle = null,
+            OptionValueProvider? provider = null)
+        {
+            if (contentDisplayStyle == ContentDisplayStyle.Value
+                || contentDisplayStyle == ContentDisplayStyle.ValueDetail)
+            {
+                defaultValue = HighlightOptions.None;
+            }
+
             if (values.Any())
             {
                 string[] arr = values.ToArray();
@@ -34,7 +55,8 @@ namespace Orang.CommandLine
                     {
                         case "new-line":
                             {
-                                LogHelpers.WriteObsoleteWarning($"Value '{arr[i]}' is obsolete. "
+                                LogHelpers.WriteObsoleteWarning($"Value '{arr[i]}' is has been deprecated "
+                                    + "and will be removed in future version. "
                                     + $"Use value '{OptionValues.HighlightOptions_Newline.HelpValue}' instead.");
 
                                 arr[i] = OptionValues.HighlightOptions_Newline.Value;
@@ -42,7 +64,8 @@ namespace Orang.CommandLine
                             }
                         case "nl":
                             {
-                                LogHelpers.WriteObsoleteWarning($"Value '{arr[i]}' is obsolete. "
+                                LogHelpers.WriteObsoleteWarning($"Value '{arr[i]}' is has been deprecated "
+                                    + "and will be removed in future version. "
                                     + $"Use value '{OptionValues.HighlightOptions_Newline.HelpValue}' instead.");
 
                                 arr[i] = OptionValues.HighlightOptions_Newline.Value;
@@ -65,10 +88,18 @@ namespace Orang.CommandLine
         public static bool TryParseFileProperties(
             IEnumerable<string> values,
             string optionName,
+            out bool creationTime,
+            out bool modifiedTime,
+            out bool size,
+            out bool alignColumns,
             out FilterPredicate<DateTime>? creationTimePredicate,
             out FilterPredicate<DateTime>? modifiedTimePredicate,
             out FilterPredicate<long>? sizePredicate)
         {
+            creationTime = false;
+            modifiedTime = false;
+            size = false;
+            alignColumns = false;
             creationTimePredicate = null;
             modifiedTimePredicate = null;
             sizePredicate = null;
@@ -80,6 +111,30 @@ namespace Orang.CommandLine
 
                 try
                 {
+                    if (OptionValues.FileProperty_CreationTime.IsKeyOrShortKey(value))
+                    {
+                        creationTime = true;
+                        continue;
+                    }
+
+                    if (OptionValues.FileProperty_ModifiedTime.IsKeyOrShortKey(value))
+                    {
+                        modifiedTime = true;
+                        continue;
+                    }
+
+                    if (OptionValues.FileProperty_Size.IsKeyOrShortKey(value))
+                    {
+                        size = true;
+                        continue;
+                    }
+
+                    if (OptionValues.Align.IsValueOrShortValue(value))
+                    {
+                        alignColumns = true;
+                        continue;
+                    }
+
                     expression = Expression.Parse(value);
 
                     if (OptionValues.FileProperty_CreationTime.IsKeyOrShortKey(expression.Identifier))
@@ -188,6 +243,15 @@ namespace Orang.CommandLine
                 return false;
             }
 
+            if (flags.Contains(SortFlags.Ascending)
+                && flags.Contains(SortFlags.Descending))
+            {
+                WriteError($"Option '{optionName}' cannot use both '{OptionValues.SortFlags_Ascending.HelpValue}' "
+                    + $"and '{OptionValues.SortFlags_Descending.HelpValue}' values.");
+
+                return false;
+            }
+
             SortDirection direction = (flags.Contains(SortFlags.Descending))
                 ? SortDirection.Descending
                 : SortDirection.Ascending;
@@ -221,6 +285,7 @@ namespace Orang.CommandLine
                     case SortFlags.None:
                     case SortFlags.Ascending:
                     case SortFlags.Descending:
+                    case SortFlags.CultureInvariant:
                         {
                             break;
                         }
@@ -231,14 +296,17 @@ namespace Orang.CommandLine
                 }
             }
 
+            bool cultureInvariant = flags.Contains(SortFlags.CultureInvariant);
+
             if (descriptors != null)
             {
-                sortOptions = new SortOptions(descriptors.ToImmutableArray(), maxCount: maxCount);
+                sortOptions = new SortOptions(descriptors.ToImmutableArray(), cultureInvariant: cultureInvariant, maxCount: maxCount);
             }
             else
             {
                 sortOptions = new SortOptions(
                     ImmutableArray.Create(new SortDescriptor(SortProperty.Name, direction)),
+                    cultureInvariant: cultureInvariant,
                     maxCount: maxCount);
             }
 
@@ -295,8 +363,9 @@ namespace Orang.CommandLine
 
                     if (value2 == "ao")
                     {
-                        LogHelpers.WriteObsoleteWarning(
-                            $"Value '{value2}' is obsolete. Use value '{OptionValues.ModifyFlags_AggregateOnly.HelpValue}' instead.");
+                        LogHelpers.WriteObsoleteWarning($"Value '{value2}' is has been deprecated "
+                            + "and will be removed in future version. "
+                            + $"Use value '{OptionValues.ModifyFlags_AggregateOnly.HelpValue}' instead.");
 
                         value2 = OptionValues.ModifyFlags_AggregateOnly.ShortValue;
                     }
@@ -333,14 +402,24 @@ namespace Orang.CommandLine
 
             var functions = ModifyFunctions.None;
 
-            if ((modifyFlags & ModifyFlags.Distinct) != 0)
-                functions |= ModifyFunctions.Distinct;
-
             if ((modifyFlags & ModifyFlags.Ascending) != 0)
                 functions |= ModifyFunctions.Sort;
 
             if ((modifyFlags & ModifyFlags.Descending) != 0)
                 functions |= ModifyFunctions.SortDescending;
+
+            const ModifyFunctions bothSortDirections = ModifyFunctions.Sort | ModifyFunctions.SortDescending;
+
+            if ((functions & bothSortDirections) == bothSortDirections)
+            {
+                WriteError($"Option '{optionName}' cannot use both '{OptionValues.ModifyOptions_Ascending.HelpValue}' "
+                    + $"and '{OptionValues.ModifyOptions_Descending.HelpValue}' values.");
+
+                return false;
+            }
+
+            if ((modifyFlags & ModifyFlags.Distinct) != 0)
+                functions |= ModifyFunctions.Distinct;
 
             if ((modifyFlags & ModifyFlags.Except) != 0)
                 functions |= ModifyFunctions.Except;
@@ -517,7 +596,9 @@ namespace Orang.CommandLine
             out LineDisplayOptions lineDisplayOptions,
             out LineContext lineContext,
             out DisplayParts displayParts,
-            out ImmutableArray<FileProperty> fileProperties,
+            out bool includeCreationTime,
+            out bool includeModifiedTime,
+            out bool includeSize,
             out string? indent,
             out string? separator,
             out bool noAlign,
@@ -529,12 +610,12 @@ namespace Orang.CommandLine
             lineDisplayOptions = LineDisplayOptions.None;
             lineContext = default;
             displayParts = DisplayParts.None;
-            fileProperties = ImmutableArray<FileProperty>.Empty;
+            includeCreationTime = false;
+            includeModifiedTime = false;
+            includeSize = false;
             indent = null;
             separator = null;
             noAlign = false;
-
-            ImmutableArray<FileProperty>.Builder? builder = null;
 
             foreach (string value in values)
             {
@@ -547,21 +628,24 @@ namespace Orang.CommandLine
 
                     if (key == "t")
                     {
-                        LogHelpers.WriteObsoleteWarning($"Value '{key}' is obsolete. "
+                        LogHelpers.WriteObsoleteWarning($"Value '{key}' is has been deprecated "
+                            + "and will be removed in future version. "
                             + $"Use value '{OptionValues.Display_Context.HelpValue}' instead.");
 
                         key = OptionValues.Display_Context.ShortKey;
                     }
                     else if (key == "ta")
                     {
-                        LogHelpers.WriteObsoleteWarning($"Value '{key}' is obsolete. "
+                        LogHelpers.WriteObsoleteWarning($"Value '{key}' is has been deprecated "
+                            + "and will be removed in future version. "
                             + $"Use value '{OptionValues.Display_ContextAfter.HelpValue}' instead.");
 
                         key = OptionValues.Display_ContextAfter.ShortKey;
                     }
                     else if (key == "tb")
                     {
-                        LogHelpers.WriteObsoleteWarning($"Value '{key}' is obsolete. "
+                        LogHelpers.WriteObsoleteWarning($"Value '{key}' is has been deprecated "
+                            + "and will be removed in future version. "
                             + $"Use value '{OptionValues.Display_ContextBefore.HelpValue}' instead.");
 
                         key = OptionValues.Display_ContextBefore.ShortKey;
@@ -638,15 +722,15 @@ namespace Orang.CommandLine
                 }
                 else if (OptionValues.Display_CreationTime.IsValueOrShortValue(value))
                 {
-                    (builder ??= ImmutableArray.CreateBuilder<FileProperty>()).Add(FileProperty.CreationTime);
+                    includeCreationTime = true;
                 }
                 else if (OptionValues.Display_ModifiedTime.IsValueOrShortValue(value))
                 {
-                    (builder ??= ImmutableArray.CreateBuilder<FileProperty>()).Add(FileProperty.ModifiedTime);
+                    includeModifiedTime = false;
                 }
                 else if (OptionValues.Display_Size.IsValueOrShortValue(value))
                 {
-                    (builder ??= ImmutableArray.CreateBuilder<FileProperty>()).Add(FileProperty.Size);
+                    includeSize = false;
                 }
                 else if (OptionValues.Display_LineNumber.IsValueOrShortValue(value))
                 {
@@ -674,9 +758,6 @@ namespace Orang.CommandLine
                     return false;
                 }
             }
-
-            if (builder != null)
-                fileProperties = builder.ToImmutableArray();
 
             return true;
         }
@@ -1122,7 +1203,11 @@ namespace Orang.CommandLine
             WriteError(message);
         }
 
-        internal static bool TryParseProperties(string ask, IEnumerable<string> name, CommonFindCommandOptions options)
+        internal static bool TryParseProperties(
+            string ask,
+            IEnumerable<string> name,
+            CommonFindCommandOptions options,
+            bool allowEmptyPattern = false)
         {
             if (!TryParseAsEnum(
                 ask,
@@ -1151,7 +1236,8 @@ namespace Orang.CommandLine
                 OptionValueProviders.PatternOptionsProvider,
                 out Filter? nameFilter,
                 out FileNamePart namePart,
-                allowNull: true))
+                allowNull: true,
+                allowEmptyPattern: allowEmptyPattern))
             {
                 return false;
             }
@@ -1159,6 +1245,41 @@ namespace Orang.CommandLine
             options.AskMode = askMode;
             options.NameFilter = nameFilter;
             options.NamePart = namePart;
+
+            return true;
+        }
+
+        public static bool TryParseTargetDirectory(
+            string value,
+            [NotNullWhen(true)] out string? result,
+            CommonCopyCommandOptions options,
+            string directoryName,
+            string optionName)
+        {
+            result = null;
+
+            if (value != null)
+            {
+                if (!TryEnsureFullPath(value, out result))
+                    return false;
+            }
+            else
+            {
+                int length = options.Paths.Length;
+
+                if (length < 2)
+                {
+                    WriteError($"{directoryName} directory is required. It can be specified either as a last unnamed parameter "
+                        + $"or using option '{OptionNames.GetHelpText(optionName)}'.");
+
+                    return false;
+                }
+                else
+                {
+                    result = options.Paths[length - 1].Path;
+                    options.Paths = options.Paths.RemoveAt(length - 1);
+                }
+            }
 
             return true;
         }

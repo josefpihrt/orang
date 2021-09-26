@@ -65,7 +65,7 @@ namespace Orang.CommandLine.Help
             foreach (OptionItem option in options)
             {
                 Write(Options.Indent);
-                WriteTextLine(option.Text);
+                WriteTextLine(option);
             }
         }
 
@@ -84,7 +84,7 @@ namespace Orang.CommandLine.Help
             foreach (ArgumentItem argument in arguments)
             {
                 Write(Options.Indent);
-                WriteTextLine(argument.Text);
+                WriteTextLine(argument);
             }
         }
 
@@ -104,12 +104,12 @@ namespace Orang.CommandLine.Help
             {
                 WriteStartCommands(commandsHelp);
 
-                int width = commandsHelp.Commands.Max(f => f.Command.Name.Length) + 1;
+                int width = commandsHelp.Commands.Max(f => f.Command.DisplayName.Length) + 1;
 
                 foreach (CommandItem command in commandsHelp.Commands)
                 {
                     Write(Options.Indent);
-                    WriteTextLine(command.Text);
+                    WriteTextLine(command);
                 }
 
                 WriteEndCommands(commandsHelp);
@@ -179,7 +179,7 @@ namespace Orang.CommandLine.Help
 
                 string text = TextHelpers.Indent(value.Text, Options.Indent);
 
-                WriteTextLine(text);
+                WriteTextLine(new HelpItem(text, ""));
             }
         }
 
@@ -213,6 +213,11 @@ namespace Orang.CommandLine.Help
 
         protected abstract void WriteLine(string value);
 
-        protected abstract void WriteTextLine(string value);
+        protected abstract void WriteTextLine(HelpItem helpItem);
+
+        public void WriteTextLine(string value)
+        {
+            WriteTextLine(new HelpItem(value, ""));
+        }
     }
 }

@@ -5,8 +5,8 @@ using System.Collections.Immutable;
 using System.Text.RegularExpressions;
 using CommandLine;
 using Orang.FileSystem;
+using Orang.Text.RegularExpressions;
 using static Orang.CommandLine.ParseHelpers;
-using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
@@ -49,6 +49,11 @@ namespace Orang.CommandLine
             HelpText = "[deprecated] Use option -r, --replacement instead.",
             MetaValue = MetaValues.Evaluator)]
         public string Evaluator { get; set; } = null!;
+
+        [Option(
+            longName: OptionNames.Interactive,
+            HelpText = "Enable editing of a new name.")]
+        public bool Interactive { get; set; }
 
         [Option(
             longName: OptionNames.KeepOriginal,
@@ -117,7 +122,8 @@ namespace Orang.CommandLine
                 OptionNames.Content,
                 OptionValueProviders.PatternOptionsWithoutPartProvider,
                 out Filter? contentFilter,
-                allowNull: true))
+                allowNull: true,
+                allowEmptyPattern: true))
             {
                 return false;
             }
@@ -128,9 +134,9 @@ namespace Orang.CommandLine
             if (matchEvaluator == null
                 && Evaluator != null)
             {
-                LogHelpers.WriteObsoleteWarning(
-                    $"Option '{OptionNames.GetHelpText(OptionNames.Evaluator)}' is obsolete. "
-                        + $"Use option '{OptionNames.GetHelpText(OptionNames.Replacement)}' instead.");
+                LogHelpers.WriteObsoleteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Evaluator)}' is has been deprecated "
+                    + "and will be removed in future version. "
+                    + $"Use option '{OptionNames.GetHelpText(OptionNames.Replacement)}' instead.");
 
                 if (!DelegateFactory.TryCreateFromAssembly(Evaluator, typeof(string), typeof(Match), out matchEvaluator))
                     return false;
@@ -164,15 +170,82 @@ namespace Orang.CommandLine
                 lineDisplayOptions: out LineDisplayOptions lineDisplayOptions,
                 lineContext: out LineContext lineContext,
                 displayParts: out DisplayParts displayParts,
-                fileProperties: out ImmutableArray<FileProperty> fileProperties,
+                includeCreationTime: out bool includeCreationTime,
+                includeModifiedTime: out bool includeModifiedTime,
+                includeSize: out bool includeSize,
                 indent: out string? indent,
                 separator: out string? separator,
-                noAlign: out bool noAlign,
+                noAlign: out bool _,
                 contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider,
                 pathDisplayStyleProvider: OptionValueProviders.PathDisplayStyleProvider_Rename))
             {
                 return false;
             }
+
+            if (ContentMode != null)
+            {
+                if (TryParseAsEnum(
+                    ContentMode,
+                    OptionNames.ContentMode,
+                    out ContentDisplayStyle contentDisplayStyle2,
+                    provider: OptionValueProviders.ContentDisplayStyleProvider))
+                {
+                    contentDisplayStyle = contentDisplayStyle2;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            if (PathMode != null)
+            {
+                if (TryParseAsEnum(
+                    PathMode,
+                    OptionNames.PathMode,
+                    out PathDisplayStyle pathDisplayStyle2,
+                    provider: OptionValueProviders.PathDisplayStyleProvider_Rename))
+                {
+                    pathDisplayStyle = pathDisplayStyle2;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            if (Count)
+                displayParts |= DisplayParts.Count;
+
+            if (Summary)
+                displayParts |= DisplayParts.Summary;
+
+            if (Context >= 0)
+                lineContext = new LineContext(Context);
+
+            if (LineNumber)
+                lineDisplayOptions |= LineDisplayOptions.IncludeLineNumber;
+#if DEBUG
+            if (ContentIndent != null)
+                indent = RegexEscape.ConvertCharacterEscapes(ContentIndent);
+
+            if (ContentSeparator != null)
+                separator = ContentSeparator;
+
+            if (NoContent)
+                contentDisplayStyle = ContentDisplayStyle.Omit;
+
+            if (NoPath)
+                pathDisplayStyle = PathDisplayStyle.Omit;
+#endif
+            if (includeCreationTime)
+                options.FilePropertyOptions = options.FilePropertyOptions.WithIncludeCreationTime(true);
+
+            if (includeModifiedTime)
+                options.FilePropertyOptions = options.FilePropertyOptions.WithIncludeModifiedTime(true);
+
+            if (includeSize)
+                options.FilePropertyOptions = options.FilePropertyOptions.WithIncludeSize(true);
 
             if (pathDisplayStyle == PathDisplayStyle.Relative
                 && options.Paths.Length > 1
@@ -182,15 +255,14 @@ namespace Orang.CommandLine
             }
 
             options.Format = new OutputDisplayFormat(
-                contentDisplayStyle: contentDisplayStyle ?? ContentDisplayStyle.Omit,
+                contentDisplayStyle: contentDisplayStyle
+                    ?? ((ReferenceEquals(contentFilter, Filter.EntireInput)) ? ContentDisplayStyle.AllLines : ContentDisplayStyle.Omit),
                 pathDisplayStyle: pathDisplayStyle ?? PathDisplayStyle.Full,
                 lineOptions: lineDisplayOptions,
                 lineContext: lineContext,
                 displayParts: displayParts,
-                fileProperties: fileProperties,
                 indent: indent,
-                separator: separator,
-                alignColumns: !noAlign);
+                separator: separator);
 
             options.HighlightOptions = highlightOptions;
             options.SearchTarget = GetSearchTarget();
@@ -202,6 +274,7 @@ namespace Orang.CommandLine
             options.ContentFilter = contentFilter;
             options.MaxMatchingFiles = MaxCount;
             options.ConflictResolution = conflictResolution;
+            options.Interactive = Interactive;
             options.KeepOriginal = KeepOriginal;
 
             return true;

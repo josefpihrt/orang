@@ -10,6 +10,8 @@ namespace Orang.CommandLine
         {
         }
 
+        public bool Interactive { get; internal set; }
+
         public ConflictResolution ConflictResolution { get; internal set; }
 
         public bool KeepOriginal { get; internal set; }

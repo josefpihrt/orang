@@ -2,47 +2,67 @@
 
 using System;
 using System.IO;
-using System.Text.RegularExpressions;
+using Orang.Text.RegularExpressions;
 
 namespace Orang.CommandLine
 {
-    internal abstract class AskReplacementWriter : ContentWriter
+    internal abstract class AskReplacementWriter : ContentWriter, IReportReplacement
     {
+        private static readonly char[] _newLineChars = new[] { '\r', '\n' };
+
         protected readonly Lazy<TextWriter>? _lazyWriter;
         protected int _writerIndex;
         private ValueWriter? _valueWriter;
 
         protected AskReplacementWriter(
             string input,
-            ReplaceOptions replaceOptions,
+            IReplacer replacer,
             Lazy<TextWriter>? lazyWriter,
-            ContentWriterOptions options) : base(input, options)
+            ContentWriterOptions options,
+            bool isInteractive,
+            SpellcheckState? spellcheckState = null) : base(input, options)
         {
-            ReplaceOptions = replaceOptions;
+            Replacer = replacer;
+            IsInteractive = isInteractive;
+            SpellcheckState = spellcheckState;
+
             _lazyWriter = lazyWriter;
         }
 
-        public ReplaceOptions ReplaceOptions { get; }
+        public IReplacer Replacer { get; }
 
         public int ReplacementCount { get; private set; }
 
         public bool ContinueWithoutAsking { get; private set; }
 
+        public bool IsInteractive { get; }
+
+        public SpellcheckState? SpellcheckState { get; }
+
         public static AskReplacementWriter Create(
             ContentDisplayStyle contentDisplayStyle,
             string input,
-            ReplaceOptions replaceOptions,
+            IReplacer replacer,
             Lazy<TextWriter>? lazyWriter,
             ContentWriterOptions options,
-            MatchOutputInfo? outputInfo)
+            MatchOutputInfo? outputInfo,
+            bool isInteractive,
+            SpellcheckState? spellcheckState = null)
         {
             switch (contentDisplayStyle)
             {
                 case ContentDisplayStyle.Value:
                 case ContentDisplayStyle.ValueDetail:
-                    return new AskValueReplacementWriter(input, replaceOptions, lazyWriter, options, outputInfo);
+                    return new AskValueReplacementWriter(
+                        input,
+                        replacer,
+                        lazyWriter,
+                        options,
+                        outputInfo,
+                        isInteractive,
+                        spellcheckState);
                 case ContentDisplayStyle.Line:
-                    return new AskLineReplacementWriter(input, replaceOptions, lazyWriter, options);
+                    return new AskLineReplacementWriter(input, replacer, lazyWriter, options, isInteractive, spellcheckState);
                 case ContentDisplayStyle.UnmatchedLines:
                 case ContentDisplayStyle.AllLines:
                     throw new InvalidOperationException();
@@ -51,25 +71,56 @@ namespace Orang.CommandLine
             }
         }
 
-        protected override void WriteEndReplacement(Match match, string result)
+        protected override void WriteMatch(ICapture capture)
         {
-            if (_lazyWriter != null)
+            if (SpellcheckState?.Data.IgnoredValues.Contains(capture.Value) == true)
+                return;
+
+            base.WriteMatch(capture);
+        }
+
+        protected override void WriteEndReplacement(ICapture capture, string? result)
+        {
+            bool isUserInput = IsInteractive
+                && (capture is RegexCapture
+                    || result == null)
+                && (result == null
+                    || result.IndexOfAny(_newLineChars) == -1);
+
+            string replacement = result ?? capture.Value;
+
+            if (isUserInput)
+                replacement = ConsoleHelpers.ReadUserInput(replacement, Options.Indent + "Replacement: ");
+
+            if (!string.Equals(capture.Value, replacement, StringComparison.Ordinal))
             {
-                if (ConsoleHelpers.AskToExecute("Replace?", Options.Indent))
+                if (_lazyWriter != null)
                 {
-                    _lazyWriter.Value.Write(Input.AsSpan(_writerIndex, match.Index - _writerIndex));
-                    _lazyWriter.Value.Write(result);
+                    if (IsInteractive
+                        || ConsoleHelpers.AskToExecute("Replace?", Options.Indent))
+                    {
+                        _lazyWriter.Value.Write(Input.AsSpan(_writerIndex, capture.Index - _writerIndex));
+                        _lazyWriter.Value.Write(replacement);
 
-                    _writerIndex = match.Index + match.Length;
+                        _writerIndex = capture.Index + capture.Length;
 
-                    ReplacementCount++;
+                        ReplacementCount++;
+                    }
+                }
+                else if (!ContinueWithoutAsking
+                    && !IsInteractive
+                    && ConsoleHelpers.AskToContinue(Options.Indent) == DialogResult.YesToAll)
+                {
+                    ContinueWithoutAsking = true;
                 }
             }
-            else if (!ContinueWithoutAsking
-                && ConsoleHelpers.AskToContinue(Options.Indent))
-            {
-                ContinueWithoutAsking = true;
-            }
+
+            SpellcheckState?.ProcessReplacement(
+                Input,
+                capture,
+                replacement,
+                lineNumber: (ValueWriter as LineNumberValueWriter)?.LineNumber,
+                isUserInput: true);
         }
 
         protected override void WriteStartMatches()
@@ -78,50 +129,49 @@ namespace Orang.CommandLine
             _writerIndex = 0;
         }
 
-        protected override void WriteNonEmptyMatchValue(CaptureInfo capture)
+        protected override void WriteNonEmptyMatchValue(ICapture capture)
         {
             if (Options.HighlightMatch)
                 base.WriteNonEmptyMatchValue(capture);
         }
 
-        protected override void WriteEndMatch(CaptureInfo capture)
+        protected override void WriteEndMatch(ICapture capture)
         {
-            var match = (Match)capture.Capture!;
+            string result = Replacer.Replace(capture);
 
-            string result = ReplaceOptions.Replace(match);
-
-            WriteReplacement(match, result);
+            WriteReplacement(capture, result);
         }
 
         protected override void WriteMatchSeparator()
         {
         }
 
-        protected override void WriteStartReplacement(Match match, string result)
+        protected override void WriteStartReplacement(ICapture capture, string? result)
         {
         }
 
         protected override void WriteEndMatches()
         {
+            if (_lazyWriter?.IsValueCreated == true)
+                _lazyWriter.Value.Write(Input.AsSpan(_writerIndex, Input.Length - _writerIndex));
         }
 
         public override void Dispose()
         {
             if (_lazyWriter?.IsValueCreated == true)
-            {
-                _lazyWriter.Value.Write(Input.AsSpan(_writerIndex, Input.Length - _writerIndex));
                 _lazyWriter.Value.Dispose();
-            }
         }
 
         private class AskValueReplacementWriter : AskReplacementWriter
         {
             public AskValueReplacementWriter(
                 string input,
-                ReplaceOptions replaceOptions,
+                IReplacer replacer,
                 Lazy<TextWriter>? lazyWriter,
                 ContentWriterOptions options,
-                MatchOutputInfo? outputInfo) : base(input, replaceOptions, lazyWriter, options)
+                MatchOutputInfo? outputInfo,
+                bool isInteractive,
+                SpellcheckState? spellcheckState = null) : base(input, replacer, lazyWriter, options, isInteractive, spellcheckState)
             {
                 OutputInfo = outputInfo;
             }
@@ -143,7 +193,7 @@ namespace Orang.CommandLine
                 }
             }
 
-            protected override void WriteStartMatch(CaptureInfo capture)
+            protected override void WriteStartMatch(ICapture capture)
             {
                 Write(Options.Indent);
 
@@ -151,11 +201,11 @@ namespace Orang.CommandLine
                     Write(OutputInfo.GetText(capture, MatchCount + 1, groupName: Options.GroupName));
             }
 
-            protected override void WriteEndReplacement(Match match, string result)
+            protected override void WriteEndReplacement(ICapture capture, string? result)
             {
                 WriteLine();
 
-                base.WriteEndReplacement(match, result);
+                base.WriteEndReplacement(capture, result);
             }
         }
 
@@ -168,9 +218,11 @@ namespace Orang.CommandLine
 
             public AskLineReplacementWriter(
                 string input,
-                ReplaceOptions replaceOptions,
+                IReplacer replacer,
                 Lazy<TextWriter>? lazyWriter,
-                ContentWriterOptions options) : base(input, replaceOptions, lazyWriter, options)
+                ContentWriterOptions options,
+                bool isInteractive,
+                SpellcheckState? spellcheckState = null) : base(input, replacer, lazyWriter, options, isInteractive, spellcheckState)
             {
                 MatchingLineCount = 0;
             }
@@ -206,17 +258,23 @@ namespace Orang.CommandLine
                 base.WriteStartMatches();
             }
 
-            protected override void WriteStartMatch(CaptureInfo capture)
+            protected override void WriteStartMatch(ICapture capture)
             {
-                Write(Options.Indent);
-
                 if (Options.IncludeLineNumber)
                 {
                     _lineNumber += TextHelpers.CountLines(Input, _solIndex, capture.Index - _solIndex);
                     ((LineNumberValueWriter)ValueWriter).LineNumber = _lineNumber;
-
-                    WriteLineNumber(_lineNumber);
                 }
+
+                _solIndex = FindStartOfLine(capture);
+
+                if (Options.ContextBefore > 0)
+                    WriteContextBefore(0, _solIndex, _lineNumber);
+
+                Write(Options.Indent);
+
+                if (Options.IncludeLineNumber)
+                    WriteLineNumber(_lineNumber);
 
                 if (capture.Index >= _eolIndex)
                 {
@@ -233,26 +291,31 @@ namespace Orang.CommandLine
                     }
                 }
 
-                _solIndex = FindStartOfLine(capture);
                 _eolIndex = FindEndOfLine(capture);
 
                 WriteStartLine(_solIndex, capture.Index);
             }
 
-            protected override void WriteNonEmptyReplacementValue(string result)
+            protected override void WriteNonEmptyReplacementValue(
+                string result,
+                in ConsoleColors colors,
+                in ConsoleColors boundaryColors)
             {
-                ReplacementValueWriter.Write(result, Symbols, ReplacementColors, ReplacementBoundaryColors);
+                ReplacementValueWriter.Write(result, Symbols, colors, boundaryColors);
             }
 
-            protected override void WriteEndReplacement(Match match, string result)
+            protected override void WriteEndReplacement(ICapture capture, string? result)
             {
-                int endIndex = match.Index + match.Length;
+                int endIndex = capture.Index + capture.Length;
 
-                int eolIndex = FindEndOfLine(CaptureInfo.FromCapture(match));
+                int eolIndex = FindEndOfLine(capture);
 
                 WriteEndLine(endIndex, eolIndex);
 
-                base.WriteEndReplacement(match, result);
+                if (Options.ContextAfter > 0)
+                    WriteContextAfter(eolIndex, Input.Length, _lineNumber);
+
+                base.WriteEndReplacement(capture, result);
             }
         }
     }

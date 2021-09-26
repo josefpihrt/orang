@@ -26,6 +26,7 @@ namespace Orang.CommandLine
             OptionValueProvider provider,
             out Filter? filter,
             bool allowNull = false,
+            bool allowEmptyPattern = false,
             OptionValueProvider? namePartProvider = null,
             FileNamePart defaultNamePart = FileNamePart.Name,
             PatternOptions includedPatternOptions = PatternOptions.None)
@@ -37,6 +38,7 @@ namespace Orang.CommandLine
                 filter: out filter,
                 namePart: out _,
                 allowNull: allowNull,
+                allowEmptyPattern: allowEmptyPattern,
                 namePartProvider: namePartProvider,
                 defaultNamePart: defaultNamePart,
                 includedPatternOptions: includedPatternOptions);
@@ -49,6 +51,7 @@ namespace Orang.CommandLine
             out Filter? filter,
             out FileNamePart namePart,
             bool allowNull = false,
+            bool allowEmptyPattern = false,
             OptionValueProvider? namePartProvider = null,
             FileNamePart defaultNamePart = FileNamePart.Name,
             PatternOptions includedPatternOptions = PatternOptions.None)
@@ -114,6 +117,7 @@ namespace Orang.CommandLine
                                 value,
                                 OptionValues.Part,
                                 namePartProvider ?? OptionValueProviders.NamePartKindProvider);
+
                             return false;
                         }
 
@@ -160,6 +164,13 @@ namespace Orang.CommandLine
                 (options ??= new List<string>()).Add(option);
             }
 
+            if (pattern.Length == 0
+                && allowEmptyPattern)
+            {
+                filter = new Filter(new Regex(".+", RegexOptions.Singleline), predicate: predicate);
+                return true;
+            }
+
             if (!TryParseRegexOptions(
                 options,
                 optionName,
@@ -193,10 +204,18 @@ namespace Orang.CommandLine
                     }
             }
 
-            if ((patternOptions & PatternOptions.FromFile) != 0
-                && !FileSystemHelpers.TryReadAllText(pattern, out pattern, ex => WriteError(ex)))
+            if ((patternOptions & PatternOptions.FromFile) != 0)
             {
-                return false;
+                if (!FileSystemHelpers.TryReadAllText(pattern, out pattern, ex => WriteError(ex)))
+                    return false;
+
+                if (pattern.Length == 0
+                    && (patternOptions & PatternOptions.List) != 0
+                    && allowNull)
+                {
+                    pattern = null;
+                    return true;
+                }
             }
 
             pattern = BuildPattern(pattern, patternOptions, separator);

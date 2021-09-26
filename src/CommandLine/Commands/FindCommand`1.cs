@@ -21,7 +21,8 @@ namespace Orang.CommandLine
         {
         }
 
-        private static OutputCaptions SplitCaptions => _splitCaptions ??= OutputCaptions.Default.Update(shortMatch: OutputCaptions.Default.ShortSplit);
+        private static OutputCaptions SplitCaptions
+            => _splitCaptions ??= OutputCaptions.Default.Update(shortMatch: OutputCaptions.Default.ShortSplit);
 
         public override bool CanEndProgress
         {
@@ -29,7 +30,7 @@ namespace Orang.CommandLine
             {
                 return !Options.OmitPath
                     || (ContentFilter != null
-                        && Options.ContentDisplayStyle != ContentDisplayStyle.Omit
+                        && !Options.OmitContent
                         && ConsoleOut.Verbosity > Verbosity.Minimal);
             }
         }
@@ -38,20 +39,19 @@ namespace Orang.CommandLine
 
         protected override bool CanDisplaySummary => !AggregateOnly && base.CanDisplaySummary;
 
+        public ModifyOptions ModifyOptions => Options.ModifyOptions;
+
         protected override void ExecuteCore(SearchContext context)
         {
+            _aggregate = AggregateManager.TryCreate(Options);
+
             if (Options.Input != null)
-            {
                 ExecuteInput(context, Options.Input);
-            }
-            else
-            {
-                _aggregate = AggregateManager.TryCreate(Options);
 
-                base.ExecuteCore(context);
+            base.ExecuteCore(context);
 
+            if (context.TerminationReason != TerminationReason.Canceled)
                 _aggregate?.WriteAggregatedValues(context.CancellationToken);
-            }
         }
 
         private void ExecuteInput(SearchContext context, string input)
@@ -125,6 +125,12 @@ namespace Orang.CommandLine
                     fileMatch,
                     baseDirectoryPath,
                     isPathDisplayed: isPathDisplayed);
+
+                if (AskMode == AskMode.File
+                    && isPathDisplayed)
+                {
+                    WritePath(context, fileMatch, baseDirectoryPath, indent, columnWidths, includeNewline: true);
+                }
             }
 
             AskToContinue(context, indent);
@@ -178,19 +184,53 @@ namespace Orang.CommandLine
                     contentWriter = WriteMatches(match, content, writerOptions, isPathDisplayed, context);
                 }
 
-                if (Options.ModifyOptions.HasAnyFunction)
+                if (ModifyOptions.HasAnyFunction
+                    || AggregateOnly)
                 {
                     if (AggregateOnly)
                     {
                         IEnumerable<string> values = _modify!.FileValues!.Modify(
-                            Options.ModifyOptions,
-                            filter: Options.ModifyOptions.Functions & ~(ModifyFunctions.Enumerable | ModifyFunctions.Except_Intersect_Group));
+                            ModifyOptions,
+                            filter: ModifyOptions.Functions
+                                & ~(ModifyFunctions.Enumerable | ModifyFunctions.Except_Intersect_Group));
 
                         _aggregate?.Storage.AddRange(values);
                     }
+                    else if (Options.OmitContent)
+                    {
+                        foreach (string value in _modify!.FileValues!.Modify(ModifyOptions))
+                        {
+                            _aggregate?.Storage.Add(value);
+                            telemetry.MatchCount++;
+                        }
+                    }
                     else
                     {
-                        _modify!.WriteValues(writerOptions.Indent, telemetry, _aggregate);
+                        ConsoleColors colors = default;
+
+                        if (Options.HighlightMatch)
+                        {
+                            if (Options.ContentDisplayStyle == ContentDisplayStyle.Value
+                                || Options.ContentDisplayStyle == ContentDisplayStyle.ValueDetail)
+                            {
+                                colors = Colors.Match;
+                            }
+                        }
+
+                        var valueWriter = new ValueWriter(
+                            ContentTextWriter.Default,
+                            writerOptions.Indent,
+                            includeEndingIndent: false);
+
+                        foreach (string value in _modify!.FileValues!.Modify(ModifyOptions))
+                        {
+                            Write(writerOptions.Indent, Verbosity.Normal);
+                            valueWriter.Write(value, _modify.Symbols, colors, Colors.MatchBoundary);
+                            WriteLine(Verbosity.Normal);
+
+                            _aggregate?.Storage.Add(value);
+                            telemetry.MatchCount++;
+                        }
                     }
 
                     _aggregate?.Sections?.Add(new StorageSection(fileMatch!, baseDirectoryPath, _aggregate.Storage.Count));
@@ -237,24 +277,15 @@ namespace Orang.CommandLine
         {
             ContentWriter? contentWriter;
 
-            bool hasAnyFunction = Options.ModifyOptions.HasAnyFunction;
-
-            if (hasAnyFunction
+            if (ModifyOptions.HasAnyFunction
+                || AggregateOnly
                 || Options.AskMode == AskMode.Value
-                || (Options.ContentDisplayStyle != ContentDisplayStyle.Omit
+                || (!Options.OmitContent
                     && ShouldLog(Verbosity.Normal)))
             {
-                if (hasAnyFunction)
-                    (_modify ??= new ModifyManager(Options)).Reset();
+                MatchOutputInfo? outputInfo = Options.CreateOutputInfo(content, match, ContentFilter!);
 
-                contentWriter = ContentWriter.CreateFind(
-                    contentDisplayStyle: Options.ContentDisplayStyle,
-                    input: content,
-                    options: writerOptions,
-                    storage: (hasAnyFunction) ? _modify?.FileStorage : _aggregate?.Storage,
-                    outputInfo: Options.CreateOutputInfo(content, match, ContentFilter!),
-                    writer: (hasAnyFunction) ? null : ContentTextWriter.Default,
-                    ask: AskMode == AskMode.Value);
+                contentWriter = CreateContentWriter(content, writerOptions, outputInfo);
             }
             else
             {
@@ -274,11 +305,11 @@ namespace Orang.CommandLine
             SearchContext context)
         {
             ContentWriter? contentWriter = null;
-            List<CaptureInfo>? splits = null;
+            List<ICapture>? splits = null;
 
             try
             {
-                splits = ListCache<CaptureInfo>.GetInstance();
+                splits = ListCache<ICapture>.GetInstance();
 
                 (int maxMatchesInFile, int maxTotalMatches, int count) = CalculateMaxCount(context);
 
@@ -301,28 +332,17 @@ namespace Orang.CommandLine
                 if (isPathDisplayed)
                     LogHelpers.WriteFilePathEnd(splits.Count, maxReason, Options.IncludeCount);
 
-                bool hasAnyFunction = Options.ModifyOptions.HasAnyFunction;
-
-                if (hasAnyFunction
+                if (ModifyOptions.HasAnyFunction
+                    || AggregateOnly
                     || Options.AskMode == AskMode.Value
-                    || (Options.ContentDisplayStyle != ContentDisplayStyle.Omit
+                    || (!Options.OmitContent
                         && ShouldLog(Verbosity.Normal)))
                 {
-                    if (hasAnyFunction)
-                        (_modify ??= new ModifyManager(Options)).Reset();
-
                     MatchOutputInfo? outputInfo = (Options.ContentDisplayStyle == ContentDisplayStyle.ValueDetail)
                         ? MatchOutputInfo.Create(splits, SplitCaptions)
                         : null;
 
-                    contentWriter = ContentWriter.CreateFind(
-                        contentDisplayStyle: Options.ContentDisplayStyle,
-                        input: content,
-                        options: writerOptions,
-                        storage: (hasAnyFunction) ? _modify?.FileStorage : _aggregate?.Storage,
-                        outputInfo: outputInfo,
-                        writer: (hasAnyFunction) ? null : ContentTextWriter.Default,
-                        ask: AskMode == AskMode.Value);
+                    contentWriter = CreateContentWriter(content, writerOptions, outputInfo);
                 }
                 else
                 {
@@ -338,10 +358,31 @@ namespace Orang.CommandLine
             finally
             {
                 if (splits != null)
-                    ListCache<CaptureInfo>.Free(splits);
+                    ListCache<ICapture>.Free(splits);
             }
 
             return contentWriter!;
+        }
+
+        private ContentWriter CreateContentWriter(
+            string content,
+            ContentWriterOptions writerOptions,
+            MatchOutputInfo? outputInfo)
+        {
+            if (ModifyOptions.HasAnyFunction
+                || AggregateOnly)
+            {
+                (_modify ??= new ModifyManager(Options)).Reset();
+            }
+
+            return ContentWriter.CreateFind(
+                contentDisplayStyle: (Options.OmitContent) ? ContentDisplayStyle.Value : Options.ContentDisplayStyle,
+                input: content,
+                options: writerOptions,
+                storage: (ModifyOptions.HasAnyFunction || AggregateOnly) ? _modify?.FileStorage : _aggregate?.Storage,
+                outputInfo: outputInfo,
+                writer: (ModifyOptions.HasAnyFunction || AggregateOnly || Options.OmitContent) ? null : ContentTextWriter.Default,
+                ask: AskMode == AskMode.Value);
         }
     }
 }

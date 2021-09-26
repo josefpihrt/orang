@@ -20,6 +20,14 @@ namespace Orang.Aggregation
             Storage = storage;
             Sections = sections;
             Options = options;
+
+            if (ShouldLog(Verbosity.Minimal))
+            {
+                PathWriter = new PathWriter(
+                    pathColors: Colors.Matched_Path,
+                    relativePath: Options.DisplayRelativePath,
+                    indent: "  ");
+            }
         }
 
         public ListResultStorage Storage { get; set; }
@@ -30,14 +38,14 @@ namespace Orang.Aggregation
 
         public ModifyOptions ModifyOptions => Options.ModifyOptions;
 
+        private PathWriter? PathWriter { get; }
+
         public static AggregateManager? TryCreate(FindCommandOptions Options)
         {
             ModifyOptions modifyOptions = Options.ModifyOptions;
 
             bool shouldCreate = modifyOptions.HasFunction(ModifyFunctions.Except_Intersect_Group)
-                || (modifyOptions.Aggregate
-                    && (modifyOptions.Modifier != null
-                        || modifyOptions.HasFunction(ModifyFunctions.Enumerable)));
+                || (modifyOptions.Aggregate);
 
             if (!shouldCreate)
                 return null;
@@ -91,8 +99,8 @@ namespace Orang.Aggregation
                 {
                     valuesMap = Storage.Values
                         .Zip(Sections)
-                        .GroupBy(f => f.First)
-                        .ToDictionary(f => f.Key, f => f.Select(f => f.Second).ToList());
+                        .GroupBy(f => f.First, ModifyOptions.StringComparer)
+                        .ToDictionary(f => f.Key, f => f.Select(f => f.Second).ToList(), ModifyOptions.StringComparer);
                 }
 
                 values = valuesMap
@@ -248,7 +256,7 @@ namespace Orang.Aggregation
                     ? PathDisplayStyle.Relative
                     : PathDisplayStyle.Full;
 
-                sections = SortHelpers.SortResults(results, sortOptions.Descriptors, pathDisplayStyle)
+                sections = SortHelpers.SortResults(results, sortOptions, pathDisplayStyle)
                     .Select(f => new StorageSection(f.FileMatch, f.BaseDirectoryPath, -1));
             }
 
@@ -257,14 +265,7 @@ namespace Orang.Aggregation
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                WritePath(
-                    grouping.Key.FileMatch,
-                    grouping.Key.BaseDirectoryPath,
-                    relativePath: Options.DisplayRelativePath,
-                    colors: Colors.Matched_Path,
-                    matchColors: default,
-                    indent: "  ",
-                    verbosity: Verbosity.Minimal);
+                PathWriter?.WritePath(grouping.Key.FileMatch, grouping.Key.BaseDirectoryPath);
 
                 int pathCount = grouping.Count();
 

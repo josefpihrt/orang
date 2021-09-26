@@ -14,12 +14,14 @@ namespace Orang
             string? shortName = null,
             string? metaValue = null,
             string? description = null,
+            string? additionalDescription = null,
             bool isRequired = false,
             string? valueProviderName = null)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
             ShortName = shortName;
             Description = description;
+            AdditionalDescription = additionalDescription;
             IsRequired = isRequired;
             MetaValue = metaValue;
             ValueProviderName = valueProviderName;
@@ -32,6 +34,10 @@ namespace Orang
         public string? MetaValue { get; }
 
         public string? Description { get; }
+
+        public string? AdditionalDescription { get; }
+
+        public string FullDescription => Description + AdditionalDescription;
 
         public bool IsRequired { get; }
 

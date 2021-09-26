@@ -17,40 +17,31 @@ namespace Orang.CommandLine
     {
         private static int Main(string[] args)
         {
-#if DEBUG // short command syntax
-            if (args?.Length > 0)
+#if DEBUG
+            if (args.LastOrDefault() == "--debug")
             {
-                switch (args[0])
-                {
-                    case "f":
-                        {
-                            ReplaceArgs("find");
-                            break;
-                        }
-                    case "r":
-                        {
-                            ReplaceArgs("replace");
-                            break;
-                        }
-                }
+                WriteArgs(args.Take(args.Length - 1).ToArray(), Verbosity.Quiet);
+                return ExitCodes.NoMatch;
+            }
 
-                void ReplaceArgs(string commandName)
-                {
-                    Array.Resize(ref args, args.Length + 1);
-
-                    for (int i = args.Length - 1; i >= 2; i--)
-                        args[i] = args[i - 1];
-
-                    args[0] = commandName;
-                    args[1] = "-c";
-                }
+            if (args?.Length > 0
+                && !CommandUtility.CheckCommandName(ref args))
+            {
+                return ExitCodes.Error;
             }
 #endif
             try
             {
                 Parser parser = CreateParser(ignoreUnknownArguments: true);
 
-                var help = false;
+                if (args == null
+                    || args.Length == 0)
+                {
+                    HelpCommand.WriteCommandsHelp();
+                    return ExitCodes.Match;
+                }
+
+                bool? success = null;
 
                 ParserResult<BaseCommandLineOptions> defaultResult = parser
                     .ParseArguments<BaseCommandLineOptions>(args)
@@ -64,8 +55,13 @@ namespace Orang.CommandLine
                             ? CommandLoader.LoadCommand(typeof(Program).Assembly, commandName)
                             : null;
 
-                        ParseVerbosityAndOutput(options);
-                        WriteArgs(args);
+                        if (!ParseVerbosityAndOutput(options))
+                        {
+                            success = false;
+                            return;
+                        }
+
+                        WriteArgs(args, Verbosity.Diagnostic);
 
                         if (command != null)
                         {
@@ -76,39 +72,49 @@ namespace Orang.CommandLine
                             HelpCommand.WriteCommandsHelp();
                         }
 
-                        help = true;
-                    })
-#if DEBUG
-                    .WithNotParsed(_ =>
-                    {
+                        success = true;
                     });
-#else
-                    ;
-#endif
 
-                if (help)
+                if (success == false)
+                    return ExitCodes.Error;
+
+                if (success == true)
                     return ExitCodes.Match;
-
-                var success = true;
 
                 parser = CreateParser();
 
                 ParserResult<object> parserResult = parser.ParseArguments<
                     CopyCommandLineOptions,
                     DeleteCommandLineOptions,
-                    EscapeCommandLineOptions,
                     FindCommandLineOptions,
                     HelpCommandLineOptions,
-                    ListPatternsCommandLineOptions,
-                    MatchCommandLineOptions,
                     MoveCommandLineOptions,
+                    RegexEscapeCommandLineOptions,
+                    RegexListCommandLineOptions,
+                    RegexMatchCommandLineOptions,
+                    RegexSplitCommandLineOptions,
                     RenameCommandLineOptions,
                     ReplaceCommandLineOptions,
-                    SplitCommandLineOptions
+                    SpellcheckCommandLineOptions,
+                    SyncCommandLineOptions
                     >(args);
 
-                parserResult.WithNotParsed(_ =>
+                parserResult.WithNotParsed(e =>
                 {
+                    if (e.Any(f => f.Tag == ErrorType.VersionRequestedError))
+                    {
+                        Console.WriteLine(typeof(Program).GetTypeInfo().Assembly.GetName().Version);
+                        success = true;
+                        return;
+                    }
+
+                    UnknownOptionError oldAttributesToSkipShortName = e
+                        .OfType<UnknownOptionError>()
+                        .FirstOrDefault(f => f.Token == "b");
+
+                    if (oldAttributesToSkipShortName != null)
+                        WriteWarning("Shortcut '-b' has been deprecated. Use '-A' instead.");
+
                     var helpText = new HelpText(SentenceBuilder.Create(), HelpCommand.GetHeadingText());
 
                     helpText = HelpText.DefaultParsingErrorsHandler(parserResult, helpText);
@@ -117,7 +123,11 @@ namespace Orang.CommandLine
 
                     if (verbAttribute != null)
                     {
-                        helpText.AddPreOptionsText(Environment.NewLine + HelpCommand.GetFooterText(verbAttribute.Name));
+                        CommandAliasAttribute? commandAlias = parserResult.TypeInfo.Current.GetCustomAttribute<CommandAliasAttribute>();
+
+                        string commandName = commandAlias?.Alias ?? verbAttribute.Name;
+
+                        helpText.AddPreOptionsText(Environment.NewLine + HelpCommand.GetFooterText(commandName));
                     }
 
                     Console.Error.WriteLine(helpText);
@@ -125,30 +135,41 @@ namespace Orang.CommandLine
                     success = false;
                 });
 
-                if (!success)
+                if (success == true)
+                    return ExitCodes.Match;
+
+                if (success == false)
                     return ExitCodes.Error;
 
                 parserResult.WithParsed<AbstractCommandLineOptions>(options =>
                 {
-                    success = ParseVerbosityAndOutput(options);
-                    WriteArgs(args);
+                    if (ParseVerbosityAndOutput(options))
+                    {
+                        WriteArgs(args, Verbosity.Diagnostic);
+                    }
+                    else
+                    {
+                        success = false;
+                    }
                 });
 
-                if (!success)
+                if (success == false)
                     return ExitCodes.Error;
 
                 return parserResult.MapResult(
                     (CopyCommandLineOptions options) => Copy(options),
-                    (MoveCommandLineOptions options) => Move(options),
                     (DeleteCommandLineOptions options) => Delete(options),
-                    (EscapeCommandLineOptions options) => Escape(options),
                     (FindCommandLineOptions options) => Find(options),
                     (HelpCommandLineOptions options) => Help(options),
-                    (ListPatternsCommandLineOptions options) => ListPatterns(options),
-                    (MatchCommandLineOptions options) => Match(options),
+                    (MoveCommandLineOptions options) => Move(options),
+                    (RegexEscapeCommandLineOptions options) => RegexEscape(options),
+                    (RegexListCommandLineOptions options) => RegexList(options),
+                    (RegexMatchCommandLineOptions options) => RegexMatch(options),
+                    (RegexSplitCommandLineOptions options) => RegexSplit(options),
                     (RenameCommandLineOptions options) => Rename(options),
                     (ReplaceCommandLineOptions options) => Replace(options),
-                    (SplitCommandLineOptions options) => Split(options),
+                    (SpellcheckCommandLineOptions options) => Spellcheck(options),
+                    (SyncCommandLineOptions options) => Sync(options),
                     _ => ExitCodes.Error);
             }
             catch (Exception ex)
@@ -223,16 +244,17 @@ namespace Orang.CommandLine
         }
 
         [Conditional("DEBUG")]
-        private static void WriteArgs(string[]? args)
+        private static void WriteArgs(string[]? args, Verbosity verbosity)
         {
-            if (args != null)
+            if (args != null
+                && ShouldLog(verbosity))
             {
-                WriteLine("--- ARGS ---", Verbosity.Diagnostic);
+                WriteLine("--- ARGS ---", verbosity);
 
                 foreach (string arg in args)
-                    WriteLine(arg, Verbosity.Diagnostic);
+                    WriteLine(arg, verbosity);
 
-                WriteLine("--- END OF ARGS ---", Verbosity.Diagnostic);
+                WriteLine("--- END OF ARGS ---", verbosity);
             }
         }
 
@@ -243,7 +265,7 @@ namespace Orang.CommandLine
             if (!commandLineOptions.TryParse(options))
                 return ExitCodes.Error;
 
-            return Execute(new CopyCommand(options));
+            return Execute(new CopyCommand(options), commandLineOptions);
         }
 
         private static int Delete(DeleteCommandLineOptions commandLineOptions)
@@ -253,17 +275,7 @@ namespace Orang.CommandLine
             if (!commandLineOptions.TryParse(options))
                 return ExitCodes.Error;
 
-            return Execute(new DeleteCommand(options));
-        }
-
-        private static int Escape(EscapeCommandLineOptions commandLineOptions)
-        {
-            var options = new EscapeCommandOptions();
-
-            if (!commandLineOptions.TryParse(options))
-                return ExitCodes.Error;
-
-            return Execute(new EscapeCommand(options));
+            return Execute(new DeleteCommand(options), commandLineOptions);
         }
 
         private static int Find(FindCommandLineOptions commandLineOptions)
@@ -273,7 +285,7 @@ namespace Orang.CommandLine
             if (!commandLineOptions.TryParse(options))
                 return ExitCodes.Error;
 
-            return Execute(new FindCommand<FindCommandOptions>(options));
+            return Execute(new FindCommand<FindCommandOptions>(options), commandLineOptions);
         }
 
         private static int Help(HelpCommandLineOptions commandLineOptions)
@@ -283,27 +295,7 @@ namespace Orang.CommandLine
             if (!commandLineOptions.TryParse(options))
                 return ExitCodes.Error;
 
-            return Execute(new HelpCommand(options));
-        }
-
-        private static int ListPatterns(ListPatternsCommandLineOptions commandLineOptions)
-        {
-            var options = new ListPatternsCommandOptions();
-
-            if (!commandLineOptions.TryParse(options))
-                return ExitCodes.Error;
-
-            return Execute(new ListPatternsCommand(options));
-        }
-
-        private static int Match(MatchCommandLineOptions commandLineOptions)
-        {
-            var options = new MatchCommandOptions();
-
-            if (!commandLineOptions.TryParse(options))
-                return ExitCodes.Error;
-
-            return Execute(new MatchCommand(options));
+            return Execute(new HelpCommand(options), commandLineOptions);
         }
 
         private static int Move(MoveCommandLineOptions commandLineOptions)
@@ -313,7 +305,27 @@ namespace Orang.CommandLine
             if (!commandLineOptions.TryParse(options))
                 return ExitCodes.Error;
 
-            return Execute(new MoveCommand(options));
+            return Execute(new MoveCommand(options), commandLineOptions);
+        }
+
+        private static int Spellcheck(SpellcheckCommandLineOptions commandLineOptions)
+        {
+            var options = new SpellcheckCommandOptions();
+
+            if (!commandLineOptions.TryParse(options))
+                return ExitCodes.Error;
+
+            return Execute(new SpellcheckCommand(options), commandLineOptions);
+        }
+
+        private static int Sync(SyncCommandLineOptions commandLineOptions)
+        {
+            var options = new SyncCommandOptions();
+
+            if (!commandLineOptions.TryParse(options))
+                return ExitCodes.Error;
+
+            return Execute(new SyncCommand(options), commandLineOptions);
         }
 
         private static int Rename(RenameCommandLineOptions commandLineOptions)
@@ -323,7 +335,7 @@ namespace Orang.CommandLine
             if (!commandLineOptions.TryParse(options))
                 return ExitCodes.Error;
 
-            return Execute(new RenameCommand(options));
+            return Execute(new RenameCommand(options), commandLineOptions);
         }
 
         private static int Replace(ReplaceCommandLineOptions commandLineOptions)
@@ -333,24 +345,64 @@ namespace Orang.CommandLine
             if (!commandLineOptions.TryParse(options))
                 return ExitCodes.Error;
 
-            return Execute(new ReplaceCommand(options));
+            return Execute(new ReplaceCommand(options), commandLineOptions);
         }
 
-        private static int Split(SplitCommandLineOptions commandLineOptions)
+        private static int RegexEscape(RegexEscapeCommandLineOptions commandLineOptions)
         {
-            var options = new SplitCommandOptions();
+            var options = new RegexEscapeCommandOptions();
 
             if (!commandLineOptions.TryParse(options))
                 return ExitCodes.Error;
 
-            return Execute(new SplitCommand(options));
+            return Execute(new RegexEscapeCommand(options), commandLineOptions);
         }
 
-        private static int Execute<TOptions>(AbstractCommand<TOptions> command) where TOptions : AbstractCommandOptions
+        private static int RegexList(RegexListCommandLineOptions commandLineOptions)
+        {
+            var options = new RegexListCommandOptions();
+
+            if (!commandLineOptions.TryParse(options))
+                return ExitCodes.Error;
+
+            return Execute(new RegexListCommand(options), commandLineOptions);
+        }
+
+        private static int RegexMatch(RegexMatchCommandLineOptions commandLineOptions)
+        {
+            var options = new RegexMatchCommandOptions();
+
+            if (!commandLineOptions.TryParse(options))
+                return ExitCodes.Error;
+
+            return Execute(new RegexMatchCommand(options), commandLineOptions);
+        }
+
+        private static int RegexSplit(RegexSplitCommandLineOptions commandLineOptions)
+        {
+            var options = new RegexSplitCommandOptions();
+
+            if (!commandLineOptions.TryParse(options))
+                return ExitCodes.Error;
+
+            return Execute(new RegexSplitCommand(options), commandLineOptions);
+        }
+
+        private static int Execute<TOptions>(
+            AbstractCommand<TOptions> command,
+            AbstractCommandLineOptions options) where TOptions : AbstractCommandOptions
         {
 #if DEBUG
             if (ShouldLog(Verbosity.Diagnostic))
+            {
+                WriteLine("--- RAW PARAMETERS ---", Verbosity.Diagnostic);
+                DiagnosticWriter.WriteParameters(options);
+                WriteLine("--- END OF RAW PARAMETERS ---", Verbosity.Diagnostic);
+
+                WriteLine("--- APP PARAMETERS ---", Verbosity.Diagnostic);
                 command.Options.WriteDiagnostic();
+                WriteLine("--- END OF APP PARAMETERS ---", Verbosity.Diagnostic);
+            }
 #endif
             CommandResult result = command.Execute();
 

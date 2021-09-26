@@ -31,7 +31,7 @@ orang move [<PATH>]
 [   --progress]
 [-p|--properties]         <FILE_PROPERTIES>
 [-s|--sort]               <SORT_OPTIONS>
-    --target              <DIRECTORY_PATH>
+[   --target]             <DIRECTORY_PATH>
 [-v|--verbosity]          <VERBOSITY>
 ```
 
@@ -39,7 +39,7 @@ orang move [<PATH>]
 
 **`<PATH>`**
 
-Path to one or more files and/or directories that should be searched\.
+Path to one or more source directories and optionally a target directory\.
 
 ## Options
 
@@ -51,13 +51,13 @@ Ask for a permission to move file or directory\.
 
 File attributes that are required\.
 
-[\<ATTRIBUTES>](OptionValues.md#attributes): `archive`, `compressed`, `d[irectory]`, `e[mpty]`, `encrypted`, `f[ile]`, `h[idden]`, `normal`, `offline`, `r[ead-only]`, `r[eparse]-p[oint]`, `s[ystem]`, `temporary`\.
+[\<ATTRIBUTES>](OptionValues.md#attributes): `archive`, `compressed`, `d[irectory]`, `e[mpty]`, `encrypted`, `f[ile]`, `h[idden]`, `normal`, `offline`, `r[ead-only]`, `r[eparse-]p[oint]`, `s[ystem]`, `temporary`\.
 
 ##### `[-b|--attributes-to-skip] <ATTRIBUTES>`
 
 File attributes that should be skipped\.
 
-[\<ATTRIBUTES>](OptionValues.md#attributes): `archive`, `compressed`, `e[mpty]`, `encrypted`, `h[idden]`, `normal`, `offline`, `r[ead-only]`, `r[eparse]-p[oint]`, `s[ystem]`, `temporary`\.
+[\<ATTRIBUTES>](OptionValues.md#attributes): `archive`, `compressed`, `e[mpty]`, `encrypted`, `h[idden]`, `normal`, `offline`, `r[ead-only]`, `r[eparse-]p[oint]`, `s[ystem]`, `temporary`\.
 
 ##### `[--compare] <COMPARE_OPTIONS>`
 
@@ -155,11 +155,11 @@ A filter for file properties\.
 
 Sort matched files and directories\.
 
-[\<SORT_OPTIONS>](OptionValues.md#sort_options): `a[scending]`, `c[reation-]t[ime]`, `d[escending]`, `m[ax-count]=<NUM>`, `m[odified-]t[ime]`, `n[ame]`, `s[ize]`\.
+[\<SORT_OPTIONS>](OptionValues.md#sort_options): `a[scending]`, `c[reation-]t[ime]`, `ci [culture-invariant]`, `d[escending]`, `m[ax-count]=<NUM>`, `m[odified-]t[ime]`, `n[ame]`, `s[ize]`\.
 
-##### `--target <DIRECTORY_PATH>`
+##### `[--target] <DIRECTORY_PATH>`
 
-A directory to move files and directories to\.
+A directory to move files and directories to\. It can be also specified as a last unnamed parameter\.
 
 ##### `[-v|--verbosity] <VERBOSITY>`
 

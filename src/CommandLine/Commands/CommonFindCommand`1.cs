@@ -20,6 +20,13 @@ namespace Orang.CommandLine
 
         protected CommonFindCommand(TOptions options) : base(options)
         {
+            if (ShouldLog(Verbosity.Minimal))
+            {
+                PathWriter = new PathWriter(
+                    pathColors: Colors.Matched_Path,
+                    matchColors: (Options.HighlightMatch) ? Colors.Match_Path : default,
+                    relativePath: Options.DisplayRelativePath);
+            }
         }
 
         public Filter? ContentFilter => Options.ContentFilter;
@@ -28,13 +35,15 @@ namespace Orang.CommandLine
 
         protected AskMode AskMode { get; set; }
 
+        private PathWriter? PathWriter { get; }
+
         public override bool CanEndProgress
         {
             get
             {
                 return !Options.OmitPath
                     || (ContentFilter != null
-                        && Options.ContentDisplayStyle != ContentDisplayStyle.Omit
+                        && !Options.OmitContent
                         && ConsoleOut.Verbosity > Verbosity.Minimal);
             }
         }
@@ -72,7 +81,7 @@ namespace Orang.CommandLine
                     return Options.PathDisplayStyle switch
                     {
                         PathDisplayStyle.Full => Options.Indent,
-                        PathDisplayStyle.Relative => (Options.IncludeBaseDirectory) ? Options.DoubleIndent : Options.Indent,
+                        PathDisplayStyle.Relative => Options.Indent,
                         PathDisplayStyle.Omit => "",
                         _ => throw new InvalidOperationException(),
                     };
@@ -88,11 +97,16 @@ namespace Orang.CommandLine
                 ? new GroupDefinition(groupNumber, ContentFilter.GroupName)
                 : default(GroupDefinition?);
 
+            HighlightOptions highlightOptions = Options.HighlightOptions;
+
+            if (ReferenceEquals(ContentFilter, Filter.EntireInput))
+                highlightOptions &= ~HighlightOptions.DefaultOrMatch;
+
             return new ContentWriterOptions(
                 format: Options.Format,
                 groupDefinition,
                 symbols: Symbols,
-                highlightOptions: Options.HighlightOptions,
+                highlightOptions: highlightOptions,
                 indent: indent);
         }
 
@@ -170,7 +184,8 @@ namespace Orang.CommandLine
             }
             else
             {
-                EndProgress(context);
+                if (CanEndProgress)
+                    EndProgress(context);
 
                 ExecuteMatchWithContentCore(fileMatch, context, writerOptions, baseDirectoryPath);
             }
@@ -185,7 +200,7 @@ namespace Orang.CommandLine
         {
             if (!fileMatch.IsDirectory
                 && ContentFilter?.IsNegative == false
-                && Options.ContentDisplayStyle != ContentDisplayStyle.Omit
+                && !Options.OmitContent
                 && ShouldLog(Verbosity.Normal))
             {
                 string indent = GetPathIndent(baseDirectoryPath);
@@ -236,7 +251,7 @@ namespace Orang.CommandLine
             {
                 try
                 {
-                    if (ConsoleHelpers.AskToContinue(indent))
+                    if (ConsoleHelpers.AskToContinue(indent) == DialogResult.YesToAll)
                         AskMode = AskMode.None;
                 }
                 catch (OperationCanceledException)
@@ -246,7 +261,7 @@ namespace Orang.CommandLine
             }
         }
 
-        protected void WriteMatches(ContentWriter writer, IEnumerable<Capture> captures, SearchContext context)
+        protected virtual void WriteMatches(ContentWriter writer, IEnumerable<Capture> captures, SearchContext context)
         {
             try
             {
@@ -327,7 +342,7 @@ namespace Orang.CommandLine
             ColumnWidths? columnWidths,
             bool includeNewline)
         {
-            WritePath(context, fileMatch, baseDirectoryPath, indent, columnWidths, Colors.Match_Path);
+            WritePath(context, fileMatch, baseDirectoryPath, indent, columnWidths);
 
             if (includeNewline)
                 WriteLine(Verbosity.Minimal);
@@ -338,8 +353,7 @@ namespace Orang.CommandLine
             FileMatch fileMatch,
             string? baseDirectoryPath,
             string indent,
-            ColumnWidths? columnWidths,
-            ConsoleColors matchColors)
+            ColumnWidths? columnWidths)
         {
             if (Options.PathDisplayStyle == PathDisplayStyle.Match
                 && fileMatch.NameMatch != null
@@ -348,19 +362,12 @@ namespace Orang.CommandLine
                 if (ShouldLog(Verbosity.Minimal))
                 {
                     Write(indent, Verbosity.Minimal);
-                    Write(fileMatch.NameMatch.Value, (Options.HighlightMatch) ? matchColors : default, Verbosity.Minimal);
+                    Write(fileMatch.NameMatch.Value, (Options.HighlightMatch) ? Colors.Match_Path : default, Verbosity.Minimal);
                 }
             }
             else
             {
-                LogHelpers.WritePath(
-                    fileMatch,
-                    baseDirectoryPath,
-                    relativePath: Options.DisplayRelativePath,
-                    colors: Colors.Matched_Path,
-                    matchColors: (Options.HighlightMatch) ? matchColors : default,
-                    indent: indent,
-                    verbosity: Verbosity.Minimal);
+                PathWriter?.WritePath(fileMatch, baseDirectoryPath, indent);
             }
 
             WriteProperties(context, fileMatch, columnWidths);

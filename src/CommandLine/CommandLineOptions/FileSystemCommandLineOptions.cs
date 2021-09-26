@@ -19,11 +19,51 @@ namespace Orang.CommandLine
 
         protected PipeMode PipeMode { get; set; } = PipeMode.Paths;
 
+        [Option(
+            longName: OptionNames.PathMode,
+            HelpText = "Defines which part of a path should be included in the results.",
+            MetaValue = MetaValues.PathMode)]
+        public string PathMode { get; set; } = null!;
+
+        [Option(
+            longName: OptionNames.Count,
+            HelpText = "Show number of matches in a file.")]
+        public bool Count { get; set; }
+
+        [Option(
+            longName: OptionNames.Context,
+            HelpText = "Number of lines to show before and after matching line.",
+            MetaValue = MetaValues.Num,
+            Default = -1)]
+        public int Context { get; set; }
+
+        [Option(
+#if DEBUG
+            shortName: OptionShortNames.LineNumber,
+#endif
+            longName: OptionNames.LineNumber,
+            HelpText = "Include line number.")]
+        public bool LineNumber { get; set; }
+#if DEBUG
+        // --omit-content
+        [Option(
+            shortName: OptionShortNames.NoContent,
+            longName: OptionNames.NoContent,
+            HelpText = "A shortcut for '--" + OptionNames.ContentMode + " omit'.")]
+        public bool NoContent { get; set; }
+
+        // --omit-path
+        [Option(
+            shortName: OptionShortNames.NoPath,
+            longName: OptionNames.NoPath,
+            HelpText = "A shortcut for '--" + OptionNames.PathMode + " omit'.")]
+        public bool NoPath { get; set; }
+#endif
         [Value(
             index: 0,
             HelpText = "Path to one or more files and/or directories that should be searched.",
             MetaName = ArgumentMetaNames.Path)]
-        public IEnumerable<string> Path { get; set; } = null!;
+        public virtual IEnumerable<string> Path { get; set; } = null!;
 
         [Option(
             shortName: OptionShortNames.Attributes,
@@ -51,13 +91,6 @@ namespace Orang.CommandLine
             HelpText = "A filter for file extensions (case-insensitive by default).",
             MetaValue = MetaValues.ExtensionFilter)]
         public IEnumerable<string> Extension { get; set; } = null!;
-
-        [Option(
-            shortName: OptionShortNames.Properties,
-            longName: OptionNames.Properties,
-            HelpText = "A filter for file properties.",
-            MetaValue = MetaValues.FileProperties)]
-        public IEnumerable<string> FileProperties { get; set; } = null!;
 
         [Option(
             shortName: OptionShortNames.IncludeDirectory,
@@ -89,6 +122,13 @@ namespace Orang.CommandLine
         public bool Progress { get; set; }
 
         [Option(
+            shortName: OptionShortNames.Properties,
+            longName: OptionNames.Properties,
+            HelpText = "Display file's properties and optionally filter by that properties.",
+            MetaValue = MetaValues.FileProperties)]
+        public IEnumerable<string> Properties { get; set; } = null!;
+
+        [Option(
             shortName: OptionShortNames.Sort,
             longName: OptionNames.Sort,
             HelpText = "Sort matched files and directories.",
@@ -103,6 +143,25 @@ namespace Orang.CommandLine
                 return false;
 
             options = (FileSystemCommandOptions)baseOptions;
+
+            if (Display.Any())
+            {
+                LogHelpers.WriteObsoleteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Display)}' has been deprecated "
+                    + "and will be removed in future version. Use following options instead:"
+                    + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.ContentMode)}"
+                    + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.Context)}"
+                    + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.Count)}"
+                    + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.LineNumber)}"
+                    + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.PathMode)}"
+                    + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.Summary)}"
+#if DEBUG
+                    + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.ContentIndent)}"
+                    + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.ContentSeparator)}"
+                    + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.NoContent)}"
+                    + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.NoPath)}"
+#endif
+                    );
+            }
 
             if (!TryParsePaths(out ImmutableArray<PathInfo> paths))
                 return false;
@@ -156,8 +215,12 @@ namespace Orang.CommandLine
             }
 
             if (!TryParseFileProperties(
-                FileProperties,
+                Properties,
                 OptionNames.Properties,
+                out bool creationTime,
+                out bool modifiedTime,
+                out bool size,
+                out bool alignColumns,
                 out FilterPredicate<DateTime>? creationTimePredicate,
                 out FilterPredicate<DateTime>? modifiedTimePredicate,
                 out FilterPredicate<long>? sizePredicate))
@@ -201,15 +264,15 @@ namespace Orang.CommandLine
             options.ModifiedTimePredicate = modifiedTimePredicate;
             options.SizePredicate = sizePredicate;
 
-            if (creationTimePredicate != null
-                || modifiedTimePredicate != null
-                || sizePredicate != null)
-            {
-                options.FilePropertyFilter = new FilePropertyFilter(
-                    creationTimePredicate: creationTimePredicate?.Predicate,
-                    modifiedTimePredicate: modifiedTimePredicate?.Predicate,
-                    sizePredicate: sizePredicate?.Predicate);
-            }
+            options.FilePropertyOptions = new FilePropertyOptions(
+                includeCreationTime: creationTime,
+                includeModifiedTime: modifiedTime,
+                includeSize: size,
+                alignColumns: alignColumns,
+                creationTimePredicate: creationTimePredicate?.Predicate,
+                modifiedTimePredicate: modifiedTimePredicate?.Predicate,
+                sizePredicate: sizePredicate?.Predicate
+                );
 
             FileSystemAttributes = attributes;
 
@@ -288,7 +351,7 @@ namespace Orang.CommandLine
             return true;
         }
 
-        private FileAttributes GetFileAttributes(FileSystemAttributes attributes)
+        protected FileAttributes GetFileAttributes(FileSystemAttributes attributes)
         {
             FileAttributes fileAttributes = 0;
 

@@ -4,7 +4,7 @@ Code | Comment
 --- | ---
 0 | Match found
 1 | No match found
-2 | Error occured or execution canceled
+2 | Error occurred or execution canceled
 
 ## Redirected/Piped Input
 
@@ -21,6 +21,7 @@ Command | Piped Input
 [rename](rename-command.md) | list of paths
 [replace](replace-command.md) | text (default) or list of paths when `--pipe p[aths]` is specified
 [split](split-command.md) | text
+[sync](sync-command.md) | list of paths
 
 ## Multi-value Parameters
 

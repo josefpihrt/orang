@@ -16,6 +16,14 @@ namespace Orang.CommandLine
         public RenameCommand(RenameCommandOptions options) : base(options)
         {
             Debug.Assert(options.NameFilter?.IsNegative == false);
+
+            if (ShouldLog(Verbosity.Minimal))
+            {
+                PathWriter = new PathWriter(
+                    pathColors: Colors.Matched_Path,
+                    matchColors: (Options.HighlightMatch) ? Colors.Match : default,
+                    Options.DisplayRelativePath);
+            }
         }
 
         public ConflictResolution ConflictResolution
@@ -26,14 +34,14 @@ namespace Orang.CommandLine
 
         public override bool CanUseResults => false;
 
-        protected override FileSystemSearch CreateSearch()
-        {
-            FileSystemSearch search = base.CreateSearch();
+        private PathWriter? PathWriter { get; }
 
+        protected override void OnSearchCreating(FileSystemSearch search)
+        {
             search.DisallowEnumeration = !Options.DryRun;
             search.MatchPartOnly = true;
 
-            return search;
+            base.OnSearchCreating(search);
         }
 
         protected override void ExecuteMatchCore(
@@ -51,22 +59,42 @@ namespace Orang.CommandLine
                 context.CancellationToken);
 
             string path = fileMatch.Path;
-            string newPath = ReplaceHelpers.GetNewPath(fileMatch, replaceItems);
-            bool changed = !string.Equals(path, newPath, StringComparison.Ordinal);
 
-            if (!Options.OmitPath
-                && changed)
+            string newName = ReplaceHelpers.GetNewName(fileMatch, replaceItems);
+
+            if (string.IsNullOrWhiteSpace(newName))
             {
-                LogHelpers.WritePath(
+                WriteLine($"{indent}New file name cannot be empty or contains only white-space.", Colors.Message_Warning);
+                return;
+            }
+
+            bool changed = string.Compare(
+                path,
+                fileMatch.NameSpan.Start,
+                newName,
+                0,
+                fileMatch.NameSpan.Length,
+                StringComparison.Ordinal) != 0;
+
+            bool isInvalidName = changed
+                && FileSystemHelpers.ContainsInvalidFileNameChars(newName);
+
+            string newPath = path.Substring(0, fileMatch.NameSpan.Start) + newName;
+
+            if (Options.Interactive
+                || (!Options.OmitPath && changed))
+            {
+                ConsoleColors replaceColors = default;
+
+                if (Options.HighlightReplacement)
+                    replaceColors = (isInvalidName) ? Colors.InvalidReplacement : Colors.Replacement;
+
+                PathWriter?.WritePath(
                     fileMatch,
                     replaceItems,
+                    replaceColors,
                     baseDirectoryPath,
-                    relativePath: Options.DisplayRelativePath,
-                    colors: Colors.Matched_Path,
-                    matchColors: (Options.HighlightMatch) ? Colors.Match : default,
-                    replaceColors: (Options.HighlightReplacement) ? Colors.Replacement : default,
-                    indent: indent,
-                    verbosity: Verbosity.Minimal);
+                    indent);
 
                 WriteProperties(context, fileMatch, columnWidths);
                 WriteLine(Verbosity.Minimal);
@@ -74,12 +102,32 @@ namespace Orang.CommandLine
 
             ListCache<ReplaceItem>.Free(replaceItems);
 
+            if (Options.Interactive)
+            {
+                string newName2 = ConsoleHelpers.ReadUserInput(newName, indent + "New name: ");
+
+                newPath = newPath.Substring(0, newPath.Length - newName.Length) + newName2;
+
+                changed = !string.Equals(path, newPath, StringComparison.Ordinal);
+
+                if (changed)
+                {
+                    isInvalidName = FileSystemHelpers.ContainsInvalidFileNameChars(newName2);
+
+                    if (isInvalidName)
+                    {
+                        WriteLine($"{indent}New file name contains invalid character(s).", Colors.Message_Warning);
+                        return;
+                    }
+                }
+            }
+
             if (!changed)
                 return;
 
-            if (FileSystemHelpers.ContainsInvalidFileNameChars(newPath, FileSystemHelpers.GetFileNameIndex(path)))
+            if (isInvalidName)
             {
-                WriteWarning($"{indent}New file name contains invalid character(s).", verbosity: Verbosity.Normal);
+                WriteWarning($"{indent}New file name contains invalid character(s).", verbosity: Verbosity.Detailed);
                 return;
             }
 
@@ -108,7 +156,8 @@ namespace Orang.CommandLine
             }
 
             if ((fileExists || directoryExists)
-                && ConflictResolution == ConflictResolution.Ask)
+                && ConflictResolution == ConflictResolution.Ask
+                && !Options.DryRun)
             {
                 if (!AskToOverwrite(context, question, indent))
                     return;

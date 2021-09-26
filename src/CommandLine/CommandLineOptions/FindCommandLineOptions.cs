@@ -2,8 +2,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using CommandLine;
+using Orang.FileSystem;
 using static Orang.CommandLine.ParseHelpers;
 using static Orang.Logger;
 
@@ -65,12 +67,17 @@ namespace Orang.CommandLine
             {
                 if (!Console.IsInputRedirected)
                 {
-                    WriteError($"Redirected/piped input is required when option '{OptionNames.GetHelpText(OptionNames.Pipe)}' is specified.");
+                    WriteError("Redirected/piped input is required "
+                        + $"when option '{OptionNames.GetHelpText(OptionNames.Pipe)}' is specified.");
+
                     return false;
                 }
 
                 PipeMode = pipeMode;
             }
+
+            if (!TryParseProperties(Ask, Name, options, allowEmptyPattern: true))
+                return false;
 
             var baseOptions = (CommonFindCommandOptions)options;
 
@@ -78,9 +85,6 @@ namespace Orang.CommandLine
                 return false;
 
             options = (FindCommandOptions)baseOptions;
-
-            if (!TryParseProperties(Ask, Name, options))
-                return false;
 
             string? input = null;
 
@@ -96,6 +100,14 @@ namespace Orang.CommandLine
                 }
 
                 input = ConsoleHelpers.ReadRedirectedInput();
+
+                if (options.Paths.Length == 1
+                    && options.Paths[0].Origin == PathOrigin.CurrentDirectory
+                    && options.ExtensionFilter == null
+                    && options.NameFilter == null)
+                {
+                    options.Paths = ImmutableArray<PathInfo>.Empty;
+                }
             }
 
             EnumerableModifier<string>? modifier = null;
@@ -106,8 +118,15 @@ namespace Orang.CommandLine
                 return false;
             }
 #endif
-            if (!TryParseModifyOptions(Modify, OptionNames.Modify, modifier, out ModifyOptions? modifyOptions, out bool aggregateOnly))
+            if (!TryParseModifyOptions(
+                Modify,
+                OptionNames.Modify,
+                modifier,
+                out ModifyOptions? modifyOptions,
+                out bool aggregateOnly))
+            {
                 return false;
+            }
 
             OutputDisplayFormat format = options.Format;
             ContentDisplayStyle contentDisplayStyle = format.ContentDisplayStyle;
@@ -130,11 +149,8 @@ namespace Orang.CommandLine
                 lineOptions: format.LineOptions,
                 lineContext: format.LineContext,
                 displayParts: format.DisplayParts,
-                fileProperties: format.FileProperties,
                 indent: format.Indent,
-                separator: format.Separator,
-                alignColumns: format.AlignColumns,
-                includeBaseDirectory: format.IncludeBaseDirectory);
+                separator: format.Separator);
 
             return true;
         }

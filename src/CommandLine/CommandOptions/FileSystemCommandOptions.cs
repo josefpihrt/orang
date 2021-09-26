@@ -12,8 +12,6 @@ namespace Orang.CommandLine
 {
     internal abstract class FileSystemCommandOptions : CommonRegexCommandOptions
     {
-        private string? _doubleIndent;
-
         internal FileSystemCommandOptions()
         {
         }
@@ -50,7 +48,7 @@ namespace Orang.CommandLine
 
         public SortOptions? SortOptions { get; internal set; }
 
-        public FilePropertyFilter? FilePropertyFilter { get; internal set; }
+        public FilePropertyOptions FilePropertyOptions { get; internal set; } = null!;
 
         public FilterPredicate<DateTime>? CreationTimePredicate { get; internal set; }
 
@@ -60,6 +58,8 @@ namespace Orang.CommandLine
 
         public ContentDisplayStyle ContentDisplayStyle => Format.ContentDisplayStyle;
 
+        public bool OmitContent => ContentDisplayStyle == ContentDisplayStyle.Omit;
+
         public PathDisplayStyle PathDisplayStyle => Format.PathDisplayStyle;
 
         public bool OmitPath => PathDisplayStyle == PathDisplayStyle.Omit;
@@ -67,10 +67,6 @@ namespace Orang.CommandLine
         public bool DisplayRelativePath => PathDisplayStyle == PathDisplayStyle.Relative;
 
         public string Indent => Format.Indent;
-
-        internal string DoubleIndent => _doubleIndent ??= Indent + Indent;
-
-        internal bool IncludeBaseDirectory => Format.IncludeBaseDirectory;
 
         internal MatchOutputInfo? CreateOutputInfo(string input, Match match, Filter filter)
         {

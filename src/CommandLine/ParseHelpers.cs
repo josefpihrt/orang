@@ -135,6 +135,18 @@ namespace Orang.CommandLine
                         continue;
                     }
 
+                    int index = Expression.GetOperatorIndex(value);
+
+                    if (index == -1)
+                    {
+                        WriteOptionError(
+                            value,
+                            optionName,
+                            OptionValueProviders.FilePropertiesProvider);
+
+                        return false;
+                    }
+
                     expression = Expression.Parse(value);
 
                     if (OptionValues.FileProperty_CreationTime.IsKeyOrShortKey(expression.Identifier))

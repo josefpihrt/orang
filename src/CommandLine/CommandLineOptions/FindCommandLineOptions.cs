@@ -76,7 +76,7 @@ namespace Orang.CommandLine
                 PipeMode = pipeMode;
             }
 
-            if (!TryParseProperties(Ask, Name, options))
+            if (!TryParseProperties(Ask, Name, options, allowEmptyPattern: true))
                 return false;
 
             var baseOptions = (CommonFindCommandOptions)options;

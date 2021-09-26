@@ -10,7 +10,7 @@ namespace Orang
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class Filter
     {
-        internal static Filter EntireInput { get; } = new Filter(@"\A.*\z", RegexOptions.Singleline);
+        internal static Filter EntireInput { get; } = new Filter(@"\A.+\z", RegexOptions.Singleline);
 
         public Filter(
             string pattern,

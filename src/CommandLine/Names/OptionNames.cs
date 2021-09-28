@@ -10,6 +10,7 @@ namespace Orang.CommandLine
 {
     internal static class OptionNames
     {
+        public const string AlignColumns = "align-columns";
         public const string AllowedTimeDiff = "allowed-time-diff";
         public const string Ask = "ask";
         public const string Attributes = "attributes";

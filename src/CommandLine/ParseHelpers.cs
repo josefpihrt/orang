@@ -91,7 +91,6 @@ namespace Orang.CommandLine
             out bool creationTime,
             out bool modifiedTime,
             out bool size,
-            out bool alignColumns,
             out FilterPredicate<DateTime>? creationTimePredicate,
             out FilterPredicate<DateTime>? modifiedTimePredicate,
             out FilterPredicate<long>? sizePredicate)
@@ -99,7 +98,6 @@ namespace Orang.CommandLine
             creationTime = false;
             modifiedTime = false;
             size = false;
-            alignColumns = false;
             creationTimePredicate = null;
             modifiedTimePredicate = null;
             sizePredicate = null;
@@ -126,12 +124,6 @@ namespace Orang.CommandLine
                     if (OptionValues.FileProperty_Size.IsKeyOrShortKey(value))
                     {
                         size = true;
-                        continue;
-                    }
-
-                    if (OptionValues.Align.IsValueOrShortValue(value))
-                    {
-                        alignColumns = true;
                         continue;
                     }
 

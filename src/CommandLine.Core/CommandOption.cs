@@ -2,6 +2,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Reflection;
 using System.Text;
 
 namespace Orang
@@ -10,6 +11,7 @@ namespace Orang
     public class CommandOption
     {
         public CommandOption(
+            PropertyInfo propertyInfo,
             string name,
             string? shortName = null,
             string? metaValue = null,
@@ -18,6 +20,7 @@ namespace Orang
             bool isRequired = false,
             string? valueProviderName = null)
         {
+            PropertyInfo = propertyInfo;
             Name = name ?? throw new ArgumentNullException(nameof(name));
             ShortName = shortName;
             Description = description;
@@ -26,6 +29,8 @@ namespace Orang
             MetaValue = metaValue;
             ValueProviderName = valueProviderName;
         }
+
+        public PropertyInfo PropertyInfo { get; }
 
         public string Name { get; }
 

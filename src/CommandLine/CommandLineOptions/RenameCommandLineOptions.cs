@@ -1,9 +1,9 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Text.RegularExpressions;
 using CommandLine;
+using Orang.CommandLine.Annotations;
 using Orang.FileSystem;
 using Orang.Text.RegularExpressions;
 using static Orang.CommandLine.ParseHelpers;
@@ -43,7 +43,7 @@ namespace Orang.CommandLine
                 + "but do not actually rename any file/directory.")]
         public bool DryRun { get; set; }
 
-        [Hidden]
+        [HideFromHelp]
         [Option(
             longName: OptionNames.Evaluator,
             HelpText = "[deprecated] Use option -r, --replacement instead.",

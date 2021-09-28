@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Text.RegularExpressions;
 using CommandLine;
+using Orang.CommandLine.Annotations;
 using Orang.Syntax;
 using static Orang.CommandLine.ParseHelpers;
 

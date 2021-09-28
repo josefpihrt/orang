@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Text.RegularExpressions;
 using CommandLine;
+using Orang.CommandLine.Annotations;
 using Orang.Spelling;
 using static Orang.CommandLine.ParseHelpers;
 

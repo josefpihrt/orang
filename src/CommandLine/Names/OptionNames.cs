@@ -10,6 +10,7 @@ namespace Orang.CommandLine
 {
     internal static class OptionNames
     {
+        public const string AlignColumns = "align-columns";
         public const string EndsWith = "ends-with";
         public const string Equals_ = "equals";
         public const string ExplicitCapture = "explicit-capture";

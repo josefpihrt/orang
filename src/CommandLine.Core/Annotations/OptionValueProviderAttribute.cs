@@ -2,7 +2,7 @@
 
 using System;
 
-namespace Orang
+namespace Orang.CommandLine.Annotations
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     internal sealed class OptionValueProviderAttribute : Attribute

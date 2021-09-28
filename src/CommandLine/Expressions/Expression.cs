@@ -7,6 +7,8 @@ namespace Orang.Expressions
 {
     internal abstract class Expression
     {
+        private static readonly char[] operatorTokens = new[] { '=', '<', '>' };
+
         protected Expression(string text, string identifier, string value)
         {
             Text = text;
@@ -21,6 +23,11 @@ namespace Orang.Expressions
         public string Value { get; }
 
         public abstract ExpressionKind Kind { get; }
+
+        public static int GetOperatorIndex(string value)
+        {
+            return value.IndexOfAny(operatorTokens);
+        }
 
         public static Expression Parse(string value)
         {

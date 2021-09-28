@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using CommandLine;
+using Orang.CommandLine.Annotations;
 using static Orang.CommandLine.ParseHelpers;
 
 namespace Orang.CommandLine

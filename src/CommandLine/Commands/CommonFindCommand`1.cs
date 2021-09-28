@@ -82,8 +82,9 @@ namespace Orang.CommandLine
                     {
                         PathDisplayStyle.Full => Options.Indent,
                         PathDisplayStyle.Relative => Options.Indent,
+                        PathDisplayStyle.Match => Options.Indent,
                         PathDisplayStyle.Omit => "",
-                        _ => throw new InvalidOperationException(),
+                        _ => throw new InvalidOperationException($"Unknown enum value '{Options.PathDisplayStyle}'."),
                     };
                 }
             }

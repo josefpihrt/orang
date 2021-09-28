@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using CommandLine;
+using Orang.CommandLine.Annotations;
 
 namespace Orang.CommandLine
 {
@@ -34,7 +35,7 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.Separator)]
         public string ContentSeparator { get; set; } = null!;
 #endif
-        [Hidden]
+        [HideFromHelp]
         [Option(
             shortName: OptionShortNames.Display,
             longName: OptionNames.Display,

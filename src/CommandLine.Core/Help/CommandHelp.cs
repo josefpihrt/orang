@@ -14,7 +14,7 @@ namespace Orang.CommandLine.Help
             Command command,
             ImmutableArray<ArgumentItem> arguments,
             ImmutableArray<OptionItem> options,
-            ImmutableArray<OptionValueList> values)
+            ImmutableArray<OptionValueItemList> values)
         {
             Command = command;
             Arguments = arguments;
@@ -34,7 +34,7 @@ namespace Orang.CommandLine.Help
 
         public ImmutableArray<OptionItem> Options { get; }
 
-        public ImmutableArray<OptionValueList> Values { get; }
+        public ImmutableArray<OptionValueItemList> Values { get; }
 
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         private string DebuggerDisplay => $"{DisplayName}  {Description}";
@@ -50,7 +50,7 @@ namespace Orang.CommandLine.Help
 
             ImmutableArray<OptionItem> options = HelpProvider.GetOptionItems(command.Options, filter);
 
-            ImmutableArray<OptionValueList> values = HelpProvider.GetOptionValues(
+            ImmutableArray<OptionValueItemList> values = HelpProvider.GetOptionValues(
                 command.Options,
                 providers ?? ImmutableArray<OptionValueProvider>.Empty,
                 filter);

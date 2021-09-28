@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
+using Orang.CommandLine.Annotations;
 using Orang.CommandLine.Help;
 using static Orang.Logger;
 

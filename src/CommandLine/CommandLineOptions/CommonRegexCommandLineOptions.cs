@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using CommandLine;
+using Orang.CommandLine.Annotations;
 
 namespace Orang.CommandLine
 {

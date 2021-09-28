@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using CommandLine;
+using Orang.CommandLine.Annotations;
 using Orang.FileSystem;
 using static Orang.CommandLine.ParseHelpers;
 using static Orang.Logger;

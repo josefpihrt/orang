@@ -2,10 +2,10 @@
 
 using System;
 
-namespace Orang
+namespace Orang.CommandLine.Annotations
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-    internal sealed class HideFromHelpAttribute : Attribute
+    internal sealed class HideFromConsoleHelpAttribute : Attribute
     {
     }
 }

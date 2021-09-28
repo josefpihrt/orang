@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using CommandLine;
+using Orang.CommandLine.Annotations;
 using Orang.FileSystem;
 using static Orang.CommandLine.ParseHelpers;
 

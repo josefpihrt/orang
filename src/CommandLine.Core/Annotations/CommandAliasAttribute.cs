@@ -2,19 +2,16 @@
 
 using System;
 
-namespace Orang
+namespace Orang.CommandLine.Annotations
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-    internal sealed class CommandGroupAttribute : Attribute
+    internal sealed class CommandAliasAttribute : Attribute
     {
-        public CommandGroupAttribute(string name, int ordinal)
+        public CommandAliasAttribute(string alias)
         {
-            Name = name;
-            Ordinal = ordinal;
+            Alias = alias;
         }
 
-        public string Name { get; }
-
-        public int Ordinal { get; }
+        public string Alias { get; }
     }
 }

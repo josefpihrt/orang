@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using CommandLine;
+using Orang.CommandLine.Annotations;
 using Orang.Text.RegularExpressions;
 using static Orang.CommandLine.ParseHelpers;
 using static Orang.Logger;

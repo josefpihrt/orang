@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using CommandLine;
+using Orang.CommandLine.Annotations;
 
 namespace Orang.CommandLine
 {

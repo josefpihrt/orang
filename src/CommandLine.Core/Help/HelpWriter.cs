@@ -129,9 +129,9 @@ namespace Orang.CommandLine.Help
         {
         }
 
-        public void WriteValues(IEnumerable<OptionValueList> optionValues)
+        public void WriteValues(IEnumerable<OptionValueItemList> optionValues)
         {
-            using (IEnumerator<OptionValueList> en = optionValues.GetEnumerator())
+            using (IEnumerator<OptionValueItemList> en = optionValues.GetEnumerator())
             {
                 if (en.MoveNext())
                 {

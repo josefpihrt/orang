@@ -126,7 +126,7 @@ namespace Orang.CommandLine.Help
             return builder.ToImmutableArray();
         }
 
-        public static ImmutableArray<OptionValueList> GetOptionValues(
+        public static ImmutableArray<OptionValueItemList> GetOptionValues(
             IEnumerable<CommandOption> options,
             IEnumerable<OptionValueProvider> providers,
             Filter? filter = null)
@@ -135,7 +135,7 @@ namespace Orang.CommandLine.Help
 
             IEnumerable<OptionValue> allValues = providers.SelectMany(p => p.Values.Where(v => !v.Hidden));
 
-            ImmutableArray<OptionValueList>.Builder builder = ImmutableArray.CreateBuilder<OptionValueList>();
+            ImmutableArray<OptionValueItemList>.Builder builder = ImmutableArray.CreateBuilder<OptionValueItemList>();
 
             int width = CalculateOptionValuesWidth(allValues);
 
@@ -144,7 +144,7 @@ namespace Orang.CommandLine.Help
                 IEnumerable<OptionValue> values = provider.Values.Where(f => !f.Hidden);
                 ImmutableArray<OptionValueItem> valueItems = GetOptionValueItems(values, width);
 
-                builder.Add(new OptionValueList(provider.Name, valueItems));
+                builder.Add(new OptionValueItemList(provider.Name, valueItems));
             }
 
             return (filter != null)
@@ -190,13 +190,13 @@ namespace Orang.CommandLine.Help
             return builder.ToImmutableArray();
         }
 
-        private static ImmutableArray<OptionValueList> FilterOptionValues(
-            IEnumerable<OptionValueList> values,
+        private static ImmutableArray<OptionValueItemList> FilterOptionValues(
+            IEnumerable<OptionValueItemList> values,
             Filter filter)
         {
-            ImmutableArray<OptionValueList>.Builder builder = ImmutableArray.CreateBuilder<OptionValueList>();
+            ImmutableArray<OptionValueItemList>.Builder builder = ImmutableArray.CreateBuilder<OptionValueItemList>();
 
-            foreach (OptionValueList valueList in values)
+            foreach (OptionValueItemList valueList in values)
             {
                 if (filter.IsMatch(valueList.MetaValue))
                 {
@@ -209,14 +209,14 @@ namespace Orang.CommandLine.Help
                         .ToImmutableArray();
 
                     if (valueItems.Any())
-                        builder.Add(new OptionValueList(valueList.MetaValue, valueItems));
+                        builder.Add(new OptionValueItemList(valueList.MetaValue, valueItems));
                 }
             }
 
             return builder.ToImmutableArray();
         }
 
-        public static ImmutableArray<string> GetExpressionItems(IEnumerable<OptionValueList> values, bool includeDate = true)
+        public static ImmutableArray<string> GetExpressionItems(IEnumerable<OptionValueItemList> values, bool includeDate = true)
         {
             return (values.SelectMany(f => f.Values).Any(f => f.Value.CanContainExpression))
                 ? GetExpressionLines(includeDate: includeDate)

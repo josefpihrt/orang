@@ -6,9 +6,9 @@ using System.Diagnostics;
 namespace Orang.CommandLine.Help
 {
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class OptionValueList
+    public class OptionValueItemList
     {
-        public OptionValueList(string metaValue, ImmutableArray<OptionValueItem> values)
+        public OptionValueItemList(string metaValue, ImmutableArray<OptionValueItem> values)
         {
             MetaValue = metaValue;
             Values = values;

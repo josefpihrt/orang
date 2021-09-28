@@ -191,7 +191,7 @@ namespace Orang.CommandLine
 
             ImmutableArray<CommandItem> commandItems = HelpProvider.GetCommandItems(commandHelps.Select(f => f.Command));
 
-            ImmutableArray<OptionValueList> values = ImmutableArray<OptionValueList>.Empty;
+            ImmutableArray<OptionValueItemList> values = ImmutableArray<OptionValueItemList>.Empty;
 
             if (commandItems.Any())
             {

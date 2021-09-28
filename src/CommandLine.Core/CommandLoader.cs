@@ -57,12 +57,7 @@ namespace Orang
 
                 foreach (Attribute attribute in propertyInfo.GetCustomAttributes())
                 {
-                    if (attribute is HiddenAttribute)
-                    {
-                        optionAttribute = null;
-                        break;
-                    }
-                    else if (attribute is ValueAttribute valueAttribute)
+                    if (attribute is ValueAttribute valueAttribute)
                     {
                         var argument = new CommandArgument(
                             index: valueAttribute.Index,
@@ -89,6 +84,7 @@ namespace Orang
                         $"{type.Name}.{propertyInfo.Name}");
 
                     var option = new CommandOption(
+                        propertyInfo: propertyInfo,
                         name: optionAttribute.LongName,
                         shortName: optionAttribute.ShortName,
                         metaValue: optionAttribute.MetaValue,

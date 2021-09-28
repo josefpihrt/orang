@@ -130,7 +130,11 @@ namespace Orang.CommandLine
         {
             var writer = new ConsoleHelpWriter(new HelpWriterOptions(filter: filter));
 
-            command = command.WithOptions(command.Options.Sort(CommandOptionComparer.Name));
+            IEnumerable<CommandOption> options = command.Options
+                .Where(f => !f.PropertyInfo.GetCustomAttributes().Any(f => f is HideFromHelpAttribute || f is HideFromConsoleHelpAttribute))
+                .OrderBy(f => f, CommandOptionComparer.Name);
+
+            command = command.WithOptions(options);
 
             CommandHelp commandHelp = CommandHelp.Create(command, OptionValueProviders.Providers, filter: filter);
 

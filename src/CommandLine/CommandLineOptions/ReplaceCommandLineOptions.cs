@@ -19,7 +19,7 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.Regex)]
         public override IEnumerable<string> Content { get; set; } = null!;
 
-        [Hidden]
+        [HideFromHelp]
         [Option(
             longName: OptionNames.Evaluator,
             HelpText = "[deprecated] Use option -r, --replacement instead.",

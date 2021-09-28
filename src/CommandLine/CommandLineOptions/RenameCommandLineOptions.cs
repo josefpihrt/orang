@@ -43,7 +43,7 @@ namespace Orang.CommandLine
                 + "but do not actually rename any file/directory.")]
         public bool DryRun { get; set; }
 
-        [Hidden]
+        [HideFromHelp]
         [Option(
             longName: OptionNames.Evaluator,
             HelpText = "[deprecated] Use option -r, --replacement instead.",

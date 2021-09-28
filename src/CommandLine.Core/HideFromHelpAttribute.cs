@@ -5,7 +5,7 @@ using System;
 namespace Orang
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-    internal sealed class HiddenAttribute : Attribute
+    internal sealed class HideFromHelpAttribute : Attribute
     {
     }
 }

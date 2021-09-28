@@ -6,13 +6,14 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using DotMarkdown;
 using DotMarkdown.Linq;
 using Orang.CommandLine;
-using static DotMarkdown.Linq.MFactory;
 using Orang.CommandLine.Help;
+using static DotMarkdown.Linq.MFactory;
 
 namespace Orang.Documentation
 {
@@ -23,7 +24,14 @@ namespace Orang.Documentation
         private static void Main(params string[] args)
         {
             IEnumerable<Command> commands = CommandLoader.LoadCommands(typeof(AbstractCommandLineOptions).Assembly)
-                .Select(c => c.WithOptions(c.Options.OrderBy(f => f, CommandOptionComparer.Name)))
+                .Select(c =>
+                {
+                    IEnumerable<CommandOption> options = c.Options
+                        .Where(f => f.PropertyInfo.GetCustomAttribute<HideFromHelpAttribute>() == null)
+                        .OrderBy(f => f, CommandOptionComparer.Name);
+
+                    return c.WithOptions(options);
+                })
                 .OrderBy(c => c.Name, StringComparer.InvariantCulture);
 
             var application = new CommandLineApplication(

@@ -34,7 +34,7 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.Separator)]
         public string ContentSeparator { get; set; } = null!;
 #endif
-        [Hidden]
+        [HideFromHelp]
         [Option(
             shortName: OptionShortNames.Display,
             longName: OptionNames.Display,

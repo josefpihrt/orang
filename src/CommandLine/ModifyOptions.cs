@@ -114,7 +114,7 @@ namespace Orang
             if ((functions & ModifyFunctions.Distinct) != 0)
                 values = values.Distinct(comparer);
 
-            if ((functions & ModifyFunctions.Sort) != 0)
+            if ((functions & ModifyFunctions.SortAscending) != 0)
             {
                 if (SortProperty == ValueSortProperty.Length)
                 {

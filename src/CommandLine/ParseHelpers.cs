@@ -407,14 +407,12 @@ namespace Orang.CommandLine
             var functions = ModifyFunctions.None;
 
             if ((modifyFlags & ModifyFlags.Ascending) != 0)
-                functions |= ModifyFunctions.Sort;
+                functions |= ModifyFunctions.SortAscending;
 
             if ((modifyFlags & ModifyFlags.Descending) != 0)
                 functions |= ModifyFunctions.SortDescending;
 
-            const ModifyFunctions bothSortDirections = ModifyFunctions.Sort | ModifyFunctions.SortDescending;
-
-            if ((functions & bothSortDirections) == bothSortDirections)
+            if ((functions & ModifyFunctions.Sort) == ModifyFunctions.Sort)
             {
                 WriteError($"Option '{optionName}' cannot use both '{OptionValues.ModifyOptions_Ascending.HelpValue}' "
                     + $"and '{OptionValues.ModifyOptions_Descending.HelpValue}' values.");
@@ -453,10 +451,9 @@ namespace Orang.CommandLine
                 functions |= ModifyFunctions.ToUpper;
 
             if (sortProperty != ValueSortProperty.None
-                && (functions & ModifyFunctions.Sort) == 0
-                && (functions & ModifyFunctions.SortDescending) == 0)
+                && (functions & ModifyFunctions.Sort) == 0)
             {
-                functions |= ModifyFunctions.Sort;
+                functions |= ModifyFunctions.SortAscending;
             }
 
             aggregateOnly = (modifyFlags & ModifyFlags.AggregateOnly) != 0;

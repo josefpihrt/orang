@@ -9,9 +9,10 @@ namespace Orang
     {
         None = 0,
         Distinct = 1,
-        Sort = 1 << 1,
+        SortAscending = 1 << 1,
         SortDescending = 1 << 2,
-        Enumerable = Distinct | Sort | SortDescending,
+        Sort = SortAscending | SortDescending,
+        Enumerable = Distinct | Sort,
         Except = 1 << 3,
         Intersect = 1 << 4,
         Except_Intersect = Except | Intersect,

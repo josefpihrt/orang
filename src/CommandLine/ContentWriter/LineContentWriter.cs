@@ -84,9 +84,9 @@ namespace Orang.CommandLine
                     WriteEndLine();
                     Write(Options.Separator);
 
-                    if (Options.ContextAfter > 0)
+                    if (Options.AfterContext > 0)
                     {
-                        startIndex = WriteContextAfter(_eolIndex, solIndex, prevLineNumber);
+                        startIndex = WriteAfterContext(_eolIndex, solIndex, prevLineNumber);
                     }
                     else
                     {
@@ -94,8 +94,8 @@ namespace Orang.CommandLine
                     }
                 }
 
-                if (Options.ContextBefore > 0)
-                    WriteContextBefore(startIndex, solIndex, _lineNumber);
+                if (Options.BeforeContext > 0)
+                    WriteBeforeContext(startIndex, solIndex, _lineNumber);
 
                 Write(Options.Indent);
 
@@ -165,8 +165,8 @@ namespace Orang.CommandLine
         {
             WriteEndLine();
 
-            if (Options.ContextAfter > 0)
-                WriteContextAfter(_eolIndex, Input.Length, _lineNumber);
+            if (Options.AfterContext > 0)
+                WriteAfterContext(_eolIndex, Input.Length, _lineNumber);
         }
 
         public override void Dispose()

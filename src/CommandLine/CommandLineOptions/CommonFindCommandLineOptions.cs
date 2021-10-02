@@ -26,8 +26,22 @@ namespace Orang.CommandLine
             shortName: OptionShortNames.MaxCount,
             longName: OptionNames.MaxCount,
             HelpText = "Stop searching after specified number is reached.",
-            MetaValue = MetaValues.MaxOptions)]
-        public IEnumerable<string> MaxCount { get; set; } = null!;
+            MetaValue = MetaValues.Num)]
+        public int MaxCount { get; set; }
+
+        [HideFromConsoleHelp]
+        [Option(
+            longName: OptionNames.MaxMatchingFiles,
+            HelpText = "Stop searching after specified number of files is found.",
+            MetaValue = MetaValues.Num)]
+        public int MaxMatchingFiles { get; set; }
+
+        [HideFromConsoleHelp]
+        [Option(
+            longName: OptionNames.MaxMatchesInFile,
+            HelpText = "Stop searching in a file after specified number of matches is found.",
+            MetaValue = MetaValues.Num)]
+        public int MaxMatchesInFile { get; set; }
 
         [Option(
             shortName: OptionShortNames.Name,
@@ -117,6 +131,12 @@ namespace Orang.CommandLine
             if (Context >= 0)
                 lineContext = new LineContext(Context);
 
+            if (BeforeContext >= 0)
+                lineContext = lineContext.WithBefore(BeforeContext);
+
+            if (AfterContext >= 0)
+                lineContext = lineContext.WithAfter(AfterContext);
+
             if (LineNumber)
                 lineDisplayOptions |= LineDisplayOptions.IncludeLineNumber;
 #if DEBUG
@@ -165,9 +185,6 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            if (!TryParseMaxCount(MaxCount, out int maxMatchingFiles, out int maxMatchesInFile))
-                return false;
-
             if (!TryParseHighlightOptions(
                 Highlight,
                 out HighlightOptions highlightOptions,
@@ -191,9 +208,9 @@ namespace Orang.CommandLine
             options.HighlightOptions = highlightOptions;
             options.SearchTarget = GetSearchTarget();
             options.ContentFilter = contentFilter;
-            options.MaxMatchesInFile = maxMatchesInFile;
-            options.MaxMatchingFiles = maxMatchingFiles;
-            options.MaxTotalMatches = 0;
+            options.MaxTotalMatches = MaxCount;
+            options.MaxMatchesInFile = MaxMatchesInFile;
+            options.MaxMatchingFiles = MaxMatchingFiles;
 
             return true;
         }

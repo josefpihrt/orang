@@ -169,6 +169,12 @@ namespace Orang.CommandLine
             if (Context >= 0)
                 lineContext = new LineContext(Context);
 
+            if (BeforeContext >= 0)
+                lineContext = lineContext.WithBefore(BeforeContext);
+
+            if (AfterContext >= 0)
+                lineContext = lineContext.WithAfter(AfterContext);
+
             if (LineNumber)
                 lineDisplayOptions |= LineDisplayOptions.IncludeLineNumber;
 #if DEBUG

@@ -33,8 +33,8 @@ namespace Orang.Operations
             List<ReplaceItem> replaceItems = ReplaceHelpers.GetReplaceItems(
                 fileMatch.NameMatch!,
                 RenameOptions,
-                NameFilter?.Predicate,
-                CancellationToken);
+                predicate: NameFilter?.Predicate,
+                cancellationToken: CancellationToken);
 
             string path = fileMatch.Path;
 

@@ -289,6 +289,7 @@ namespace Orang.CommandLine
             OptionValues.ModifyFlags_Except,
             OptionValues.ModifyFlags_Intersect,
             OptionValues.ModifyFlags_Group,
+            OptionValues.ModifyFlags_Count,
             SimpleOptionValue.Create(ModifyFlags.IgnoreCase, description: "Use case-insensitive matching."),
             SimpleOptionValue.Create(
                 ModifyFlags.RemoveEmpty,
@@ -415,16 +416,6 @@ namespace Orang.CommandLine
             SimpleOptionValue.Create(AskMode.Value, description: "Ask for confirmation after each value.")
         );
 
-        public static OptionValueProvider MaxOptionsProvider { get; } = new OptionValueProvider(
-            MetaValues.MaxOptions,
-            SimpleOptionValue.Create(
-                "MaxMatchingFiles",
-                "<NUM>",
-                shortValue: "",
-                description: "Stop searching after <NUM> matching files and/or directories."),
-            OptionValues.MaxMatches
-        );
-
         public static OptionValueProvider PathDisplayStyleProvider { get; } = new OptionValueProvider(
             MetaValues.PathMode,
             OptionValues.PathDisplayStyle_Full,
@@ -514,7 +505,8 @@ namespace Orang.CommandLine
 
         public static OptionValueProvider ValueSortPropertyProvider { get; } = new OptionValueProvider(
             MetaValues.SortProperty,
-            SimpleOptionValue.Create(ValueSortProperty.Length, description: "Sort values by value's length.")
+            SimpleOptionValue.Create(ValueSortProperty.Length, description: "Sort values by value's length."),
+            SimpleOptionValue.Create(ValueSortProperty.Count, description: "Sort values by group's count.")
         );
 
         public static OptionValueProvider ReplaceFlagsProvider { get; } = new OptionValueProvider(

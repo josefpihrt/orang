@@ -52,6 +52,7 @@ namespace Orang.CommandLine
         public static readonly SimpleOptionValue ModifyFlags_Except = SimpleOptionValue.Create(ModifyFlags.Except, shortValue: "", description: "Return values from first file except values from second file.");
         public static readonly SimpleOptionValue ModifyFlags_Intersect = SimpleOptionValue.Create(ModifyFlags.Intersect, shortValue: "", description: "Return values that were found in all files.");
         public static readonly SimpleOptionValue ModifyFlags_Group = SimpleOptionValue.Create(ModifyFlags.Group, shortValue: "", description: "Group matching files by matched values.");
+        public static readonly SimpleOptionValue ModifyFlags_Count = SimpleOptionValue.Create(ModifyFlags.Count, shortValue: "", description: "Show number of values in a group.");
 
         public static readonly SimpleOptionValue ModifyOptions_Ascending = SimpleOptionValue.Create(ModifyFlags.Ascending, description: "Sort values in an ascending order.");
         public static readonly SimpleOptionValue ModifyOptions_Descending = SimpleOptionValue.Create(ModifyFlags.Descending, description: "Sort values in a descending order.");
@@ -121,7 +122,6 @@ namespace Orang.CommandLine
         public static readonly KeyValuePairOptionValue Length = KeyValuePairOptionValue.Create("length", "<NUM>", shortKey: "", description: "Include matches whose length matches the expression (See 'Expression syntax' for other expressions).", canContainExpression: true);
         public static readonly KeyValuePairOptionValue ListSeparator = KeyValuePairOptionValue.Create("list-separator", "<SEPARATOR>", shortKey: "ls", helpValue: "l[ist-]s[eparator]", description: "String that separate each value in a list. Default value is comma (,) or newline if the list is loaded from a file.");
         public static readonly KeyValuePairOptionValue MaxCount = KeyValuePairOptionValue.Create("max-count", "<NUM>", description: "Show only <NUM> items.");
-        public static readonly KeyValuePairOptionValue MaxMatches = KeyValuePairOptionValue.Create("matches", "<NUM>", description: "Stop searching in each file after <NUM> matches.");
         public static readonly KeyValuePairOptionValue Part = KeyValuePairOptionValue.Create("part", MetaValues.NamePart, shortKey: "p", description: "The part of a file or a directory name that should be matched.");
         public static readonly KeyValuePairOptionValue SortBy = KeyValuePairOptionValue.Create("sort-by", MetaValues.SortProperty, shortKey: "", description: "");
         public static readonly KeyValuePairOptionValue Timeout = KeyValuePairOptionValue.Create("timeout", "<NUM>", shortKey: "", description: "Match time-out interval in seconds.");

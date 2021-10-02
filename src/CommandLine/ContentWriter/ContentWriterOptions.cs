@@ -50,8 +50,8 @@ namespace Orang.CommandLine
 
         public string? Separator => Format.Separator;
 
-        public int ContextBefore => Format.LineContext.Before;
+        public int BeforeContext => Format.LineContext.Before;
 
-        public int ContextAfter => Format.LineContext.After;
+        public int AfterContext => Format.LineContext.After;
     }
 }

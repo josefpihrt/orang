@@ -10,7 +10,7 @@ namespace Orang.CommandLine.Help
     {
         public CommandsHelp(
             ImmutableArray<CommandItem> commands,
-            ImmutableArray<OptionValueList> values)
+            ImmutableArray<OptionValueItemList> values)
         {
             Commands = commands;
             Values = values;
@@ -18,7 +18,7 @@ namespace Orang.CommandLine.Help
 
         public ImmutableArray<CommandItem> Commands { get; }
 
-        public ImmutableArray<OptionValueList> Values { get; }
+        public ImmutableArray<OptionValueItemList> Values { get; }
 
         public static CommandsHelp Create(
             IEnumerable<Command> commands,
@@ -27,7 +27,7 @@ namespace Orang.CommandLine.Help
         {
             ImmutableArray<CommandItem> commandsHelp = HelpProvider.GetCommandItems(commands, filter);
 
-            ImmutableArray<OptionValueList> values = HelpProvider.GetOptionValues(
+            ImmutableArray<OptionValueItemList> values = HelpProvider.GetOptionValues(
                 commands.SelectMany(f => f.Options),
                 providers ?? ImmutableArray<OptionValueProvider>.Empty,
                 filter);

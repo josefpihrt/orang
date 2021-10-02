@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
+using Orang.CommandLine.Annotations;
 using Orang.CommandLine.Help;
 using static Orang.Logger;
 
@@ -130,7 +131,11 @@ namespace Orang.CommandLine
         {
             var writer = new ConsoleHelpWriter(new HelpWriterOptions(filter: filter));
 
-            command = command.WithOptions(command.Options.Sort(CommandOptionComparer.Name));
+            IEnumerable<CommandOption> options = command.Options
+                .Where(f => !f.PropertyInfo.GetCustomAttributes().Any(f => f is HideFromHelpAttribute || f is HideFromConsoleHelpAttribute))
+                .OrderBy(f => f, CommandOptionComparer.Name);
+
+            command = command.WithOptions(options);
 
             CommandHelp commandHelp = CommandHelp.Create(command, OptionValueProviders.Providers, filter: filter);
 
@@ -186,7 +191,7 @@ namespace Orang.CommandLine
 
             ImmutableArray<CommandItem> commandItems = HelpProvider.GetCommandItems(commandHelps.Select(f => f.Command));
 
-            ImmutableArray<OptionValueList> values = ImmutableArray<OptionValueList>.Empty;
+            ImmutableArray<OptionValueItemList> values = ImmutableArray<OptionValueItemList>.Empty;
 
             if (commandItems.Any())
             {

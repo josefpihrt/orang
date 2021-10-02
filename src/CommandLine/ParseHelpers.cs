@@ -5,9 +5,15 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Emit;
+using Microsoft.CodeAnalysis.Text;
 using Orang.CommandLine.Help;
 using Orang.Expressions;
 using Orang.FileSystem;
@@ -91,7 +97,6 @@ namespace Orang.CommandLine
             out bool creationTime,
             out bool modifiedTime,
             out bool size,
-            out bool alignColumns,
             out FilterPredicate<DateTime>? creationTimePredicate,
             out FilterPredicate<DateTime>? modifiedTimePredicate,
             out FilterPredicate<long>? sizePredicate)
@@ -99,7 +104,6 @@ namespace Orang.CommandLine
             creationTime = false;
             modifiedTime = false;
             size = false;
-            alignColumns = false;
             creationTimePredicate = null;
             modifiedTimePredicate = null;
             sizePredicate = null;
@@ -129,10 +133,16 @@ namespace Orang.CommandLine
                         continue;
                     }
 
-                    if (OptionValues.Align.IsValueOrShortValue(value))
+                    int index = Expression.GetOperatorIndex(value);
+
+                    if (index == -1)
                     {
-                        alignColumns = true;
-                        continue;
+                        WriteOptionError(
+                            value,
+                            optionName,
+                            OptionValueProviders.FilePropertiesProvider);
+
+                        return false;
                     }
 
                     expression = Expression.Parse(value);
@@ -405,14 +415,12 @@ namespace Orang.CommandLine
             var functions = ModifyFunctions.None;
 
             if ((modifyFlags & ModifyFlags.Ascending) != 0)
-                functions |= ModifyFunctions.Sort;
+                functions |= ModifyFunctions.SortAscending;
 
             if ((modifyFlags & ModifyFlags.Descending) != 0)
                 functions |= ModifyFunctions.SortDescending;
 
-            const ModifyFunctions bothSortDirections = ModifyFunctions.Sort | ModifyFunctions.SortDescending;
-
-            if ((functions & bothSortDirections) == bothSortDirections)
+            if ((functions & ModifyFunctions.Sort) == ModifyFunctions.Sort)
             {
                 WriteError($"Option '{optionName}' cannot use both '{OptionValues.ModifyOptions_Ascending.HelpValue}' "
                     + $"and '{OptionValues.ModifyOptions_Descending.HelpValue}' values.");
@@ -451,10 +459,9 @@ namespace Orang.CommandLine
                 functions |= ModifyFunctions.ToUpper;
 
             if (sortProperty != ValueSortProperty.None
-                && (functions & ModifyFunctions.Sort) == 0
-                && (functions & ModifyFunctions.SortDescending) == 0)
+                && (functions & ModifyFunctions.Sort) == 0)
             {
-                functions |= ModifyFunctions.Sort;
+                functions |= ModifyFunctions.SortAscending;
             }
 
             aggregateOnly = (modifyFlags & ModifyFlags.AggregateOnly) != 0;
@@ -508,35 +515,27 @@ namespace Orang.CommandLine
                 return false;
             }
 
+            var replacementOptions = ReplacementOptions.None;
+
             if ((options & ModifierOptions.FromDll) != 0)
             {
-                return DelegateFactory.TryCreateFromAssembly(
-                    value,
-                    typeof(IEnumerable<string>),
-                    typeof(IEnumerable<string>),
-                    out modifier);
+                replacementOptions = ReplacementOptions.FromDll;
             }
             else if ((options & ModifierOptions.FromFile) != 0)
             {
-                return DelegateFactory.TryCreateFromSourceText(
-                    value,
-                    typeof(IEnumerable<string>),
-                    typeof(IEnumerable<string>),
-                    out modifier);
+                replacementOptions = ReplacementOptions.CSharp | ReplacementOptions.FromFile;
             }
-            else
-            {
-                return DelegateFactory.TryCreateFromExpression(
-                    value,
-                    "ModifierClass",
-                    "ModifierMethod",
-                    "IEnumerable<string>",
-                    typeof(IEnumerable<string>),
-                    "IEnumerable<string>",
-                    typeof(IEnumerable<string>),
-                    "items",
-                    out modifier);
-            }
+
+            return TryParseDelegate(
+                optionName: optionName,
+                value: value,
+                returnTypeName: "IEnumerable<string>",
+                parameterTypeName: "IEnumerable<string>",
+                parameterName: "items",
+                returnType: typeof(IEnumerable<string>),
+                parameterType: typeof(IEnumerable<string>),
+                replacementOptions: replacementOptions,
+                out modifier);
         }
 
         public static bool TryParseReplaceOptions(
@@ -854,29 +853,18 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            if ((options & ReplacementOptions.CSharp) != 0)
+            if ((options & (ReplacementOptions.CSharp | ReplacementOptions.FromFile | ReplacementOptions.FromDll)) != 0)
             {
-                if ((options & ReplacementOptions.FromFile) != 0)
-                {
-                    return DelegateFactory.TryCreateFromSourceText(value, typeof(string), typeof(Match), out matchEvaluator);
-                }
-                else
-                {
-                    return DelegateFactory.TryCreateFromExpression(
-                        value,
-                        "EvaluatorClass",
-                        "EvaluatorMethod",
-                        "string",
-                        typeof(string),
-                        "Match",
-                        typeof(Match),
-                        "match",
-                        out matchEvaluator);
-                }
-            }
-            else if ((options & ReplacementOptions.FromDll) != 0)
-            {
-                return DelegateFactory.TryCreateFromAssembly(value, typeof(string), typeof(Match), out matchEvaluator);
+                return TryParseDelegate(
+                    optionName: OptionNames.Replacement,
+                    value: value,
+                    returnTypeName: "string",
+                    parameterTypeName: "Match",
+                    parameterName: "match",
+                    returnType: typeof(string),
+                    parameterType: typeof(Match),
+                    replacementOptions: options,
+                    out matchEvaluator);
             }
             else
             {
@@ -890,6 +878,175 @@ namespace Orang.CommandLine
             }
 
             return true;
+        }
+
+        private static bool TryParseDelegate<TDelegate>(
+            string optionName,
+            string value,
+            string returnTypeName,
+            string parameterTypeName,
+            string parameterName,
+            Type returnType,
+            Type parameterType,
+            ReplacementOptions replacementOptions,
+            out TDelegate? matchEvaluator,
+            string? namespaceName = null,
+            string? className = null,
+            string? methodName = null) where TDelegate : Delegate
+        {
+            matchEvaluator = null;
+            Assembly? assembly = null;
+            string? delegateTypeName = null;
+            string? delegateMethodName = null;
+
+            if ((replacementOptions & ReplacementOptions.CSharp) != 0)
+            {
+                SyntaxTree syntaxTree;
+
+                if ((replacementOptions & ReplacementOptions.FromFile) != 0)
+                {
+                    syntaxTree = CSharpSyntaxTree.ParseText(value);
+                }
+                else
+                {
+                    syntaxTree = RoslynUtilites.CreateSyntaxTree(
+                        expressionText: value,
+                        returnTypeName: returnTypeName,
+                        parameterType: parameterTypeName,
+                        parameterName: parameterName,
+                        namespaceName: namespaceName,
+                        className: className,
+                        methodName: methodName);
+                }
+
+                Compilation compilation = RoslynUtilites.CreateCompilation(syntaxTree);
+                SourceText? sourceText = null;
+                var hasDiagnostic = false;
+
+                foreach (Diagnostic diagnostic in compilation.GetDiagnostics()
+                    .Where(f => f.Severity == DiagnosticSeverity.Error)
+                    .OrderBy(f => f.Location.SourceSpan))
+                {
+                    if (sourceText == null)
+                        sourceText = syntaxTree.GetText();
+
+                    if (!hasDiagnostic)
+                        WriteErrorMessage();
+
+                    RoslynUtilites.WriteDiagnostic(diagnostic, sourceText, "  ", Verbosity.Quiet);
+                    hasDiagnostic = true;
+                }
+
+                if (hasDiagnostic)
+                    return false;
+
+                hasDiagnostic = false;
+
+                using (var memoryStream = new MemoryStream())
+                {
+                    EmitResult emitResult = compilation.Emit(memoryStream);
+
+                    if (!emitResult.Success)
+                    {
+                        foreach (Diagnostic diagnostic in emitResult.Diagnostics.OrderBy(f => f.Location.SourceSpan))
+                        {
+                            if (sourceText == null)
+                                sourceText = syntaxTree.GetText();
+
+                            if (!hasDiagnostic)
+                                WriteErrorMessage();
+
+                            RoslynUtilites.WriteDiagnostic(diagnostic, sourceText, "  ", Verbosity.Quiet);
+                            hasDiagnostic = true;
+                        }
+
+                        if (hasDiagnostic)
+                            return false;
+                    }
+
+                    memoryStream.Seek(0, SeekOrigin.Begin);
+
+                    try
+                    {
+                        assembly = Assembly.Load(memoryStream.ToArray());
+                    }
+                    catch (Exception ex) when (ex is ArgumentException || ex is BadImageFormatException)
+                    {
+                        WriteError(ex, $"{GetErrorMessage()} {ex.Message}");
+                        return false;
+                    }
+                }
+            }
+            else if ((replacementOptions & ReplacementOptions.FromDll) != 0)
+            {
+                int index = value.LastIndexOf(',');
+
+                if (index <= 0
+                    || index >= value.Length - 1)
+                {
+                    WriteError($"{GetErrorMessage()} The expected format is \"MyLib.dll,MyNamespace.MyClass.MyMethod\".");
+                    return false;
+                }
+
+                string assemblyName = value.Substring(0, index);
+                string methodFullName = value.Substring(index + 1);
+                index = methodFullName.LastIndexOf('.');
+
+                if (index < 0
+                    || index >= value.Length - 1)
+                {
+                    WriteError($"{GetErrorMessage()} The expected format is \"MyLib.dll,MyNamespace.MyClass.MyMethod\".");
+                    return false;
+                }
+
+                try
+                {
+                    assembly = Assembly.LoadFrom(assemblyName);
+                }
+                catch (Exception ex) when (ex is ArgumentException
+                    || ex is IOException
+                    || ex is BadImageFormatException)
+                {
+                    WriteError(ex, $"{GetErrorMessage()} {ex.Message}");
+                    return false;
+                }
+
+                delegateTypeName = methodFullName.Substring(0, index);
+                delegateMethodName = methodFullName.Substring(index + 1);
+            }
+
+            try
+            {
+                matchEvaluator = DelegateFactory.CreateDelegate<TDelegate>(
+                    assembly!,
+                    returnType,
+                    new Type[] { parameterType },
+                    delegateTypeName,
+                    delegateMethodName);
+
+                return true;
+            }
+            catch (Exception ex) when (ex is ArgumentException
+                || ex is AmbiguousMatchException
+                || ex is TargetInvocationException
+                || ex is MemberAccessException
+                || ex is MissingMemberException
+                || ex is TypeLoadException
+                || ex is InvalidOperationException)
+            {
+                WriteError(ex, $"{GetErrorMessage()} {ex.Message}");
+                return false;
+            }
+
+            void WriteErrorMessage()
+            {
+                WriteError(GetErrorMessage());
+            }
+
+            string GetErrorMessage()
+            {
+                return $"Option '{OptionNames.GetHelpText(optionName)}' has invalid value:";
+            }
         }
 
         public static bool TryParseInput(

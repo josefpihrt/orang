@@ -2,16 +2,10 @@
 
 using System;
 
-namespace Orang
+namespace Orang.CommandLine.Annotations
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-    internal sealed class AdditionalDescriptionAttribute : Attribute
+    internal sealed class HideFromConsoleHelpAttribute : Attribute
     {
-        public AdditionalDescriptionAttribute(string text)
-        {
-            Text = text;
-        }
-
-        public string Text { get; }
     }
 }

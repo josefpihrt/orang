@@ -10,7 +10,6 @@ namespace Orang
             bool includeCreationTime = false,
             bool includeModifiedTime = false,
             bool includeSize = false,
-            bool alignColumns = false,
             Func<DateTime, bool>? creationTimePredicate = null,
             Func<DateTime, bool>? modifiedTimePredicate = null,
             Func<long, bool>? sizePredicate = null)
@@ -18,7 +17,6 @@ namespace Orang
             IncludeCreationTime = includeCreationTime || creationTimePredicate != null;
             IncludeModifiedTime = includeModifiedTime || modifiedTimePredicate != null;
             IncludeSize = includeSize || sizePredicate != null;
-            AlignColumns = alignColumns;
             CreationTimePredicate = creationTimePredicate;
             ModifiedTimePredicate = modifiedTimePredicate;
             SizePredicate = sizePredicate;
@@ -29,8 +27,6 @@ namespace Orang
         public bool IncludeModifiedTime { get; }
 
         public bool IncludeSize { get; }
-
-        public bool AlignColumns { get; }
 
         public Func<DateTime, bool>? CreationTimePredicate { get; }
 
@@ -57,7 +53,6 @@ namespace Orang
                 includeCreationTime: includeCreationTime,
                 includeModifiedTime: IncludeModifiedTime,
                 includeSize: IncludeSize,
-                alignColumns: AlignColumns,
                 creationTimePredicate: CreationTimePredicate,
                 modifiedTimePredicate: ModifiedTimePredicate,
                 sizePredicate: SizePredicate);
@@ -69,7 +64,6 @@ namespace Orang
                 includeCreationTime: IncludeCreationTime,
                 includeModifiedTime: includeModifiedTime,
                 includeSize: IncludeSize,
-                alignColumns: AlignColumns,
                 creationTimePredicate: CreationTimePredicate,
                 modifiedTimePredicate: ModifiedTimePredicate,
                 sizePredicate: SizePredicate);
@@ -81,7 +75,6 @@ namespace Orang
                 includeCreationTime: IncludeCreationTime,
                 includeModifiedTime: IncludeModifiedTime,
                 includeSize: includeSize,
-                alignColumns: AlignColumns,
                 creationTimePredicate: CreationTimePredicate,
                 modifiedTimePredicate: ModifiedTimePredicate,
                 sizePredicate: SizePredicate);

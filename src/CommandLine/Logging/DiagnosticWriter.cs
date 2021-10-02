@@ -140,6 +140,7 @@ namespace Orang.CommandLine
 
         internal static void WriteCopyCommand(CopyCommandOptions options)
         {
+            WriteOption("align columns", options.AlignColumns);
 #if DEBUG
             WriteOption("allowed time diff", options.AllowedTimeDiff);
 #endif
@@ -179,6 +180,7 @@ namespace Orang.CommandLine
 
         internal static void WriteDeleteCommand(DeleteCommandOptions options)
         {
+            WriteOption("align columns", options.AlignColumns);
             WriteOption("ask", options.AskMode == AskMode.File);
             WriteOption("attributes", options.Attributes);
             WriteOption("attributes to skip", options.AttributesToSkip);
@@ -211,6 +213,7 @@ namespace Orang.CommandLine
 
         internal static void WriteFindCommand(FindCommandOptions options)
         {
+            WriteOption("align columns", options.AlignColumns);
             WriteOption("ask", options.AskMode);
             WriteOption("attributes", options.Attributes);
             WriteOption("attributes to skip", options.AttributesToSkip);
@@ -249,6 +252,7 @@ namespace Orang.CommandLine
 
         internal static void WriteMoveCommand(MoveCommandOptions options)
         {
+            WriteOption("align columns", options.AlignColumns);
 #if DEBUG
             WriteOption("allowed time diff", options.AllowedTimeDiff);
 #endif
@@ -323,6 +327,7 @@ namespace Orang.CommandLine
 
         internal static void WriteRenameCommand(RenameCommandOptions options)
         {
+            WriteOption("align columns", options.AlignColumns);
             WriteOption("ask", options.AskMode == AskMode.File);
             WriteOption("attributes", options.Attributes);
             WriteOption("attributes to skip", options.AttributesToSkip);
@@ -358,6 +363,7 @@ namespace Orang.CommandLine
         {
             var replaceOptions = (ReplaceOptions)options.Replacer;
 
+            WriteOption("align columns", options.AlignColumns);
             WriteOption("ask", options.AskMode);
             WriteOption("attributes", options.Attributes);
             WriteOption("attributes to skip", options.AttributesToSkip);
@@ -394,6 +400,7 @@ namespace Orang.CommandLine
         {
             var spellcheckState = (SpellcheckState)options.Replacer;
 
+            WriteOption("align columns", options.AlignColumns);
             WriteOption("ask", options.AskMode);
             WriteOption("attributes", options.Attributes);
             WriteOption("attributes to skip", options.AttributesToSkip);
@@ -433,6 +440,7 @@ namespace Orang.CommandLine
 
         internal static void WriteSyncCommand(SyncCommandOptions options)
         {
+            WriteOption("align columns", options.AlignColumns);
 #if DEBUG
             WriteOption("allowed time diff", options.AllowedTimeDiff);
 #endif
@@ -748,8 +756,6 @@ namespace Orang.CommandLine
             WriteOption("size", filePropertyOptions.IncludeSize);
             WriteIndent();
             WriteOption("size condition", options.SizePredicate?.Expression.Text);
-            WriteIndent();
-            WriteOption("align columns", filePropertyOptions.AlignColumns);
         }
 
         private static void WriteSortOptions(string name, SortOptions? options)

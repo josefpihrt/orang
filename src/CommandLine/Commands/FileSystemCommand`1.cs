@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -118,7 +117,7 @@ namespace Orang.CommandLine
                 {
                     results = new List<SearchResult>();
                 }
-                else if (Options.FilePropertyOptions.AlignColumns
+                else if (Options.AlignColumns
                     && !Options.FilePropertyOptions.IsEmpty)
                 {
                     results = new List<SearchResult>();
@@ -276,7 +275,7 @@ namespace Orang.CommandLine
             ColumnWidths? columnWidths = null;
 
             if (!Options.FilePropertyOptions.IsEmpty
-                && Options.FilePropertyOptions.AlignColumns)
+                && Options.AlignColumns)
             {
                 List<SearchResult> resultList = results.ToList();
 

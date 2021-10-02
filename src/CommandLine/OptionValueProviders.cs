@@ -509,8 +509,7 @@ namespace Orang.CommandLine
             MetaValues.FileProperties,
             OptionValues.FileProperty_CreationTime,
             OptionValues.FileProperty_ModifiedTime,
-            OptionValues.FileProperty_Size,
-            OptionValues.Align
+            OptionValues.FileProperty_Size
         );
 
         public static OptionValueProvider ValueSortPropertyProvider { get; } = new OptionValueProvider(

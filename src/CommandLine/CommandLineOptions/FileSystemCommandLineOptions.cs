@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using CommandLine;
+using Orang.CommandLine.Annotations;
 using Orang.FileSystem;
 using static Orang.CommandLine.ParseHelpers;
 
@@ -18,6 +19,12 @@ namespace Orang.CommandLine
         private FileSystemAttributes FileSystemAttributes { get; set; }
 
         protected PipeMode PipeMode { get; set; } = PipeMode.Paths;
+
+        [HideFromConsoleHelp]
+        [Option(
+            longName: OptionNames.AlignColumns,
+            HelpText = "Align columns.")]
+        public bool AlignColumns { get; set; }
 
         [Option(
             longName: OptionNames.PathMode,
@@ -220,7 +227,6 @@ namespace Orang.CommandLine
                 out bool creationTime,
                 out bool modifiedTime,
                 out bool size,
-                out bool alignColumns,
                 out FilterPredicate<DateTime>? creationTimePredicate,
                 out FilterPredicate<DateTime>? modifiedTimePredicate,
                 out FilterPredicate<long>? sizePredicate))
@@ -263,12 +269,12 @@ namespace Orang.CommandLine
             options.CreationTimePredicate = creationTimePredicate;
             options.ModifiedTimePredicate = modifiedTimePredicate;
             options.SizePredicate = sizePredicate;
+            options.AlignColumns = AlignColumns;
 
             options.FilePropertyOptions = new FilePropertyOptions(
                 includeCreationTime: creationTime,
                 includeModifiedTime: modifiedTime,
                 includeSize: size,
-                alignColumns: alignColumns,
                 creationTimePredicate: creationTimePredicate?.Predicate,
                 modifiedTimePredicate: modifiedTimePredicate?.Predicate,
                 sizePredicate: sizePredicate?.Predicate

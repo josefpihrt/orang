@@ -4,10 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
 using Orang.FileSystem;
-using Orang.Text.RegularExpressions;
 using static Orang.Logger;
 
 namespace Orang.CommandLine

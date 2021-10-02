@@ -412,16 +412,6 @@ namespace Orang.CommandLine
             SimpleOptionValue.Create(AskMode.Value, description: "Ask for confirmation after each value.")
         );
 
-        public static OptionValueProvider MaxOptionsProvider { get; } = new OptionValueProvider(
-            MetaValues.MaxOptions,
-            SimpleOptionValue.Create(
-                "MaxMatchingFiles",
-                "<NUM>",
-                shortValue: "",
-                description: "Stop searching after <NUM> matching files and/or directories."),
-            OptionValues.MaxMatches
-        );
-
         public static OptionValueProvider PathDisplayStyleProvider { get; } = new OptionValueProvider(
             MetaValues.PathMode,
             OptionValues.PathDisplayStyle_Full,

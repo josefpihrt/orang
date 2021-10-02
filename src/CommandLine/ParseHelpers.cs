@@ -1222,43 +1222,6 @@ namespace Orang.CommandLine
             return TryParseEncoding(name, out encoding, defaultEncoding);
         }
 
-        public static bool TryParseMaxCount(IEnumerable<string> values, out int maxMatchingFiles, out int maxMatchesInFile)
-        {
-            maxMatchingFiles = 0;
-            maxMatchesInFile = 0;
-
-            if (!values.Any())
-                return true;
-
-            foreach (string value in values)
-            {
-                int index = value.IndexOf('=');
-
-                if (index >= 0)
-                {
-                    string key = value.Substring(0, index);
-                    string value2 = value.Substring(index + 1);
-
-                    if (OptionValues.MaxMatches.IsKeyOrShortKey(key))
-                    {
-                        if (!TryParseCount(value2, OptionNames.MaxCount, out maxMatchesInFile, value))
-                            return false;
-                    }
-                    else
-                    {
-                        WriteOptionError(value, OptionNames.MaxCount, OptionValueProviders.MaxOptionsProvider);
-                        return false;
-                    }
-                }
-                else if (!TryParseCount(value, OptionNames.MaxCount, out maxMatchingFiles))
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
         private static bool TryParseCount(string value, string optionName, out int count, string? value2 = null)
         {
             if (int.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out count))

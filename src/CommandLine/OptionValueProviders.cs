@@ -289,6 +289,7 @@ namespace Orang.CommandLine
             OptionValues.ModifyFlags_Except,
             OptionValues.ModifyFlags_Intersect,
             OptionValues.ModifyFlags_Group,
+            OptionValues.ModifyFlags_Count,
             SimpleOptionValue.Create(ModifyFlags.IgnoreCase, description: "Use case-insensitive matching."),
             SimpleOptionValue.Create(
                 ModifyFlags.RemoveEmpty,
@@ -510,7 +511,8 @@ namespace Orang.CommandLine
 
         public static OptionValueProvider ValueSortPropertyProvider { get; } = new OptionValueProvider(
             MetaValues.SortProperty,
-            SimpleOptionValue.Create(ValueSortProperty.Length, description: "Sort values by value's length.")
+            SimpleOptionValue.Create(ValueSortProperty.Length, description: "Sort values by value's length."),
+            SimpleOptionValue.Create(ValueSortProperty.Count, description: "Sort values by group's count.")
         );
 
         public static OptionValueProvider ReplaceFlagsProvider { get; } = new OptionValueProvider(

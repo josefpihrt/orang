@@ -52,6 +52,7 @@ namespace Orang.CommandLine
         public static readonly SimpleOptionValue ModifyFlags_Except = SimpleOptionValue.Create(ModifyFlags.Except, shortValue: "", description: "Return values from first file except values from second file.");
         public static readonly SimpleOptionValue ModifyFlags_Intersect = SimpleOptionValue.Create(ModifyFlags.Intersect, shortValue: "", description: "Return values that were found in all files.");
         public static readonly SimpleOptionValue ModifyFlags_Group = SimpleOptionValue.Create(ModifyFlags.Group, shortValue: "", description: "Group matching files by matched values.");
+        public static readonly SimpleOptionValue ModifyFlags_Count = SimpleOptionValue.Create(ModifyFlags.Count, shortValue: "", description: "Show number of values in a group.");
 
         public static readonly SimpleOptionValue ModifyOptions_Ascending = SimpleOptionValue.Create(ModifyFlags.Ascending, description: "Sort values in an ascending order.");
         public static readonly SimpleOptionValue ModifyOptions_Descending = SimpleOptionValue.Create(ModifyFlags.Descending, description: "Sort values in a descending order.");

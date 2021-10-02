@@ -456,6 +456,9 @@ namespace Orang.CommandLine
             if ((modifyFlags & ModifyFlags.ToUpper) != 0)
                 functions |= ModifyFunctions.ToUpper;
 
+            if ((modifyFlags & ModifyFlags.Count) != 0)
+                functions |= ModifyFunctions.Count;
+
             if (sortProperty != ValueSortProperty.None
                 && (functions & ModifyFunctions.Sort) == 0)
             {

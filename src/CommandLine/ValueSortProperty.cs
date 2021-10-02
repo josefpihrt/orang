@@ -6,5 +6,6 @@ namespace Orang
     {
         None = 0,
         Length = 1,
+        Count = 2,
     }
 }

@@ -24,5 +24,6 @@ namespace Orang
         TrimEnd = 1 << 9,
         ToLower = 1 << 10,
         ToUpper = 1 << 11,
+        Count = 1 << 12,
     }
 }

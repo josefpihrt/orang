@@ -86,10 +86,11 @@ namespace Orang.Aggregation
                 }
             }
 
-            Dictionary<string, List<StorageSection>>? valuesMap = null;
+            StringComparer comparer = ModifyOptions.StringComparer;
+            Dictionary<string, SectionInfo>? valuesMap = null;
 
             if (Sections?.Count > 0
-                && ModifyOptions.HasFunction(ModifyFunctions.Group))
+                && ModifyOptions.HasFunction(ModifyFunctions.Group | ModifyFunctions.Distinct))
             {
                 if (Options.ContentFilter != null)
                 {
@@ -97,19 +98,54 @@ namespace Orang.Aggregation
                 }
                 else
                 {
-                    valuesMap = Storage.Values
+                    IEnumerable<IGrouping<string, (string First, StorageSection Second)>> grouping = Storage.Values
                         .Zip(Sections)
-                        .GroupBy(f => f.First, ModifyOptions.StringComparer)
-                        .ToDictionary(f => f.Key, f => f.Select(f => f.Second).ToList(), ModifyOptions.StringComparer);
+                        .GroupBy(f => f.First, comparer);
+
+                    if (ModifyOptions.HasFunction(ModifyFunctions.Group))
+                    {
+                        valuesMap = grouping
+                            .ToDictionary(f => f.Key, f => new SectionInfo(f.Select(f => f.Second).ToList()), comparer);
+                    }
+                    else if (ModifyOptions.HasFunction(ModifyFunctions.Distinct))
+                    {
+                        valuesMap = grouping
+                            .ToDictionary(f => f.Key, f => new SectionInfo(f.Count()), comparer);
+                    }
+                }
+            }
+            else if (ModifyOptions.HasFunction(ModifyFunctions.Distinct))
+            {
+                valuesMap = values
+                    .GroupBy(f => f, comparer)
+                    .ToDictionary(f => f.Key, f => new SectionInfo(f.Count()), comparer);
+            }
+
+            if (valuesMap != null)
+            {
+                if (ModifyOptions.SortProperty == ValueSortProperty.Count)
+                {
+                    if (ModifyOptions.HasFunction(ModifyFunctions.SortAscending))
+                    {
+                        valuesMap = valuesMap
+                            .OrderBy(f => f.Value.Count)
+                            .ToDictionary(f => f.Key, f => f.Value);
+                    }
+                    else if (ModifyOptions.HasFunction(ModifyFunctions.SortDescending))
+                    {
+                        valuesMap = valuesMap
+                            .OrderByDescending(f => f.Value.Count)
+                            .ToDictionary(f => f.Key, f => f.Value);
+                    }
                 }
 
                 values = valuesMap
                     .Select(f => f.Key)
-                    .Modify(ModifyOptions, filter: ModifyFunctions.Enumerable & ~ModifyFunctions.Distinct);
+                    .Modify(ModifyOptions, filter: ModifyFunctions.None);
             }
             else
             {
-                values = values.Modify(ModifyOptions, filter: ModifyFunctions.Enumerable);
+                values = values.Modify(ModifyOptions, filter: ModifyFunctions.SortAscending | ModifyFunctions.SortDescending);
             }
 
             using (IEnumerator<string> en = values.GetEnumerator())
@@ -138,18 +174,20 @@ namespace Orang.Aggregation
                         valueWriter.Write(en.Current, symbols, colors, boundaryColors);
 
                         if (valuesMap != null
-                            && ShouldLog(Verbosity.Detailed))
+                            && ModifyOptions.HasFunction(ModifyFunctions.Count))
                         {
                             int groupCount = valuesMap[en.Current].Count;
 
-                            Write("  ", Colors.Message_OK, Verbosity.Detailed);
-                            Write(groupCount.ToString("n0"), Colors.Message_OK, Verbosity.Detailed);
+                            Write("  ", Colors.Message_OK, Verbosity.Minimal);
+                            Write(groupCount.ToString("n0"), Colors.Message_OK, Verbosity.Minimal);
                         }
 
                         WriteLine(Verbosity.Minimal);
 
-                        if (valuesMap != null)
-                            WriteGroup(valuesMap[en.Current], cancellationToken);
+                        List<StorageSection>? sections = valuesMap?[en.Current].Sections;
+
+                        if (sections != null)
+                            WriteGroup(sections, cancellationToken);
 
                         count++;
 
@@ -211,7 +249,7 @@ namespace Orang.Aggregation
             return list;
         }
 
-        private Dictionary<string, List<StorageSection>> GroupByValues(List<string> values)
+        private Dictionary<string, SectionInfo> GroupByValues(List<string> values)
         {
             var sectionsValues = new List<(StorageSection section, IEnumerable<string> values)>()
             {
@@ -228,10 +266,28 @@ namespace Orang.Aggregation
                 sectionsValues.Add((Sections[i], second));
             }
 
-            return sectionsValues
+            IEnumerable<IGrouping<string, (StorageSection section, string value)>> grouping = sectionsValues
                 .SelectMany(f => f.values.Select(value => (f.section, value)))
-                .GroupBy(f => f.value, ModifyOptions.StringComparer)
-                .ToDictionary(f => f.Key, f => f.Select(g => g.section).ToList(), ModifyOptions.StringComparer);
+                .GroupBy(f => f.value, ModifyOptions.StringComparer);
+
+            if (ModifyOptions.HasFunction(ModifyFunctions.Group))
+            {
+                return grouping.ToDictionary(
+                    f => f.Key,
+                    f => new SectionInfo(f.Select(g => g.section).ToList()),
+                    ModifyOptions.StringComparer);
+            }
+            else if (ModifyOptions.HasFunction(ModifyFunctions.Distinct))
+            {
+                return grouping.ToDictionary(
+                    f => f.Key,
+                    f => new SectionInfo(f.Count()),
+                    ModifyOptions.StringComparer);
+            }
+            else
+            {
+                throw new InvalidOperationException();
+            }
         }
 
         private IEnumerable<string> GetRange(List<string> values, int start, int end)
@@ -277,6 +333,25 @@ namespace Orang.Aggregation
 
                 WriteLine(Verbosity.Minimal);
             }
+        }
+
+        private readonly struct SectionInfo
+        {
+            public SectionInfo(List<StorageSection> sections)
+            {
+                Count = sections.Count;
+                Sections = sections;
+            }
+
+            public SectionInfo(int count)
+            {
+                Count = count;
+                Sections = null;
+            }
+
+            public int Count { get; }
+
+            public List<StorageSection>? Sections { get; }
         }
     }
 }

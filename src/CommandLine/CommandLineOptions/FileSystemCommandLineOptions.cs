@@ -22,9 +22,25 @@ namespace Orang.CommandLine
 
         [HideFromConsoleHelp]
         [Option(
+            longName: OptionNames.AfterContext,
+            HelpText = "Number of lines to show after matching line.",
+            MetaValue = MetaValues.Num,
+            Default = -1)]
+        public int AfterContext { get; set; }
+
+        [HideFromConsoleHelp]
+        [Option(
             longName: OptionNames.AlignColumns,
             HelpText = "Align columns.")]
         public bool AlignColumns { get; set; }
+
+        [HideFromConsoleHelp]
+        [Option(
+            longName: OptionNames.BeforeContext,
+            HelpText = "Number of lines to show before matching line.",
+            MetaValue = MetaValues.Num,
+            Default = -1)]
+        public int BeforeContext { get; set; }
 
         [Option(
             longName: OptionNames.PathMode,
@@ -155,6 +171,8 @@ namespace Orang.CommandLine
             {
                 LogHelpers.WriteObsoleteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Display)}' has been deprecated "
                     + "and will be removed in future version. Use following options instead:"
+                    + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.AfterContext)}"
+                    + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.BeforeContext)}"
                     + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.ContentMode)}"
                     + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.Context)}"
                     + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.Count)}"

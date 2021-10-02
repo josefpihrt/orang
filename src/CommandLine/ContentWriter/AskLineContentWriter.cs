@@ -26,8 +26,8 @@ namespace Orang.CommandLine
 
             int solIndex = FindStartOfLine(capture);
 
-            if (Options.ContextBefore > 0)
-                WriteContextBefore(0, solIndex, _lineNumber);
+            if (Options.BeforeContext > 0)
+                WriteBeforeContext(0, solIndex, _lineNumber);
 
             Write(Options.Indent);
 
@@ -63,8 +63,8 @@ namespace Orang.CommandLine
 
             WriteEndLine(endIndex, eolIndex);
 
-            if (Options.ContextAfter > 0)
-                WriteContextAfter(eolIndex, Input.Length, _lineNumber);
+            if (Options.AfterContext > 0)
+                WriteAfterContext(eolIndex, Input.Length, _lineNumber);
 
             if (Ask
                 && ConsoleHelpers.AskToContinue(Options.Indent) == DialogResult.YesToAll)

@@ -10,11 +10,13 @@ namespace Orang.CommandLine
 {
     internal static class OptionNames
     {
+        public const string AfterContext = "after-context";
         public const string AlignColumns = "align-columns";
         public const string AllowedTimeDiff = "allowed-time-diff";
         public const string Ask = "ask";
         public const string Attributes = "attributes";
         public const string AttributesToSkip = "attributes-to-skip";
+        public const string BeforeContext = "before-context";
         public const string CaseSensitive = "case-sensitive";
         public const string Compare = "compare";
         public const string Conflict = "conflict";

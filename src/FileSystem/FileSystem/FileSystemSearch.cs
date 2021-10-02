@@ -146,7 +146,7 @@ namespace Orang.FileSystem
                 }
             }
 
-            var directory = new Directory(directoryPath, matchStatus);
+            var directory = new Directory(directoryPath, 0, matchStatus);
 
             while (true)
             {
@@ -247,7 +247,7 @@ namespace Orang.FileSystem
                                 }
 
                                 if (matchStatus != MatchStatus.FailFromNegative)
-                                    subdirectories!.Enqueue(new Directory(currentDirectory, matchStatus));
+                                    subdirectories!.Enqueue(new Directory(currentDirectory, directory.Depth + 1, matchStatus));
                             }
 
                             cancellationToken.ThrowIfCancellationRequested();
@@ -523,13 +523,16 @@ namespace Orang.FileSystem
         [DebuggerDisplay("{DebuggerDisplay,nq}")]
         private readonly struct Directory
         {
-            public Directory(string path, MatchStatus status)
+            public Directory(string path, int depth, MatchStatus status)
             {
                 Path = path;
+                Depth = depth;
                 Status = status;
             }
 
             public string Path { get; }
+
+            public int Depth { get; }
 
             public MatchStatus Status { get; }
 

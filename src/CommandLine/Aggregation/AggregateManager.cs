@@ -49,7 +49,7 @@ namespace Orang.Aggregation
 
             bool shouldCreate = modifyOptions.HasFunction(ModifyFunctions.Except_Intersect_Group)
                 || modifyOptions.Aggregate
-                || Options.SaveAggregatedValues)
+                || Options.SaveAggregatedValues;
 
             if (!shouldCreate)
                 return null;

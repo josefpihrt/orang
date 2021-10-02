@@ -29,7 +29,8 @@ namespace Orang.CommandLine
             HelpText = "Defines how to use redirected/piped input.",
             MetaValue = MetaValues.PipeMode)]
         public string Pipe { get; set; } = null!;
-#if DEBUG // --modifier
+#if DEBUG
+        [HideFromConsoleHelp]
         [Option(
             longName: OptionNames.Modifier,
             HelpText = OptionHelpText.Modifier,

@@ -10,6 +10,7 @@ namespace Orang.CommandLine
 {
     internal static class OptionNames
     {
+        public const string AfterContext = "after-context";
         public const string AlignColumns = "align-columns";
         public const string EndsWith = "ends-with";
         public const string Equals_ = "equals";
@@ -29,6 +30,7 @@ namespace Orang.CommandLine
         public const string Ask = "ask";
         public const string Attributes = "attributes";
         public const string AttributesToSkip = "attributes-to-skip";
+        public const string BeforeContext = "before-context";
         public const string CaseSensitive = "case-sensitive";
         public const string Compare = "compare";
         public const string Conflict = "conflict";
@@ -60,6 +62,8 @@ namespace Orang.CommandLine
         public const string LineNumber = "line-number";
         public const string Manual = "manual";
         public const string MaxCount = "max-count";
+        public const string MaxMatchingFiles = "max-matching-files";
+        public const string MaxMatchesInFile = "max-matches-in-file";
         public const string MaxWordLength = "max-word-length";
         public const string MinWordLength = "min-word-length";
         public const string Modifier = "modifier";

@@ -62,6 +62,13 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.Num)]
         public int MaxCount { get; set; }
 
+        [HideFromConsoleHelp]
+        [Option(
+            longName: OptionNames.MaxMatchesInFile,
+            HelpText = "Stop searching in a file name after specified number of matches is found.",
+            MetaValue = MetaValues.Num)]
+        public int MaxMatchesInFile { get; set; }
+
         [Option(
             longName: OptionNames.Modify,
             HelpText = "Functions to modify result.",
@@ -218,6 +225,12 @@ namespace Orang.CommandLine
             if (Context >= 0)
                 lineContext = new LineContext(Context);
 
+            if (BeforeContext >= 0)
+                lineContext = lineContext.WithBefore(BeforeContext);
+
+            if (AfterContext >= 0)
+                lineContext = lineContext.WithAfter(AfterContext);
+
             if (LineNumber)
                 lineDisplayOptions |= LineDisplayOptions.IncludeLineNumber;
 #if DEBUG
@@ -268,6 +281,7 @@ namespace Orang.CommandLine
             options.NamePart = namePart;
             options.ContentFilter = contentFilter;
             options.MaxMatchingFiles = MaxCount;
+            options.MaxMatchesInFile = MaxMatchesInFile;
             options.ConflictResolution = conflictResolution;
             options.Interactive = Interactive;
 

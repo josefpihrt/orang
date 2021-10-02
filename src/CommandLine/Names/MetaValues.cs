@@ -22,7 +22,6 @@ namespace Orang.CommandLine
         public const string Indent = "<INDENT>";
         public const string Input = "<INPUT> [<INPUT_OPTIONS>]";
         public const string InputOptions = "<INPUT_OPTIONS>";
-        public const string MaxOptions = "<MAX_OPTIONS>";
         public const string Modifier = "<MODIFIER> <MODIFIER_OPTIONS>";
         public const string ModifierOptions = "<MODIFIER_OPTIONS>";
         public const string ModifyOptions = "<MODIFY_OPTIONS>";

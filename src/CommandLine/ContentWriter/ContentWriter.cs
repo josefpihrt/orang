@@ -462,7 +462,7 @@ namespace Orang.CommandLine
             return index;
         }
 
-        protected void WriteContextBefore(int startIndex, int endIndex, int lineNumber)
+        protected void WriteBeforeContext(int startIndex, int endIndex, int lineNumber)
         {
             if (startIndex == endIndex)
                 return;
@@ -480,7 +480,7 @@ namespace Orang.CommandLine
                         lineCount++;
                         lastEolIndex = i + 1;
 
-                        if (lineCount == Options.ContextBefore)
+                        if (lineCount == Options.BeforeContext)
                             break;
                     }
 
@@ -525,7 +525,7 @@ namespace Orang.CommandLine
             }
         }
 
-        protected int WriteContextAfter(int startIndex, int endIndex, int lineNumber)
+        protected int WriteAfterContext(int startIndex, int endIndex, int lineNumber)
         {
             if (endIndex == startIndex)
                 return startIndex;
@@ -547,7 +547,7 @@ namespace Orang.CommandLine
                     lastEolIndex = i + 1;
                     lineCount++;
 
-                    if (lineCount == Options.ContextAfter)
+                    if (lineCount == Options.AfterContext)
                         break;
                 }
             }

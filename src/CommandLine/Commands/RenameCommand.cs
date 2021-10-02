@@ -55,8 +55,9 @@ namespace Orang.CommandLine
             List<ReplaceItem> replaceItems = ReplaceHelpers.GetReplaceItems(
                 fileMatch.NameMatch!,
                 Options.ReplaceOptions,
-                NameFilter!.Predicate,
-                context.CancellationToken);
+                count: Options.MaxMatchesInFile,
+                predicate: NameFilter!.Predicate,
+                cancellationToken: context.CancellationToken);
 
             string path = fileMatch.Path;
 
@@ -117,7 +118,7 @@ namespace Orang.CommandLine
                     if (isInvalidName)
                     {
                         WriteLine($"{indent}New file name contains invalid character(s).", Colors.Message_Warning);
-                        return;
+                            return;
                     }
                 }
             }

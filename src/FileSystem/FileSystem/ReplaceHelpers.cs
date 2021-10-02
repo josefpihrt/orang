@@ -64,6 +64,7 @@ namespace Orang.FileSystem
         public static List<ReplaceItem> GetReplaceItems(
             Match match,
             ReplaceOptions replaceOptions,
+            int count = 0,
             Func<string, bool>? predicate = null,
             CancellationToken cancellationToken = default)
         {
@@ -72,6 +73,7 @@ namespace Orang.FileSystem
             MaxReason _ = CaptureFactory.GetCaptures(
                 ref captures,
                 match,
+                count: count,
                 predicate: predicate,
                 cancellationToken: cancellationToken);
 

@@ -268,8 +268,8 @@ namespace Orang.CommandLine
 
                 _solIndex = FindStartOfLine(capture);
 
-                if (Options.ContextBefore > 0)
-                    WriteContextBefore(0, _solIndex, _lineNumber);
+                if (Options.BeforeContext > 0)
+                    WriteBeforeContext(0, _solIndex, _lineNumber);
 
                 Write(Options.Indent);
 
@@ -312,8 +312,8 @@ namespace Orang.CommandLine
 
                 WriteEndLine(endIndex, eolIndex);
 
-                if (Options.ContextAfter > 0)
-                    WriteContextAfter(eolIndex, Input.Length, _lineNumber);
+                if (Options.AfterContext > 0)
+                    WriteAfterContext(eolIndex, Input.Length, _lineNumber);
 
                 base.WriteEndReplacement(capture, result);
             }

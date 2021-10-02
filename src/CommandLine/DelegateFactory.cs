@@ -5,90 +5,12 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Orang.FileSystem;
 using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
     internal static class DelegateFactory
     {
-        public static bool TryCreateFromExpression<TDelegate>(
-            string expressionText,
-            string className,
-            string methodName,
-            string returnTypeName,
-            Type returnType,
-            string parameterTypeName,
-            Type parameterType,
-            string parameterName,
-            [NotNullWhen(true)] out TDelegate? result) where TDelegate : Delegate
-        {
-            Assembly? assembly = AssemblyFactory.FromExpression(
-                expressionText,
-                className,
-                methodName,
-                returnTypeName,
-                parameterTypeName,
-                parameterName);
-
-            if (assembly == null)
-            {
-                result = null;
-                return false;
-            }
-
-            result = CreateDelegateAndCatchIfThrows<TDelegate>(
-                assembly,
-                returnType,
-                new Type[] { parameterType },
-                $"Orang.Runtime.{className}",
-                methodName);
-
-            return result != null;
-        }
-
-        public static bool TryCreateFromSourceText<TDelegate>(
-            string sourceText,
-            Type returnType,
-            Type parameterType,
-            [NotNullWhen(true)] out TDelegate? result) where TDelegate : Delegate
-        {
-            Assembly? assembly = AssemblyFactory.FromSourceText(sourceText);
-
-            if (assembly == null)
-            {
-                result = null;
-                return false;
-            }
-
-            result = CreateDelegateAndCatchIfThrows<TDelegate>(assembly, returnType, new Type[] { parameterType });
-            return result != null;
-        }
-
-        public static bool TryCreateFromCodeFile<TDelegate>(
-            string filePath,
-            Type returnType,
-            Type parameterType,
-            [NotNullWhen(true)] out TDelegate? result) where TDelegate : Delegate
-        {
-            if (!FileSystemHelpers.TryReadAllText(filePath, out string? content, f => WriteError(f)))
-            {
-                result = null;
-                return false;
-            }
-
-            Assembly? assembly = AssemblyFactory.FromSourceText(content);
-
-            if (assembly == null)
-            {
-                result = null;
-                return false;
-            }
-
-            result = CreateDelegateAndCatchIfThrows<TDelegate>(assembly, returnType, new Type[] { parameterType });
-            return result != null;
-        }
-
         public static bool TryCreateFromAssembly<TDelegate>(
             string path,
             Type returnType,
@@ -98,7 +20,7 @@ namespace Orang.CommandLine
             return TryCreateFromAssembly(path, returnType, new Type[] { parameterType }, out result);
         }
 
-        private static bool TryCreateFromAssembly<TDelegate>(
+        public static bool TryCreateFromAssembly<TDelegate>(
             string path,
             Type returnType,
             Type[] parameters,
@@ -174,14 +96,15 @@ namespace Orang.CommandLine
                 || ex is TargetInvocationException
                 || ex is MemberAccessException
                 || ex is MissingMemberException
-                || ex is TypeLoadException)
+                || ex is TypeLoadException
+                || ex is InvalidOperationException)
             {
                 WriteError(ex, $"Cannot create delegate: {ex.Message}");
                 return null;
             }
         }
 
-        private static TDelegate? CreateDelegate<TDelegate>(
+        public static TDelegate? CreateDelegate<TDelegate>(
             Assembly assembly,
             Type returnType,
             Type[] parameters,
@@ -197,8 +120,7 @@ namespace Orang.CommandLine
 
                 if (type == null)
                 {
-                    WriteError($"Cannot find type '{typeName}' in assembly '{assembly.FullName}'");
-                    return null;
+                    throw new InvalidOperationException($"Cannot find type '{typeName}' in assembly '{assembly.FullName}'");
                 }
 
                 if (methodName != null)
@@ -207,8 +129,7 @@ namespace Orang.CommandLine
 
                     if (method == null)
                     {
-                        WriteError($"Cannot find method '{methodName}' in type '{typeName}'");
-                        return null;
+                        throw new InvalidOperationException($"Cannot find method '{methodName}' in type '{typeName}'");
                     }
                 }
                 else
@@ -217,11 +138,9 @@ namespace Orang.CommandLine
 
                     if (method == null)
                     {
-                        WriteError("Cannot find public method with signature "
+                        throw new InvalidOperationException("Cannot find public method with signature "
                             + $"'{returnType.Name} M({string.Join(", ", parameters.Select(f => f.Name))})'"
                             + $" in type '{typeName}'");
-
-                        return null;
                     }
 
                     methodName = method.Name;
@@ -233,10 +152,8 @@ namespace Orang.CommandLine
 
                 if (method == null)
                 {
-                    WriteError("Cannot find public method with signature "
+                    throw new InvalidOperationException("Cannot find public method with signature "
                         + $"'{returnType.Name} {methodName ?? "M"}({string.Join(", ", parameters.Select(f => f.Name))})'");
-
-                    return null;
                 }
 
                 methodName ??= method.Name;
@@ -254,8 +171,7 @@ namespace Orang.CommandLine
 
                 if (typeInstance == null)
                 {
-                    WriteError($"Cannot create instance of '{typeName}'");
-                    return null;
+                    throw new InvalidOperationException($"Cannot create instance of '{typeName}'");
                 }
 
                 return (TDelegate)Delegate.CreateDelegate(typeof(TDelegate), typeInstance, methodName);

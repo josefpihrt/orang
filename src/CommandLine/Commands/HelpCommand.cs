@@ -28,7 +28,7 @@ namespace Orang.CommandLine
                     commandName: Options.Command,
                     online: Options.Online,
                     manual: Options.Manual,
-                    includeValues: ConsoleOut.Verbosity > Verbosity.Normal,
+                    verbose: ConsoleOut.Verbosity > Verbosity.Normal,
                     filter: Options.Filter);
             }
             catch (ArgumentException ex)
@@ -44,7 +44,7 @@ namespace Orang.CommandLine
             string[] commandName,
             bool online,
             bool manual,
-            bool includeValues,
+            bool verbose,
             Filter? filter = null)
         {
             var isCompoundCommand = false;
@@ -72,15 +72,15 @@ namespace Orang.CommandLine
                 if (command == null)
                     throw new InvalidOperationException($"Command '{string.Join(' ', commandName)}' does not exist.");
 
-                WriteCommandHelp(command, includeValues: includeValues, filter: filter);
+                WriteCommandHelp(command, verbose: verbose, filter: filter);
             }
             else if (manual)
             {
-                WriteManual(includeValues: includeValues, filter: filter);
+                WriteManual(verbose: verbose, filter: filter);
             }
             else
             {
-                WriteCommandsHelp(includeValues: includeValues, filter: filter);
+                WriteCommandsHelp(verbose: verbose, filter: filter);
             }
         }
 
@@ -127,13 +127,20 @@ namespace Orang.CommandLine
             }
         }
 
-        public static void WriteCommandHelp(Command command, bool includeValues = false, Filter? filter = null)
+        public static void WriteCommandHelp(Command command, bool verbose = false, Filter? filter = null)
         {
             var writer = new ConsoleHelpWriter(new HelpWriterOptions(filter: filter));
 
-            IEnumerable<CommandOption> options = command.Options
-                .Where(f => !f.PropertyInfo.GetCustomAttributes().Any(f => f is HideFromHelpAttribute || f is HideFromConsoleHelpAttribute))
-                .OrderBy(f => f, CommandOptionComparer.Name);
+            IEnumerable<CommandOption> options = command.Options;
+
+            if (!verbose)
+            {
+                options = options.Where(f => !f.PropertyInfo
+                    .GetCustomAttributes()
+                    .Any(f => f is HideFromHelpAttribute || f is HideFromConsoleHelpAttribute));
+            }
+
+            options = options.OrderBy(f => f, CommandOptionComparer.Name);
 
             command = command.WithOptions(options);
 
@@ -141,7 +148,7 @@ namespace Orang.CommandLine
 
             writer.WriteCommand(commandHelp);
 
-            if (includeValues)
+            if (verbose)
             {
                 writer.WriteValues(commandHelp.Values);
             }
@@ -162,7 +169,7 @@ namespace Orang.CommandLine
             }
         }
 
-        public static void WriteCommandsHelp(bool includeValues = false, Filter? filter = null)
+        public static void WriteCommandsHelp(bool verbose = false, Filter? filter = null)
         {
             IEnumerable<Command> commands = LoadCommands().Where(f => f.Name != "help");
 
@@ -172,14 +179,14 @@ namespace Orang.CommandLine
 
             writer.WriteCommands(commandsHelp);
 
-            if (includeValues)
+            if (verbose)
                 writer.WriteValues(commandsHelp.Values);
 
             WriteLine();
             WriteLine(GetFooterText());
         }
 
-        private static void WriteManual(bool includeValues = false, Filter? filter = null)
+        private static void WriteManual(bool verbose = false, Filter? filter = null)
         {
             IEnumerable<Command> commands = LoadCommands();
 
@@ -222,7 +229,7 @@ namespace Orang.CommandLine
                     writer.WriteCommand(commandHelp);
                 }
 
-                if (includeValues)
+                if (verbose)
                     WriteSeparator();
             }
             else
@@ -230,7 +237,7 @@ namespace Orang.CommandLine
                 WriteLine();
                 WriteLine("No command found");
 
-                if (includeValues)
+                if (verbose)
                 {
                     values = HelpProvider.GetOptionValues(
                         commands.Select(f => CommandHelp.Create(f)).SelectMany(f => f.Command.Options),
@@ -239,7 +246,7 @@ namespace Orang.CommandLine
                 }
             }
 
-            if (includeValues)
+            if (verbose)
                 writer.WriteValues(values);
 
             static void WriteSeparator()

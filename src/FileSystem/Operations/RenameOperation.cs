@@ -30,7 +30,7 @@ namespace Orang.Operations
             FileMatch fileMatch,
             string directoryPath)
         {
-            List<ReplaceItem> replaceItems = ReplaceHelpers.GetReplaceItems(
+            (List<ReplaceItem> replaceItems, MaxReason maxReason) = ReplaceHelpers.GetReplaceItems(
                 fileMatch.NameMatch!,
                 RenameOptions,
                 predicate: NameFilter?.Predicate,

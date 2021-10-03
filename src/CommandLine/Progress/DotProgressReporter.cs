@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Orang.CommandLine;
 using static Orang.Logger;
 
 namespace Orang.FileSystem
@@ -44,7 +45,7 @@ namespace Orang.FileSystem
 
         protected void WriteProgress()
         {
-            if ((FileCount + DirectoryCount) % 100 == 0)
+            if ((FileCount + DirectoryCount) % ApplicationOptions.Default.ProgressCount == 0)
             {
                 ConsoleOut.Write(".", Colors.Path_Progress);
                 ProgressReported = true;

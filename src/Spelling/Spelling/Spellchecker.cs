@@ -178,8 +178,7 @@ namespace Orang.Spelling
                 return;
             }
 
-            if (match.Length >= Options.MinWordLength
-                && match.Length <= Options.MaxWordLength)
+            if (IsAllowedLength(match.Length))
             {
                 if (_splitRegex == null)
                 {
@@ -196,11 +195,8 @@ namespace Orang.Spelling
             string value,
             int prefixLength = 0)
         {
-            if (value.Length < Options.MinWordLength
-                || value.Length > Options.MaxWordLength)
-            {
+            if (!IsAllowedLength(value.Length))
                 return ImmutableArray<SpellingMatch>.Empty;
-            }
 
             if (prefixLength > 0
                 && Data.Contains(value))
@@ -277,11 +273,8 @@ namespace Orang.Spelling
 
         private bool IsMatch(string value)
         {
-            if (value.Length < Options.MinWordLength
-                || value.Length > Options.MaxWordLength)
-            {
+            if (!IsAllowedLength(value.Length))
                 return false;
-            }
 
             if (IsAllowedNonsensicalWord(value))
                 return false;
@@ -290,6 +283,12 @@ namespace Orang.Spelling
                 return false;
 
             return true;
+        }
+
+        private bool IsAllowedLength(int value)
+        {
+            return value >= Options.MinWordLength
+                && value <= Options.MaxWordLength;
         }
 
         private static bool IsAllowedNonsensicalWord(string value)

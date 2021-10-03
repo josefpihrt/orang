@@ -132,9 +132,7 @@ namespace Orang.Spelling
             if (nextMatch.Success
                 || match.Index > startIndex)
             {
-                string value2 = value.Substring(startIndex, length);
-
-                if (Data.Contains(value2))
+                if (Data.Contains(value.Substring(startIndex, length)))
                     return;
             }
 

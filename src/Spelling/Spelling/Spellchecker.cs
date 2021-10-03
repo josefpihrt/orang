@@ -7,6 +7,8 @@ namespace Orang.Spelling
 {
     public class Spellchecker
     {
+        private static readonly Regex _simpleSplitRegex = new Regex(@"(\s|,|\.|:|;|"")+", RegexOptions.ExplicitCapture);
+
         private static readonly Regex _wordRegex = new Regex(
             @"
 \b
@@ -95,44 +97,97 @@ namespace Orang.Spelling
             int length,
             ref ImmutableArray<SpellingMatch>.Builder? builder)
         {
-            int sequenceEndIndex = -1;
+            int index = startIndex;
 
             for (
-                Match match = WordRegex.Match(value, startIndex, length);
+                Match match = _simpleSplitRegex.Match(value, startIndex, length);
                 match.Success;
                 match = match.NextMatch())
             {
-                if (sequenceEndIndex >= 0)
+                AnalyzeText(value, index, match.Index - index, startIndex, length, ref builder);
+
+                index = match.Index + match.Length;
+            }
+
+            AnalyzeText(value, index, startIndex + length - index, startIndex, length, ref builder);
+        }
+
+        private void AnalyzeText(
+            string value,
+            int startIndex,
+            int length,
+            int parentStartIndex,
+            int parentLength,
+            ref ImmutableArray<SpellingMatch>.Builder? builder)
+        {
+            int sequenceEndIndex = -1;
+
+            Match match = WordRegex.Match(value, startIndex, length);
+
+            if (!match.Success)
+                return;
+
+            Match nextMatch = match.NextMatch();
+
+            if (nextMatch.Success
+                || match.Index > startIndex)
+            {
+                string value2 = value.Substring(startIndex, length);
+
+                if (Data.Contains(value2))
+                    return;
+            }
+
+            AnalyzeText(match, value, parentStartIndex, parentLength, ref sequenceEndIndex, ref builder);
+
+            match = nextMatch;
+
+            while (match.Success)
+            {
+                AnalyzeText(match, value, parentStartIndex, parentLength, ref sequenceEndIndex, ref builder);
+
+                match = match.NextMatch();
+            }
+        }
+
+        private void AnalyzeText(
+            Match match,
+            string value,
+            int startIndex,
+            int length,
+            ref int sequenceEndIndex,
+            ref ImmutableArray<SpellingMatch>.Builder? builder)
+        {
+            if (sequenceEndIndex >= 0)
+            {
+                if (match.Index <= sequenceEndIndex)
                 {
-                    if (match.Index <= sequenceEndIndex)
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        sequenceEndIndex = -1;
-                    }
+                    return;
                 }
-
-                WordSequenceMatch sequenceMatch = Data.GetSequenceMatch(value, startIndex, length, match);
-
-                if (!sequenceMatch.IsDefault)
+                else
                 {
-                    sequenceEndIndex = sequenceMatch.EndIndex;
-                    continue;
+                    sequenceEndIndex = -1;
                 }
+            }
 
-                if (match.Length >= Options.MinWordLength
-                    && match.Length <= Options.MaxWordLength)
+            WordSequenceMatch sequenceMatch = Data.GetSequenceMatch(value, startIndex, length, match);
+
+            if (!sequenceMatch.IsDefault)
+            {
+                sequenceEndIndex = sequenceMatch.EndIndex;
+                return;
+            }
+
+            if (match.Length >= Options.MinWordLength
+                && match.Length <= Options.MaxWordLength)
+            {
+                if (_splitRegex == null)
                 {
-                    if (_splitRegex == null)
-                    {
-                        AnalyzeValue(match.Value, match.Index, null, 0, ref builder);
-                    }
-                    else
-                    {
-                        AnalyzeSplit(_splitRegex, match.Value, match.Index, 0, ref builder);
-                    }
+                    AnalyzeValue(match.Value, match.Index, null, 0, ref builder);
+                }
+                else
+                {
+                    AnalyzeSplit(_splitRegex, match.Value, match.Index, 0, ref builder);
                 }
             }
         }

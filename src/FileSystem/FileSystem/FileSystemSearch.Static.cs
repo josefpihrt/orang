@@ -18,6 +18,7 @@ namespace Orang.FileSystem
             IEnumerable<NameFilter>? directoryFilters = null,
             ReplaceOptions? replaceOptions = null,
             SearchTarget searchTarget = SearchTarget.Files,
+            int maxDirectoryDepth = -1,
             bool recurseSubdirectories = true,
             bool dryRun = false,
             CancellationToken cancellationToken = default)
@@ -27,7 +28,8 @@ namespace Orang.FileSystem
 
             var searchOptions = new FileSystemSearchOptions(
                 searchTarget: searchTarget,
-                recurseSubdirectories: recurseSubdirectories);
+                recurseSubdirectories: recurseSubdirectories,
+                maxDirectoryDepth: maxDirectoryDepth);
 
             var search = new FileSystemSearch(
                 filter,
@@ -62,6 +64,7 @@ namespace Orang.FileSystem
             IEnumerable<NameFilter>? directoryFilters = null,
             DeleteOptions? deleteOptions = null,
             SearchTarget searchTarget = SearchTarget.Files,
+            int maxDirectoryDepth = -1,
             IProgress<OperationProgress>? progress = null,
             bool recurseSubdirectories = true,
             bool dryRun = false,
@@ -72,7 +75,8 @@ namespace Orang.FileSystem
 
             var searchOptions = new FileSystemSearchOptions(
                 searchTarget: searchTarget,
-                recurseSubdirectories: recurseSubdirectories);
+                recurseSubdirectories: recurseSubdirectories,
+                maxDirectoryDepth: maxDirectoryDepth);
 
             var search = new FileSystemSearch(
                 filter,
@@ -102,6 +106,7 @@ namespace Orang.FileSystem
             IEnumerable<NameFilter>? directoryFilters = null,
             RenameOptions? renameOptions = null,
             SearchTarget searchTarget = SearchTarget.Files,
+            int maxDirectoryDepth = -1,
             IDialogProvider<OperationProgress>? dialogProvider = null,
             IProgress<OperationProgress>? progress = null,
             bool recurseSubdirectories = true,
@@ -119,7 +124,8 @@ namespace Orang.FileSystem
 
             var searchOptions = new FileSystemSearchOptions(
                 searchTarget: searchTarget,
-                recurseSubdirectories: recurseSubdirectories);
+                recurseSubdirectories: recurseSubdirectories,
+                maxDirectoryDepth: maxDirectoryDepth);
 
             var search = new FileSystemSearch(
                 filter,
@@ -165,6 +171,7 @@ namespace Orang.FileSystem
             IEnumerable<NameFilter>? directoryFilters = null,
             CopyOptions? copyOptions = null,
             SearchTarget searchTarget = SearchTarget.Files,
+            int maxDirectoryDepth = -1,
             IDialogProvider<OperationProgress>? dialogProvider = null,
             IProgress<OperationProgress>? progress = null,
             bool recurseSubdirectories = true,
@@ -176,7 +183,8 @@ namespace Orang.FileSystem
 
             var searchOptions = new FileSystemSearchOptions(
                 searchTarget: searchTarget,
-                recurseSubdirectories: recurseSubdirectories);
+                recurseSubdirectories: recurseSubdirectories,
+                maxDirectoryDepth: maxDirectoryDepth);
 
             ImmutableArray<NameFilter> directoryFilters2 = directoryFilters?.ToImmutableArray() ?? ImmutableArray<NameFilter>.Empty;
 
@@ -217,6 +225,7 @@ namespace Orang.FileSystem
             IEnumerable<NameFilter>? directoryFilters = null,
             CopyOptions? copyOptions = null,
             SearchTarget searchTarget = SearchTarget.Files,
+            int maxDirectoryDepth = -1,
             IDialogProvider<OperationProgress>? dialogProvider = null,
             IProgress<OperationProgress>? progress = null,
             bool recurseSubdirectories = true,
@@ -228,7 +237,8 @@ namespace Orang.FileSystem
 
             var searchOptions = new FileSystemSearchOptions(
                 searchTarget: searchTarget,
-                recurseSubdirectories: recurseSubdirectories);
+                recurseSubdirectories: recurseSubdirectories,
+                maxDirectoryDepth: maxDirectoryDepth);
 
             ImmutableArray<NameFilter> directoryFilters2 = directoryFilters?.ToImmutableArray() ?? ImmutableArray<NameFilter>.Empty;
 

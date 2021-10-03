@@ -246,8 +246,12 @@ namespace Orang.FileSystem
                                     matchStatus = IncludeDirectory(currentDirectory);
                                 }
 
-                                if (matchStatus != MatchStatus.FailFromNegative)
+                                if (matchStatus != MatchStatus.FailFromNegative
+                                    && (Options.MaxDirectoryDepth < 0
+                                        || directory.Depth < Options.MaxDirectoryDepth))
+                                {
                                     subdirectories!.Enqueue(new Directory(currentDirectory, directory.Depth + 1, matchStatus));
+                                }
                             }
 
                             cancellationToken.ThrowIfCancellationRequested();

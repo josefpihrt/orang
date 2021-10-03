@@ -68,6 +68,12 @@ namespace Orang.CommandLine
             HelpText = "Include line number.")]
         public bool LineNumber { get; set; }
 #if DEBUG
+        [Option(
+            longName: OptionNames.MaxDepth,
+            HelpText = "Maximum directory depth.",
+            Default = -1)]
+        public int MaxDepth { get; set; }
+
         // --omit-content
         [Option(
             shortName: OptionShortNames.NoContent,
@@ -288,6 +294,7 @@ namespace Orang.CommandLine
             options.ModifiedTimePredicate = modifiedTimePredicate;
             options.SizePredicate = sizePredicate;
             options.AlignColumns = AlignColumns;
+            options.MaxDirectoryDepth = MaxDepth;
 
             options.FilePropertyOptions = new FilePropertyOptions(
                 includeCreationTime: creationTime,

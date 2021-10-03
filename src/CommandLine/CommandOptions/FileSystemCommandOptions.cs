@@ -58,6 +58,8 @@ namespace Orang.CommandLine
 
         public FilterPredicate<long>? SizePredicate { get; internal set; }
 
+        public int MinDirectoryDepth { get; internal set; }
+
         public int MaxDirectoryDepth { get; internal set; }
 
         public ContentDisplayStyle ContentDisplayStyle => Format.ContentDisplayStyle;

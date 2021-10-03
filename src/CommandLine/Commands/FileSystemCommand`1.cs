@@ -71,6 +71,7 @@ namespace Orang.CommandLine
             var options = new FileSystemSearchOptions(
                 searchTarget: Options.SearchTarget,
                 recurseSubdirectories: Options.RecurseSubdirectories,
+                minDirectoryDepth: Options.MinDirectoryDepth,
                 maxDirectoryDepth: Options.MaxDirectoryDepth,
                 defaultEncoding: Options.DefaultEncoding);
 

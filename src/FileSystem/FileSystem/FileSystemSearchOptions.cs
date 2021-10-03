@@ -16,12 +16,14 @@ namespace Orang.FileSystem
             SearchTarget searchTarget = SearchTarget.Files,
             bool recurseSubdirectories = true,
             bool ignoreInaccessible = true,
+            int minDirectoryDepth = -1,
             int maxDirectoryDepth = -1,
             Encoding? defaultEncoding = null)
         {
             SearchTarget = searchTarget;
             RecurseSubdirectories = recurseSubdirectories;
             IgnoreInaccessible = ignoreInaccessible;
+            MinDirectoryDepth = minDirectoryDepth;
             MaxDirectoryDepth = maxDirectoryDepth;
             DefaultEncoding = defaultEncoding ?? EncodingHelpers.UTF8NoBom;
         }
@@ -31,6 +33,8 @@ namespace Orang.FileSystem
         public bool RecurseSubdirectories { get; }
 
         public bool IgnoreInaccessible { get; }
+
+        public int MinDirectoryDepth { get; }
 
         public int MaxDirectoryDepth { get; }
 

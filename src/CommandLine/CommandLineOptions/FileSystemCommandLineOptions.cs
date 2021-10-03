@@ -68,6 +68,13 @@ namespace Orang.CommandLine
             HelpText = "Include line number.")]
         public bool LineNumber { get; set; }
 #if DEBUG
+        [HideFromConsoleHelp]
+        [Option(
+            longName: OptionNames.MinDepth,
+            HelpText = "Minimum directory depth.",
+            Default = -1)]
+        public int MinDepth { get; set; }
+
         [Option(
             longName: OptionNames.MaxDepth,
             HelpText = "Maximum directory depth.",
@@ -294,6 +301,7 @@ namespace Orang.CommandLine
             options.ModifiedTimePredicate = modifiedTimePredicate;
             options.SizePredicate = sizePredicate;
             options.AlignColumns = AlignColumns;
+            options.MinDirectoryDepth = MinDepth;
             options.MaxDirectoryDepth = MaxDepth;
 
             options.FilePropertyOptions = new FilePropertyOptions(

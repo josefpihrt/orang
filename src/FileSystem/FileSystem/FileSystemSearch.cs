@@ -153,7 +153,8 @@ namespace Orang.FileSystem
                 Report(directory.Path, SearchProgressKind.SearchDirectory, isDirectory: true);
 
                 if (SearchTarget != SearchTarget.Directories
-                    && !directory.IsFail)
+                    && !directory.IsFail
+                    && directory.Depth >= Options.MinDirectoryDepth)
                 {
                     IEnumerator<string> fi = null!;
 
@@ -214,7 +215,8 @@ namespace Orang.FileSystem
 
                             if (!directory.IsFail
                                 && SearchTarget != SearchTarget.Files
-                                && Part != FileNamePart.Extension)
+                                && Part != FileNamePart.Extension
+                                && directory.Depth >= Options.MinDirectoryDepth)
                             {
                                 if (matchStatus == MatchStatus.Unknown
                                     && DirectoryFilters.Any())

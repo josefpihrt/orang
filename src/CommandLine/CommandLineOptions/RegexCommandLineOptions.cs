@@ -27,7 +27,8 @@ namespace Orang.CommandLine
             HelpText = "The input string to be searched.",
             MetaValue = MetaValues.Input)]
         public IEnumerable<string> Input { get; set; } = null!;
-#if DEBUG // --modifier
+#if DEBUG
+        [HideFromConsoleHelp]
         [Option(
             longName: OptionNames.Modifier,
             HelpText = OptionHelpText.Modifier,

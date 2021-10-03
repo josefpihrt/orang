@@ -52,7 +52,7 @@ namespace Orang.CommandLine
         {
             string indent = GetPathIndent(baseDirectoryPath);
 
-            List<ReplaceItem> replaceItems = ReplaceHelpers.GetReplaceItems(
+            (List<ReplaceItem> replaceItems, MaxReason maxReason) = ReplaceHelpers.GetReplaceItems(
                 fileMatch.NameMatch!,
                 Options.ReplaceOptions,
                 count: Options.MaxMatchesInFile,
@@ -98,7 +98,7 @@ namespace Orang.CommandLine
                     indent);
 
                 WriteProperties(context, fileMatch, columnWidths);
-                WriteLine(Verbosity.Minimal);
+                WriteFilePathEnd(replaceItems.Count, maxReason, Options.IncludeCount);
             }
 
             ListCache<ReplaceItem>.Free(replaceItems);

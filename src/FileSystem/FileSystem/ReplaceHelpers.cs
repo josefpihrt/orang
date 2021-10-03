@@ -61,7 +61,7 @@ namespace Orang.FileSystem
             }
         }
 
-        public static List<ReplaceItem> GetReplaceItems(
+        public static (List<ReplaceItem> replaceItems, MaxReason maxReason) GetReplaceItems(
             Match match,
             ReplaceOptions replaceOptions,
             int count = 0,
@@ -70,7 +70,7 @@ namespace Orang.FileSystem
         {
             List<Capture> captures = ListCache<Capture>.GetInstance();
 
-            MaxReason _ = CaptureFactory.GetCaptures(
+            MaxReason maxReason = CaptureFactory.GetCaptures(
                 ref captures,
                 match,
                 count: count,
@@ -96,7 +96,7 @@ namespace Orang.FileSystem
 
             ListCache<Capture>.Free(captures);
 
-            return replaceItems;
+            return (replaceItems, maxReason);
         }
 
         public static string GetNewName(FileMatch fileMatch, List<ReplaceItem> replaceItems)

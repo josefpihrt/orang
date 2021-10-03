@@ -7,7 +7,7 @@ namespace Orang.Spelling
 {
     public class Spellchecker
     {
-        private static readonly Regex _simpleSplitRegex = new Regex(@"(\s|,|\.|:|;|"")+", RegexOptions.ExplicitCapture);
+        private static readonly Regex _delimiterRegex = new Regex(@"(\s|,|\.|:|;|!|\?|"")+", RegexOptions.ExplicitCapture);
 
         private static readonly Regex _wordRegex = new Regex(
             @"
@@ -100,7 +100,7 @@ namespace Orang.Spelling
             int index = startIndex;
 
             for (
-                Match match = _simpleSplitRegex.Match(value, startIndex, length);
+                Match match = _delimiterRegex.Match(value, startIndex, length);
                 match.Success;
                 match = match.NextMatch())
             {
@@ -132,6 +132,7 @@ namespace Orang.Spelling
             if (nextMatch.Success
                 || match.Index > startIndex)
             {
+                // exclude non-standard words like v[isual-]b[asic]
                 if (Data.Contains(value.Substring(startIndex, length)))
                     return;
             }

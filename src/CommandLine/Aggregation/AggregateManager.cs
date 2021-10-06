@@ -139,14 +139,14 @@ namespace Orang.Aggregation
                     }
                 }
 
-                values = valuesMap
-                    .Select(f => f.Key)
-                    .Modify(ModifyOptions, filter: ModifyFunctions.None);
+                values = valuesMap.Select(f => f.Key);
             }
-            else
-            {
-                values = values.Modify(ModifyOptions, filter: ModifyFunctions.SortAscending | ModifyFunctions.SortDescending);
-            }
+
+            ModifyFunctions filter = (ModifyOptions.SortProperty == ValueSortProperty.Count)
+                ? ModifyFunctions.None
+                : ModifyFunctions.Sort;
+
+            values = values.Modify(ModifyOptions, filter: filter);
 
             using (IEnumerator<string> en = values.GetEnumerator())
             {

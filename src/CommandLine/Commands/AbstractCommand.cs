@@ -17,47 +17,28 @@ namespace Orang.CommandLine
 
         protected abstract CommandResult ExecuteCore(CancellationToken cancellationToken = default);
 
-        public CommandResult Execute()
+        public CommandResult Execute(CancellationToken cancellationToken = default)
         {
-            CancellationTokenSource? cts = null;
-
             try
             {
-                cts = new CancellationTokenSource();
-
-                Console.CancelKeyPress += (sender, e) =>
-                {
-                    e.Cancel = true;
-                    cts.Cancel();
-                };
-
-                CancellationToken cancellationToken = cts.Token;
-
-                try
-                {
-                    return ExecuteCore(cancellationToken);
-                }
-                catch (OperationCanceledException ex)
-                {
-                    OperationCanceled(ex);
-                }
-                catch (AggregateException ex)
-                {
-                    OperationCanceledException? operationCanceledException = ex.GetOperationCanceledException();
-
-                    if (operationCanceledException != null)
-                    {
-                        OperationCanceled(operationCanceledException);
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                return ExecuteCore(cancellationToken);
             }
-            finally
+            catch (OperationCanceledException ex)
             {
-                cts?.Dispose();
+                OperationCanceled(ex);
+            }
+            catch (AggregateException ex)
+            {
+                OperationCanceledException? operationCanceledException = ex.GetOperationCanceledException();
+
+                if (operationCanceledException != null)
+                {
+                    OperationCanceled(operationCanceledException);
+                }
+                else
+                {
+                    throw;
+                }
             }
 
             return CommandResult.Canceled;

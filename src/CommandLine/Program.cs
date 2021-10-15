@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using CommandLine;
 using CommandLine.Text;
 using Orang.CommandLine.Annotations;
@@ -405,19 +406,38 @@ namespace Orang.CommandLine
                 WriteLine("--- END OF APP PARAMETERS ---", Verbosity.Diagnostic);
             }
 #endif
-            CommandResult result = command.Execute();
+            CancellationTokenSource? cts = null;
 
-            switch (result)
+            try
             {
-                case CommandResult.Success:
-                    return ExitCodes.Match;
-                case CommandResult.NoMatch:
-                    return ExitCodes.NoMatch;
-                case CommandResult.Fail:
-                case CommandResult.Canceled:
-                    return ExitCodes.Error;
-                default:
-                    throw new InvalidOperationException($"Unknown enum value '{result}'.");
+                cts = new CancellationTokenSource();
+
+                Console.CancelKeyPress += (sender, e) =>
+                {
+                    e.Cancel = true;
+                    cts.Cancel();
+                };
+
+                CancellationToken cancellationToken = cts.Token;
+
+                CommandResult result = command.Execute(cancellationToken);
+
+                switch (result)
+                {
+                    case CommandResult.Success:
+                        return ExitCodes.Match;
+                    case CommandResult.NoMatch:
+                        return ExitCodes.NoMatch;
+                    case CommandResult.Fail:
+                    case CommandResult.Canceled:
+                        return ExitCodes.Error;
+                    default:
+                        throw new InvalidOperationException($"Unknown enum value '{result}'.");
+                }
+            }
+            finally
+            {
+                cts?.Dispose();
             }
         }
 

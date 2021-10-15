@@ -10,12 +10,14 @@ namespace Orang.CommandLine
             string? contentIndent = null,
             string? contentSeparator = null,
             string? dateFormat = null,
-            string? sizeFormat = null)
+            string? sizeFormat = null,
+            int progressCount = 100)
         {
             ContentIndent = contentIndent ?? "";
             ContentSeparator = contentSeparator;
             DateFormat = dateFormat ?? "yyyy-MM-dd HH:mm:ss";
             SizeFormat = sizeFormat ?? "n0";
+            ProgressCount = progressCount;
         }
 
         public string ContentIndent { get; }
@@ -25,5 +27,7 @@ namespace Orang.CommandLine
         public string DateFormat { get; }
 
         public string SizeFormat { get; }
+
+        public int ProgressCount { get; }
     }
 }

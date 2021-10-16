@@ -16,9 +16,9 @@ namespace Orang.CommandLine
 
         public bool Online { get; internal set; }
 
-        protected override void WriteDiagnosticCore()
+        protected override void WriteDiagnosticCore(DiagnosticWriter writer)
         {
-            DiagnosticWriter.WriteHelpCommand(this);
+            writer.WriteHelpCommand(this);
         }
     }
 }

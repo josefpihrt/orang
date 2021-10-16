@@ -1,18 +1,19 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.IO;
 
 namespace Orang
 {
-    internal sealed class ConsoleWriter : TextWriterWithVerbosity
+    internal sealed class ConsoleWriter : LogWriter
     {
-        public static ConsoleWriter Instance { get; } = new ConsoleWriter();
+        public static ConsoleWriter Instance { get; } = new ConsoleWriter(Console.Out, Console.Out.FormatProvider);
 
-        private ConsoleWriter() : base(Console.Out, Console.Out.FormatProvider)
+        private ConsoleWriter(TextWriter writer, IFormatProvider formatProvider) : base(writer, formatProvider)
         {
         }
 
-        public ConsoleColors Colors
+        internal ConsoleColors Colors
         {
             get { return new ConsoleColors(Console.ForegroundColor, Console.BackgroundColor); }
             set
@@ -25,7 +26,30 @@ namespace Orang
             }
         }
 
-        public void Write(char value, int repeatCount, in ConsoleColors colors)
+        public override TextWriter ErrorWriter => Console.Error;
+
+        public override void Write(char value, ConsoleColors colors)
+        {
+            if (!colors.IsDefault)
+            {
+                ConsoleColors tmp = Colors;
+                Colors = colors;
+                Write(value);
+                Colors = tmp;
+            }
+            else
+            {
+                Write(value);
+            }
+        }
+
+        public override void Write(char value, ConsoleColors colors, Verbosity verbosity)
+        {
+            if (ShouldWrite(verbosity))
+                Write(value, colors);
+        }
+
+        public override void Write(char value, int repeatCount, ConsoleColors colors)
         {
             if (!colors.IsDefault)
             {
@@ -40,13 +64,13 @@ namespace Orang
             }
         }
 
-        public void Write(char value, int repeatCount, in ConsoleColors colors, Verbosity verbosity)
+        public override void Write(char value, int repeatCount, ConsoleColors colors, Verbosity verbosity)
         {
-            if (verbosity <= Verbosity)
+            if (ShouldWrite(verbosity))
                 Write(value, repeatCount, colors);
         }
 
-        public void Write(string? value, in ConsoleColors colors)
+        public override void Write(string? value, ConsoleColors colors)
         {
             if (!colors.IsDefault)
             {
@@ -61,13 +85,13 @@ namespace Orang
             }
         }
 
-        public void Write(string? value, in ConsoleColors colors, Verbosity verbosity)
+        public override void Write(string? value, ConsoleColors colors, Verbosity verbosity)
         {
-            if (verbosity <= Verbosity)
+            if (ShouldWrite(verbosity))
                 Write(value, colors);
         }
 
-        public void Write(ReadOnlySpan<char> buffer, in ConsoleColors colors)
+        public override void Write(ReadOnlySpan<char> buffer, ConsoleColors colors)
         {
             if (!colors.IsDefault)
             {
@@ -82,31 +106,13 @@ namespace Orang
             }
         }
 
-        public void Write(ReadOnlySpan<char> buffer, in ConsoleColors colors, Verbosity verbosity)
+        public override void Write(ReadOnlySpan<char> buffer, ConsoleColors colors, Verbosity verbosity)
         {
-            if (verbosity <= Verbosity)
+            if (ShouldWrite(verbosity))
                 Write(buffer, colors);
         }
 
-        public void Write(string? value, int startIndex, int length, in ConsoleColors colors, Verbosity verbosity)
-        {
-            if (verbosity <= Verbosity)
-                Write(value.AsSpan(startIndex, length), colors);
-        }
-
-        public void WriteIf(bool condition, string? value, in ConsoleColors colors)
-        {
-            if (condition)
-                Write(value, colors);
-        }
-
-        public void WriteIf(bool condition, string? value, in ConsoleColors colors, Verbosity verbosity)
-        {
-            if (condition && verbosity <= Verbosity)
-                Write(value, colors);
-        }
-
-        public void WriteLine(string? value, in ConsoleColors colors)
+        public override void WriteLine(string? value, ConsoleColors colors)
         {
             if (!colors.IsDefault)
             {
@@ -122,13 +128,13 @@ namespace Orang
             }
         }
 
-        public void WriteLine(string? value, in ConsoleColors colors, Verbosity verbosity)
+        public override void WriteLine(string? value, ConsoleColors colors, Verbosity verbosity)
         {
-            if (verbosity <= Verbosity)
+            if (ShouldWrite(verbosity))
                 WriteLine(value, colors);
         }
 
-        public void WriteLine(ReadOnlySpan<char> buffer, in ConsoleColors colors)
+        public override void WriteLine(ReadOnlySpan<char> buffer, ConsoleColors colors)
         {
             if (!colors.IsDefault)
             {
@@ -144,21 +150,9 @@ namespace Orang
             }
         }
 
-        public void WriteLine(ReadOnlySpan<char> buffer, in ConsoleColors colors, Verbosity verbosity)
+        public override void WriteLine(ReadOnlySpan<char> buffer, ConsoleColors colors, Verbosity verbosity)
         {
-            if (verbosity <= Verbosity)
-                WriteLine(buffer, colors);
-        }
-
-        public void WriteLineIf(bool condition, string? value, in ConsoleColors colors)
-        {
-            if (condition)
-                WriteLine(value, colors);
-        }
-
-        public void WriteLineIf(bool condition, ReadOnlySpan<char> buffer, in ConsoleColors colors)
-        {
-            if (condition)
+            if (ShouldWrite(verbosity))
                 WriteLine(buffer, colors);
         }
 

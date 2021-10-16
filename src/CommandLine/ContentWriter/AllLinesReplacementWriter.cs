@@ -15,9 +15,10 @@ namespace Orang.CommandLine
         public AllLinesReplacementWriter(
             string input,
             IReplacer replacer,
+            ContentTextWriter writer,
             ContentWriterOptions options,
             TextWriter? textWriter = null,
-            SpellcheckState? spellcheckState = null) : base(input, options)
+            SpellcheckState? spellcheckState = null) : base(input, writer, options)
         {
             Replacer = replacer;
             _textWriter = textWriter;

@@ -18,9 +18,9 @@ namespace Orang.CommandLine
 
         public bool SaveAggregatedValues { get; internal set; }
 
-        protected override void WriteDiagnosticCore()
+        protected override void WriteDiagnosticCore(DiagnosticWriter writer)
         {
-            DiagnosticWriter.WriteFindCommand(this);
+            writer.WriteFindCommand(this);
         }
     }
 }

@@ -7,7 +7,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
@@ -18,9 +17,9 @@ namespace Orang.CommandLine
             if (Console.IsInputRedirected)
                 return;
 
-            ConsoleOut.Write(message ?? "Press any key to continue...");
+            Console.Write(message ?? "Press any key to continue...");
             Console.ReadKey();
-            ConsoleOut.WriteLine();
+            Console.WriteLine();
         }
 
         public static string? ReadRedirectedInput()
@@ -103,9 +102,9 @@ namespace Orang.CommandLine
         {
             while (true)
             {
-                ConsoleOut.Write(indent);
-                ConsoleOut.Write(question);
-                ConsoleOut.Write(suffix);
+                Console.Write(indent);
+                Console.Write(question);
+                Console.Write(suffix);
 
                 string? s = null;
                 var isCanceled = false;
@@ -132,7 +131,7 @@ namespace Orang.CommandLine
                 if (throwOnCancel
                     && isCanceled)
                 {
-                    ConsoleOut.WriteLine();
+                    Console.WriteLine();
                     throw new OperationCanceledException();
                 }
 
@@ -154,12 +153,12 @@ namespace Orang.CommandLine
                 }
                 else
                 {
-                    ConsoleOut.WriteLine();
+                    Console.WriteLine();
                     return DialogResult.None;
                 }
 
-                ConsoleOut.Write(indent);
-                ConsoleOut.WriteLine($"Value '{s}' is invalid. Allowed values are: {helpText}");
+                Console.Write(indent);
+                Console.WriteLine($"Value '{s}' is invalid. Allowed values are: {helpText}");
             }
         }
 

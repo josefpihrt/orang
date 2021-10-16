@@ -5,18 +5,18 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using Orang.FileSystem;
-using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
     internal abstract class CommonCopyCommand<TOptions> :
         CommonFindCommand<TOptions> where TOptions : CommonCopyCommandOptions
     {
-        protected CommonCopyCommand(TOptions options) : base(options)
+        protected CommonCopyCommand(TOptions options, Logger logger) : base(options, logger)
         {
-            if (ShouldLog(Verbosity.Minimal))
+            if (_logger.ShouldWrite(Verbosity.Minimal))
             {
                 PathWriter = new PathWriter(
+                    _logger,
                     pathColors: default,
                     relativePath: Options.DisplayRelativePath);
             }
@@ -56,7 +56,7 @@ namespace Orang.CommandLine
         {
             if (FileSystemHelpers.IsSubdirectory(Target, directoryPath))
             {
-                WriteWarning("Source directory cannot be subdirectory of a destination directory.");
+                _logger.WriteWarning("Source directory cannot be subdirectory of a destination directory.");
                 return;
             }
 
@@ -173,7 +173,7 @@ namespace Orang.CommandLine
             {
                 PathWriter?.WritePath(destinationPath, Target, indent);
 
-                WriteLine(Verbosity.Minimal);
+                _logger.WriteLine(Verbosity.Minimal);
             }
 
             if (ask
@@ -376,7 +376,7 @@ namespace Orang.CommandLine
             string path,
             string indent)
         {
-            LogHelpers.WriteFileError(ex, path, indent: indent);
+            _logger.WriteFileError(ex, path, indent: indent);
         }
     }
 }

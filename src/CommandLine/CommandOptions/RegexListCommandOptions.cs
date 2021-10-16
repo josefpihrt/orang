@@ -22,9 +22,9 @@ namespace Orang.CommandLine
 
         public ImmutableArray<SyntaxSection> Sections { get; internal set; }
 
-        protected override void WriteDiagnosticCore()
+        protected override void WriteDiagnosticCore(DiagnosticWriter writer)
         {
-            DiagnosticWriter.WriteRegexListCommand(this);
+            writer.WriteRegexListCommand(this);
         }
     }
 }

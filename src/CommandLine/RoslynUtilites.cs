@@ -10,7 +10,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
@@ -114,6 +113,7 @@ namespace Orang.CommandLine
         }
 
         private static void WriteDiagnostic(
+            this Logger logger,
             Diagnostic diagnostic,
             IFormatProvider? formatProvider = null,
             string? indentation = null,
@@ -121,17 +121,18 @@ namespace Orang.CommandLine
         {
             string text = FormatDiagnostic(diagnostic, formatProvider);
 
-            Write(indentation, verbosity);
-            WriteLine(text, GetColors(diagnostic.Severity), verbosity);
+            logger.Write(indentation, verbosity);
+            logger.WriteLine(text, GetColors(diagnostic.Severity), verbosity);
         }
 
         public static void WriteDiagnostic(
+            this Logger logger,
             Diagnostic diagnostic,
             SourceText sourceText,
             string indentation,
             Verbosity verbosity)
         {
-            WriteDiagnostic(diagnostic, default(IFormatProvider), indentation, verbosity);
+            WriteDiagnostic(logger, diagnostic, default(IFormatProvider), indentation, verbosity);
 
             const int codeContext = 1;
             TextSpan span = diagnostic.Location.SourceSpan;
@@ -150,26 +151,26 @@ namespace Orang.CommandLine
             int index = span.Start - line.Span.Start;
             string text = line.ToString();
 
-            Write(indentation, verbosity);
+            logger.Write(indentation, verbosity);
             WriteLineNumber(verbosity, lineIndex, maxLineNumberLength);
-            Write(text.Substring(0, index), verbosity);
-            Write(text.Substring(index, span.Length), new ConsoleColors(ConsoleColor.Red), verbosity);
-            WriteLine(text.Substring(index + span.Length), verbosity);
+            logger.Write(text.Substring(0, index), verbosity);
+            logger.Write(text.Substring(index, span.Length), new ConsoleColors(ConsoleColor.Red), verbosity);
+            logger.WriteLine(text.Substring(index + span.Length), verbosity);
 
             for (int i = lineIndex + 1; i <= endLineIndex; i++)
                 WriteTextLine(i);
 
             void WriteTextLine(int i)
             {
-                Write(indentation, verbosity);
+                logger.Write(indentation, verbosity);
                 WriteLineNumber(verbosity, i, maxLineNumberLength);
-                Write(" ", verbosity);
-                WriteLine(lines[i].ToString(), new ConsoleColors(ConsoleColor.DarkGray), verbosity);
+                logger.Write(" ", verbosity);
+                logger.WriteLine(lines[i].ToString(), new ConsoleColors(ConsoleColor.DarkGray), verbosity);
             }
 
-            static void WriteLineNumber(Verbosity verbosity, int lineIndex, int maxLength)
+            void WriteLineNumber(Verbosity verbosity, int lineIndex, int maxLength)
             {
-                Write((lineIndex + 1).ToString().PadLeft(maxLength), Colors.LineNumber, verbosity);
+                logger.Write((lineIndex + 1).ToString().PadLeft(maxLength), Colors.LineNumber, verbosity);
             }
         }
 

@@ -13,22 +13,29 @@ using Orang.FileSystem;
 
 namespace Orang.CommandLine
 {
-    internal static class DiagnosticWriter
+    internal class DiagnosticWriter
     {
-        public static Verbosity Verbosity { get; } = Verbosity.Diagnostic;
+        private readonly Logger _logger;
 
-        private static ConsoleColors ValueColors { get; } = new ConsoleColors(ConsoleColor.Cyan);
+        public DiagnosticWriter(Logger logger)
+        {
+            _logger = logger;
+            ValueWriter = new ValueWriter(new ContentTextWriter(_logger, Verbosity.Diagnostic), includeEndingIndent: false);
+        }
 
-        private static ConsoleColors NullValueColors { get; } = new ConsoleColors(ConsoleColor.DarkGray);
+        public Verbosity Verbosity { get; } = Verbosity.Diagnostic;
 
-        private static ValueWriter ValueWriter { get; }
-            = new ValueWriter(new ContentTextWriter(Verbosity.Diagnostic), includeEndingIndent: false);
+        private ConsoleColors ValueColors { get; } = new ConsoleColors(ConsoleColor.Cyan);
 
-        private static OutputSymbols Symbols_Character { get; } = OutputSymbols.Create(HighlightOptions.Character);
+        private ConsoleColors NullValueColors { get; } = new ConsoleColors(ConsoleColor.DarkGray);
 
-        private static OutputSymbols Symbols_Newline { get; } = OutputSymbols.Create(HighlightOptions.Newline);
+        private ValueWriter ValueWriter { get; }
 
-        internal static void WriteParameters(AbstractCommandLineOptions commandLineOptions)
+        private OutputSymbols Symbols_Character { get; } = OutputSymbols.Create(HighlightOptions.Character);
+
+        private OutputSymbols Symbols_Newline { get; } = OutputSymbols.Create(HighlightOptions.Newline);
+
+        internal void WriteParameters(AbstractCommandLineOptions commandLineOptions)
         {
             Type type = commandLineOptions.GetType();
 
@@ -65,7 +72,7 @@ namespace Orang.CommandLine
                 WriteParameterValue(name, value);
         }
 
-        private static void WriteParameterValue(string name, object? value)
+        private void WriteParameterValue(string name, object? value)
         {
             WriteName(name);
 
@@ -116,7 +123,7 @@ namespace Orang.CommandLine
 
                             if (en.MoveNext())
                             {
-                                Logger.Write(", ", Verbosity);
+                                _logger.Write(", ", Verbosity);
                             }
                             else
                             {
@@ -138,7 +145,7 @@ namespace Orang.CommandLine
             WriteLine();
         }
 
-        internal static void WriteCopyCommand(CopyCommandOptions options)
+        internal void WriteCopyCommand(CopyCommandOptions options)
         {
             WriteOption("align columns", options.AlignColumns);
 #if DEBUG
@@ -189,7 +196,7 @@ namespace Orang.CommandLine
             WriteOption("target", options.Target);
         }
 
-        internal static void WriteDeleteCommand(DeleteCommandOptions options)
+        internal void WriteDeleteCommand(DeleteCommandOptions options)
         {
             WriteOption("align columns", options.AlignColumns);
             WriteOption("ask", options.AskMode == AskMode.File);
@@ -233,7 +240,7 @@ namespace Orang.CommandLine
             WriteOption("summary", options.Format.Includes(DisplayParts.Summary));
         }
 
-        internal static void WriteFindCommand(FindCommandOptions options)
+        internal void WriteFindCommand(FindCommandOptions options)
         {
             WriteOption("align columns", options.AlignColumns);
             WriteOption("ask", options.AskMode);
@@ -276,14 +283,14 @@ namespace Orang.CommandLine
             WriteOption("summary", options.Format.Includes(DisplayParts.Summary));
         }
 
-        internal static void WriteHelpCommand(HelpCommandOptions options)
+        internal void WriteHelpCommand(HelpCommandOptions options)
         {
             WriteOption("command", string.Join(' ', options.Command));
             WriteOption("manual", options.Manual);
             WriteFilter("filter", options.Filter);
         }
 
-        internal static void WriteMoveCommand(MoveCommandOptions options)
+        internal void WriteMoveCommand(MoveCommandOptions options)
         {
             WriteOption("align columns", options.AlignColumns);
 #if DEBUG
@@ -334,14 +341,14 @@ namespace Orang.CommandLine
             WriteOption("target", options.Target);
         }
 
-        internal static void WriteRegexEscapeCommand(RegexEscapeCommandOptions options)
+        internal void WriteRegexEscapeCommand(RegexEscapeCommandOptions options)
         {
             WriteOption("char group", options.InCharGroup);
             WriteInput(options.Input);
             WriteOption("replacement", options.Replacement);
         }
 
-        internal static void WriteRegexMatchCommand(RegexMatchCommandOptions options)
+        internal void WriteRegexMatchCommand(RegexMatchCommandOptions options)
         {
 #if DEBUG
             WriteOption("content indent", options.Format.Indent);
@@ -357,7 +364,7 @@ namespace Orang.CommandLine
             WriteOption("summary", options.Format.Includes(DisplayParts.Summary));
         }
 
-        internal static void WriteRegexListCommand(RegexListCommandOptions options)
+        internal void WriteRegexListCommand(RegexListCommandOptions options)
         {
             WriteOption("char", options.Value);
             WriteOption("char group", options.InCharGroup);
@@ -366,7 +373,7 @@ namespace Orang.CommandLine
             WriteOption("sections", options.Sections);
         }
 
-        internal static void WriteRegexSplitCommand(RegexSplitCommandOptions options)
+        internal void WriteRegexSplitCommand(RegexSplitCommandOptions options)
         {
 #if DEBUG
             WriteOption("content indent", options.Format.Indent);
@@ -383,7 +390,7 @@ namespace Orang.CommandLine
             WriteOption("summary", options.Format.Includes(DisplayParts.Summary));
         }
 
-        internal static void WriteRenameCommand(RenameCommandOptions options)
+        internal void WriteRenameCommand(RenameCommandOptions options)
         {
             WriteOption("align columns", options.AlignColumns);
             WriteOption("ask", options.AskMode == AskMode.File);
@@ -428,7 +435,7 @@ namespace Orang.CommandLine
             WriteOption("summary", options.Format.Includes(DisplayParts.Summary));
         }
 
-        internal static void WriteReplaceCommand(ReplaceCommandOptions options)
+        internal void WriteReplaceCommand(ReplaceCommandOptions options)
         {
             var replaceOptions = (ReplaceOptions)options.Replacer;
 
@@ -476,7 +483,7 @@ namespace Orang.CommandLine
             WriteOption("summary", options.Format.Includes(DisplayParts.Summary));
         }
 
-        internal static void WriteSpellcheckCommand(SpellcheckCommandOptions options)
+        internal void WriteSpellcheckCommand(SpellcheckCommandOptions options)
         {
             var spellcheckState = (SpellcheckState)options.Replacer;
 
@@ -529,7 +536,7 @@ namespace Orang.CommandLine
             WriteOption("words", spellcheckState.Data.Words.Values.Count + spellcheckState.Data.CaseSensitiveWords.Values.Count);
         }
 
-        internal static void WriteSyncCommand(SyncCommandOptions options)
+        internal void WriteSyncCommand(SyncCommandOptions options)
         {
             WriteOption("align columns", options.AlignColumns);
 #if DEBUG
@@ -581,7 +588,7 @@ namespace Orang.CommandLine
             WriteOption("summary", options.Format.Includes(DisplayParts.Summary));
         }
 
-        private static void WriteInput(string? value)
+        private void WriteInput(string? value)
         {
             WriteName("input");
 
@@ -597,26 +604,26 @@ namespace Orang.CommandLine
             WriteValue(value);
 
             if (remainingLength > 0)
-                Logger.Write($"<truncated> {remainingLength:n0} remaining characters", NullValueColors);
+                _logger.Write($"<truncated> {remainingLength:n0} remaining characters", NullValueColors);
 
             WriteLine();
         }
 
-        private static void WriteOption(string name, int value)
+        private void WriteOption(string name, int value)
         {
             WriteName(name);
             WriteValue(value.ToString());
             WriteLine();
         }
 
-        private static void WriteOption(string name, bool value)
+        private void WriteOption(string name, bool value)
         {
             WriteName(name);
             WriteValue(value);
             WriteLine();
         }
 
-        private static void WriteOption(string name, char? value)
+        private void WriteOption(string name, char? value)
         {
             WriteName(name);
 
@@ -632,21 +639,21 @@ namespace Orang.CommandLine
             WriteLine();
         }
 
-        private static void WriteOption(string name, string? value, bool replaceAllSymbols = false)
+        private void WriteOption(string name, string? value, bool replaceAllSymbols = false)
         {
             WriteName(name);
             WriteValue(value, replaceAllSymbols: replaceAllSymbols);
             WriteLine();
         }
 
-        private static void WriteOption<TEnum>(string name, TEnum value) where TEnum : Enum
+        private void WriteOption<TEnum>(string name, TEnum value) where TEnum : Enum
         {
             WriteName(name);
             WriteValue(value.ToString());
             WriteLine();
         }
 
-        private static void WriteOption<TEnum>(string name, ImmutableArray<TEnum> values) where TEnum : Enum
+        private void WriteOption<TEnum>(string name, ImmutableArray<TEnum> values) where TEnum : Enum
         {
             WriteName(name);
 
@@ -662,21 +669,21 @@ namespace Orang.CommandLine
             WriteLine();
         }
 
-        private static void WriteOption(string name, TimeSpan value)
+        private void WriteOption(string name, TimeSpan value)
         {
             WriteName(name);
             WriteValue(value.ToString());
             WriteLine();
         }
 
-        private static void WriteEncoding(string name, Encoding encoding)
+        private void WriteEncoding(string name, Encoding encoding)
         {
             WriteName(name);
             WriteValue(encoding.EncodingName);
             WriteLine();
         }
 
-        private static void WriteFilter(string name, Filter? filter, FileNamePart? part = null)
+        private void WriteFilter(string name, Filter? filter, FileNamePart? part = null)
         {
             WriteName(name);
 
@@ -716,7 +723,7 @@ namespace Orang.CommandLine
             }
         }
 
-        private static void WriteRegex(string name, Regex? regex)
+        private void WriteRegex(string name, Regex? regex)
         {
             WriteName(name);
 
@@ -730,7 +737,7 @@ namespace Orang.CommandLine
             WriteRegex(regex);
         }
 
-        private static void WriteRegex(Regex regex)
+        private void WriteRegex(Regex regex)
         {
             WriteLine();
             WriteIndent();
@@ -743,7 +750,7 @@ namespace Orang.CommandLine
             WriteLine(regex.Options.ToString());
         }
 
-        private static void WriteFilePropertyFilter(
+        private void WriteFilePropertyFilter(
             string name,
             FilterPredicate<long>? sizePredicate,
             FilterPredicate<DateTime>? creationTimePredicate,
@@ -768,7 +775,7 @@ namespace Orang.CommandLine
             }
         }
 
-        private static void WriteFilterPredicate<T>(string name, FilterPredicate<T>? filterPredicate)
+        private void WriteFilterPredicate<T>(string name, FilterPredicate<T>? filterPredicate)
         {
             if (filterPredicate == null)
                 return;
@@ -781,7 +788,7 @@ namespace Orang.CommandLine
             WriteLine();
         }
 
-        private static void WriteContext(string name, LineContext lineContext)
+        private void WriteContext(string name, LineContext lineContext)
         {
             if (lineContext.Before == lineContext.After)
             {
@@ -798,7 +805,7 @@ namespace Orang.CommandLine
             }
         }
 
-        private static void WriteProperties(FileSystemCommandOptions options)
+        private void WriteProperties(FileSystemCommandOptions options)
         {
             WriteName("properties");
 
@@ -831,7 +838,7 @@ namespace Orang.CommandLine
             WriteOption("size condition", options.SizePredicate?.Expression.Text);
         }
 
-        private static void WriteSortOptions(string name, SortOptions? options)
+        private void WriteSortOptions(string name, SortOptions? options)
         {
             WriteName(name);
 
@@ -858,7 +865,7 @@ namespace Orang.CommandLine
             }
         }
 
-        private static void WritePaths(string name, ImmutableArray<PathInfo> paths)
+        private void WritePaths(string name, ImmutableArray<PathInfo> paths)
         {
             WriteName(name);
 
@@ -872,7 +879,7 @@ namespace Orang.CommandLine
             }
         }
 
-        private static void WriteEvaluator(string name, MatchEvaluator? matchEvaluator)
+        private void WriteEvaluator(string name, MatchEvaluator? matchEvaluator)
         {
             WriteName(name);
 
@@ -892,7 +899,7 @@ namespace Orang.CommandLine
             }
         }
 
-        private static void WriteReplaceModify(string name, ReplaceOptions options)
+        private void WriteReplaceModify(string name, ReplaceOptions options)
         {
             WriteName(name);
 
@@ -919,7 +926,7 @@ namespace Orang.CommandLine
             WriteLine();
         }
 
-        private static void WriteModify(string name, ModifyOptions options)
+        private void WriteModify(string name, ModifyOptions options)
         {
             WriteName(name);
 
@@ -982,13 +989,13 @@ namespace Orang.CommandLine
             WriteLine();
         }
 
-        private static void WriteValue(bool value)
+        private void WriteValue(bool value)
         {
             WriteIndent();
             Write((value) ? "true" : "false");
         }
 
-        private static void WriteValue(string? value, bool replaceAllSymbols = false)
+        private void WriteValue(string? value, bool replaceAllSymbols = false)
         {
             if (value == null)
             {
@@ -1009,36 +1016,36 @@ namespace Orang.CommandLine
             }
         }
 
-        private static void WriteIndent()
+        private void WriteIndent()
         {
             Write("  ");
         }
 
-        private static void WriteName(string name)
+        private void WriteName(string name)
         {
-            Logger.Write(name, Verbosity);
-            Logger.Write(":", Verbosity);
+            _logger.Write(name, Verbosity);
+            _logger.Write(":", Verbosity);
         }
 
-        private static void WriteNullValue()
+        private void WriteNullValue()
         {
             WriteIndent();
-            Logger.Write("<none>", NullValueColors, Verbosity);
+            _logger.Write("<none>", NullValueColors, Verbosity);
         }
 
-        private static void Write(string value)
+        private void Write(string value)
         {
-            Logger.Write(value, ValueColors, Verbosity);
+            _logger.Write(value, ValueColors, Verbosity);
         }
 
-        private static void WriteLine()
+        private void WriteLine()
         {
-            Logger.WriteLine(Verbosity);
+            _logger.WriteLine(Verbosity);
         }
 
-        private static void WriteLine(string? value)
+        private void WriteLine(string? value)
         {
-            Logger.WriteLine(value, ValueColors, Verbosity);
+            _logger.WriteLine(value, ValueColors, Verbosity);
         }
     }
 }

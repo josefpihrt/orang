@@ -37,9 +37,9 @@ namespace Orang.CommandLine
             HelpText = "Launch online help in a default browser.")]
         public bool Online { get; set; }
 
-        public bool TryParse(HelpCommandOptions options)
+        public bool TryParse(HelpCommandOptions options, ParseContext context)
         {
-            if (!FilterParser.TryParse(
+            if (!context.TryParseFilter(
                 Filter,
                 OptionNames.Filter,
                 OptionValueProviders.PatternOptions_List_Provider,

@@ -10,13 +10,12 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using Microsoft.CodeAnalysis.Text;
 using Orang.Spelling;
-using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
     internal sealed class SpellcheckCommand : CommonReplaceCommand<SpellcheckCommandOptions>
     {
-        public SpellcheckCommand(SpellcheckCommandOptions options) : base(options)
+        public SpellcheckCommand(SpellcheckCommandOptions options, Logger logger) : base(options, logger)
         {
             SpellcheckState = (SpellcheckState)options.Replacer;
         }
@@ -139,15 +138,15 @@ namespace Orang.CommandLine
 
         protected override void WriteBeforeSummary()
         {
-            if (!ShouldLog(Verbosity.Normal))
+            if (!_logger.ShouldWrite(Verbosity.Normal))
                 return;
 
             var isFirst = true;
-            bool isDetailed = ShouldLog(Verbosity.Detailed);
+            bool isDetailed = _logger.ShouldWrite(Verbosity.Detailed);
             StringComparer comparer = StringComparer.InvariantCulture;
             string contentIndent = (Options.OmitContent) ? "" : ((Options.OmitPath) ? "  " : "    ");
 
-            if (ShouldLog(Verbosity.Normal))
+            if (_logger.ShouldWrite(Verbosity.Normal))
             {
                 foreach (IGrouping<string, SpellingFixResult> grouping in SpellcheckState.Results
                     .Where(f => !f.HasFix && f.ContainingValue != null)
@@ -156,12 +155,12 @@ namespace Orang.CommandLine
                 {
                     if (isFirst)
                     {
-                        WriteLine(Verbosity.Normal);
-                        WriteLine("Words containing unknown words:", Verbosity.Normal);
+                        _logger.WriteLine(Verbosity.Normal);
+                        _logger.WriteLine("Words containing unknown words:", Verbosity.Normal);
                         isFirst = false;
                     }
 
-                    WriteLine(grouping.Key, Verbosity.Normal);
+                    _logger.WriteLine(grouping.Key, Verbosity.Normal);
 
                     if (isDetailed)
                         WriteMatchingLines(grouping, comparer, contentIndent, Colors.Match, displayContainingValue: true);
@@ -177,12 +176,12 @@ namespace Orang.CommandLine
             {
                 if (isFirst)
                 {
-                    WriteLine(Verbosity.Normal);
-                    WriteLine("Unknown words:", Verbosity.Normal);
+                    _logger.WriteLine(Verbosity.Normal);
+                    _logger.WriteLine("Unknown words:", Verbosity.Normal);
                     isFirst = false;
                 }
 
-                Write(grouping.Key, Verbosity.Normal);
+                _logger.Write(grouping.Key, Verbosity.Normal);
 
                 if (SpellcheckState.Data.Fixes.TryGetValue(grouping.Key, out ImmutableHashSet<SpellingFix>? possibleFixes))
                 {
@@ -194,16 +193,16 @@ namespace Orang.CommandLine
 
                     if (fixes.Any())
                     {
-                        Write(": ", Colors.ContextLine, Verbosity.Normal);
+                        _logger.Write(": ", Colors.ContextLine, Verbosity.Normal);
 
-                        Write(
+                        _logger.Write(
                             string.Join(", ", fixes.Select(f => TextUtility.SetTextCasing(f.Value, TextUtility.GetTextCasing(grouping.Key)))),
                             Colors.Replacement,
                             Verbosity.Normal);
                     }
                 }
 
-                WriteLine(Verbosity.Normal);
+                _logger.WriteLine(Verbosity.Normal);
 
                 if (isDetailed)
                     WriteMatchingLines(grouping, comparer, contentIndent, Colors.Match);
@@ -230,12 +229,12 @@ namespace Orang.CommandLine
             {
                 if (isFirst)
                 {
-                    WriteLine(Verbosity.Normal);
-                    WriteLine(heading, Verbosity.Normal);
+                    _logger.WriteLine(Verbosity.Normal);
+                    _logger.WriteLine(heading, Verbosity.Normal);
                     isFirst = false;
                 }
 
-                WriteLine(grouping.Key, Verbosity.Normal);
+                _logger.WriteLine(grouping.Key, Verbosity.Normal);
 
                 if (isDetailed)
                     WriteMatchingLines(grouping, comparer, indent, Colors.Replacement);
@@ -255,20 +254,20 @@ namespace Orang.CommandLine
             {
                 if (!Options.OmitPath)
                 {
-                    Write("  ", Verbosity.Detailed);
-                    WriteLine(grouping2.Key, Colors.Matched_Path, Verbosity.Detailed);
+                    _logger.Write("  ", Verbosity.Detailed);
+                    _logger.WriteLine(grouping2.Key, Colors.Matched_Path, Verbosity.Detailed);
                 }
 
                 if (!Options.OmitContent)
                 {
                     foreach (SpellingFixResult result in grouping2.OrderBy(f => f.LineNumber))
                     {
-                        Write(indent, Verbosity.Detailed);
+                        _logger.Write(indent, Verbosity.Detailed);
 
                         if (result.LineNumber != null)
                         {
-                            Write(result.LineNumber.Value.ToString(), Colors.LineNumber, Verbosity.Detailed);
-                            Write(" ", Verbosity.Detailed);
+                            _logger.Write(result.LineNumber.Value.ToString(), Colors.LineNumber, Verbosity.Detailed);
+                            _logger.Write(" ", Verbosity.Detailed);
                         }
 
                         int lineStartIndex = result.LineStartIndex;
@@ -291,11 +290,11 @@ namespace Orang.CommandLine
                             endIndex = result.Index + result.Length;
                         }
 
-                        Write(result.Input.AsSpan(lineStartIndex, index - lineStartIndex), Verbosity.Detailed);
-                        Out?.Write(">>>", Verbosity.Detailed);
-                        Write(value, colors, Verbosity.Detailed);
-                        Out?.Write("<<<", Verbosity.Detailed);
-                        WriteLine(result.Input.AsSpan(endIndex, lineEndIndex - endIndex), Verbosity.Detailed);
+                        _logger.Write(result.Input.AsSpan(lineStartIndex, index - lineStartIndex), Verbosity.Detailed);
+                        _logger.Out?.Write(">>>", Verbosity.Detailed);
+                        _logger.Write(value, colors, Verbosity.Detailed);
+                        _logger.Out?.Write("<<<", Verbosity.Detailed);
+                        _logger.WriteLine(result.Input.AsSpan(endIndex, lineEndIndex - endIndex), Verbosity.Detailed);
                     }
                 }
             }

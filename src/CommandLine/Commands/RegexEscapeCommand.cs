@@ -2,13 +2,12 @@
 
 using System.Threading;
 using Orang.Text.RegularExpressions;
-using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
     internal class RegexEscapeCommand : AbstractCommand<RegexEscapeCommandOptions>
     {
-        public RegexEscapeCommand(RegexEscapeCommandOptions options) : base(options)
+        public RegexEscapeCommand(RegexEscapeCommandOptions options, Logger logger) : base(options, logger)
         {
         }
 
@@ -28,7 +27,7 @@ namespace Orang.CommandLine
 
             result = result.Replace("\"", "\\\"");
 
-            WriteLine(result);
+            _logger.WriteLine(result);
 
             return CommandResult.Success;
         }

@@ -1,19 +1,20 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 
 namespace Orang
 {
-    internal class TextWriterWithVerbosity : TextWriter
+    internal class LogWriter : TextWriter, ILogWriter
     {
-        public TextWriterWithVerbosity(TextWriter writer)
+        public LogWriter(TextWriter writer)
         {
             Writer = writer;
         }
 
-        public TextWriterWithVerbosity(TextWriter writer, IFormatProvider formatProvider) : base(formatProvider)
+        public LogWriter(TextWriter writer, IFormatProvider formatProvider) : base(formatProvider)
         {
             Writer = writer;
         }
@@ -22,7 +23,25 @@ namespace Orang
 
         public override Encoding Encoding => Writer.Encoding;
 
-        protected TextWriter Writer { get; }
+        public TextWriter Writer { get; }
+
+        public virtual TextWriter ErrorWriter => Writer;
+
+        public void Write(char value, Verbosity verbosity)
+        {
+            if (ShouldWrite(verbosity))
+                Write(value);
+        }
+
+        public virtual void Write(char value, ConsoleColors colors)
+        {
+            Write(value);
+        }
+
+        public virtual void Write(char value, ConsoleColors colors, Verbosity verbosity)
+        {
+            Write(value, verbosity);
+        }
 
         public void Write(char value, int repeatCount)
         {
@@ -32,26 +51,34 @@ namespace Orang
 
         public void Write(char value, int repeatCount, Verbosity verbosity)
         {
-            if (verbosity <= Verbosity)
+            if (ShouldWrite(verbosity))
                 Write(value, repeatCount);
         }
 
-        public void Write(char value, Verbosity verbosity)
+        public virtual void Write(char value, int repeatCount, ConsoleColors colors)
         {
-            if (verbosity <= Verbosity)
-                Write(value);
+            Write(value, repeatCount);
+        }
+
+        public virtual void Write(char value, int repeatCount, ConsoleColors colors, Verbosity verbosity)
+        {
+            Write(value, repeatCount, verbosity);
         }
 
         public void Write(string? value, Verbosity verbosity)
         {
-            if (verbosity <= Verbosity)
+            if (ShouldWrite(verbosity))
                 Write(value);
         }
 
-        public void Write(ReadOnlySpan<char> buffer, Verbosity verbosity)
+        public virtual void Write(string? value, ConsoleColors colors)
         {
-            if (verbosity <= Verbosity)
-                Write(buffer);
+            Write(value);
+        }
+
+        public virtual void Write(string? value, ConsoleColors colors, Verbosity verbosity)
+        {
+            Write(value, verbosity);
         }
 
         public void Write(string? value, int startIndex, int length)
@@ -61,74 +88,67 @@ namespace Orang
 
         public void Write(string? value, int startIndex, int length, Verbosity verbosity)
         {
-            if (verbosity <= Verbosity)
+            if (ShouldWrite(verbosity))
                 Write(value.AsSpan(startIndex, length));
         }
 
-        public void WriteIf(bool condition, string? value)
+        public void Write(ReadOnlySpan<char> buffer, Verbosity verbosity)
         {
-            if (condition)
-                Write(value);
-        }
-
-        public void WriteIf(bool condition, ReadOnlySpan<char> buffer)
-        {
-            if (condition)
+            if (ShouldWrite(verbosity))
                 Write(buffer);
         }
 
-        public void WriteIf(bool condition, string? value, Verbosity verbosity)
+        public virtual void Write(ReadOnlySpan<char> buffer, ConsoleColors colors)
         {
-            if (condition && verbosity <= Verbosity)
-                Write(value);
+            Write(buffer);
         }
 
-        public void WriteIf(bool condition, ReadOnlySpan<char> buffer, Verbosity verbosity)
+        public virtual void Write(ReadOnlySpan<char> buffer, ConsoleColors colors, Verbosity verbosity)
         {
-            if (condition && verbosity <= Verbosity)
-                Write(buffer);
+            Write(buffer, verbosity);
         }
 
         public void WriteLine(Verbosity verbosity)
         {
-            if (verbosity <= Verbosity)
+            if (ShouldWrite(verbosity))
                 WriteLine();
         }
 
         public void WriteLine(string? value, Verbosity verbosity)
         {
-            if (verbosity <= Verbosity)
+            if (ShouldWrite(verbosity))
                 WriteLine(value);
+        }
+
+        public virtual void WriteLine(string? value, ConsoleColors colors)
+        {
+            WriteLine(value);
+        }
+
+        public virtual void WriteLine(string? value, ConsoleColors colors, Verbosity verbosity)
+        {
+            WriteLine(value, verbosity);
         }
 
         public void WriteLine(ReadOnlySpan<char> buffer, Verbosity verbosity)
         {
-            if (verbosity <= Verbosity)
+            if (ShouldWrite(verbosity))
                 WriteLine(buffer);
         }
 
-        public void WriteLineIf(bool condition)
+        public virtual void WriteLine(ReadOnlySpan<char> buffer, ConsoleColors colors)
         {
-            if (condition)
-                WriteLine();
+            WriteLine(buffer);
         }
 
-        public void WriteLineIf(bool condition, Verbosity verbosity)
+        public virtual void WriteLine(ReadOnlySpan<char> buffer, ConsoleColors colors, Verbosity verbosity)
         {
-            if (condition && verbosity <= Verbosity)
-                WriteLine();
+            WriteLine(buffer, verbosity);
         }
 
-        public void WriteLineIf(bool condition, string? value)
+        public bool ShouldWrite(Verbosity verbosity)
         {
-            if (condition)
-                WriteLine(value);
-        }
-
-        public void WriteLineIf(bool condition, ReadOnlySpan<char> buffer)
-        {
-            if (condition)
-                WriteLine(buffer);
+            return Verbosity >= verbosity;
         }
 
         public override void Write(bool value)
@@ -191,31 +211,29 @@ namespace Orang
             Writer.Write(buffer);
         }
 
-#pragma warning disable CS0809
-        [Obsolete]
         public override void Write(string format, object? arg0)
         {
+            Debug.Fail("");
             Writer.Write(format, arg0);
         }
 
-        [Obsolete]
         public override void Write(string format, object? arg0, object? arg1)
         {
+            Debug.Fail("");
             Writer.Write(format, arg0, arg1);
         }
 
-        [Obsolete]
         public override void Write(string format, object? arg0, object? arg1, object? arg2)
         {
+            Debug.Fail("");
             Writer.Write(format, arg0, arg1, arg2);
         }
 
-        [Obsolete]
         public override void Write(string format, params object?[] arg)
         {
+            Debug.Fail("");
             Writer.Write(format, arg);
         }
-#pragma warning restore CS0809
 
         public override void Write(uint value)
         {
@@ -292,31 +310,29 @@ namespace Orang
             Writer.WriteLine(buffer);
         }
 
-#pragma warning disable CS0809
-        [Obsolete]
         public override void WriteLine(string format, object? arg0)
         {
+            Debug.Fail("");
             Writer.WriteLine(format, arg0);
         }
 
-        [Obsolete]
         public override void WriteLine(string format, object? arg0, object? arg1)
         {
+            Debug.Fail("");
             Writer.WriteLine(format, arg0, arg1);
         }
 
-        [Obsolete]
         public override void WriteLine(string format, object? arg0, object? arg1, object? arg2)
         {
+            Debug.Fail("");
             Writer.WriteLine(format, arg0, arg1, arg2);
         }
 
-        [Obsolete]
         public override void WriteLine(string format, params object?[] arg)
         {
+            Debug.Fail("");
             Writer.WriteLine(format, arg);
         }
-#pragma warning restore CS0809
 
         public override void WriteLine(uint value)
         {
@@ -326,11 +342,6 @@ namespace Orang
         public override void WriteLine(ulong value)
         {
             Writer.WriteLine(value);
-        }
-
-        public bool ShouldWrite(Verbosity verbosity)
-        {
-            return verbosity <= Verbosity;
         }
 
         protected override void Dispose(bool disposing)

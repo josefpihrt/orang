@@ -5,7 +5,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
@@ -15,15 +14,17 @@ namespace Orang.CommandLine
             string path,
             Type returnType,
             Type parameterType,
+            Logger logger,
             [NotNullWhen(true)] out TDelegate? result) where TDelegate : Delegate
         {
-            return TryCreateFromAssembly(path, returnType, new Type[] { parameterType }, out result);
+            return TryCreateFromAssembly(path, returnType, new Type[] { parameterType }, logger, out result);
         }
 
         public static bool TryCreateFromAssembly<TDelegate>(
             string path,
             Type returnType,
             Type[] parameters,
+            Logger logger,
             [NotNullWhen(true)] out TDelegate? result) where TDelegate : Delegate
         {
             result = default;
@@ -36,7 +37,7 @@ namespace Orang.CommandLine
             if (index <= 0
                 || index >= path.Length - 1)
             {
-                WriteError($"Invalid value: {path}. "
+                logger.WriteError($"Invalid value: {path}. "
                     + "The expected format is \"MyLib.dll,MyNamespace.MyClass.MyMethod\".");
 
                 return false;
@@ -51,7 +52,7 @@ namespace Orang.CommandLine
             if (index < 0
                 || index >= path.Length - 1)
             {
-                WriteError($"Invalid method full name: {methodFullName}. "
+                logger.WriteError($"Invalid method full name: {methodFullName}. "
                     + "The expected format is \"MyNamespace.MyClass.MyMethod\".");
 
                 return false;
@@ -67,7 +68,7 @@ namespace Orang.CommandLine
                 || ex is IOException
                 || ex is BadImageFormatException)
             {
-                WriteError(ex, ex.Message);
+                logger.WriteError(ex);
                 return false;
             }
 
@@ -75,7 +76,7 @@ namespace Orang.CommandLine
 
             string methodName = methodFullName.Substring(index + 1);
 
-            result = CreateDelegateAndCatchIfThrows<TDelegate>(assembly, returnType, parameters, typeName, methodName);
+            result = CreateDelegateAndCatchIfThrows<TDelegate>(assembly, returnType, parameters, logger, typeName, methodName);
 
             return result != null;
         }
@@ -84,6 +85,7 @@ namespace Orang.CommandLine
             Assembly assembly,
             Type returnType,
             Type[] parameters,
+            Logger logger,
             string? typeName = null,
             string? methodName = null) where TDelegate : Delegate
         {
@@ -99,7 +101,7 @@ namespace Orang.CommandLine
                 || ex is TypeLoadException
                 || ex is InvalidOperationException)
             {
-                WriteError(ex, $"Cannot create delegate: {ex.Message}");
+                logger.WriteError(ex, $"Cannot create delegate: {ex.Message}");
                 return null;
             }
         }

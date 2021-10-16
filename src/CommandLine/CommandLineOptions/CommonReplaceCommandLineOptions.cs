@@ -8,8 +8,6 @@ using CommandLine;
 using Orang.CommandLine.Annotations;
 using Orang.FileSystem;
 using Orang.Text.RegularExpressions;
-using static Orang.CommandLine.ParseHelpers;
-using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
@@ -76,9 +74,9 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.Regex)]
         public IEnumerable<string> Name { get; set; } = null!;
 
-        public bool TryParse(CommonReplaceCommandOptions options)
+        public bool TryParse(CommonReplaceCommandOptions options, ParseContext context)
         {
-            if (!TryParseAsEnum(
+            if (!context.TryParseAsEnum(
                 Pipe,
                 OptionNames.Pipe,
                 out PipeMode pipeMode,
@@ -97,7 +95,7 @@ namespace Orang.CommandLine
             {
                 if (!Console.IsInputRedirected)
                 {
-                    WriteError("Redirected/piped input is required "
+                    context.WriteError("Redirected/piped input is required "
                         + $"when option '{OptionNames.GetHelpText(OptionNames.Pipe)}' is specified.");
 
                     return false;
@@ -106,12 +104,12 @@ namespace Orang.CommandLine
                 PipeMode = pipeMode;
             }
 
-            if (!TryParseProperties(Ask, Name, options))
+            if (!context.TryParseProperties(Ask, Name, options))
                 return false;
 
             var baseOptions = (FileSystemCommandOptions)options;
 
-            if (!TryParse(baseOptions))
+            if (!TryParse(baseOptions, context))
                 return false;
 
             options = (CommonReplaceCommandOptions)baseOptions;
@@ -123,7 +121,7 @@ namespace Orang.CommandLine
             }
 
             if (contentFilter == null
-                && !FilterParser.TryParse(
+                && !context.TryParseFilter(
                     Content,
                     OptionNames.Content,
                     OptionValueProviders.PatternOptionsWithoutGroupAndPartAndNegativeProvider,
@@ -135,7 +133,7 @@ namespace Orang.CommandLine
             string? input = null;
 
             if (Input.Any()
-                && !TryParseInput(Input, out input))
+                && !context.TryParseInput(Input, out input))
             {
                 return false;
             }
@@ -145,7 +143,7 @@ namespace Orang.CommandLine
             {
                 if (input != null)
                 {
-                    WriteError("Cannot use both redirected/piped input and "
+                    context.WriteError("Cannot use both redirected/piped input and "
                         + $"option '{OptionNames.GetHelpText(OptionNames.Input)}'.");
 
                     return false;
@@ -153,7 +151,7 @@ namespace Orang.CommandLine
 
                 if (contentFilter == null)
                 {
-                    WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Content)}' is required "
+                    context.WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Content)}' is required "
                         + "when redirected/piped input is used as a text to be searched.");
 
                     return false;
@@ -165,7 +163,7 @@ namespace Orang.CommandLine
             ContentDisplayStyle contentDisplayStyle;
             PathDisplayStyle pathDisplayStyle;
 
-            if (!TryParseDisplay(
+            if (!context.TryParseDisplay(
                 values: Display,
                 optionName: OptionNames.Display,
                 contentDisplayStyle: out ContentDisplayStyle? contentDisplayStyle2,
@@ -187,7 +185,7 @@ namespace Orang.CommandLine
 
             if (ContentMode != null)
             {
-                if (TryParseAsEnum(
+                if (context.TryParseAsEnum(
                     ContentMode,
                     OptionNames.ContentMode,
                     out ContentDisplayStyle contentDisplayStyle3,
@@ -203,7 +201,7 @@ namespace Orang.CommandLine
 
             if (PathMode != null)
             {
-                if (TryParseAsEnum(
+                if (context.TryParseAsEnum(
                     PathMode,
                     OptionNames.PathMode,
                     out PathDisplayStyle pathDisplayStyle3,
@@ -267,7 +265,7 @@ namespace Orang.CommandLine
 
                     string helpValue2 = OptionValueProviders.AskModeProvider.GetValue(nameof(AskMode.Value)).HelpValue;
 
-                    WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Display)}' cannot have value "
+                    context.WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Display)}' cannot have value "
                         + $"'{helpValue}' when option '{OptionNames.GetHelpText(OptionNames.Ask)}' has value '{helpValue2}'.");
 
                     return false;
@@ -293,7 +291,7 @@ namespace Orang.CommandLine
                 pathDisplayStyle = PathDisplayStyle.Full;
             }
 
-            if (!TryParseHighlightOptions(
+            if (!context.TryParseHighlightOptions(
                 Highlight,
                 out HighlightOptions highlightOptions,
                 defaultValue: HighlightOptions.Replacement,
@@ -329,18 +327,18 @@ namespace Orang.CommandLine
             return null;
         }
 
-        protected override bool TryParsePaths(out ImmutableArray<PathInfo> paths)
+        protected override bool TryParsePaths(out ImmutableArray<PathInfo> paths, ParseContext context)
         {
             if (Path.Any()
                 && Input.Any())
             {
-                WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Input)}' and "
+                context.WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Input)}' and "
                     + $"argument '{ArgumentMetaNames.Path}' cannot be set both at the same time.");
 
                 return false;
             }
 
-            return base.TryParsePaths(out paths);
+            return base.TryParsePaths(out paths, context);
         }
     }
 }

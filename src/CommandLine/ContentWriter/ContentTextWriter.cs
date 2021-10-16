@@ -4,38 +4,39 @@ namespace Orang.CommandLine
 {
     internal class ContentTextWriter
     {
-        public ContentTextWriter(Verbosity verbosity = Verbosity.Normal)
+        private readonly Logger _logger;
+
+        public ContentTextWriter(Logger logger, Verbosity verbosity = Verbosity.Normal)
         {
             Verbosity = verbosity;
+            _logger = logger;
         }
-
-        public static ContentTextWriter Default { get; } = new ContentTextWriter(verbosity: Verbosity.Normal);
 
         public Verbosity Verbosity { get; }
 
         public void Write(string? value)
         {
-            Logger.Write(value, Verbosity);
+            _logger.Write(value, Verbosity);
         }
 
         public void Write(string? value, in ConsoleColors colors)
         {
-            Logger.Write(value, colors, Verbosity);
+            _logger.Write(value, colors, Verbosity);
         }
 
         public void Write(string? value, int startIndex, int length)
         {
-            Logger.Write(value, startIndex, length, Verbosity);
+            _logger.Write(value, startIndex, length, Verbosity);
         }
 
         public void Write(string? value, int startIndex, int length, in ConsoleColors colors)
         {
-            Logger.Write(value, startIndex, length, colors, Verbosity);
+            _logger.Write(value, startIndex, length, colors, Verbosity);
         }
 
         public void WriteLine()
         {
-            Logger.WriteLine(Verbosity);
+            _logger.WriteLine(Verbosity);
         }
     }
 }

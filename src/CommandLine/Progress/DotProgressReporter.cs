@@ -2,13 +2,12 @@
 
 using System;
 using Orang.CommandLine;
-using static Orang.Logger;
 
 namespace Orang.FileSystem
 {
     internal class DotProgressReporter : ProgressReporter
     {
-        public DotProgressReporter(string indent) : base(indent)
+        public DotProgressReporter(string indent, Logger logger) : base(indent, logger)
         {
         }
 
@@ -47,7 +46,7 @@ namespace Orang.FileSystem
         {
             if ((FileCount + DirectoryCount) % ApplicationOptions.Default.ProgressCount == 0)
             {
-                ConsoleOut.Write(".", Colors.Path_Progress);
+                _logger.ConsoleOut.Write(".", Colors.Path_Progress);
                 ProgressReported = true;
             }
         }

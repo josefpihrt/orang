@@ -10,7 +10,7 @@ namespace Orang.CommandLine
         INotifyDirectoryChanged
         where TOptions : DeleteOrRenameCommandOptions
     {
-        protected DeleteOrRenameCommand(TOptions options) : base(options)
+        protected DeleteOrRenameCommand(TOptions options, Logger logger) : base(options, logger)
         {
         }
 

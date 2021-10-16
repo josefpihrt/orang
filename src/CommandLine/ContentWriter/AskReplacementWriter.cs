@@ -18,9 +18,10 @@ namespace Orang.CommandLine
             string input,
             IReplacer replacer,
             Lazy<TextWriter>? lazyWriter,
+            ContentTextWriter writer,
             ContentWriterOptions options,
             bool isInteractive,
-            SpellcheckState? spellcheckState = null) : base(input, options)
+            SpellcheckState? spellcheckState = null) : base(input, writer, options)
         {
             Replacer = replacer;
             IsInteractive = isInteractive;
@@ -44,6 +45,7 @@ namespace Orang.CommandLine
             string input,
             IReplacer replacer,
             Lazy<TextWriter>? lazyWriter,
+            ContentTextWriter writer,
             ContentWriterOptions options,
             MatchOutputInfo? outputInfo,
             bool isInteractive,
@@ -57,12 +59,13 @@ namespace Orang.CommandLine
                         input,
                         replacer,
                         lazyWriter,
+                        writer,
                         options,
                         outputInfo,
                         isInteractive,
                         spellcheckState);
                 case ContentDisplayStyle.Line:
-                    return new AskLineReplacementWriter(input, replacer, lazyWriter, options, isInteractive, spellcheckState);
+                    return new AskLineReplacementWriter(input, replacer, lazyWriter, writer, options, isInteractive, spellcheckState);
                 case ContentDisplayStyle.UnmatchedLines:
                 case ContentDisplayStyle.AllLines:
                     throw new InvalidOperationException();
@@ -168,10 +171,12 @@ namespace Orang.CommandLine
                 string input,
                 IReplacer replacer,
                 Lazy<TextWriter>? lazyWriter,
+                ContentTextWriter writer,
                 ContentWriterOptions options,
                 MatchOutputInfo? outputInfo,
                 bool isInteractive,
-                SpellcheckState? spellcheckState = null) : base(input, replacer, lazyWriter, options, isInteractive, spellcheckState)
+                SpellcheckState? spellcheckState = null)
+                : base(input, replacer, lazyWriter, writer, options, isInteractive, spellcheckState)
             {
                 OutputInfo = outputInfo;
             }
@@ -220,9 +225,11 @@ namespace Orang.CommandLine
                 string input,
                 IReplacer replacer,
                 Lazy<TextWriter>? lazyWriter,
+                ContentTextWriter writer,
                 ContentWriterOptions options,
                 bool isInteractive,
-                SpellcheckState? spellcheckState = null) : base(input, replacer, lazyWriter, options, isInteractive, spellcheckState)
+                SpellcheckState? spellcheckState = null)
+                : base(input, replacer, lazyWriter, writer, options, isInteractive, spellcheckState)
             {
                 MatchingLineCount = 0;
             }

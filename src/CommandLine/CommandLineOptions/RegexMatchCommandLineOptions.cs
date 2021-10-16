@@ -3,7 +3,6 @@
 using System.Collections.Generic;
 using CommandLine;
 using Orang.CommandLine.Annotations;
-using static Orang.CommandLine.ParseHelpers;
 
 namespace Orang.CommandLine
 {
@@ -30,16 +29,16 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.Num)]
         public int MaxCount { get; set; }
 
-        public bool TryParse(RegexMatchCommandOptions options)
+        public bool TryParse(RegexMatchCommandOptions options, ParseContext context)
         {
             var baseOptions = (RegexCommandOptions)options;
 
-            if (!TryParse(baseOptions))
+            if (!TryParse(baseOptions, context))
                 return false;
 
             options = (RegexMatchCommandOptions)baseOptions;
 
-            if (!FilterParser.TryParse(
+            if (!context.TryParseFilter(
                 Content,
                 OptionNames.Content,
                 OptionValueProviders.PatternOptions_Match_Provider,
@@ -48,7 +47,7 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            if (!TryParseHighlightOptions(
+            if (!context.TryParseHighlightOptions(
                 Highlight,
                 out HighlightOptions highlightOptions,
                 defaultValue: HighlightOptions.Default,

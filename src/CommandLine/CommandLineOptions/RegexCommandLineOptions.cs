@@ -7,8 +7,6 @@ using System.Linq;
 using CommandLine;
 using Orang.CommandLine.Annotations;
 using Orang.Text.RegularExpressions;
-using static Orang.CommandLine.ParseHelpers;
-using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
@@ -41,11 +39,11 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.ModifyOptions)]
         public IEnumerable<string> Modify { get; set; } = null!;
 
-        public bool TryParse(RegexCommandOptions options)
+        public bool TryParse(RegexCommandOptions options, ParseContext context)
         {
             var baseOptions = (CommonRegexCommandOptions)options;
 
-            if (!TryParse(baseOptions))
+            if (!TryParse(baseOptions, context))
                 return false;
 
             options = (RegexCommandOptions)baseOptions;
@@ -56,7 +54,7 @@ namespace Orang.CommandLine
             {
                 if (input != null)
                 {
-                    WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Input)}' and "
+                    context.WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Input)}' and "
                         + $"argument '{ArgumentMetaNames.Path}' cannot be set both at the same time.");
 
                     return false;
@@ -70,7 +68,7 @@ namespace Orang.CommandLine
                     || ex is IOException
                     || ex is UnauthorizedAccessException)
                 {
-                    WriteError(ex);
+                    context.WriteError(ex);
                     return false;
                 }
             }
@@ -80,20 +78,20 @@ namespace Orang.CommandLine
 
                 if (redirectedInput == null)
                 {
-                    WriteError("Input is missing.");
+                    context.WriteError("Input is missing.");
                     return false;
                 }
 
                 input = redirectedInput;
             }
-            else if (!TryParseInput(Input, out input))
+            else if (!context.TryParseInput(Input, out input))
             {
                 return false;
             }
 
             if (Display.Any())
             {
-                LogHelpers.WriteObsoleteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Display)}' has been deprecated "
+                context.WriteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Display)}' has been deprecated "
                     + "and will be removed in future version. Use following options instead:"
                     + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.ContentMode)}"
                     + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.Summary)}"
@@ -104,7 +102,7 @@ namespace Orang.CommandLine
                     );
             }
 
-            if (!TryParseDisplay(
+            if (!context.TryParseDisplay(
                 values: Display,
                 optionName: OptionNames.Display,
                 contentDisplayStyle: out ContentDisplayStyle? contentDisplayStyle,
@@ -129,7 +127,7 @@ namespace Orang.CommandLine
 
             if (ContentMode != null)
             {
-                if (TryParseAsEnum(
+                if (context.TryParseAsEnum(
                     ContentMode,
                     OptionNames.ContentMode,
                     out ContentDisplayStyle contentDisplayStyle2,
@@ -152,12 +150,12 @@ namespace Orang.CommandLine
             EnumerableModifier<string>? modifier = null;
 #if DEBUG // --modifier
             if (Modifier.Any()
-                && !TryParseModifier(Modifier, OptionNames.Modifier, out modifier))
+                && !context.TryParseModifier(Modifier, OptionNames.Modifier, out modifier))
             {
                 return false;
             }
 #endif
-            if (!TryParseModifyOptions(
+            if (!context.TryParseModifyOptions(
                 Modify,
                 OptionNames.Modify,
                 modifier,
@@ -174,7 +172,7 @@ namespace Orang.CommandLine
             }
 
             if (aggregateOnly)
-                ConsoleOut.Verbosity = Orang.Verbosity.Minimal;
+                context.Logger.ConsoleOut.Verbosity = Orang.Verbosity.Minimal;
 
             options.Format = new OutputDisplayFormat(
                 contentDisplayStyle: contentDisplayStyle ?? ContentDisplayStyle.Value,

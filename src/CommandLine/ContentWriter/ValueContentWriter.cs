@@ -8,14 +8,6 @@ namespace Orang.CommandLine
 
         public ValueContentWriter(
             string input,
-            ContentWriterOptions options,
-            IResultStorage? storage = null,
-            MatchOutputInfo? outputInfo = null) : this(input, ContentTextWriter.Default, options, storage, outputInfo)
-        {
-        }
-
-        public ValueContentWriter(
-            string input,
             ContentTextWriter? writer,
             ContentWriterOptions options,
             IResultStorage? storage = null,

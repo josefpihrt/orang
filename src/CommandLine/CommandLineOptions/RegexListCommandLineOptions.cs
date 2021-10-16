@@ -6,7 +6,6 @@ using System.Text.RegularExpressions;
 using CommandLine;
 using Orang.CommandLine.Annotations;
 using Orang.Syntax;
-using static Orang.CommandLine.ParseHelpers;
 
 namespace Orang.CommandLine
 {
@@ -49,19 +48,19 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.SyntaxSections)]
         public IEnumerable<string> Section { get; set; } = null!;
 
-        public bool TryParse(RegexListCommandOptions options)
+        public bool TryParse(RegexListCommandOptions options, ParseContext context)
         {
             char? value = null;
 
             if (Value != null)
             {
-                if (!TryParseChar(Value, out char ch))
+                if (!context.TryParseChar(Value, out char ch))
                     return false;
 
                 value = ch;
             }
 
-            if (!TryParseAsEnumFlags(
+            if (!context.TryParseAsEnumFlags(
                 Options,
                 OptionNames.Options,
                 out RegexOptions regexOptions,
@@ -70,7 +69,7 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            if (!TryParseAsEnumValues(
+            if (!context.TryParseAsEnumValues(
                 Section,
                 OptionNames.Section,
                 out ImmutableArray<SyntaxSection> sections,
@@ -79,7 +78,7 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            if (!FilterParser.TryParse(
+            if (!context.TryParseFilter(
                 Filter,
                 OptionNames.Filter,
                 OptionValueProviders.PatternOptions_List_Provider,

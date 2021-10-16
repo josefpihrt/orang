@@ -8,9 +8,9 @@ namespace Orang.CommandLine
         {
         }
 
-        protected override void WriteDiagnosticCore()
+        protected override void WriteDiagnosticCore(DiagnosticWriter writer)
         {
-            DiagnosticWriter.WriteMoveCommand(this);
+            writer.WriteMoveCommand(this);
         }
     }
 }

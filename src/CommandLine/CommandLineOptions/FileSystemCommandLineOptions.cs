@@ -9,7 +9,6 @@ using System.Text;
 using CommandLine;
 using Orang.CommandLine.Annotations;
 using Orang.FileSystem;
-using static Orang.CommandLine.ParseHelpers;
 
 namespace Orang.CommandLine
 {
@@ -158,18 +157,18 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.SortOptions)]
         public IEnumerable<string> Sort { get; set; } = null!;
 
-        public bool TryParse(FileSystemCommandOptions options)
+        public bool TryParse(FileSystemCommandOptions options, ParseContext context)
         {
             var baseOptions = (CommonRegexCommandOptions)options;
 
-            if (!TryParse(baseOptions))
+            if (!TryParse(baseOptions, context))
                 return false;
 
             options = (FileSystemCommandOptions)baseOptions;
 
             if (Display.Any())
             {
-                LogHelpers.WriteObsoleteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Display)}' has been deprecated "
+                context.WriteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Display)}' has been deprecated "
                     + "and will be removed in future version. Use following options instead:"
                     + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.AfterContext)}"
                     + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.BeforeContext)}"
@@ -188,10 +187,10 @@ namespace Orang.CommandLine
                     );
             }
 
-            if (!TryParsePaths(out ImmutableArray<PathInfo> paths))
+            if (!TryParsePaths(out ImmutableArray<PathInfo> paths, context))
                 return false;
 
-            if (!TryParseAsEnumFlags(
+            if (!context.TryParseAsEnumFlags(
                 Attributes,
                 OptionNames.Attributes,
                 out FileSystemAttributes attributes,
@@ -200,7 +199,7 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            if (!TryParseAsEnumFlags(
+            if (!context.TryParseAsEnumFlags(
                 AttributesToSkip,
                 OptionNames.AttributesToSkip,
                 out FileSystemAttributes attributesToSkip,
@@ -209,13 +208,13 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            if (!TryParseEncoding(Encoding, out Encoding defaultEncoding, Text.EncodingHelpers.UTF8NoBom))
+            if (!context.TryParseEncoding(Encoding, out Encoding defaultEncoding, Text.EncodingHelpers.UTF8NoBom))
                 return false;
 
-            if (!TryParseSortOptions(Sort, OptionNames.Sort, out SortOptions? sortOptions))
+            if (!context.TryParseSortOptions(Sort, OptionNames.Sort, out SortOptions? sortOptions))
                 return false;
 
-            if (!FilterParser.TryParse(
+            if (!context.TryParseFilter(
                 IncludeDirectory,
                 OptionNames.IncludeDirectory,
                 OptionValueProviders.PatternOptionsProvider,
@@ -227,7 +226,7 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            if (!FilterParser.TryParse(
+            if (!context.TryParseFilter(
                 Extension,
                 OptionNames.Extension,
                 OptionValueProviders.ExtensionOptionsProvider,
@@ -239,7 +238,7 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            if (!TryParseFileProperties(
+            if (!context.TryParseFileProperties(
                 Properties,
                 OptionNames.Properties,
                 out bool creationTime,
@@ -260,7 +259,7 @@ namespace Orang.CommandLine
                         .GetValue(nameof(FileSystemAttributes.Empty))
                         .HelpValue;
 
-                    Logger.WriteError($"Value '{helpValue}' cannot be specified both for "
+                    context.WriteError($"Value '{helpValue}' cannot be specified both for "
                         + $"'{OptionNames.GetHelpText(OptionNames.Attributes)}' and "
                         + $"'{OptionNames.GetHelpText(OptionNames.AttributesToSkip)}'.");
 
@@ -303,19 +302,19 @@ namespace Orang.CommandLine
             return true;
         }
 
-        protected virtual bool TryParsePaths(out ImmutableArray<PathInfo> paths)
+        protected virtual bool TryParsePaths(out ImmutableArray<PathInfo> paths, ParseContext context)
         {
             paths = ImmutableArray<PathInfo>.Empty;
 
             if (Path.Any()
-                && !TryEnsureFullPath(Path, PathOrigin.Argument, out paths))
+                && !TryEnsureFullPath(Path, PathOrigin.Argument, context, out paths))
             {
                 return false;
             }
 
             if (Paths.Any())
             {
-                if (!TryEnsureFullPath(Paths, PathOrigin.Option, out ImmutableArray<PathInfo> paths2))
+                if (!TryEnsureFullPath(Paths, PathOrigin.Option, context, out ImmutableArray<PathInfo> paths2))
                     return false;
 
                 paths = paths.AddRange(paths2);
@@ -325,12 +324,12 @@ namespace Orang.CommandLine
 
             if (PathsFrom != null)
             {
-                if (!FileSystemHelpers.TryReadAllText(PathsFrom, out string? content, ex => Logger.WriteError(ex)))
+                if (!FileSystemHelpers.TryReadAllText(PathsFrom, out string? content, ex => context.WriteError(ex)))
                     return false;
 
                 IEnumerable<string> lines = TextHelpers.ReadLines(content).Where(f => !string.IsNullOrWhiteSpace(f));
 
-                if (!TryEnsureFullPath(lines, PathOrigin.File, out pathsFromFile))
+                if (!TryEnsureFullPath(lines, PathOrigin.File, context, out pathsFromFile))
                     return false;
 
                 paths = paths.AddRange(pathsFromFile);
@@ -342,6 +341,7 @@ namespace Orang.CommandLine
                 if (!TryEnsureFullPath(
                     ConsoleHelpers.ReadRedirectedInputAsLines().Where(f => !string.IsNullOrEmpty(f)),
                     PathOrigin.RedirectedInput,
+                    context,
                     out ImmutableArray<PathInfo> pathsFromInput))
                 {
                     return false;
@@ -359,13 +359,14 @@ namespace Orang.CommandLine
         private static bool TryEnsureFullPath(
             IEnumerable<string> paths,
             PathOrigin kind,
+            ParseContext context,
             out ImmutableArray<PathInfo> fullPaths)
         {
             ImmutableArray<PathInfo>.Builder builder = ImmutableArray.CreateBuilder<PathInfo>();
 
             foreach (string path in paths)
             {
-                if (!ParseHelpers.TryEnsureFullPath(path, out string? fullPath))
+                if (!context.TryEnsureFullPath(path, out string? fullPath))
                     return false;
 
                 builder.Add(new PathInfo(fullPath, kind));

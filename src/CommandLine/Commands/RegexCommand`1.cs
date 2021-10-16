@@ -4,7 +4,7 @@ namespace Orang.CommandLine
 {
     internal abstract class RegexCommand<TOptions> : AbstractCommand<TOptions> where TOptions : RegexCommandOptions
     {
-        protected RegexCommand(TOptions options) : base(options)
+        protected RegexCommand(TOptions options, Logger logger) : base(options, logger)
         {
         }
     }

@@ -10,8 +10,6 @@ using System.Threading;
 using CommandLine;
 using CommandLine.Text;
 using Orang.CommandLine.Annotations;
-using static Orang.CommandLine.ParseHelpers;
-using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
@@ -19,15 +17,18 @@ namespace Orang.CommandLine
     {
         private static int Main(string[] args)
         {
+            var logger = new Logger(ConsoleWriter.Instance, null);
+            var parseContext = new ParseContext(logger);
+
 #if DEBUG
             if (args.LastOrDefault() == "--debug")
             {
-                WriteArgs(args.Take(args.Length - 1).ToArray(), Verbosity.Quiet);
+                WriteArgs(args.Take(args.Length - 1).ToArray(), Verbosity.Quiet, logger);
                 return ExitCodes.NoMatch;
             }
 
             if (args?.Length > 0
-                && !CommandUtility.CheckCommandName(ref args))
+                && !CommandUtility.CheckCommandName(ref args, logger))
             {
                 return ExitCodes.Error;
             }
@@ -39,7 +40,7 @@ namespace Orang.CommandLine
                 if (args == null
                     || args.Length == 0)
                 {
-                    HelpCommand.WriteCommandsHelp();
+                    HelpCommand.WriteCommandsHelp(logger);
                     return ExitCodes.Match;
                 }
 
@@ -57,21 +58,21 @@ namespace Orang.CommandLine
                             ? CommandLoader.LoadCommand(typeof(Program).Assembly, commandName)
                             : null;
 
-                        if (!ParseVerbosityAndOutput(options))
+                        if (!ParseVerbosityAndOutput(options, parseContext))
                         {
                             success = false;
                             return;
                         }
 
-                        WriteArgs(args, Verbosity.Diagnostic);
+                        WriteArgs(args, Verbosity.Diagnostic, logger);
 
                         if (command != null)
                         {
-                            HelpCommand.WriteCommandHelp(command);
+                            HelpCommand.WriteCommandHelp(command, logger);
                         }
                         else
                         {
-                            HelpCommand.WriteCommandsHelp();
+                            HelpCommand.WriteCommandsHelp(logger);
                         }
 
                         success = true;
@@ -115,7 +116,7 @@ namespace Orang.CommandLine
                         .FirstOrDefault(f => f.Token == "b");
 
                     if (oldAttributesToSkipShortName != null)
-                        WriteWarning("Shortcut '-b' has been deprecated. Use '-A' instead.");
+                        logger.WriteWarning("Shortcut '-b' has been deprecated. Use '-A' instead.");
 
                     var helpText = new HelpText(SentenceBuilder.Create(), HelpCommand.GetHeadingText());
 
@@ -145,9 +146,9 @@ namespace Orang.CommandLine
 
                 parserResult.WithParsed<AbstractCommandLineOptions>(options =>
                 {
-                    if (ParseVerbosityAndOutput(options))
+                    if (ParseVerbosityAndOutput(options, parseContext))
                     {
-                        WriteArgs(args, Verbosity.Diagnostic);
+                        WriteArgs(args, Verbosity.Diagnostic, logger);
                     }
                     else
                     {
@@ -159,29 +160,29 @@ namespace Orang.CommandLine
                     return ExitCodes.Error;
 
                 return parserResult.MapResult(
-                    (CopyCommandLineOptions options) => Copy(options),
-                    (DeleteCommandLineOptions options) => Delete(options),
-                    (FindCommandLineOptions options) => Find(options),
-                    (HelpCommandLineOptions options) => Help(options),
-                    (MoveCommandLineOptions options) => Move(options),
-                    (RegexEscapeCommandLineOptions options) => RegexEscape(options),
-                    (RegexListCommandLineOptions options) => RegexList(options),
-                    (RegexMatchCommandLineOptions options) => RegexMatch(options),
-                    (RegexSplitCommandLineOptions options) => RegexSplit(options),
-                    (RenameCommandLineOptions options) => Rename(options),
-                    (ReplaceCommandLineOptions options) => Replace(options),
-                    (SpellcheckCommandLineOptions options) => Spellcheck(options),
-                    (SyncCommandLineOptions options) => Sync(options),
+                    (CopyCommandLineOptions options) => Copy(options, parseContext),
+                    (DeleteCommandLineOptions options) => Delete(options, parseContext),
+                    (FindCommandLineOptions options) => Find(options, parseContext),
+                    (HelpCommandLineOptions options) => Help(options, parseContext),
+                    (MoveCommandLineOptions options) => Move(options, parseContext),
+                    (RegexEscapeCommandLineOptions options) => RegexEscape(options, parseContext),
+                    (RegexListCommandLineOptions options) => RegexList(options, parseContext),
+                    (RegexMatchCommandLineOptions options) => RegexMatch(options, parseContext),
+                    (RegexSplitCommandLineOptions options) => RegexSplit(options, parseContext),
+                    (RenameCommandLineOptions options) => Rename(options, parseContext),
+                    (ReplaceCommandLineOptions options) => Replace(options, parseContext),
+                    (SpellcheckCommandLineOptions options) => Spellcheck(options, parseContext),
+                    (SyncCommandLineOptions options) => Sync(options, parseContext),
                     _ => ExitCodes.Error);
             }
             catch (Exception ex)
             {
-                WriteError(ex);
+                logger.WriteError(ex);
             }
             finally
             {
-                Out?.Dispose();
-                Out = null;
+                logger.Out?.Dispose();
+                logger.Out = null;
             }
 
             return ExitCodes.Error;
@@ -205,21 +206,21 @@ namespace Orang.CommandLine
             });
         }
 
-        private static bool ParseVerbosityAndOutput(AbstractCommandLineOptions options)
+        private static bool ParseVerbosityAndOutput(AbstractCommandLineOptions options, ParseContext context)
         {
             var defaultVerbosity = Verbosity.Normal;
 
             if (options.Verbosity != null
-                && !TryParseVerbosity(options.Verbosity, out defaultVerbosity))
+                && !context.TryParseVerbosity(options.Verbosity, out defaultVerbosity))
             {
                 return false;
             }
 
-            ConsoleOut.Verbosity = defaultVerbosity;
+            context.Logger.ConsoleOut.Verbosity = defaultVerbosity;
 
             if (options is BaseCommandLineOptions baseOptions)
             {
-                if (!TryParseOutputOptions(
+                if (!context.TryParseOutputOptions(
                     baseOptions.Output,
                     OptionNames.Output,
                     out string? filePath,
@@ -238,7 +239,7 @@ namespace Orang.CommandLine
 
                     var stream = new FileStream(filePath, fileMode, FileAccess.Write, FileShare.Read);
                     var writer = new StreamWriter(stream, encoding, bufferSize: 4096, leaveOpen: false);
-                    Out = new TextWriterWithVerbosity(writer) { Verbosity = fileVerbosity };
+                    context.Logger.Out = new LogWriter(writer) { Verbosity = fileVerbosity };
                 }
             }
 
@@ -246,164 +247,169 @@ namespace Orang.CommandLine
         }
 
         [Conditional("DEBUG")]
-        private static void WriteArgs(string[]? args, Verbosity verbosity)
+        private static void WriteArgs(string[]? args, Verbosity verbosity, Logger logger)
         {
             if (args != null
-                && ShouldLog(verbosity))
+                && logger.ShouldWrite(verbosity))
             {
-                WriteLine("--- ARGS ---", verbosity);
+                logger.WriteLine("--- ARGS ---", verbosity);
 
                 foreach (string arg in args)
-                    WriteLine(arg, verbosity);
+                    logger.WriteLine(arg, verbosity);
 
-                WriteLine("--- END OF ARGS ---", verbosity);
+                logger.WriteLine("--- END OF ARGS ---", verbosity);
             }
         }
 
-        private static int Copy(CopyCommandLineOptions commandLineOptions)
+        private static int Copy(CopyCommandLineOptions commandLineOptions, ParseContext context)
         {
             var options = new CopyCommandOptions();
 
-            if (!commandLineOptions.TryParse(options))
+            if (!commandLineOptions.TryParse(options, context))
                 return ExitCodes.Error;
 
-            return Execute(new CopyCommand(options), commandLineOptions);
+            return Execute(new CopyCommand(options, context.Logger), commandLineOptions, context.Logger);
         }
 
-        private static int Delete(DeleteCommandLineOptions commandLineOptions)
+        private static int Delete(DeleteCommandLineOptions commandLineOptions, ParseContext context)
         {
             var options = new DeleteCommandOptions();
 
-            if (!commandLineOptions.TryParse(options))
+            if (!commandLineOptions.TryParse(options, context))
                 return ExitCodes.Error;
 
-            return Execute(new DeleteCommand(options), commandLineOptions);
+            return Execute(new DeleteCommand(options, context.Logger), commandLineOptions, context.Logger);
         }
 
-        private static int Find(FindCommandLineOptions commandLineOptions)
+        private static int Find(FindCommandLineOptions commandLineOptions, ParseContext context)
         {
             var options = new FindCommandOptions();
 
-            if (!commandLineOptions.TryParse(options))
+            if (!commandLineOptions.TryParse(options, context))
                 return ExitCodes.Error;
 
-            return Execute(new FindCommand<FindCommandOptions>(options), commandLineOptions);
+            return Execute(new FindCommand<FindCommandOptions>(options, context.Logger), commandLineOptions, context.Logger);
         }
 
-        private static int Help(HelpCommandLineOptions commandLineOptions)
+        private static int Help(HelpCommandLineOptions commandLineOptions, ParseContext context)
         {
             var options = new HelpCommandOptions();
 
-            if (!commandLineOptions.TryParse(options))
+            if (!commandLineOptions.TryParse(options, context))
                 return ExitCodes.Error;
 
-            return Execute(new HelpCommand(options), commandLineOptions);
+            return Execute(new HelpCommand(options, context.Logger), commandLineOptions, context.Logger);
         }
 
-        private static int Move(MoveCommandLineOptions commandLineOptions)
+        private static int Move(MoveCommandLineOptions commandLineOptions, ParseContext context)
         {
             var options = new MoveCommandOptions();
 
-            if (!commandLineOptions.TryParse(options))
+            if (!commandLineOptions.TryParse(options, context))
                 return ExitCodes.Error;
 
-            return Execute(new MoveCommand(options), commandLineOptions);
+            return Execute(new MoveCommand(options, context.Logger), commandLineOptions, context.Logger);
         }
 
-        private static int Spellcheck(SpellcheckCommandLineOptions commandLineOptions)
+        private static int Spellcheck(SpellcheckCommandLineOptions commandLineOptions, ParseContext context)
         {
             var options = new SpellcheckCommandOptions();
 
-            if (!commandLineOptions.TryParse(options))
+            if (!commandLineOptions.TryParse(options, context))
                 return ExitCodes.Error;
 
-            return Execute(new SpellcheckCommand(options), commandLineOptions);
+            return Execute(new SpellcheckCommand(options, context.Logger), commandLineOptions, context.Logger);
         }
 
-        private static int Sync(SyncCommandLineOptions commandLineOptions)
+        private static int Sync(SyncCommandLineOptions commandLineOptions, ParseContext context)
         {
             var options = new SyncCommandOptions();
 
-            if (!commandLineOptions.TryParse(options))
+            if (!commandLineOptions.TryParse(options, context))
                 return ExitCodes.Error;
 
-            return Execute(new SyncCommand(options), commandLineOptions);
+            return Execute(new SyncCommand(options, context.Logger), commandLineOptions, context.Logger);
         }
 
-        private static int Rename(RenameCommandLineOptions commandLineOptions)
+        private static int Rename(RenameCommandLineOptions commandLineOptions, ParseContext context)
         {
             var options = new RenameCommandOptions();
 
-            if (!commandLineOptions.TryParse(options))
+            if (!commandLineOptions.TryParse(options, context))
                 return ExitCodes.Error;
 
-            return Execute(new RenameCommand(options), commandLineOptions);
+            return Execute(new RenameCommand(options, context.Logger), commandLineOptions, context.Logger);
         }
 
-        private static int Replace(ReplaceCommandLineOptions commandLineOptions)
+        private static int Replace(ReplaceCommandLineOptions commandLineOptions, ParseContext context)
         {
             var options = new ReplaceCommandOptions();
 
-            if (!commandLineOptions.TryParse(options))
+            if (!commandLineOptions.TryParse(options, context))
                 return ExitCodes.Error;
 
-            return Execute(new ReplaceCommand(options), commandLineOptions);
+            return Execute(new ReplaceCommand(options, context.Logger), commandLineOptions, context.Logger);
         }
 
-        private static int RegexEscape(RegexEscapeCommandLineOptions commandLineOptions)
+        private static int RegexEscape(RegexEscapeCommandLineOptions commandLineOptions, ParseContext context)
         {
             var options = new RegexEscapeCommandOptions();
 
-            if (!commandLineOptions.TryParse(options))
+            if (!commandLineOptions.TryParse(options, context))
                 return ExitCodes.Error;
 
-            return Execute(new RegexEscapeCommand(options), commandLineOptions);
+            return Execute(new RegexEscapeCommand(options, context.Logger), commandLineOptions, context.Logger);
         }
 
-        private static int RegexList(RegexListCommandLineOptions commandLineOptions)
+        private static int RegexList(RegexListCommandLineOptions commandLineOptions, ParseContext context)
         {
             var options = new RegexListCommandOptions();
 
-            if (!commandLineOptions.TryParse(options))
+            if (!commandLineOptions.TryParse(options, context))
                 return ExitCodes.Error;
 
-            return Execute(new RegexListCommand(options), commandLineOptions);
+            return Execute(new RegexListCommand(options, context.Logger), commandLineOptions, context.Logger);
         }
 
-        private static int RegexMatch(RegexMatchCommandLineOptions commandLineOptions)
+        private static int RegexMatch(RegexMatchCommandLineOptions commandLineOptions, ParseContext context)
         {
             var options = new RegexMatchCommandOptions();
 
-            if (!commandLineOptions.TryParse(options))
+            if (!commandLineOptions.TryParse(options, context))
                 return ExitCodes.Error;
 
-            return Execute(new RegexMatchCommand(options), commandLineOptions);
+            return Execute(new RegexMatchCommand(options, context.Logger), commandLineOptions, context.Logger);
         }
 
-        private static int RegexSplit(RegexSplitCommandLineOptions commandLineOptions)
+        private static int RegexSplit(RegexSplitCommandLineOptions commandLineOptions, ParseContext context)
         {
             var options = new RegexSplitCommandOptions();
 
-            if (!commandLineOptions.TryParse(options))
+            if (!commandLineOptions.TryParse(options, context))
                 return ExitCodes.Error;
 
-            return Execute(new RegexSplitCommand(options), commandLineOptions);
+            return Execute(new RegexSplitCommand(options, context.Logger), commandLineOptions, context.Logger);
         }
 
         private static int Execute<TOptions>(
             AbstractCommand<TOptions> command,
-            AbstractCommandLineOptions options) where TOptions : AbstractCommandOptions
+            AbstractCommandLineOptions options,
+            Logger logger) where TOptions : AbstractCommandOptions
         {
 #if DEBUG
-            if (ShouldLog(Verbosity.Diagnostic))
+            if (logger.ShouldWrite(Verbosity.Diagnostic))
             {
-                WriteLine("--- RAW PARAMETERS ---", Verbosity.Diagnostic);
-                DiagnosticWriter.WriteParameters(options);
-                WriteLine("--- END OF RAW PARAMETERS ---", Verbosity.Diagnostic);
+                logger.WriteLine("--- RAW PARAMETERS ---", Verbosity.Diagnostic);
+                var writer = new DiagnosticWriter(logger);
+                writer.WriteParameters(options);
+                logger.WriteLine("--- END OF RAW PARAMETERS ---", Verbosity.Diagnostic);
 
-                WriteLine("--- APP PARAMETERS ---", Verbosity.Diagnostic);
-                command.Options.WriteDiagnostic();
-                WriteLine("--- END OF APP PARAMETERS ---", Verbosity.Diagnostic);
+                logger.WriteLine("--- APP PARAMETERS ---", Verbosity.Diagnostic);
+                command.Options.WriteDiagnostic(writer);
+                logger.WriteLine("--- END OF APP PARAMETERS ---", Verbosity.Diagnostic);
+
+                if (logger.ConsoleOut.Verbosity == Verbosity.Diagnostic)
+                    ConsoleHelpers.WaitForKeyPress();
             }
 #endif
             CancellationTokenSource? cts = null;

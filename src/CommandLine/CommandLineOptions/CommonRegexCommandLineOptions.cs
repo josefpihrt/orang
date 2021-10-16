@@ -52,7 +52,7 @@ namespace Orang.CommandLine
 
         [SuppressMessage("Style", "IDE0060:Remove unused parameter")]
         [SuppressMessage("Redundancy", "RCS1163:Unused parameter.")]
-        public bool TryParse(CommonRegexCommandOptions options)
+        public bool TryParse(CommonRegexCommandOptions options, ParseContext context)
         {
             return true;
         }

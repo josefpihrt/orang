@@ -11,13 +11,6 @@ namespace Orang.CommandLine
 
         public UnmatchedLineWriter(
             string input,
-            ContentWriterOptions options,
-            IResultStorage? storage = null) : this(input, ContentTextWriter.Default, options, storage)
-        {
-        }
-
-        public UnmatchedLineWriter(
-            string input,
             ContentTextWriter? writer,
             ContentWriterOptions options,
             IResultStorage? storage = null) : base(input, writer, options)

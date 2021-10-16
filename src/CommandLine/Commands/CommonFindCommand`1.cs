@@ -6,8 +6,6 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Orang.FileSystem;
 using Orang.Text.RegularExpressions;
-using static Orang.CommandLine.LogHelpers;
-using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
@@ -18,11 +16,12 @@ namespace Orang.CommandLine
         private ContentWriterOptions? _fileWriterOptions;
         private ContentWriterOptions? _directoryWriterOptions;
 
-        protected CommonFindCommand(TOptions options) : base(options)
+        protected CommonFindCommand(TOptions options, Logger logger) : base(options, logger)
         {
-            if (ShouldLog(Verbosity.Minimal))
+            if (_logger.ShouldWrite(Verbosity.Minimal))
             {
                 PathWriter = new PathWriter(
+                    _logger,
                     pathColors: Colors.Matched_Path,
                     matchColors: (Options.HighlightMatch) ? Colors.Match_Path : default,
                     relativePath: Options.DisplayRelativePath);
@@ -44,7 +43,7 @@ namespace Orang.CommandLine
                 return !Options.OmitPath
                     || (ContentFilter != null
                         && !Options.OmitContent
-                        && ConsoleOut.Verbosity > Verbosity.Minimal);
+                        && _logger.ConsoleOut.Verbosity > Verbosity.Minimal);
             }
         }
 
@@ -115,7 +114,7 @@ namespace Orang.CommandLine
         {
             context.Telemetry.MatchingLineCount = -1;
 
-            if (ConsoleOut.Verbosity >= Verbosity.Minimal)
+            if (_logger.ConsoleOut.Verbosity >= Verbosity.Minimal)
                 AskMode = Options.AskMode;
 
             base.ExecuteCore(context);
@@ -202,7 +201,7 @@ namespace Orang.CommandLine
             if (!fileMatch.IsDirectory
                 && ContentFilter?.IsNegative == false
                 && !Options.OmitContent
-                && ShouldLog(Verbosity.Normal))
+                && _logger.ShouldWrite(Verbosity.Normal))
             {
                 string indent = GetPathIndent(baseDirectoryPath);
 
@@ -214,7 +213,7 @@ namespace Orang.CommandLine
                 if (ContentFilter!.IsNegative
                     || fileMatch.IsDirectory)
                 {
-                    WriteLineIf(isPathDisplayed, Verbosity.Minimal);
+                    _logger.WriteLineIf(isPathDisplayed, Verbosity.Minimal);
                 }
                 else
                 {
@@ -300,7 +299,7 @@ namespace Orang.CommandLine
             }
 
             if (isPathDisplayed)
-                WriteFilePathEnd(captures.Count, maxReason, Options.IncludeCount);
+                _logger.WriteFilePathEnd(captures.Count, maxReason, Options.IncludeCount);
 
             return maxReason;
         }
@@ -346,7 +345,7 @@ namespace Orang.CommandLine
             WritePath(context, fileMatch, baseDirectoryPath, indent, columnWidths);
 
             if (includeNewline)
-                WriteLine(Verbosity.Minimal);
+                _logger.WriteLine(Verbosity.Minimal);
         }
 
         private void WritePath(
@@ -360,10 +359,10 @@ namespace Orang.CommandLine
                 && fileMatch.NameMatch != null
                 && !object.ReferenceEquals(fileMatch.NameMatch, Match.Empty))
             {
-                if (ShouldLog(Verbosity.Minimal))
+                if (_logger.ShouldWrite(Verbosity.Minimal))
                 {
-                    Write(indent, Verbosity.Minimal);
-                    Write(fileMatch.NameMatch.Value, (Options.HighlightMatch) ? Colors.Match_Path : default, Verbosity.Minimal);
+                    _logger.Write(indent, Verbosity.Minimal);
+                    _logger.Write(fileMatch.NameMatch.Value, (Options.HighlightMatch) ? Colors.Match_Path : default, Verbosity.Minimal);
                 }
             }
             else
@@ -386,13 +385,13 @@ namespace Orang.CommandLine
             {
                 Match match = fileMatch.ContentMatch!;
 
-                contentWriter = ContentWriter.CreateFind(
+                contentWriter = CommandLine.ContentWriter.CreateFind(
                     contentDisplayStyle: Options.ContentDisplayStyle,
                     input: fileMatch.ContentText,
                     options: writerOptions,
                     storage: null,
                     outputInfo: Options.CreateOutputInfo(fileMatch.ContentText, match, ContentFilter!),
-                    writer: ContentTextWriter.Default,
+                    writer: ContentWriter,
                     ask: AskMode == AskMode.Value);
 
                 WriteMatches(context, match, writerOptions, contentWriter, isPathDisplayed);
@@ -494,12 +493,12 @@ namespace Orang.CommandLine
 
         protected override void WriteSummary(SearchTelemetry telemetry, Verbosity verbosity)
         {
-            WriteSearchedFilesAndDirectories(telemetry, Options.SearchTarget, verbosity);
+            _logger.WriteSearchedFilesAndDirectories(telemetry, Options.SearchTarget, verbosity);
 
-            if (!ShouldLog(verbosity))
+            if (!_logger.ShouldWrite(verbosity))
                 return;
 
-            WriteLine(verbosity);
+            _logger.WriteLine(verbosity);
 
             if (ContentFilter != null)
             {
@@ -508,33 +507,33 @@ namespace Orang.CommandLine
             else
             {
                 if (Options.SearchTarget != SearchTarget.Directories)
-                    WriteCount("Matching files", telemetry.MatchingFileCount, Colors.Message_OK, verbosity);
+                    _logger.WriteCount("Matching files", telemetry.MatchingFileCount, Colors.Message_OK, verbosity);
 
                 if (Options.SearchTarget != SearchTarget.Files)
                 {
                     if (Options.SearchTarget != SearchTarget.Directories)
-                        Write("  ", Colors.Message_OK, verbosity);
+                        _logger.Write("  ", Colors.Message_OK, verbosity);
 
-                    WriteCount("Matching directories", telemetry.MatchingDirectoryCount, Colors.Message_OK, verbosity);
+                    _logger.WriteCount("Matching directories", telemetry.MatchingDirectoryCount, Colors.Message_OK, verbosity);
                 }
             }
 
-            WriteLine(verbosity);
+            _logger.WriteLine(verbosity);
         }
 
-        protected static void WriteContentSummary(SearchTelemetry telemetry, Verbosity verbosity)
+        protected void WriteContentSummary(SearchTelemetry telemetry, Verbosity verbosity)
         {
-            WriteCount("Matches", telemetry.MatchCount, Colors.Message_OK, verbosity);
-            Write("  ", Colors.Message_OK, verbosity);
+            _logger.WriteCount("Matches", telemetry.MatchCount, Colors.Message_OK, verbosity);
+            _logger.Write("  ", Colors.Message_OK, verbosity);
 
             if (telemetry.MatchingLineCount > 0)
             {
-                WriteCount("Matching lines", telemetry.MatchingLineCount, Colors.Message_OK, verbosity);
-                Write("  ", Colors.Message_OK, verbosity);
+                _logger.WriteCount("Matching lines", telemetry.MatchingLineCount, Colors.Message_OK, verbosity);
+                _logger.Write("  ", Colors.Message_OK, verbosity);
             }
 
             if (telemetry.MatchingFileCount > 0)
-                WriteCount("Matching files", telemetry.MatchingFileCount, Colors.Message_OK, verbosity);
+                _logger.WriteCount("Matching files", telemetry.MatchingFileCount, Colors.Message_OK, verbosity);
         }
     }
 }

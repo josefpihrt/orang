@@ -4,15 +4,11 @@ namespace Orang.CommandLine
 {
     internal abstract class AbstractCommandOptions
     {
-        internal void WriteDiagnostic()
+        internal void WriteDiagnostic(DiagnosticWriter writer)
         {
-            WriteDiagnosticCore();
-#if DEBUG
-            if (Logger.ConsoleOut.Verbosity == Verbosity.Diagnostic)
-                ConsoleHelpers.WaitForKeyPress();
-#endif
+            WriteDiagnosticCore(writer);
         }
 
-        protected abstract void WriteDiagnosticCore();
+        protected abstract void WriteDiagnosticCore(DiagnosticWriter writer);
     }
 }

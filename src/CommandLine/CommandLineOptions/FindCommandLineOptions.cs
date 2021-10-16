@@ -7,8 +7,6 @@ using System.Linq;
 using CommandLine;
 using Orang.CommandLine.Annotations;
 using Orang.FileSystem;
-using static Orang.CommandLine.ParseHelpers;
-using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
@@ -48,9 +46,9 @@ namespace Orang.CommandLine
             HelpText = "Execute regex in a split mode.")]
         public bool Split { get; set; }
 
-        public bool TryParse(FindCommandOptions options)
+        public bool TryParse(FindCommandOptions options, ParseContext context)
         {
-            if (!TryParseAsEnum(
+            if (!context.TryParseAsEnum(
                 Pipe,
                 OptionNames.Pipe,
                 out PipeMode pipeMode,
@@ -69,7 +67,7 @@ namespace Orang.CommandLine
             {
                 if (!Console.IsInputRedirected)
                 {
-                    WriteError("Redirected/piped input is required "
+                    context.WriteError("Redirected/piped input is required "
                         + $"when option '{OptionNames.GetHelpText(OptionNames.Pipe)}' is specified.");
 
                     return false;
@@ -78,12 +76,12 @@ namespace Orang.CommandLine
                 PipeMode = pipeMode;
             }
 
-            if (!TryParseProperties(Ask, Name, options, allowEmptyPattern: true))
+            if (!context.TryParseProperties(Ask, Name, options, allowEmptyPattern: true))
                 return false;
 
             var baseOptions = (CommonFindCommandOptions)options;
 
-            if (!TryParse(baseOptions))
+            if (!TryParse(baseOptions, context))
                 return false;
 
             options = (FindCommandOptions)baseOptions;
@@ -95,7 +93,7 @@ namespace Orang.CommandLine
             {
                 if (options.ContentFilter == null)
                 {
-                    WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Content)}' is required "
+                    context.WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Content)}' is required "
                         + "when redirected/piped input is used as a text to be searched.");
 
                     return false;
@@ -115,12 +113,12 @@ namespace Orang.CommandLine
             EnumerableModifier<string>? modifier = null;
 #if DEBUG // --modifier
             if (Modifier.Any()
-                && !TryParseModifier(Modifier, OptionNames.Modifier, out modifier))
+                && !context.TryParseModifier(Modifier, OptionNames.Modifier, out modifier))
             {
                 return false;
             }
 #endif
-            if (!TryParseModifyOptions(
+            if (!context.TryParseModifyOptions(
                 Modify,
                 OptionNames.Modify,
                 modifier,

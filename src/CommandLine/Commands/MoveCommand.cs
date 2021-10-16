@@ -6,7 +6,7 @@ namespace Orang.CommandLine
 {
     internal class MoveCommand : CommonCopyCommand<MoveCommandOptions>
     {
-        public MoveCommand(MoveCommandOptions options) : base(options)
+        public MoveCommand(MoveCommandOptions options, Logger logger) : base(options, logger)
         {
         }
 
@@ -27,17 +27,17 @@ namespace Orang.CommandLine
             ConsoleColors colors = (Options.DryRun) ? Colors.Message_DryRun : Colors.Message_Change;
 
             if (telemetry.ProcessedFileCount > 0)
-                LogHelpers.WriteCount("Moved files", telemetry.ProcessedFileCount, colors, verbosity);
+                _logger.WriteCount("Moved files", telemetry.ProcessedFileCount, colors, verbosity);
 
             if (telemetry.ProcessedDirectoryCount > 0)
             {
                 if (telemetry.ProcessedFileCount > 0)
-                    Logger.Write("  ", verbosity);
+                    _logger.Write("  ", verbosity);
 
-                LogHelpers.WriteCount("Moved directories", telemetry.ProcessedDirectoryCount, colors, verbosity);
+                _logger.WriteCount("Moved directories", telemetry.ProcessedDirectoryCount, colors, verbosity);
             }
 
-            Logger.WriteLine(verbosity);
+            _logger.WriteLine(verbosity);
         }
     }
 }

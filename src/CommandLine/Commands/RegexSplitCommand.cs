@@ -2,14 +2,12 @@
 
 using System.Threading;
 using Orang.Text.RegularExpressions;
-using static Orang.CommandLine.LogHelpers;
-using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
     internal class RegexSplitCommand : RegexCommand<RegexSplitCommandOptions>
     {
-        public RegexSplitCommand(RegexSplitCommandOptions options) : base(options)
+        public RegexSplitCommand(RegexSplitCommandOptions options, Logger logger) : base(options, logger)
         {
         }
 
@@ -22,21 +20,21 @@ namespace Orang.CommandLine
                 omitGroups: Options.OmitGroups,
                 cancellationToken);
 
-            var outputWriter = new OutputWriter(Options.HighlightOptions);
+            var outputWriter = new OutputWriter(Options.HighlightOptions, _logger);
 
             int count = outputWriter.WriteSplits(splitData, Options, cancellationToken);
 
-            WriteLine();
+            _logger.WriteLine();
 
-            if (ShouldLog(Verbosity.Detailed)
+            if (_logger.ShouldWrite(Verbosity.Detailed)
                 || Options.IncludeSummary)
             {
                 Verbosity verbosity = (Options.IncludeSummary) ? Verbosity.Minimal : Verbosity.Detailed;
 
-                WriteGroups(splitData.GroupDefinitions, verbosity: verbosity);
-                WriteLine(verbosity);
+                _logger.WriteGroups(splitData.GroupDefinitions, verbosity: verbosity);
+                _logger.WriteLine(verbosity);
 
-                WriteCount(
+                _logger.WriteCount(
                     (Options.ContentDisplayStyle == ContentDisplayStyle.Value && Options.ModifyOptions.HasAnyFunction)
                         ? "Values"
                         : "Splits",
@@ -44,7 +42,7 @@ namespace Orang.CommandLine
                     Colors.Message_OK,
                     verbosity);
 
-                WriteLine(verbosity);
+                _logger.WriteLine(verbosity);
             }
 
             return (count > 0) ? CommandResult.Success : CommandResult.NoMatch;

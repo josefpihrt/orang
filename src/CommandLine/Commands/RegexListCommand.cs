@@ -10,13 +10,12 @@ using System.Threading;
 using Orang.CommandLine.Help;
 using Orang.Syntax;
 using Orang.Text.RegularExpressions;
-using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
     internal class RegexListCommand : AbstractCommand<RegexListCommandOptions>
     {
-        public RegexListCommand(RegexListCommandOptions options) : base(options)
+        public RegexListCommand(RegexListCommandOptions options, Logger logger) : base(options, logger)
         {
         }
 
@@ -79,20 +78,20 @@ namespace Orang.CommandLine
 
                 foreach (IGrouping<SyntaxSection, SyntaxItem> grouping in list.GroupBy(f => f.Section))
                 {
-                    WriteLine();
+                    _logger.WriteLine();
 
                     if (grouping.Key == SyntaxSection.RegexOptions)
                     {
-                        WriteLine("RegexOptions");
+                        _logger.WriteLine("RegexOptions");
                     }
                     else
                     {
-                        WriteLine(TextHelpers.SplitCamelCase(grouping.Key.ToString()).ToUpper());
+                        _logger.WriteLine(TextHelpers.SplitCamelCase(grouping.Key.ToString()).ToUpper());
                     }
 
                     foreach (SyntaxItem item in grouping)
                     {
-                        Write(" ");
+                        _logger.Write(" ");
 
                         string text = item.Text;
                         int length = text.Length;
@@ -102,7 +101,7 @@ namespace Orang.CommandLine
                         {
                             if (text[i] == '%')
                             {
-                                Write(text, prevIndex, i - prevIndex, Colors.Syntax);
+                                _logger.Write(text, prevIndex, i - prevIndex, Colors.Syntax);
 
                                 int j = i + 1;
 
@@ -112,16 +111,16 @@ namespace Orang.CommandLine
                                     j++;
                                 }
 
-                                Write(text, i + 1, j - i - 1);
+                                _logger.Write(text, i + 1, j - i - 1);
 
                                 i = j;
                                 prevIndex = j + 1;
                             }
                         }
 
-                        Write(text, prevIndex, length - prevIndex, Colors.Syntax);
-                        Write(' ', width - text.Length + text.Count(ch => ch == '%') + HelpProvider.SeparatorWidth);
-                        WriteLine(item.Description);
+                        _logger.Write(text, prevIndex, length - prevIndex, Colors.Syntax);
+                        _logger.Write(' ', width - text.Length + text.Count(ch => ch == '%') + HelpProvider.SeparatorWidth);
+                        _logger.WriteLine(item.Description);
                     }
                 }
 
@@ -151,12 +150,12 @@ namespace Orang.CommandLine
                 rows.Max(f => f.name.Length),
                 patterns.Select(f => f.Pattern.Length).DefaultIfEmpty().Max());
 
-            WriteLine();
+            _logger.WriteLine();
 
             foreach ((string name, string description) in rows)
                 WriteRow(name, description);
 
-            WriteLine();
+            _logger.WriteLine();
 
             if (patterns.Count > 0)
             {
@@ -169,7 +168,7 @@ namespace Orang.CommandLine
             }
             else
             {
-                WriteLine("No pattern found");
+                _logger.WriteLine("No pattern found");
                 return CommandResult.NoMatch;
             }
 
@@ -179,9 +178,9 @@ namespace Orang.CommandLine
                 in ConsoleColors colors1 = default,
                 in ConsoleColors colors2 = default)
             {
-                Write(value1, colors1);
-                Write(' ', width - value1.Length + HelpProvider.SeparatorWidth);
-                WriteLine(value2 ?? "-", colors2);
+                _logger.Write(value1, colors1);
+                _logger.Write(' ', width - value1.Length + HelpProvider.SeparatorWidth);
+                _logger.WriteLine(value2 ?? "-", colors2);
             }
         }
 

@@ -9,8 +9,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using Orang.FileSystem;
 using Orang.Text.RegularExpressions;
-using static Orang.CommandLine.LogHelpers;
-using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
@@ -18,7 +16,7 @@ namespace Orang.CommandLine
     {
         private OutputSymbols? _symbols;
 
-        public CommonReplaceCommand(TOptions options) : base(options)
+        public CommonReplaceCommand(TOptions options, Logger logger) : base(options, logger)
         {
             Debug.Assert(!options.ContentFilter!.IsNegative);
         }
@@ -80,7 +78,7 @@ namespace Orang.CommandLine
                     {
                         if (en.MoveNext())
                         {
-                            if (ShouldLog(Verbosity.Normal))
+                            if (_logger.ShouldWrite(Verbosity.Normal))
                             {
                                 MatchOutputInfo? outputInfo = Options.CreateOutputInfo(input, match, contentFilter);
 
@@ -88,12 +86,13 @@ namespace Orang.CommandLine
                                     Options.ContentDisplayStyle,
                                     input,
                                     Options.Replacer,
+                                    ContentWriter,
                                     FileWriterOptions,
                                     outputInfo: outputInfo);
                             }
                             else
                             {
-                                contentWriter = new EmptyContentWriter(FileWriterOptions);
+                                contentWriter = new EmptyContentWriter(ContentWriter, FileWriterOptions);
                             }
 
                             WriteMatches(contentWriter, en, context);
@@ -110,15 +109,15 @@ namespace Orang.CommandLine
                 }
             }
 
-            if (ShouldLog(Verbosity.Detailed)
+            if (_logger.ShouldWrite(Verbosity.Detailed)
                 || Options.IncludeSummary)
             {
                 Verbosity verbosity = (Options.IncludeSummary) ? Verbosity.Minimal : Verbosity.Detailed;
 
-                WriteLine(verbosity);
-                WriteCount("Replacements", count, Colors.Message_OK, verbosity);
-                WriteIf(maxReason == MaxReason.CountExceedsMax, "+", Colors.Message_OK, verbosity);
-                WriteLine(verbosity);
+                _logger.WriteLine(verbosity);
+                _logger.WriteCount("Replacements", count, Colors.Message_OK, verbosity);
+                _logger.WriteIf(maxReason == MaxReason.CountExceedsMax, "+", Colors.Message_OK, verbosity);
+                _logger.WriteLine(verbosity);
             }
         }
 
@@ -198,7 +197,7 @@ namespace Orang.CommandLine
             if (!Options.OmitPath)
             {
                 WritePath(context, fileMatch, baseDirectoryPath, indent, columnWidths, includeNewline: false);
-                WriteFilePathEnd(count, maxReason, Options.IncludeCount);
+                _logger.WriteFilePathEnd(count, maxReason, Options.IncludeCount);
             }
 
             SearchTelemetry telemetry = context.Telemetry;
@@ -229,7 +228,7 @@ namespace Orang.CommandLine
                 if (Options.AskMode == AskMode.Value
                     || Options.Interactive
                     || (!Options.OmitContent
-                        && ShouldLog(Verbosity.Normal)))
+                        && _logger.ShouldWrite(Verbosity.Normal)))
                 {
                     MatchOutputInfo? outputInfo = Options.CreateOutputInfo(
                         fileMatch.ContentText,
@@ -255,6 +254,7 @@ namespace Orang.CommandLine
                             fileMatch.ContentText,
                             Options.Replacer,
                             lazyWriter,
+                            ContentWriter,
                             writerOptions,
                             outputInfo,
                             isInteractive: Options.Interactive,
@@ -266,6 +266,7 @@ namespace Orang.CommandLine
                             Options.ContentDisplayStyle,
                             fileMatch.ContentText,
                             Options.Replacer,
+                            ContentWriter,
                             writerOptions,
                             textWriter,
                             outputInfo);
@@ -274,13 +275,14 @@ namespace Orang.CommandLine
                 else if (Options.DryRun
                     && CanUseEmptyWriter)
                 {
-                    contentWriter = new EmptyContentWriter(FileWriterOptions);
+                    contentWriter = new EmptyContentWriter(ContentWriter, FileWriterOptions);
                 }
                 else
                 {
                     contentWriter = new TextWriterContentWriter(
                         fileMatch.ContentText,
                         Options.Replacer,
+                        ContentWriter,
                         writerOptions,
                         textWriter,
                         SpellcheckState);
@@ -364,7 +366,7 @@ namespace Orang.CommandLine
             catch (Exception ex) when (ex is IOException
                 || ex is UnauthorizedAccessException)
             {
-                WriteFileError(ex, indent: indent);
+                _logger.WriteFileError(ex, indent: indent);
             }
             finally
             {
@@ -374,12 +376,12 @@ namespace Orang.CommandLine
 
         protected override void WriteSummary(SearchTelemetry telemetry, Verbosity verbosity)
         {
-            WriteSearchedFilesAndDirectories(telemetry, Options.SearchTarget, verbosity);
+            _logger.WriteSearchedFilesAndDirectories(telemetry, Options.SearchTarget, verbosity);
 
-            if (!ShouldLog(verbosity))
+            if (!_logger.ShouldWrite(verbosity))
                 return;
 
-            WriteLine(verbosity);
+            _logger.WriteLine(verbosity);
 
             string matchCount = telemetry.MatchCount.ToString("n0");
             string matchingFileCount = telemetry.MatchingFileCount.ToString("n0");
@@ -398,28 +400,28 @@ namespace Orang.CommandLine
 
             ConsoleColors colors = Colors.Message_OK;
 
-            WriteCount(matchesTitle, matchCount, width1, width2, colors, verbosity);
-            Write("  ", colors, verbosity);
+            _logger.WriteCount(matchesTitle, matchCount, width1, width2, colors, verbosity);
+            _logger.Write("  ", colors, verbosity);
 
             int matchingLinesWidth = 0;
             if (telemetry.MatchingLineCount >= 0)
             {
-                matchingLinesWidth += WriteCount("Matching lines", telemetry.MatchingLineCount, colors, verbosity);
-                Write("  ", colors, verbosity);
+                matchingLinesWidth += _logger.WriteCount("Matching lines", telemetry.MatchingLineCount, colors, verbosity);
+                _logger.Write("  ", colors, verbosity);
                 matchingLinesWidth += 2;
             }
 
-            WriteCount(matchingFilesTitle, matchingFileCount, width3, width4, colors, verbosity);
-            WriteLine(verbosity);
+            _logger.WriteCount(matchingFilesTitle, matchingFileCount, width3, width4, colors, verbosity);
+            _logger.WriteLine(verbosity);
 
             colors = (Options.DryRun) ? Colors.Message_DryRun : Colors.Message_Change;
 
-            WriteCount(replacementsTitle, processedMatchCount, width1, width2, colors, verbosity);
-            Write("  ", colors, verbosity);
-            Write(' ', matchingLinesWidth, colors, verbosity);
-            WriteCount(replacedFilesTitle, processedFileCount, width3, width4, colors, verbosity);
+            _logger.WriteCount(replacementsTitle, processedMatchCount, width1, width2, colors, verbosity);
+            _logger.Write("  ", colors, verbosity);
+            _logger.Write(' ', matchingLinesWidth, colors, verbosity);
+            _logger.WriteCount(replacedFilesTitle, processedFileCount, width3, width4, colors, verbosity);
 
-            WriteLine(verbosity);
+            _logger.WriteLine(verbosity);
         }
 
         protected override ContentWriterOptions CreateContentWriterOptions(string indent)
@@ -454,11 +456,20 @@ namespace Orang.CommandLine
             ContentDisplayStyle contentDisplayStyle,
             string input,
             IReplacer replacer,
+            ContentTextWriter writer,
             ContentWriterOptions options,
             TextWriter? textWriter = null,
             MatchOutputInfo? outputInfo = null)
         {
-            return ContentWriter.CreateReplace(contentDisplayStyle, input, replacer, options, textWriter, outputInfo, SpellcheckState);
+            return CommandLine.ContentWriter.CreateReplace(
+                contentDisplayStyle,
+                input,
+                replacer,
+                writer,
+                options,
+                textWriter,
+                outputInfo,
+                SpellcheckState);
         }
     }
 }

@@ -8,13 +8,12 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using Orang.FileSystem;
-using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
     internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> where TOptions : FileSystemCommandOptions
     {
-        protected FileSystemCommand(TOptions options) : base(options)
+        protected FileSystemCommand(TOptions options, Logger logger) : base(options, logger)
         {
         }
 
@@ -145,7 +144,7 @@ namespace Orang.CommandLine
         private ProgressReporter? CreateProgressReporter()
         {
             ProgressReportMode consoleReportMode;
-            if (ConsoleOut.ShouldWrite(Verbosity.Diagnostic))
+            if (_logger.ConsoleOut.ShouldWrite(Verbosity.Diagnostic))
             {
                 consoleReportMode = ProgressReportMode.Path;
             }
@@ -159,7 +158,7 @@ namespace Orang.CommandLine
             }
 
             ProgressReportMode fileReportMode;
-            if (Out?.ShouldWrite(Verbosity.Diagnostic) == true)
+            if (_logger.Out?.ShouldWrite(Verbosity.Diagnostic) == true)
             {
                 fileReportMode = ProgressReportMode.Path;
             }
@@ -172,15 +171,15 @@ namespace Orang.CommandLine
             {
                 if (consoleReportMode == ProgressReportMode.None)
                 {
-                    return (ShouldWriteSummary()) ? new ProgressReporter(GetPathIndent()) : null;
+                    return (ShouldWriteSummary()) ? new ProgressReporter(GetPathIndent(), _logger) : null;
                 }
                 else if (consoleReportMode == ProgressReportMode.Dot)
                 {
-                    return new DotProgressReporter(GetPathIndent());
+                    return new DotProgressReporter(GetPathIndent(), _logger);
                 }
             }
 
-            return new DiagnosticProgressReporter(consoleReportMode, fileReportMode, Options, GetPathIndent());
+            return new DiagnosticProgressReporter(consoleReportMode, fileReportMode, Options, GetPathIndent(), _logger);
         }
 
         protected virtual void ExecuteCore(SearchContext context)
@@ -207,9 +206,9 @@ namespace Orang.CommandLine
             if (context.Results != null)
             {
                 if (context.Progress?.ProgressReported == true
-                    && ConsoleOut.Verbosity >= Verbosity.Minimal)
+                    && _logger.ConsoleOut.Verbosity >= Verbosity.Minimal)
                 {
-                    ConsoleOut.WriteLine();
+                    _logger.ConsoleOut.WriteLine();
                     context.Progress.ProgressReported = false;
                 }
 
@@ -243,7 +242,7 @@ namespace Orang.CommandLine
         {
             if (CanDisplaySummary)
             {
-                if (ShouldLog(Verbosity.Detailed)
+                if (_logger.ShouldWrite(Verbosity.Detailed)
                     || Options.IncludeSummary)
                 {
                     return true;
@@ -365,7 +364,7 @@ namespace Orang.CommandLine
 
                 if (progress?.ProgressReported == true)
                 {
-                    ConsoleOut.WriteLine();
+                    _logger.ConsoleOut.WriteLine();
                     progress.ProgressReported = false;
                 }
 
@@ -386,17 +385,17 @@ namespace Orang.CommandLine
             {
                 string message = $"File or directory not found: {path}";
 
-                WriteLine(message, Colors.Message_Warning, Verbosity.Minimal);
+                _logger.WriteLine(message, Colors.Message_Warning, Verbosity.Minimal);
             }
         }
 
         protected void EndProgress(SearchContext context)
         {
             if (context.Progress?.ProgressReported == true
-                && ConsoleOut.Verbosity >= Verbosity.Minimal
+                && _logger.ConsoleOut.Verbosity >= Verbosity.Minimal
                 && context.Results == null)
             {
-                ConsoleOut.WriteLine();
+                _logger.ConsoleOut.WriteLine();
                 context.Progress.ProgressReported = false;
             }
         }
@@ -482,7 +481,7 @@ namespace Orang.CommandLine
                 context.Telemetry.FilesTotalSize += size;
             }
 
-            if (!ShouldLog(Verbosity.Minimal))
+            if (!_logger.ShouldWrite(Verbosity.Minimal))
                 return;
 
             if (Options.FilePropertyOptions.IsEmpty)
@@ -526,7 +525,7 @@ namespace Orang.CommandLine
                 sb.Append(File.GetLastWriteTime(fileMatch.Path).ToString(ApplicationOptions.Default.DateFormat));
             }
 
-            Write(StringBuilderCache.GetStringAndFree(sb), Verbosity.Minimal);
+            _logger.Write(StringBuilderCache.GetStringAndFree(sb), Verbosity.Minimal);
         }
     }
 }

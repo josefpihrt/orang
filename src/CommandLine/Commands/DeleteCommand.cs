@@ -3,13 +3,12 @@
 using System;
 using System.IO;
 using Orang.FileSystem;
-using static Orang.CommandLine.LogHelpers;
 
 namespace Orang.CommandLine
 {
     internal class DeleteCommand : DeleteOrRenameCommand<DeleteCommandOptions>
     {
-        public DeleteCommand(DeleteCommandOptions options) : base(options)
+        public DeleteCommand(DeleteCommandOptions options, Logger logger) : base(options, logger)
         {
         }
 
@@ -59,13 +58,13 @@ namespace Orang.CommandLine
             catch (Exception ex) when (ex is IOException
                 || ex is UnauthorizedAccessException)
             {
-                WriteFileError(ex, indent: indent);
+                _logger.WriteFileError(ex, indent: indent);
             }
         }
 
         protected override void WriteSummary(SearchTelemetry telemetry, Verbosity verbosity)
         {
-            WriteSearchedFilesAndDirectories(telemetry, Options.SearchTarget, verbosity);
+            _logger.WriteSearchedFilesAndDirectories(telemetry, Options.SearchTarget, verbosity);
 
             string filesTitle = (Options.ContentOnly)
                 ? "Deleted files content"
@@ -75,7 +74,7 @@ namespace Orang.CommandLine
                 ? "Deleted directories (content only)"
                 : "Deleted directories";
 
-            WriteProcessedFilesAndDirectories(
+            _logger.WriteProcessedFilesAndDirectories(
                 telemetry,
                 Options.SearchTarget,
                 filesTitle,

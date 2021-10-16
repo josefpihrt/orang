@@ -97,7 +97,7 @@ namespace Orang.CommandLine
             HelpText = "")]
         public bool WholeWord { get; set; }
 
-        public bool TryParse(RegexCreateCommandOptions options)
+        public bool TryParse(RegexCreateCommandOptions options, ParseContext context)
         {
             var patternOptions = PatternOptions.None;
 
@@ -109,7 +109,7 @@ namespace Orang.CommandLine
 
                 if (redirectedInput == null)
                 {
-                    Logger.WriteError("Input is missing.");
+                    context.WriteError("Input is missing.");
                     return false;
                 }
 

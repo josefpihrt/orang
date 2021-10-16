@@ -145,7 +145,7 @@ namespace Orang.CommandLine
             WriteLine();
         }
 
-        internal static void WriteRegexCreateCommand(RegexCreateCommandOptions options)
+        internal void WriteRegexCreateCommand(RegexCreateCommandOptions options)
         {
             WriteOption("input", options.Input);
             WriteOption("pattern options", options.PatternOptions);

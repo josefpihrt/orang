@@ -7,7 +7,7 @@ namespace Orang.CommandLine
 {
     internal class RegexCreateCommand : AbstractCommand<RegexCreateCommandOptions>
     {
-        public RegexCreateCommand(RegexCreateCommandOptions options) : base(options)
+        public RegexCreateCommand(RegexCreateCommandOptions options, Logger logger) : base(options, logger)
         {
         }
 
@@ -18,12 +18,12 @@ namespace Orang.CommandLine
             string pattern = Options.Input;
 
             if ((patternOptions & PatternOptions.FromFile) != 0
-                && !FileSystemHelpers.TryReadAllText(pattern, out pattern!, ex => Logger.WriteError(ex)))
+                && !FileSystemHelpers.TryReadAllText(pattern, out pattern!, ex => _logger.WriteError(ex)))
             {
                 return CommandResult.Fail;
             }
 
-            pattern = FilterParser.BuildPattern(pattern, patternOptions, Options.Separator);
+            pattern = PatternBuilder.BuildPattern(pattern, patternOptions, Options.Separator);
 
             var inlineOptions = "";
 
@@ -47,7 +47,7 @@ namespace Orang.CommandLine
 
             pattern = inlineOptions + pattern;
 
-            Logger.WriteLine(pattern, Verbosity.Minimal);
+            _logger.WriteLine(pattern, Verbosity.Minimal);
 
             return CommandResult.Success;
         }

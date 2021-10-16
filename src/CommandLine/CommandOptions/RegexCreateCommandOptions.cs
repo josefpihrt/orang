@@ -14,9 +14,9 @@ namespace Orang.CommandLine
 
         public string? Separator { get; internal set; } = null!;
 
-        protected override void WriteDiagnosticCore()
+        protected override void WriteDiagnosticCore(DiagnosticWriter writer)
         {
-            DiagnosticWriter.WriteRegexCreateCommand(this);
+            writer.WriteRegexCreateCommand(this);
         }
     }
 }

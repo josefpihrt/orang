@@ -1151,7 +1151,10 @@ namespace Orang.CommandLine
             foreach (string value in values)
             {
                 if (!TryParseAsEnum(value, optionName, out TEnum result2, provider: provider))
+                {
+                    result = default;
                     return false;
+                }
 
                 builder.Add(result2);
             }
@@ -1293,7 +1296,10 @@ namespace Orang.CommandLine
             foreach (string path in paths)
             {
                 if (!TryEnsureFullPath(path, out string? fullPath))
+                {
+                    fullPaths = default;
                     return false;
+                }
 
                 builder.Add(fullPath);
             }

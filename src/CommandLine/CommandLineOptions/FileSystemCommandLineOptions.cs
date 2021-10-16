@@ -367,7 +367,10 @@ namespace Orang.CommandLine
             foreach (string path in paths)
             {
                 if (!context.TryEnsureFullPath(path, out string? fullPath))
+                {
+                    fullPaths = default;
                     return false;
+                }
 
                 builder.Add(new PathInfo(fullPath, kind));
             }

@@ -6,7 +6,7 @@ namespace Orang.CommandLine
 {
     internal class CopyCommand : CommonCopyCommand<CopyCommandOptions>
     {
-        public CopyCommand(CopyCommandOptions options) : base(options)
+        public CopyCommand(CopyCommandOptions options, Logger logger) : base(options, logger)
         {
         }
 
@@ -27,17 +27,17 @@ namespace Orang.CommandLine
             ConsoleColors colors = (Options.DryRun) ? Colors.Message_DryRun : Colors.Message_Change;
 
             if (telemetry.ProcessedFileCount > 0)
-                LogHelpers.WriteCount("Copied files", telemetry.ProcessedFileCount, colors, verbosity);
+                _logger.WriteCount("Copied files", telemetry.ProcessedFileCount, colors, verbosity);
 
             if (telemetry.ProcessedDirectoryCount > 0)
             {
                 if (telemetry.ProcessedFileCount > 0)
-                    Logger.Write("  ", verbosity);
+                    _logger.Write("  ", verbosity);
 
-                LogHelpers.WriteCount("Copied directories", telemetry.ProcessedDirectoryCount, colors, verbosity);
+                _logger.WriteCount("Copied directories", telemetry.ProcessedDirectoryCount, colors, verbosity);
             }
 
-            Logger.WriteLine(verbosity);
+            _logger.WriteLine(verbosity);
         }
     }
 }

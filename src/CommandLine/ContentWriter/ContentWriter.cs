@@ -13,12 +13,6 @@ namespace Orang.CommandLine
     {
         protected ContentWriter(
             string input,
-            ContentWriterOptions options) : this(input, ContentTextWriter.Default, options)
-        {
-        }
-
-        protected ContentWriter(
-            string input,
             ContentTextWriter? writer,
             ContentWriterOptions options)
         {
@@ -58,24 +52,6 @@ namespace Orang.CommandLine
             ContentDisplayStyle contentDisplayStyle,
             string input,
             ContentWriterOptions options,
-            IResultStorage storage,
-            MatchOutputInfo outputInfo,
-            bool ask = false)
-        {
-            return CreateFind(
-                contentDisplayStyle,
-                input,
-                options,
-                storage,
-                outputInfo,
-                ContentTextWriter.Default,
-                ask);
-        }
-
-        public static ContentWriter CreateFind(
-            ContentDisplayStyle contentDisplayStyle,
-            string input,
-            ContentWriterOptions options,
             IResultStorage? storage,
             MatchOutputInfo? outputInfo,
             ContentTextWriter? writer,
@@ -87,9 +63,9 @@ namespace Orang.CommandLine
                 {
                     case ContentDisplayStyle.Value:
                     case ContentDisplayStyle.ValueDetail:
-                        return new AskValueContentWriter(input, options, storage, outputInfo);
+                        return new AskValueContentWriter(input, writer, options, storage, outputInfo);
                     case ContentDisplayStyle.Line:
-                        return new AskLineContentWriter(input, options, storage);
+                        return new AskLineContentWriter(input, writer, options, storage);
                     case ContentDisplayStyle.UnmatchedLines:
                     case ContentDisplayStyle.AllLines:
                         throw new InvalidOperationException();
@@ -120,6 +96,7 @@ namespace Orang.CommandLine
             ContentDisplayStyle contentDisplayStyle,
             string input,
             IReplacer replacer,
+            ContentTextWriter writer,
             ContentWriterOptions options,
             TextWriter? textWriter = null,
             MatchOutputInfo? outputInfo = null,
@@ -129,11 +106,11 @@ namespace Orang.CommandLine
             {
                 case ContentDisplayStyle.Value:
                 case ContentDisplayStyle.ValueDetail:
-                    return new ValueReplacementWriter(input, replacer, options, textWriter, outputInfo, spellcheckState);
+                    return new ValueReplacementWriter(input, replacer, writer, options, textWriter, outputInfo, spellcheckState);
                 case ContentDisplayStyle.Line:
-                    return new LineReplacementWriter(input, replacer, options, textWriter, spellcheckState);
+                    return new LineReplacementWriter(input, replacer, writer, options, textWriter, spellcheckState);
                 case ContentDisplayStyle.AllLines:
-                    return new AllLinesReplacementWriter(input, replacer, options, textWriter, spellcheckState);
+                    return new AllLinesReplacementWriter(input, replacer, writer, options, textWriter, spellcheckState);
                 case ContentDisplayStyle.UnmatchedLines:
                     throw new NotSupportedException($"Value '{contentDisplayStyle}' is not supported.");
                 default:

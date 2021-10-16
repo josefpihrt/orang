@@ -2,7 +2,6 @@
 
 using System;
 using Orang.CommandLine;
-using static Orang.Logger;
 
 namespace Orang.FileSystem
 {
@@ -12,7 +11,8 @@ namespace Orang.FileSystem
             ProgressReportMode consoleReportMode,
             ProgressReportMode fileReportMode,
             FileSystemCommandOptions options,
-            string indent) : base(indent)
+            string indent,
+            Logger logger) : base(indent, logger)
         {
             ConsoleReportMode = consoleReportMode;
             FileReportMode = fileReportMode;
@@ -91,24 +91,24 @@ namespace Orang.FileSystem
 
         private void WritePathToFile(string path, SearchProgressKind kind, string? indent = null)
         {
-            Out!.Write(indent);
-            Out.Write(GetPrefix(kind));
-            Out.WriteLine(GetPath(path));
+            _logger.Out!.Write(indent);
+            _logger.Out.Write(GetPrefix(kind));
+            _logger.Out.WriteLine(GetPath(path));
         }
 
         private void WritePath(string path, SearchProgressKind kind, string? indent = null)
         {
             ReadOnlySpan<char> pathDisplay = GetPath(path);
 
-            ConsoleOut.Write(indent, Colors.Path_Progress);
-            ConsoleOut.Write(GetPrefix(kind), Colors.Path_Progress);
-            ConsoleOut.WriteLine(pathDisplay, Colors.Path_Progress);
+            _logger.ConsoleOut.Write(indent, Colors.Path_Progress);
+            _logger.ConsoleOut.Write(GetPrefix(kind), Colors.Path_Progress);
+            _logger.ConsoleOut.WriteLine(pathDisplay, Colors.Path_Progress);
 
             if (FileReportMode == ProgressReportMode.Path)
             {
-                Out!.Write(indent);
-                Out.Write(GetPrefix(kind));
-                Out.WriteLine(pathDisplay);
+                _logger.Out!.Write(indent);
+                _logger.Out.Write(GetPrefix(kind));
+                _logger.Out.WriteLine(pathDisplay);
             }
         }
 

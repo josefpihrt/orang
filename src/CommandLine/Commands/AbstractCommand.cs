@@ -2,62 +2,57 @@
 
 using System;
 using System.Threading;
-using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
     internal abstract class AbstractCommand<TOptions> where TOptions : AbstractCommandOptions
     {
-        protected AbstractCommand(TOptions options)
+        private ContentTextWriter? _contentWriter;
+        protected Logger _logger;
+
+        protected AbstractCommand(TOptions options, Logger logger)
         {
             Options = options;
+            _logger = logger;
         }
 
         public TOptions Options { get; }
 
+        protected ContentTextWriter ContentWriter
+        {
+            get
+            {
+                if (_contentWriter == null)
+                    Interlocked.CompareExchange(ref _contentWriter, new ContentTextWriter(_logger), null);
+
+                return _contentWriter;
+            }
+        }
+
         protected abstract CommandResult ExecuteCore(CancellationToken cancellationToken = default);
 
-        public CommandResult Execute()
+        public CommandResult Execute(CancellationToken cancellationToken = default)
         {
-            CancellationTokenSource? cts = null;
-
             try
             {
-                cts = new CancellationTokenSource();
-
-                Console.CancelKeyPress += (sender, e) =>
-                {
-                    e.Cancel = true;
-                    cts.Cancel();
-                };
-
-                CancellationToken cancellationToken = cts.Token;
-
-                try
-                {
-                    return ExecuteCore(cancellationToken);
-                }
-                catch (OperationCanceledException ex)
-                {
-                    OperationCanceled(ex);
-                }
-                catch (AggregateException ex)
-                {
-                    OperationCanceledException? operationCanceledException = ex.GetOperationCanceledException();
-
-                    if (operationCanceledException != null)
-                    {
-                        OperationCanceled(operationCanceledException);
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                return ExecuteCore(cancellationToken);
             }
-            finally
+            catch (OperationCanceledException ex)
             {
-                cts?.Dispose();
+                OperationCanceled(ex);
+            }
+            catch (AggregateException ex)
+            {
+                OperationCanceledException? operationCanceledException = ex.GetOperationCanceledException();
+
+                if (operationCanceledException != null)
+                {
+                    OperationCanceled(operationCanceledException);
+                }
+                else
+                {
+                    throw;
+                }
             }
 
             return CommandResult.Canceled;
@@ -70,8 +65,8 @@ namespace Orang.CommandLine
 
         protected virtual void OperationCanceled()
         {
-            WriteLine();
-            WriteLine("Operation was canceled.");
+            _logger.WriteLine();
+            _logger.WriteLine("Operation was canceled.");
         }
     }
 }

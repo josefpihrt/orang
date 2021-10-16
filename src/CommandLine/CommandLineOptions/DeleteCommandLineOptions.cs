@@ -5,7 +5,6 @@ using CommandLine;
 using Orang.CommandLine.Annotations;
 using Orang.FileSystem;
 using Orang.Text.RegularExpressions;
-using static Orang.CommandLine.ParseHelpers;
 
 namespace Orang.CommandLine
 {
@@ -59,16 +58,16 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.Regex)]
         public IEnumerable<string> Name { get; set; } = null!;
 
-        public bool TryParse(DeleteCommandOptions options)
+        public bool TryParse(DeleteCommandOptions options, ParseContext context)
         {
             var baseOptions = (DeleteOrRenameCommandOptions)options;
 
-            if (!TryParse(baseOptions))
+            if (!TryParse(baseOptions, context))
                 return false;
 
             options = (DeleteCommandOptions)baseOptions;
 
-            if (!TryParseHighlightOptions(
+            if (!context.TryParseHighlightOptions(
                 Highlight,
                 out HighlightOptions highlightOptions,
                 defaultValue: HighlightOptions.Default,
@@ -77,7 +76,7 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            if (!FilterParser.TryParse(
+            if (!context.TryParseFilter(
                 Name,
                 OptionNames.Name,
                 OptionValueProviders.PatternOptionsProvider,
@@ -92,12 +91,12 @@ namespace Orang.CommandLine
                 && options.Paths.Length == 1
                 && options.Paths[0].Origin == PathOrigin.CurrentDirectory)
             {
-                Logger.WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Name)}' "
+                context.WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Name)}' "
                     + "is required when no path is specified (i.e. current directory is used).");
                 return false;
             }
 
-            if (!FilterParser.TryParse(
+            if (!context.TryParseFilter(
                 Content,
                 OptionNames.Content,
                 OptionValueProviders.PatternOptionsWithoutPartProvider,
@@ -108,7 +107,7 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            if (!TryParseDisplay(
+            if (!context.TryParseDisplay(
                 values: Display,
                 optionName: OptionNames.Display,
                 contentDisplayStyle: out ContentDisplayStyle? contentDisplayStyle,
@@ -130,7 +129,7 @@ namespace Orang.CommandLine
 
             if (ContentMode != null)
             {
-                if (TryParseAsEnum(
+                if (context.TryParseAsEnum(
                     ContentMode,
                     OptionNames.ContentMode,
                     out ContentDisplayStyle contentDisplayStyle2,
@@ -146,7 +145,7 @@ namespace Orang.CommandLine
 
             if (PathMode != null)
             {
-                if (TryParseAsEnum(
+                if (context.TryParseAsEnum(
                     PathMode,
                     OptionNames.PathMode,
                     out PathDisplayStyle pathDisplayStyle2,

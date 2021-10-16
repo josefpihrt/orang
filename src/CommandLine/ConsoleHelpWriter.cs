@@ -5,17 +5,22 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Orang.CommandLine.Help;
 using Orang.Text.RegularExpressions;
-using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
     internal class ConsoleHelpWriter : HelpWriter
     {
         private ContentWriterOptions? _contentWriterOptions;
+        private readonly Logger _logger;
 
-        public ConsoleHelpWriter(HelpWriterOptions? options = null) : base(options)
+        public ConsoleHelpWriter(Logger logger, HelpWriterOptions? options = null) : base(options)
         {
+            _logger = logger;
+            ContentWriter = new ContentTextWriter(_logger);
         }
+
+
+        public ContentTextWriter ContentWriter { get; }
 
         public Filter? Filter => Options.Filter;
 
@@ -111,22 +116,22 @@ namespace Orang.CommandLine
 
         protected override void Write(char value)
         {
-            ConsoleOut.Write(value);
+            _logger.ConsoleOut.Write(value);
         }
 
         protected override void Write(string value)
         {
-            ConsoleOut.Write(value);
+            _logger.ConsoleOut.Write(value);
         }
 
         protected override void WriteLine()
         {
-            ConsoleOut.WriteLine();
+            _logger.ConsoleOut.WriteLine();
         }
 
         protected override void WriteLine(string value)
         {
-            ConsoleOut.WriteLine(value);
+            _logger.ConsoleOut.WriteLine(value);
         }
 
         protected override void WriteTextLine(HelpItem helpItem)
@@ -143,7 +148,7 @@ namespace Orang.CommandLine
 
                     CaptureFactory.GetCaptures(ref captures, match, Filter.GroupNumber);
 
-                    var writer = new AllLinesContentWriter(value, ContentTextWriter.Default, ContentWriterOptions!);
+                    var writer = new AllLinesContentWriter(value, ContentWriter, ContentWriterOptions!);
 
                     writer.WriteMatches(captures);
 
@@ -152,7 +157,7 @@ namespace Orang.CommandLine
                 }
             }
 
-            ConsoleOut.WriteLine(value);
+            _logger.ConsoleOut.WriteLine(value);
         }
     }
 }

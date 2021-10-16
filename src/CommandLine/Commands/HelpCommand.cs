@@ -10,13 +10,12 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using Orang.CommandLine.Annotations;
 using Orang.CommandLine.Help;
-using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
     internal class HelpCommand : AbstractCommand<HelpCommandOptions>
     {
-        public HelpCommand(HelpCommandOptions options) : base(options)
+        public HelpCommand(HelpCommandOptions options, Logger logger) : base(options, logger)
         {
         }
 
@@ -28,19 +27,19 @@ namespace Orang.CommandLine
                     commandName: Options.Command,
                     online: Options.Online,
                     manual: Options.Manual,
-                    verbose: ConsoleOut.Verbosity > Verbosity.Normal,
+                    verbose: _logger.ConsoleOut.Verbosity > Verbosity.Normal,
                     filter: Options.Filter);
             }
             catch (ArgumentException ex)
             {
-                WriteError(ex);
+                _logger.WriteError(ex);
                 return CommandResult.Fail;
             }
 
             return CommandResult.Success;
         }
 
-        private static void WriteHelp(
+        private void WriteHelp(
             string[] commandName,
             bool online,
             bool manual,
@@ -54,7 +53,7 @@ namespace Orang.CommandLine
                 isCompoundCommand = CommandUtility.IsCompoundCommand(commandName2);
 
             if (commandName.Length > 0)
-                CommandUtility.CheckCommandName(ref commandName, showErrorMessage: false);
+                CommandUtility.CheckCommandName(ref commandName, _logger, showErrorMessage: false);
 
             commandName2 = commandName.FirstOrDefault();
 
@@ -72,20 +71,20 @@ namespace Orang.CommandLine
                 if (command == null)
                     throw new InvalidOperationException($"Command '{string.Join(' ', commandName)}' does not exist.");
 
-                WriteCommandHelp(command, verbose: verbose, filter: filter);
+                WriteCommandHelp(command, _logger, verbose: verbose, filter: filter);
             }
             else if (manual)
             {
-                WriteManual(verbose: verbose, filter: filter);
+                WriteManual(_logger, verbose: verbose, filter: filter);
             }
             else
             {
-                WriteCommandsHelp(verbose: verbose, filter: filter);
+                WriteCommandsHelp(_logger, verbose: verbose, filter: filter);
             }
         }
 
         // https://github.com/dotnet/corefx/issues/10361
-        private static void OpenHelpInBrowser(string? commandName)
+        private void OpenHelpInBrowser(string? commandName)
         {
             var url = "http://pihrt.net/redirect?id=orang-cli";
 
@@ -94,7 +93,7 @@ namespace Orang.CommandLine
 
             url += $"&version={PackageInfo.Version}";
 #if DEBUG
-            WriteLine(url, Verbosity.Normal);
+            _logger.WriteLine(url, Verbosity.Normal);
 #endif
             try
             {
@@ -127,9 +126,9 @@ namespace Orang.CommandLine
             }
         }
 
-        public static void WriteCommandHelp(Command command, bool verbose = false, Filter? filter = null)
+        public static void WriteCommandHelp(Command command, Logger logger, bool verbose = false, Filter? filter = null)
         {
-            var writer = new ConsoleHelpWriter(new HelpWriterOptions(filter: filter));
+            var writer = new ConsoleHelpWriter(logger, new HelpWriterOptions(filter: filter));
 
             IEnumerable<CommandOption> options = command.Options;
 
@@ -161,36 +160,36 @@ namespace Orang.CommandLine
 
                 if (metaValues.Any())
                 {
-                    WriteLine();
-                    Write($"Run 'orang help {command.DisplayName} -v d' to display list of option values for ");
-                    Write(TextHelpers.Join(", ", " and ", metaValues));
-                    WriteLine(".");
+                    logger.WriteLine();
+                    logger.Write($"Run 'orang help {command.DisplayName} -v d' to display list of option values for ");
+                    logger.Write(TextHelpers.Join(", ", " and ", metaValues));
+                    logger.WriteLine(".");
                 }
             }
         }
 
-        public static void WriteCommandsHelp(bool verbose = false, Filter? filter = null)
+        public static void WriteCommandsHelp(Logger logger, bool verbose = false, Filter? filter = null)
         {
             IEnumerable<Command> commands = LoadCommands().Where(f => f.Name != "help");
 
             CommandsHelp commandsHelp = CommandsHelp.Create(commands, OptionValueProviders.Providers, filter: filter);
 
-            var writer = new ConsoleHelpWriter(new HelpWriterOptions(filter: filter));
+            var writer = new ConsoleHelpWriter(logger, new HelpWriterOptions(filter: filter));
 
             writer.WriteCommands(commandsHelp);
 
             if (verbose)
                 writer.WriteValues(commandsHelp.Values);
 
-            WriteLine();
-            WriteLine(GetFooterText());
+            logger.WriteLine();
+            logger.WriteLine(GetFooterText());
         }
 
-        private static void WriteManual(bool verbose = false, Filter? filter = null)
+        private static void WriteManual(Logger logger, bool verbose = false, Filter? filter = null)
         {
             IEnumerable<Command> commands = LoadCommands();
 
-            var writer = new ConsoleHelpWriter(new HelpWriterOptions(filter: filter));
+            var writer = new ConsoleHelpWriter(logger, new HelpWriterOptions(filter: filter));
 
             IEnumerable<CommandHelp> commandHelps = commands.Select(f => CommandHelp.Create(f, filter: filter))
                 .Where(f => f.Arguments.Any() || f.Options.Any())
@@ -214,16 +213,16 @@ namespace Orang.CommandLine
                 foreach (CommandHelp commandHelp in commandHelps)
                 {
                     WriteSeparator();
-                    WriteLine();
-                    WriteLine($"Command: {commandHelp.DisplayName}");
-                    WriteLine();
+                    logger.WriteLine();
+                    logger.WriteLine($"Command: {commandHelp.DisplayName}");
+                    logger.WriteLine();
 
                     string description = commandHelp.Description;
 
                     if (!string.IsNullOrEmpty(description))
                     {
-                        WriteLine(description);
-                        WriteLine();
+                        logger.WriteLine(description);
+                        logger.WriteLine();
                     }
 
                     writer.WriteCommand(commandHelp);
@@ -234,8 +233,8 @@ namespace Orang.CommandLine
             }
             else
             {
-                WriteLine();
-                WriteLine("No command found");
+                logger.WriteLine();
+                logger.WriteLine("No command found");
 
                 if (verbose)
                 {
@@ -249,10 +248,10 @@ namespace Orang.CommandLine
             if (verbose)
                 writer.WriteValues(values);
 
-            static void WriteSeparator()
+            void WriteSeparator()
             {
-                WriteLine();
-                WriteLine("----------");
+                logger.WriteLine();
+                logger.WriteLine("----------");
             }
         }
 

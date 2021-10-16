@@ -10,9 +10,12 @@ namespace Orang.CommandLine
 {
     internal class OutputWriter
     {
-        public OutputWriter(HighlightOptions highlightOptions)
+        private readonly Logger _logger;
+
+        public OutputWriter(HighlightOptions highlightOptions, Logger logger)
         {
             HighlightOptions = highlightOptions;
+            _logger = logger;
         }
 
         public HighlightOptions HighlightOptions { get; }
@@ -67,7 +70,7 @@ namespace Orang.CommandLine
                     {
                         if (en.MoveNext())
                         {
-                            var valueWriter = new OutputValueWriter(indent, HighlightOptions);
+                            var valueWriter = new OutputValueWriter(indent, HighlightOptions, _logger);
 
                             while (true)
                             {
@@ -96,7 +99,7 @@ namespace Orang.CommandLine
                 }
                 else
                 {
-                    var valueWriter = new OutputValueWriter(indent, HighlightOptions);
+                    var valueWriter = new OutputValueWriter(indent, HighlightOptions, _logger);
                     var addSeparator = false;
                     int captureCount = 0;
 
@@ -156,7 +159,7 @@ namespace Orang.CommandLine
 
                 MatchOutputInfo? outputInfo = (addDetails) ? MatchOutputInfo.Create(matchData, groupNumber) : null;
 
-                var valueWriter = new OutputValueWriter(null, HighlightOptions);
+                var valueWriter = new OutputValueWriter(null, HighlightOptions, _logger);
 
                 int captureCount = 0;
                 int lastPos = 0;
@@ -215,7 +218,7 @@ namespace Orang.CommandLine
                     {
                         if (en.MoveNext())
                         {
-                            var valueWriter = new OutputValueWriter(null, HighlightOptions);
+                            var valueWriter = new OutputValueWriter(null, HighlightOptions, _logger);
 
                             while (true)
                             {
@@ -261,7 +264,7 @@ namespace Orang.CommandLine
                     {
                         if (en.MoveNext())
                         {
-                            var valueWriter = new OutputValueWriter(indent, HighlightOptions);
+                            var valueWriter = new OutputValueWriter(indent, HighlightOptions, _logger);
 
                             while (true)
                             {
@@ -295,7 +298,7 @@ namespace Orang.CommandLine
             }
             else if (options.ContentDisplayStyle == ContentDisplayStyle.AllLines)
             {
-                var valueWriter = new OutputValueWriter(null, HighlightOptions);
+                var valueWriter = new OutputValueWriter(null, HighlightOptions, _logger);
 
                 string input = splitData.Input;
 
@@ -327,15 +330,16 @@ namespace Orang.CommandLine
 
         private void Write(string value)
         {
-            Logger.Write(value);
+            _logger.Write(value);
         }
 
         private class OutputValueWriter : ValueWriter
         {
             public OutputValueWriter(
                 string? indent,
-                HighlightOptions highlightOptions) : base(
-                    new ContentTextWriter(Verbosity.Minimal),
+                HighlightOptions highlightOptions,
+                Logger logger) : base(
+                    new ContentTextWriter(logger, Verbosity.Minimal),
                     indent,
                     includeEndingIndent: false)
             {

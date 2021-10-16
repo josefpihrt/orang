@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
@@ -22,7 +21,7 @@ namespace Orang.CommandLine
             return false;
         }
 
-        internal static bool CheckCommandName(ref string[] args, bool showErrorMessage = true)
+        internal static bool CheckCommandName(ref string[] args, Logger logger, bool showErrorMessage = true)
         {
             switch (args[0])
             {
@@ -33,28 +32,28 @@ namespace Orang.CommandLine
                 case "regex-split":
                     {
                         if (showErrorMessage)
-                            WriteError($"Command '{args[0]}' is invalid. Use command '{args[0].Replace('-', ' ')}' instead.");
+                            logger.WriteError($"Command '{args[0]}' is invalid. Use command '{args[0].Replace('-', ' ')}' instead.");
 
                         return false;
                     }
                 case "escape":
                     {
-                        ReplaceArgs("regex-escape", "regex escape", ref args);
+                        ReplaceArgs("regex-escape", "regex escape", logger, ref args);
                         break;
                     }
                 case "list-patterns":
                     {
-                        ReplaceArgs("regex-list", "regex list", ref args);
+                        ReplaceArgs("regex-list", "regex list", logger, ref args);
                         break;
                     }
                 case "match":
                     {
-                        ReplaceArgs("regex-match", "regex match", ref args);
+                        ReplaceArgs("regex-match", "regex match", logger, ref args);
                         break;
                     }
                 case "split":
                     {
-                        ReplaceArgs("regex-split", "regex split", ref args);
+                        ReplaceArgs("regex-split", "regex split", logger, ref args);
                         break;
                     }
                 case "regex":
@@ -116,9 +115,9 @@ namespace Orang.CommandLine
 
             return true;
 
-            static void WriteErrorMessage(string commandName)
+            void WriteErrorMessage(string commandName)
             {
-                WriteError($"Command '{commandName}' is invalid. "
+                logger.WriteError($"Command '{commandName}' is invalid. "
                     + $"Use following commands instead:{Environment.NewLine}"
                     + $"  regex create{Environment.NewLine}"
                     + $"  regex escape{Environment.NewLine}"
@@ -128,11 +127,11 @@ namespace Orang.CommandLine
             }
         }
 
-        private static void ReplaceArgs(string commandName, string commandAlias, ref string[] args)
+        private static void ReplaceArgs(string commandName, string commandAlias, Logger logger, ref string[] args)
         {
             if (commandAlias != null)
             {
-                WriteWarning($"Command '{args[0]}' has been deprecated "
+                logger.WriteWarning($"Command '{args[0]}' has been deprecated "
                     + $"and will be removed in future version. Use command '{commandAlias}' instead.");
             }
 

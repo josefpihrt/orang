@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Orang.Aggregation;
 using Orang.FileSystem;
-using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
@@ -17,7 +16,7 @@ namespace Orang.CommandLine
         private AggregateManager? _aggregate;
         private ModifyManager? _modify;
 
-        public FindCommand(TOptions options) : base(options)
+        public FindCommand(TOptions options, Logger logger) : base(options, logger)
         {
         }
 
@@ -31,7 +30,7 @@ namespace Orang.CommandLine
                 return !Options.OmitPath
                     || (ContentFilter != null
                         && !Options.OmitContent
-                        && ConsoleOut.Verbosity > Verbosity.Minimal);
+                        && _logger.ConsoleOut.Verbosity > Verbosity.Minimal);
             }
         }
 
@@ -43,7 +42,7 @@ namespace Orang.CommandLine
 
         protected override void ExecuteCore(SearchContext context)
         {
-            _aggregate = AggregateManager.TryCreate(Options);
+            _aggregate = AggregateManager.TryCreate(Options, _logger);
 
             if (Options.Input != null)
                 ExecuteInput(context, Options.Input);
@@ -82,9 +81,9 @@ namespace Orang.CommandLine
 
                 Verbosity verbosity = (Options.IncludeSummary) ? Verbosity.Quiet : Verbosity.Detailed;
 
-                WriteLine(verbosity);
+                _logger.WriteLine(verbosity);
                 WriteContentSummary(context.Telemetry, verbosity);
-                WriteLine(verbosity);
+                _logger.WriteLine(verbosity);
             }
         }
 
@@ -113,7 +112,7 @@ namespace Orang.CommandLine
             if (ContentFilter!.IsNegative
                 || fileMatch.IsDirectory)
             {
-                WriteLineIf(isPathDisplayed, Verbosity.Minimal);
+                _logger.WriteLineIf(isPathDisplayed, Verbosity.Minimal);
             }
             else
             {
@@ -218,15 +217,15 @@ namespace Orang.CommandLine
                         }
 
                         var valueWriter = new ValueWriter(
-                            ContentTextWriter.Default,
+                            ContentWriter,
                             writerOptions.Indent,
                             includeEndingIndent: false);
 
                         foreach (string value in _modify!.FileValues!.Modify(ModifyOptions))
                         {
-                            Write(writerOptions.Indent, Verbosity.Normal);
+                            _logger.Write(writerOptions.Indent, Verbosity.Normal);
                             valueWriter.Write(value, _modify.Symbols, colors, Colors.MatchBoundary);
-                            WriteLine(Verbosity.Normal);
+                            _logger.WriteLine(Verbosity.Normal);
 
                             _aggregate?.Storage.Add(value);
                             telemetry.MatchCount++;
@@ -281,7 +280,7 @@ namespace Orang.CommandLine
                 || AggregateOnly
                 || Options.AskMode == AskMode.Value
                 || (!Options.OmitContent
-                    && ShouldLog(Verbosity.Normal)))
+                    && _logger.ShouldWrite(Verbosity.Normal)))
             {
                 MatchOutputInfo? outputInfo = Options.CreateOutputInfo(content, match, ContentFilter!);
 
@@ -289,7 +288,7 @@ namespace Orang.CommandLine
             }
             else
             {
-                contentWriter = new EmptyContentWriter(writerOptions);
+                contentWriter = new EmptyContentWriter(ContentWriter, writerOptions);
             }
 
             WriteMatches(context, match, writerOptions, contentWriter, isPathDisplayed);
@@ -330,13 +329,13 @@ namespace Orang.CommandLine
                 }
 
                 if (isPathDisplayed)
-                    LogHelpers.WriteFilePathEnd(splits.Count, maxReason, Options.IncludeCount);
+                    _logger.WriteFilePathEnd(splits.Count, maxReason, Options.IncludeCount);
 
                 if (ModifyOptions.HasAnyFunction
                     || AggregateOnly
                     || Options.AskMode == AskMode.Value
                     || (!Options.OmitContent
-                        && ShouldLog(Verbosity.Normal)))
+                        && _logger.ShouldWrite(Verbosity.Normal)))
                 {
                     MatchOutputInfo? outputInfo = (Options.ContentDisplayStyle == ContentDisplayStyle.ValueDetail)
                         ? MatchOutputInfo.Create(splits, SplitCaptions)
@@ -346,7 +345,7 @@ namespace Orang.CommandLine
                 }
                 else
                 {
-                    contentWriter = new EmptyContentWriter(writerOptions);
+                    contentWriter = new EmptyContentWriter(ContentWriter, writerOptions);
                 }
 
                 contentWriter.WriteMatches(splits, context.CancellationToken);
@@ -375,13 +374,13 @@ namespace Orang.CommandLine
                 (_modify ??= new ModifyManager(Options)).Reset();
             }
 
-            return ContentWriter.CreateFind(
+            return CommandLine.ContentWriter.CreateFind(
                 contentDisplayStyle: (Options.OmitContent) ? ContentDisplayStyle.Value : Options.ContentDisplayStyle,
                 input: content,
                 options: writerOptions,
                 storage: (ModifyOptions.HasAnyFunction || AggregateOnly) ? _modify?.FileStorage : _aggregate?.Storage,
                 outputInfo: outputInfo,
-                writer: (ModifyOptions.HasAnyFunction || AggregateOnly || Options.OmitContent) ? null : ContentTextWriter.Default,
+                writer: (ModifyOptions.HasAnyFunction || AggregateOnly || Options.OmitContent) ? null : ContentWriter,
                 ask: AskMode == AskMode.Value);
         }
     }

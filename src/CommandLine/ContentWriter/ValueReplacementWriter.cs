@@ -14,10 +14,11 @@ namespace Orang.CommandLine
         public ValueReplacementWriter(
             string input,
             IReplacer replacer,
+            ContentTextWriter writer,
             ContentWriterOptions options,
             TextWriter? textWriter = null,
             MatchOutputInfo? outputInfo = null,
-            SpellcheckState? spellcheckState = null) : base(input, options, outputInfo: outputInfo)
+            SpellcheckState? spellcheckState = null) : base(input, writer, options, outputInfo: outputInfo)
         {
             Replacer = replacer;
             _textWriter = textWriter;

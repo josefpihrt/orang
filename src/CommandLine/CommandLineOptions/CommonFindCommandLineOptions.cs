@@ -5,8 +5,6 @@ using System.Collections.Generic;
 using CommandLine;
 using Orang.CommandLine.Annotations;
 using Orang.Text.RegularExpressions;
-using static Orang.CommandLine.ParseHelpers;
-using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
@@ -51,16 +49,16 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.Regex)]
         public IEnumerable<string> Name { get; set; } = null!;
 
-        public bool TryParse(CommonFindCommandOptions options)
+        public bool TryParse(CommonFindCommandOptions options, ParseContext context)
         {
             var baseOptions = (FileSystemCommandOptions)options;
 
-            if (!TryParse(baseOptions))
+            if (!TryParse(baseOptions, context))
                 return false;
 
             options = (CommonFindCommandOptions)baseOptions;
 
-            if (!FilterParser.TryParse(
+            if (!context.TryParseFilter(
                 Content,
                 OptionNames.Content,
                 OptionValueProviders.PatternOptionsWithoutPartProvider,
@@ -71,7 +69,7 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            if (!TryParseDisplay(
+            if (!context.TryParseDisplay(
                 values: Display,
                 optionName: OptionNames.Display,
                 contentDisplayStyle: out ContentDisplayStyle? contentDisplayStyle,
@@ -93,7 +91,7 @@ namespace Orang.CommandLine
 
             if (ContentMode != null)
             {
-                if (TryParseAsEnum(
+                if (context.TryParseAsEnum(
                     ContentMode,
                     OptionNames.ContentMode,
                     out ContentDisplayStyle contentDisplayStyle2,
@@ -109,7 +107,7 @@ namespace Orang.CommandLine
 
             if (PathMode != null)
             {
-                if (TryParseAsEnum(
+                if (context.TryParseAsEnum(
                     PathMode,
                     OptionNames.PathMode,
                     out PathDisplayStyle pathDisplayStyle2,
@@ -180,13 +178,13 @@ namespace Orang.CommandLine
 
                 string helpValue2 = OptionValueProviders.AskModeProvider.GetValue(nameof(AskMode.Value)).HelpValue;
 
-                WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Display)}' cannot have value '{helpValue}' "
+                context.WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Display)}' cannot have value '{helpValue}' "
                     + $"when option '{OptionNames.GetHelpText(OptionNames.Ask)}' has value '{helpValue2}'.");
 
                 return false;
             }
 
-            if (!TryParseHighlightOptions(
+            if (!context.TryParseHighlightOptions(
                 Highlight,
                 out HighlightOptions highlightOptions,
                 defaultValue: HighlightOptions.Default,

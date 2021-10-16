@@ -14,9 +14,9 @@ namespace Orang.CommandLine
 
         public bool Replacement { get; internal set; }
 
-        protected override void WriteDiagnosticCore()
+        protected override void WriteDiagnosticCore(DiagnosticWriter writer)
         {
-            DiagnosticWriter.WriteRegexEscapeCommand(this);
+            writer.WriteRegexEscapeCommand(this);
         }
     }
 }

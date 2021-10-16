@@ -28,7 +28,7 @@ namespace Orang.CommandLine
             HelpText = "Text is a replacement string.")]
         public bool Replacement { get; set; }
 
-        public bool TryParse(RegexEscapeCommandOptions options)
+        public bool TryParse(RegexEscapeCommandOptions options, ParseContext context)
         {
             string input = Input;
 
@@ -38,7 +38,7 @@ namespace Orang.CommandLine
 
                 if (redirectedInput == null)
                 {
-                    Logger.WriteError("Input is missing.");
+                    context.WriteError("Input is missing.");
                     return false;
                 }
 

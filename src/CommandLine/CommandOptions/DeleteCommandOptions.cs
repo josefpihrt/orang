@@ -16,9 +16,9 @@ namespace Orang.CommandLine
 
         public bool DirectoriesOnly { get; internal set; }
 
-        protected override void WriteDiagnosticCore()
+        protected override void WriteDiagnosticCore(DiagnosticWriter writer)
         {
-            DiagnosticWriter.WriteDeleteCommand(this);
+            writer.WriteDeleteCommand(this);
         }
     }
 }

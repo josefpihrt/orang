@@ -6,7 +6,7 @@ namespace Orang.CommandLine
 {
     internal class ReplaceCommand : CommonReplaceCommand<ReplaceCommandOptions>
     {
-        public ReplaceCommand(ReplaceCommandOptions options) : base(options)
+        public ReplaceCommand(ReplaceCommandOptions options, Logger logger) : base(options, logger)
         {
             Debug.Assert(!options.ContentFilter!.IsNegative);
         }

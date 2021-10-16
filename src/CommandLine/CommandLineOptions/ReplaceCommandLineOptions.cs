@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using CommandLine;
 using Orang.CommandLine.Annotations;
-using static Orang.CommandLine.ParseHelpers;
 
 namespace Orang.CommandLine
 {
@@ -45,30 +44,30 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.Replacement)]
         public IEnumerable<string> Replacement { get; set; } = null!;
 
-        public bool TryParse(ReplaceCommandOptions options)
+        public bool TryParse(ReplaceCommandOptions options, ParseContext context)
         {
             var baseOptions = (CommonReplaceCommandOptions)options;
 
-            if (!TryParse(baseOptions))
+            if (!TryParse(baseOptions, context))
                 return false;
 
             options = (ReplaceCommandOptions)baseOptions;
 
-            if (!TryParseReplacement(Replacement, out string? replacement, out MatchEvaluator? matchEvaluator))
+            if (!context.TryParseReplacement(Replacement, out string? replacement, out MatchEvaluator? matchEvaluator))
                 return false;
 
             if (matchEvaluator == null
                 && Evaluator != null)
             {
-                LogHelpers.WriteObsoleteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Evaluator)}' is has been deprecated "
+                context.WriteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Evaluator)}' is has been deprecated "
                     + "and will be removed in future version. "
                     + $"Use option '{OptionNames.GetHelpText(OptionNames.Replacement)}' instead.");
 
-                if (!DelegateFactory.TryCreateFromAssembly(Evaluator, typeof(string), typeof(Match), out matchEvaluator))
+                if (!DelegateFactory.TryCreateFromAssembly(Evaluator, typeof(string), typeof(Match), context.Logger, out matchEvaluator))
                     return false;
             }
 
-            if (!TryParseReplaceOptions(
+            if (!context.TryParseReplaceOptions(
                 Modify,
                 OptionNames.Modify,
                 replacement,

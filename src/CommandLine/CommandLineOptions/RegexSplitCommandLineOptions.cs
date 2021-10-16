@@ -3,7 +3,6 @@
 using System.Collections.Generic;
 using CommandLine;
 using Orang.CommandLine.Annotations;
-using static Orang.CommandLine.ParseHelpers;
 
 namespace Orang.CommandLine
 {
@@ -37,16 +36,16 @@ namespace Orang.CommandLine
             HelpText = "Do not include groups in the results.")]
         public bool NoGroups { get; set; }
 
-        public bool TryParse(RegexSplitCommandOptions options)
+        public bool TryParse(RegexSplitCommandOptions options, ParseContext context)
         {
             var baseOptions = (RegexCommandOptions)options;
 
-            if (!TryParse(baseOptions))
+            if (!TryParse(baseOptions, context))
                 return false;
 
             options = (RegexSplitCommandOptions)baseOptions;
 
-            if (!FilterParser.TryParse(
+            if (!context.TryParseFilter(
                 Content,
                 OptionNames.Content,
                 OptionValueProviders.PatternOptionsWithoutGroupAndPartAndNegativeProvider,
@@ -55,7 +54,7 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            if (!TryParseHighlightOptions(
+            if (!context.TryParseHighlightOptions(
                 Highlight,
                 out HighlightOptions highlightOptions,
                 defaultValue: HighlightOptions.Split,

@@ -12,9 +12,9 @@ namespace Orang.CommandLine
 
         public bool DetectRename { get; internal set; }
 
-        protected override void WriteDiagnosticCore()
+        protected override void WriteDiagnosticCore(DiagnosticWriter writer)
         {
-            DiagnosticWriter.WriteSyncCommand(this);
+            writer.WriteSyncCommand(this);
         }
     }
 }

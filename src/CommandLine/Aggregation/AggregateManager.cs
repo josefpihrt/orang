@@ -5,25 +5,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Orang.CommandLine;
-using static Orang.CommandLine.LogHelpers;
-using static Orang.Logger;
 
 namespace Orang.Aggregation
 {
     internal sealed class AggregateManager
     {
+        private readonly Logger _logger;
+
         private AggregateManager(
             ListResultStorage storage,
             List<StorageSection>? sections,
-            FindCommandOptions options)
+            FindCommandOptions options,
+            Logger logger)
         {
             Storage = storage;
             Sections = sections;
             Options = options;
+            _logger = logger;
 
-            if (ShouldLog(Verbosity.Minimal))
+            if (logger.ShouldWrite(Verbosity.Minimal))
             {
                 PathWriter = new PathWriter(
+                    logger,
                     pathColors: Colors.Matched_Path,
                     relativePath: Options.DisplayRelativePath,
                     indent: "  ");
@@ -40,7 +43,7 @@ namespace Orang.Aggregation
 
         private PathWriter? PathWriter { get; }
 
-        public static AggregateManager? TryCreate(FindCommandOptions Options)
+        public static AggregateManager? TryCreate(FindCommandOptions Options, Logger logger)
         {
             ModifyOptions modifyOptions = Options.ModifyOptions;
 
@@ -64,7 +67,7 @@ namespace Orang.Aggregation
                 sections = new List<StorageSection>();
             }
 
-            return new AggregateManager(storage, sections, Options);
+            return new AggregateManager(storage, sections, Options, logger);
         }
 
         public void WriteAggregatedValues(CancellationToken cancellationToken)
@@ -139,14 +142,14 @@ namespace Orang.Aggregation
                     }
                 }
 
-                values = valuesMap
-                    .Select(f => f.Key)
-                    .Modify(ModifyOptions, filter: ModifyFunctions.None);
+                values = valuesMap.Select(f => f.Key);
             }
-            else
-            {
-                values = values.Modify(ModifyOptions, filter: ModifyFunctions.SortAscending | ModifyFunctions.SortDescending);
-            }
+
+            ModifyFunctions filter = (ModifyOptions.SortProperty == ValueSortProperty.Count)
+                ? ModifyFunctions.None
+                : ModifyFunctions.Sort;
+
+            values = values.Modify(ModifyOptions, filter: filter);
 
             using (IEnumerator<string> en = values.GetEnumerator())
             {
@@ -159,12 +162,12 @@ namespace Orang.Aggregation
                         : default;
 
                     ConsoleColors boundaryColors = (Options.HighlightBoundary) ? Colors.MatchBoundary : default;
-                    var valueWriter = new ValueWriter(new ContentTextWriter(Verbosity.Minimal), includeEndingIndent: false);
+                    var valueWriter = new ValueWriter(new ContentTextWriter(_logger, Verbosity.Minimal), includeEndingIndent: false);
 
                     if (!Options.AggregateOnly)
                     {
-                        ConsoleOut.WriteLineIf(ShouldWriteLine(ConsoleOut.Verbosity));
-                        Out?.WriteLineIf(ShouldWriteLine(Out.Verbosity));
+                        _logger.ConsoleOut.WriteLineIf(ShouldWriteLine(_logger.ConsoleOut.Verbosity));
+                        _logger.Out?.WriteLineIf(ShouldWriteLine(_logger.Out.Verbosity));
                     }
 
                     do
@@ -178,11 +181,11 @@ namespace Orang.Aggregation
                         {
                             int groupCount = valuesMap[en.Current].Count;
 
-                            Write("  ", Colors.Message_OK, Verbosity.Minimal);
-                            Write(groupCount.ToString("n0"), Colors.Message_OK, Verbosity.Minimal);
+                            _logger.Write("  ", Colors.Message_OK, Verbosity.Minimal);
+                            _logger.Write(groupCount.ToString("n0"), Colors.Message_OK, Verbosity.Minimal);
                         }
 
-                        WriteLine(Verbosity.Minimal);
+                        _logger.WriteLine(Verbosity.Minimal);
 
                         List<StorageSection>? sections = valuesMap?[en.Current].Sections;
 
@@ -193,27 +196,7 @@ namespace Orang.Aggregation
 
                     } while (en.MoveNext());
 
-                    if (Options.IncludeSummary
-                        || ShouldLog(Verbosity.Detailed))
-                    {
-                        Verbosity verbosity = (Options.IncludeSummary)
-                            ? Verbosity.Minimal
-                            : Verbosity.Detailed;
-
-                        if (valuesMap != null)
-                            count = valuesMap.Sum(f => f.Value.Count);
-
-                        WriteLine(verbosity);
-
-                        if (valuesMap != null)
-                        {
-                            WriteCount("Groups", valuesMap.Count, verbosity: verbosity);
-                            Write("  ", verbosity);
-                        }
-
-                        WriteCount("Values", count, verbosity: verbosity);
-                        WriteLine(verbosity);
-                    }
+                    WriteSummary(count, valuesMap);
                 }
             }
 
@@ -327,11 +310,67 @@ namespace Orang.Aggregation
 
                 if (pathCount > 1)
                 {
-                    Write("  ", Colors.Message_OK, Verbosity.Minimal);
-                    Write(pathCount.ToString("n0"), Colors.Message_OK, Verbosity.Minimal);
+                    _logger.Write("  ", Colors.Message_OK, Verbosity.Minimal);
+                    _logger.Write(pathCount.ToString("n0"), Colors.Message_OK, Verbosity.Minimal);
                 }
 
-                WriteLine(Verbosity.Minimal);
+                _logger.WriteLine(Verbosity.Minimal);
+            }
+        }
+
+        private void WriteSummary(int count, Dictionary<string, SectionInfo>? valuesMap)
+        {
+            LogWriter? first = _logger.ConsoleOut;
+            LogWriter? second = _logger.Out;
+
+            if (Options.IncludeCount
+                && !Options.IncludeSummary)
+            {
+                if (second?.Verbosity == Verbosity.Quiet)
+                {
+                    second.WriteLine(count.ToString("n0"));
+                    second = null;
+                }
+
+                if (first.Verbosity == Verbosity.Quiet)
+                {
+                    first.WriteLine(count.ToString("n0"));
+                    first = null;
+
+                    if (second == null)
+                        return;
+                }
+            }
+
+            if (Options.IncludeSummary
+                || _logger.ShouldWrite(Verbosity.Detailed))
+            {
+                if (first == null)
+                {
+                    first = second;
+                    second = null;
+                }
+
+                using (var writer = new Logger(first!, second))
+                {
+                    Verbosity verbosity = (Options.IncludeSummary)
+                        ? Verbosity.Minimal
+                        : Verbosity.Detailed;
+
+                    if (valuesMap != null)
+                        count = valuesMap.Sum(f => f.Value.Count);
+
+                    writer.WriteLine(verbosity);
+
+                    if (valuesMap != null)
+                    {
+                        writer.WriteValue(valuesMap.Count.ToString("n0"), "Groups", verbosity: verbosity);
+                        writer.Write("  ", verbosity);
+                    }
+
+                    writer.WriteValue(count.ToString("n0"), "Values", verbosity: verbosity);
+                    writer.WriteLine(verbosity);
+                }
             }
         }
 

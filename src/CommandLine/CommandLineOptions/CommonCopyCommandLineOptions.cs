@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using CommandLine;
 using Orang.FileSystem;
-using static Orang.CommandLine.ParseHelpers;
 
 namespace Orang.CommandLine
 {
@@ -31,16 +30,16 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.Attributes)]
         public IEnumerable<string> IgnoredAttributes { get; set; } = null!;
 #endif
-        public bool TryParse(CommonCopyCommandOptions options)
+        public bool TryParse(CommonCopyCommandOptions options, ParseContext context)
         {
             var baseOptions = (CommonFindCommandOptions)options;
 
-            if (!TryParse(baseOptions))
+            if (!TryParse(baseOptions, context))
                 return false;
 
             options = (CommonCopyCommandOptions)baseOptions;
 
-            if (!FilterParser.TryParse(
+            if (!context.TryParseFilter(
                 Name,
                 OptionNames.Name,
                 OptionValueProviders.PatternOptionsProvider,
@@ -51,7 +50,7 @@ namespace Orang.CommandLine
                 return false;
             }
 #if DEBUG
-            if (!TryParseAsEnumFlags(
+            if (!context.TryParseAsEnumFlags(
                 IgnoredAttributes,
                 OptionNames.IgnoredAttributes,
                 out FileSystemAttributes noCompareAttributes,
@@ -65,7 +64,7 @@ namespace Orang.CommandLine
             if (AllowedTimeDiff != null
                 && !TimeSpan.TryParse(AllowedTimeDiff, CultureInfo.InvariantCulture, out allowedTimeDiff))
             {
-                Logger.WriteError($"Option '{OptionNames.GetHelpText(OptionNames.AllowedTimeDiff)}' "
+                context.WriteError($"Option '{OptionNames.GetHelpText(OptionNames.AllowedTimeDiff)}' "
                     + $"has invalid value '{AllowedTimeDiff}'.");
 
                 return false;

@@ -1,15 +1,17 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Orang.CommandLine;
 
 namespace Orang.FileSystem
 {
     internal class ProgressReporter : IProgress<SearchProgress>
     {
-        public ProgressReporter(string indent)
+        protected readonly Logger _logger;
+
+        public ProgressReporter(string indent, Logger logger)
         {
             Indent = indent;
+            _logger = logger;
         }
 
         public string Indent { get; }
@@ -63,7 +65,7 @@ namespace Orang.FileSystem
 
         protected void WriteError(SearchProgress value)
         {
-            LogHelpers.WriteFileError(
+            _logger.WriteFileError(
                 value.Exception!,
                 value.Path,
                 indent: Indent,

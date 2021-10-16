@@ -10,9 +10,9 @@ namespace Orang.CommandLine
 
         public bool OmitGroups { get; internal set; }
 
-        protected override void WriteDiagnosticCore()
+        protected override void WriteDiagnosticCore(DiagnosticWriter writer)
         {
-            DiagnosticWriter.WriteRegexSplitCommand(this);
+            writer.WriteRegexSplitCommand(this);
         }
     }
 }

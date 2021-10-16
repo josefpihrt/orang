@@ -6,20 +6,19 @@ using System.Diagnostics;
 using System.IO;
 using Orang.FileSystem;
 using Orang.Text.RegularExpressions;
-using static Orang.CommandLine.LogHelpers;
-using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
     internal class RenameCommand : DeleteOrRenameCommand<RenameCommandOptions>
     {
-        public RenameCommand(RenameCommandOptions options) : base(options)
+        public RenameCommand(RenameCommandOptions options, Logger logger) : base(options, logger)
         {
             Debug.Assert(options.NameFilter?.IsNegative == false);
 
-            if (ShouldLog(Verbosity.Minimal))
+            if (_logger.ShouldWrite(Verbosity.Minimal))
             {
                 PathWriter = new PathWriter(
+                    _logger,
                     pathColors: Colors.Matched_Path,
                     matchColors: (Options.HighlightMatch) ? Colors.Match : default,
                     Options.DisplayRelativePath);
@@ -65,7 +64,7 @@ namespace Orang.CommandLine
 
             if (string.IsNullOrWhiteSpace(newName))
             {
-                WriteLine($"{indent}New file name cannot be empty or contains only white-space.", Colors.Message_Warning);
+                _logger.WriteLine($"{indent}New file name cannot be empty or contains only white-space.", Colors.Message_Warning);
                 return;
             }
 
@@ -98,7 +97,7 @@ namespace Orang.CommandLine
                     indent);
 
                 WriteProperties(context, fileMatch, columnWidths);
-                WriteFilePathEnd(replaceItems.Count, maxReason, Options.IncludeCount);
+                _logger.WriteFilePathEnd(replaceItems.Count, maxReason, Options.IncludeCount);
             }
 
             ListCache<ReplaceItem>.Free(replaceItems);
@@ -117,8 +116,8 @@ namespace Orang.CommandLine
 
                     if (isInvalidName)
                     {
-                        WriteLine($"{indent}New file name contains invalid character(s).", Colors.Message_Warning);
-                            return;
+                        _logger.WriteLine($"{indent}New file name contains invalid character(s).", Colors.Message_Warning);
+                        return;
                     }
                 }
             }
@@ -128,7 +127,7 @@ namespace Orang.CommandLine
 
             if (isInvalidName)
             {
-                WriteWarning($"{indent}New file name contains invalid character(s).", verbosity: Verbosity.Detailed);
+                _logger.WriteWarning($"{indent}New file name contains invalid character(s).", verbosity: Verbosity.Detailed);
                 return;
             }
 
@@ -208,7 +207,7 @@ namespace Orang.CommandLine
             catch (Exception ex) when (ex is IOException
                 || ex is UnauthorizedAccessException)
             {
-                WriteFileError(ex, indent: indent);
+                _logger.WriteFileError(ex, indent: indent);
             }
 
             if (fileMatch.IsDirectory
@@ -220,8 +219,8 @@ namespace Orang.CommandLine
 
         protected override void WriteSummary(SearchTelemetry telemetry, Verbosity verbosity)
         {
-            WriteSearchedFilesAndDirectories(telemetry, Options.SearchTarget, verbosity);
-            WriteProcessedFilesAndDirectories(
+            _logger.WriteSearchedFilesAndDirectories(telemetry, Options.SearchTarget, verbosity);
+            _logger.WriteProcessedFilesAndDirectories(
                 telemetry,
                 Options.SearchTarget,
                 "Renamed files",

@@ -6,8 +6,9 @@ namespace Orang.CommandLine
     {
         public AskLineContentWriter(
             string input,
+            ContentTextWriter? writer,
             ContentWriterOptions options,
-            IResultStorage? storage = null) : base(input, options, storage)
+            IResultStorage? storage = null) : base(input, writer, options, storage)
         {
             Ask = true;
         }

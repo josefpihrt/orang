@@ -7,7 +7,6 @@ using System.Text.RegularExpressions;
 using CommandLine;
 using Orang.CommandLine.Annotations;
 using Orang.Spelling;
-using static Orang.CommandLine.ParseHelpers;
 
 namespace Orang.CommandLine
 {
@@ -53,23 +52,23 @@ namespace Orang.CommandLine
             longName: OptionNames.Word)]
         public IEnumerable<string> Word { get; set; } = null!;
 #endif
-        public bool TryParse(SpellcheckCommandOptions options)
+        public bool TryParse(SpellcheckCommandOptions options, ParseContext context)
         {
             var baseOptions = (CommonReplaceCommandOptions)options;
 
-            if (!TryParse(baseOptions))
+            if (!TryParse(baseOptions, context))
                 return false;
 
             options = (SpellcheckCommandOptions)baseOptions;
 
             Regex? wordRegex = null;
 
-            if (!TryEnsureFullPath(Words, out ImmutableArray<string> wordListPaths))
+            if (!context.TryEnsureFullPath(Words, out ImmutableArray<string> wordListPaths))
                 return false;
 #if DEBUG
             if (Word.Any())
             {
-                if (!FilterParser.TryParse(
+                if (!context.TryParseFilter(
                     Word,
                     OptionNames.Word,
                     OptionValueProviders.PatternOptions_Word_Provider,

@@ -6,7 +6,6 @@ using CommandLine;
 using Orang.CommandLine.Annotations;
 using Orang.FileSystem;
 using Orang.Text.RegularExpressions;
-using static Orang.CommandLine.ParseHelpers;
 
 namespace Orang.CommandLine
 {
@@ -90,16 +89,16 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.Replacement)]
         public IEnumerable<string> Replacement { get; set; } = null!;
 
-        public bool TryParse(RenameCommandOptions options)
+        public bool TryParse(RenameCommandOptions options, ParseContext context)
         {
             var baseOptions = (DeleteOrRenameCommandOptions)options;
 
-            if (!TryParse(baseOptions))
+            if (!TryParse(baseOptions, context))
                 return false;
 
             options = (RenameCommandOptions)baseOptions;
 
-            if (!TryParseHighlightOptions(
+            if (!context.TryParseHighlightOptions(
                 Highlight,
                 out HighlightOptions highlightOptions,
                 defaultValue: HighlightOptions.Replacement,
@@ -108,7 +107,7 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            if (!FilterParser.TryParse(
+            if (!context.TryParseFilter(
                 Name,
                 OptionNames.Name,
                 OptionValueProviders.PatternOptionsWithoutGroupAndNegativeProvider,
@@ -119,7 +118,7 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            if (!FilterParser.TryParse(
+            if (!context.TryParseFilter(
                 Content,
                 OptionNames.Content,
                 OptionValueProviders.PatternOptionsWithoutPartProvider,
@@ -130,21 +129,21 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            if (!TryParseReplacement(Replacement, out string? replacement, out MatchEvaluator? matchEvaluator))
+            if (!context.TryParseReplacement(Replacement, out string? replacement, out MatchEvaluator? matchEvaluator))
                 return false;
 
             if (matchEvaluator == null
                 && Evaluator != null)
             {
-                LogHelpers.WriteObsoleteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Evaluator)}' is has been deprecated "
+                context.WriteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Evaluator)}' is has been deprecated "
                     + "and will be removed in future version. "
                     + $"Use option '{OptionNames.GetHelpText(OptionNames.Replacement)}' instead.");
 
-                if (!DelegateFactory.TryCreateFromAssembly(Evaluator, typeof(string), typeof(Match), out matchEvaluator))
+                if (!DelegateFactory.TryCreateFromAssembly(Evaluator, typeof(string), typeof(Match), context.Logger, out matchEvaluator))
                     return false;
             }
 
-            if (!TryParseReplaceOptions(
+            if (!context.TryParseReplaceOptions(
                 Modify,
                 OptionNames.Modify,
                 replacement,
@@ -154,7 +153,7 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            if (!TryParseAsEnum(
+            if (!context.TryParseAsEnum(
                 Conflict,
                 OptionNames.Conflict,
                 out ConflictResolution conflictResolution,
@@ -164,7 +163,7 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            if (!TryParseDisplay(
+            if (!context.TryParseDisplay(
                 values: Display,
                 optionName: OptionNames.Display,
                 contentDisplayStyle: out ContentDisplayStyle? contentDisplayStyle,
@@ -186,7 +185,7 @@ namespace Orang.CommandLine
 
             if (ContentMode != null)
             {
-                if (TryParseAsEnum(
+                if (context.TryParseAsEnum(
                     ContentMode,
                     OptionNames.ContentMode,
                     out ContentDisplayStyle contentDisplayStyle2,
@@ -202,7 +201,7 @@ namespace Orang.CommandLine
 
             if (PathMode != null)
             {
-                if (TryParseAsEnum(
+                if (context.TryParseAsEnum(
                     PathMode,
                     OptionNames.PathMode,
                     out PathDisplayStyle pathDisplayStyle2,

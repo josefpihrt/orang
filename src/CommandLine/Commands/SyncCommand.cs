@@ -7,8 +7,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Orang.FileSystem;
-using static Orang.CommandLine.LogHelpers;
-using static Orang.Logger;
 
 namespace Orang.CommandLine
 {
@@ -21,7 +19,7 @@ namespace Orang.CommandLine
         private HashSet<string>? _ignoredPaths;
         private DirectoryData? _directoryData;
 
-        public SyncCommand(SyncCommandOptions options) : base(options)
+        public SyncCommand(SyncCommandOptions options, Logger logger) : base(options, logger)
         {
         }
 
@@ -558,7 +556,7 @@ namespace Orang.CommandLine
 
         private void WritePath(SearchContext context, string path, OperationKind kind, string indent)
         {
-            if (!ShouldLog(Verbosity.Minimal))
+            if (!_logger.ShouldWrite(Verbosity.Minimal))
                 return;
 
             if (base.CanEndProgress)
@@ -600,12 +598,12 @@ namespace Orang.CommandLine
 
         private void WritePathPrefix(string path, string prefix, ConsoleColors colors, string indent)
         {
-            if (ShouldLog(Verbosity.Minimal))
+            if (_logger.ShouldWrite(Verbosity.Minimal))
             {
-                Write(indent, Verbosity.Minimal);
-                Write(prefix, colors, Verbosity.Minimal);
-                Write(" ", Verbosity.Minimal);
-                WriteLine(path, verbosity: Verbosity.Minimal);
+                _logger.Write(indent, Verbosity.Minimal);
+                _logger.Write(prefix, colors, Verbosity.Minimal);
+                _logger.Write(" ", Verbosity.Minimal);
+                _logger.WriteLine(path, verbosity: Verbosity.Minimal);
             }
         }
 
@@ -614,15 +612,15 @@ namespace Orang.CommandLine
             if (base.CanEndProgress)
                 EndProgress(context);
 
-            Write(indent, Verbosity.Minimal);
-            Write("ERR", Colors.Sync_Error, Verbosity.Minimal);
-            Write(" ", Verbosity.Minimal);
-            Write(ex.Message, verbosity: Verbosity.Minimal);
-            WriteLine(Verbosity.Minimal);
+            _logger.Write(indent, Verbosity.Minimal);
+            _logger.Write("ERR", Colors.Sync_Error, Verbosity.Minimal);
+            _logger.Write(" ", Verbosity.Minimal);
+            _logger.Write(ex.Message, verbosity: Verbosity.Minimal);
+            _logger.WriteLine(Verbosity.Minimal);
 #if DEBUG
-            WriteLine($"{indent}PATH: {path}");
-            WriteLine($"{indent}STACK TRACE:");
-            WriteLine(ex.StackTrace);
+            _logger.WriteLine($"{indent}PATH: {path}");
+            _logger.WriteLine($"{indent}STACK TRACE:");
+            _logger.WriteLine(ex.StackTrace);
 #endif
         }
 
@@ -632,15 +630,15 @@ namespace Orang.CommandLine
 
             ConsoleColors colors = (DryRun) ? Colors.Message_DryRun : default;
 
-            WriteCount("Added", telemetry.AddedCount, colors, verbosity: verbosity);
-            Write("  ", verbosity);
-            WriteCount("Updated", telemetry.UpdatedCount, colors, verbosity: verbosity);
-            Write("  ", verbosity);
-            WriteCount("Renamed", telemetry.RenamedCount, colors, verbosity: verbosity);
-            Write("  ", verbosity);
-            WriteCount("Deleted", telemetry.DeletedCount, colors, verbosity: verbosity);
-            Write("  ", verbosity);
-            WriteLine(verbosity);
+            _logger.WriteCount("Added", telemetry.AddedCount, colors, verbosity: verbosity);
+            _logger.Write("  ", verbosity);
+            _logger.WriteCount("Updated", telemetry.UpdatedCount, colors, verbosity: verbosity);
+            _logger.Write("  ", verbosity);
+            _logger.WriteCount("Renamed", telemetry.RenamedCount, colors, verbosity: verbosity);
+            _logger.Write("  ", verbosity);
+            _logger.WriteCount("Deleted", telemetry.DeletedCount, colors, verbosity: verbosity);
+            _logger.Write("  ", verbosity);
+            _logger.WriteLine(verbosity);
         }
 
         private enum OperationKind

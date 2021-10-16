@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using CommandLine;
 using Orang.CommandLine.Annotations;
 using Orang.FileSystem;
-using static Orang.CommandLine.ParseHelpers;
 
 namespace Orang.CommandLine
 {
@@ -47,19 +46,19 @@ namespace Orang.CommandLine
             MetaValue = MetaValues.DirectoryPath)]
         public string Second { get; set; } = null!;
 
-        public bool TryParse(SyncCommandOptions options)
+        public bool TryParse(SyncCommandOptions options, ParseContext context)
         {
             var baseOptions = (CommonCopyCommandOptions)options;
 
-            if (!TryParse(baseOptions))
+            if (!TryParse(baseOptions, context))
                 return false;
 
             options = (SyncCommandOptions)baseOptions;
 
-            if (!TryParseTargetDirectory(Second, out string? second, options, nameof(Second), OptionNames.Second))
+            if (!context.TryParseTargetDirectory(Second, out string? second, options, nameof(Second), OptionNames.Second))
                 return false;
 
-            if (!TryParseAsEnumFlags(
+            if (!context.TryParseAsEnumFlags(
                 Compare,
                 OptionNames.Compare,
                 out FileCompareOptions compareOptions,
@@ -69,7 +68,7 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            if (!TryParseAsEnum(
+            if (!context.TryParseAsEnum(
                 Conflict,
                 OptionNames.Conflict,
                 out SyncConflictResolution conflictResolution,

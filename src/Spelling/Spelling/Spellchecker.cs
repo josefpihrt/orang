@@ -7,7 +7,7 @@ namespace Orang.Spelling
 {
     public class Spellchecker
     {
-        private static readonly Regex _delimiterRegex = new Regex(@"(\s|,|\.|:|;|!|\?|"")+", RegexOptions.ExplicitCapture);
+        private static readonly Regex _delimiterRegex = new Regex(@"(,|\.|:|;|!|\?|"")+", RegexOptions.ExplicitCapture);
 
         private static readonly Regex _wordRegex = new Regex(
             @"

@@ -19,7 +19,6 @@ namespace Orang.CommandLine
             ContentWriter = new ContentTextWriter(_logger);
         }
 
-
         public ContentTextWriter ContentWriter { get; }
 
         public Filter? Filter => Options.Filter;

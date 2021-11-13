@@ -196,7 +196,9 @@ namespace Orang.CommandLine
                         _logger.Write(": ", Colors.ContextLine, Verbosity.Normal);
 
                         _logger.Write(
-                            string.Join(", ", fixes.Select(f => TextUtility.SetTextCasing(f.Value, TextUtility.GetTextCasing(grouping.Key)))),
+                            string.Join(
+                                ", ",
+                                fixes.Select(f => TextUtility.SetTextCasing(f.Value, TextUtility.GetTextCasing(grouping.Key)))),
                             Colors.Replacement,
                             Verbosity.Normal);
                     }

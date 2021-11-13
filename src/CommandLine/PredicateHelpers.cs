@@ -93,7 +93,7 @@ namespace Orang.CommandLine
 
             throw new ArgumentException("", nameof(expression));
 
-            int Parse(string value)
+            static int Parse(string value)
             {
                 if (!int.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out int result))
                     throw new ArgumentException("", nameof(expression));
@@ -187,7 +187,7 @@ namespace Orang.CommandLine
 
             throw new ArgumentException("", nameof(expression));
 
-            long Parse(string value)
+            static long Parse(string value)
             {
                 if (!long.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out long result))
                     throw new ArgumentException("", nameof(expression));
@@ -292,7 +292,7 @@ namespace Orang.CommandLine
 
             throw new ArgumentException("", nameof(expression));
 
-            DateTime Parse(string value, out bool dateOnly)
+            static DateTime Parse(string value, out bool dateOnly)
             {
                 if (value == null)
                 {

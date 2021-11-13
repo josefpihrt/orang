@@ -877,7 +877,9 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            if ((options & (ReplacementOptions.CSharp | ReplacementOptions.FromFile | ReplacementOptions.FromDll)) != 0)
+            if ((options & (ReplacementOptions.CSharp)) != 0
+                || ((options & (ReplacementOptions.FromCSharpFile)) == (ReplacementOptions.FromCSharpFile))
+                || (options & (ReplacementOptions.FromDll)) != 0)
             {
                 return TryParseDelegate(
                     optionName: OptionNames.Replacement,

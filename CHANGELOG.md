@@ -1,3 +1,32 @@
+## 0.3.0-rc (2021-11-14)
+
+* Change shortcut for `--attributes-to-skip` from `-b` to `-A`
+* Empty name pattern matches entire name (or its part): `--name ""`
+* Empty content pattern matches entire file's content: `--content ""`
+* Matching lines/values are not indented by default
+* Add allowed values for option `--modify`
+  * `count`
+  * `sort-by=count`
+* Add option `--max-matches-in-file`
+* Add option `--max-matching-files`
+* Add option `--max-word-length` (command `spellcheck`)
+* Add option `-P,--no-path` (a shortcut for `--path-mode omit`)
+* Add option `-C,--no-content` (a shortcut for `--content-mode omit`)
+* Deprecate option `--display` and replace it with:
+  * `--after-context`
+  * `--before-context`
+  * `--content-mode`
+  * `--context`
+  * `--count`
+  * `--line-number`
+  * `--path-mode`
+  * `-u,--summary`
+  * `--align-columns`
+* Deprecate command `escape` and replace it with `regex escape`
+* Deprecate command `list-patterns` and replace it with `regex list`
+* Deprecate command `match` and replace it with `regex match`
+* Deprecate command `split` and replace it with `regex split`
+
 ## 0.2.2 (2021-07-21)
 
 * Add command `sync` ([commit](https://github.com/JosefPihrt/Roslynator/commit/81b2f412f81edb4f205195226777f0a7f565a350))

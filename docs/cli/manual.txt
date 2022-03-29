@@ -1,4 +1,4 @@
-Orang Command-Line Tool version 0.3.0.0
+Orang Command-Line Tool version 0.3.1.0
 Usage: orang [command] [arguments]
 
 Main commands:

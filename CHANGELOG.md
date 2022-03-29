@@ -1,3 +1,5 @@
+## 0.3.1 (2022-03-29)
+
 ## 0.3.0-rc (2021-11-14)
 
 * Change shortcut for `--attributes-to-skip` from `-b` to `-A`

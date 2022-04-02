@@ -316,6 +316,6 @@
 | `x>=n`                |
 | `x=<min;max>`         | Inclusive interval                        |
 | `x=(min;max)`         | Exclusive interval                        |
-| `x=-d|[d.]hh:mm[:ss]` | x is greater than actual date \- \<VALUE> |
+| `x=-d\|[d.]hh:mm[:ss]` | x is greater than actual date \- \<VALUE> |
 
 *\(Generated with [DotMarkdown](http://github.com/JosefPihrt/DotMarkdown)\)*

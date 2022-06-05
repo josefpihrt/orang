@@ -7,7 +7,7 @@ namespace Orang
 {
     internal sealed class ConsoleWriter : LogWriter
     {
-        public static ConsoleWriter Instance { get; } = new ConsoleWriter(Console.Out, Console.Out.FormatProvider);
+        public static ConsoleWriter Instance { get; } = new(Console.Out, Console.Out.FormatProvider);
 
         private ConsoleWriter(TextWriter writer, IFormatProvider formatProvider) : base(writer, formatProvider)
         {

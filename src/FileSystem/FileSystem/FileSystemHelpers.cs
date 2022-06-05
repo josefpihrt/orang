@@ -17,14 +17,14 @@ namespace Orang.FileSystem
     {
         private static ImmutableHashSet<char>? _invalidFileNameChars;
 
-        private static readonly EnumerationOptions _enumerationOptionsNoRecurse = new EnumerationOptions()
+        private static readonly EnumerationOptions _enumerationOptionsNoRecurse = new()
         {
             AttributesToSkip = 0,
             IgnoreInaccessible = true,
             RecurseSubdirectories = false,
         };
 
-        private static readonly EnumerationOptions _enumerationOptionsRecurse = new EnumerationOptions()
+        private static readonly EnumerationOptions _enumerationOptionsRecurse = new()
         {
             AttributesToSkip = 0,
             IgnoreInaccessible = true,
@@ -480,8 +480,8 @@ namespace Orang.FileSystem
                 newPath = path.Insert(extensionIndex, count.ToString());
 
                 count++;
-
-            } while (File.Exists(newPath));
+            }
+            while (File.Exists(newPath));
 
             return newPath;
         }

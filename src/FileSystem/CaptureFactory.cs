@@ -78,8 +78,8 @@ namespace Orang
                 }
 
                 cancellationToken.ThrowIfCancellationRequested();
-
-            } while (match.Success);
+            }
+            while (match.Success);
 
             return MaxReason.None;
         }
@@ -120,8 +120,8 @@ namespace Orang
                 }
 
                 group = NextGroup();
-
-            } while (group.Success);
+            }
+            while (group.Success);
 
             return MaxReason.None;
 
@@ -211,8 +211,8 @@ namespace Orang
                 prevIndex = match.Index + match.Length;
 
                 match = match.NextMatch();
-
-            } while (match.Success);
+            }
+            while (match.Success);
 
             yield return new SplitCapture(input[prevIndex..], prevIndex);
         }
@@ -242,8 +242,8 @@ namespace Orang
                 prevIndex = match.Index;
 
                 match = match.NextMatch();
-
-            } while (match.Success);
+            }
+            while (match.Success);
 
             yield return new SplitCapture(input.Substring(0, prevIndex), 0);
         }

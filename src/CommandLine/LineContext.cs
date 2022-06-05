@@ -19,8 +19,8 @@ namespace Orang.CommandLine
 
         public int After { get; }
 
-        public LineContext WithBefore(int before) => new LineContext(before, After);
+        public LineContext WithBefore(int before) => new(before, After);
 
-        public LineContext WithAfter(int after) => new LineContext(Before, after);
+        public LineContext WithAfter(int after) => new(Before, after);
     }
 }

@@ -1,6 +1,6 @@
 #dotnet tool install -g orang.dotnet.cli
 
-$version=0.3.1
+$version="0.3.1"
 
 orang replace -e cmd -c "(?<=--version )\d+\.\d+\.\d+(-\w+)?" -r "$version"
 
@@ -14,7 +14,7 @@ Write-Host
 
 dotnet restore --force "../src/Orang.sln"
 
-dotnet build "../src/Orang.sln" -c Release -v n RunCodeAnalysis=false,Deterministic=true,TreatWarningsAsErrors=true,WarningsNotAsErrors=1591 /nr:false /m
+dotnet build "../src/Orang.sln" -c Release -v n /p:RunCodeAnalysis=false,Deterministic=true,TreatWarningsAsErrors=true,WarningsNotAsErrors=1591 /nr:false /m
 
  if(!$?) { Read-Host; Exit }
 
@@ -32,7 +32,7 @@ if(!$?) { Read-Host; Exit }
 
 dotnet pack -c Release --no-build -v normal "../src/CommandLine/CommandLine.csproj"
 
-$outDir=../out/Release
+$outDir="../out/Release"
 
 New-Item -Path "$outDir" -ItemType directory
 Remove-Item "$outDir/*"

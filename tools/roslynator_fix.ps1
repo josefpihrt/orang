@@ -1,6 +1,6 @@
 #dotnet tool install -g roslynator.dotnet.cli
 
-$roslynatorPath=../../Roslynator/src
+$roslynatorPath="../../Roslynator/src"
 
 roslynator fix "../src/Orang.sln" `
  --analyzer-assemblies `

@@ -14,7 +14,11 @@ Orang is a cross-platform command-line tool for:
 
 All these commands are powered with [.NET regular expression engine](https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expressions).
 
-## How to install
+## Requirements
+
+Orang requires [.NET Core Runtime](https://dotnet.microsoft.com/download/dotnet-core/current/runtime) 3.1 or higher.
+
+## How to Install
 
 Orang is distributed as a [.NET Core global tool](https://docs.microsoft.com/en-us/dotnet/core/tools/global-tools). To install Orang run:
 
@@ -33,8 +37,6 @@ To update Orang run:
 ```
 dotnet tool update -g orang.dotnet.cli
 ```
-
-Note: Orang requires [.NET Core Runtime](https://dotnet.microsoft.com/download/dotnet-core/current/runtime) 3.1 or higher.
 
 ## How to Use
 
@@ -74,19 +76,19 @@ orang list-patterns
 
 ## Features
 
-### Matches Across Multiple Lines
+### Single match can span over multiple lines
 
 Orang supports matches across multiple lines.
 
-### Dry Run
+### Dry run
 
 The option `-d, --dry-run` gives you opportunity to see the results before you actually replace, rename or delete anything.
 
-### Match and Replacement Side-by-Side
+### Display match and replacement side-by-side
 
 The option `-t, --highlight` with values `m[atch] r[eplacement]` gives you opportunity to see the match and the replacement side-by-side in the output.
 
-### Use C# Code to Compute Replacements
+### Use C# code to compute replacements
 
 Use `-r, --replacement <EXPRESSION> cs[harp]` syntax to specify C# inline expression.
 The expression is considered to be expression-body of a method with signature `string M(Match match)`
@@ -94,7 +96,7 @@ The expression is considered to be expression-body of a method with signature `s
 Use `-r, --replacement <CODE_FILE_PATH> cs[harp] f[rom-file]` syntax to specify C# code file.
 This code file must contain public method with signature `string M(Match match)`.
 
-### Load Pattern From a File
+### Load pattern from a file
 
 The more complicated a pattern is, the less readable it becomes when written in one line.
 

@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add support for Source Link ([#42](https://github.com/josefpihrt/roslynator/pull/42)).
+- Add CI/CD pipeline ([#41](https://github.com/josefpihrt/roslynator/pull/41)).
 - Add NuGet readme file ([#38](https://github.com/josefpihrt/roslynator/pull/38)).
 
 ### Changed

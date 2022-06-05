@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Replace ruleset with editorconfig ([#39](https://github.com/josefpihrt/roslynator/pull/39)).
 - Format changelog according to 'Keep a Changelog' ([#37](https://github.com/josefpihrt/roslynator/pull/37)).
 - Rename `master` to `main`.
 

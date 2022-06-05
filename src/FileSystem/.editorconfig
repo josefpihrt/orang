@@ -2,5 +2,5 @@
 
 # Code files
 [*.{cs,csx}]
-dotnet_diagnostic.RCS1223.severity = suggestion
-dotnet_diagnostic.RCS1241.severity = suggestion
+dotnet_diagnostic.RCS1223.severity = warning
+dotnet_diagnostic.RCS1241.severity = warning

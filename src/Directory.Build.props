@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <Version>0.3.1.0</Version>
-    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)global.ruleset</CodeAnalysisRuleSet>
     <LangVersion>9.0</LangVersion>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)Orang.snk</AssemblyOriginatorKeyFile>

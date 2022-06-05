@@ -1,3 +1,24 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Changed
+
+- Format changelog according to 'Keep a Changelog' ([#37](https://github.com/josefpihrt/roslynator/pull/37)).
+- Rename `master` to `main`.
+
+### Fixed
+
+- Specify max matching files with `--max-count` correctly ([commit](https://github.com/JosefPihrt/Orang/commit/a6b2b3379a170741f4ae47747220a9ae5e8fcf08)).
+
+-----
+<!-- Content below does not adhere to 'Keep a Changelog' format -->
+
 ## 0.3.1 (2022-03-29)
 
 ## 0.3.0-rc (2021-11-14)

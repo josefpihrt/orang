@@ -16,9 +16,7 @@ namespace Orang.CommandLine
         public string ContentMode { get; set; } = null!;
 
         [Option(
-#if DEBUG
             shortName: OptionShortNames.Summary,
-#endif
             longName: OptionNames.Summary,
             HelpText = "Show summary at the end of search.")]
         public bool Summary { get; set; }

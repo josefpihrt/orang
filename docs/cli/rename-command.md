@@ -7,32 +7,43 @@ Renames files and directories\.
 ## Synopsis
 
 ```
-orang rename [<PATH>]
-[   --ask]
-[-a|--attributes]         <ATTRIBUTES>
-[-b|--attributes-to-skip] <ATTRIBUTES>
-[   --conflict]           <CONFLICT_RESOLUTION>
-[-c|--content]            <PATTERN> [<PATTERN_OPTIONS>]
-[-y|--display]            <DISPLAY_OPTIONS>
-[-d|--dry-run]
-[   --encoding]           <ENCODING>
-[-e|--extension]          EXT1[,EXT2] [<EXTENSION_OPTIONS>]
-[-h|--help]
-[-t|--highlight]          <HIGHLIGHT>
-[-i|--include-directory]  <PATTERN> [<PATTERN_OPTIONS>]
-[   --interactive]
-[-m|--max-count]          <NUM>
-[   --modify]             <REPLACE_MODIFY>
- -n|--name                <PATTERN> [<PATTERN_OPTIONS>]
-[   --no-recurse]
-[-o|--output]             <PATH> [<OUTPUT_OPTIONS>]
-[   --paths]              <PATH>
-[   --paths-from]         <FILE_PATH>
-[   --progress]
-[-p|--properties]         <FILE_PROPERTIES>
-[-r|--replacement]        <REPLACEMENT> [<REPLACEMENT_OPTIONS>]
-[-s|--sort]               <SORT_OPTIONS>
-[-v|--verbosity]          <VERBOSITY>
+orang rename <PATH>
+    --after-context <NUM>
+    --align-columns
+    --ask
+-a, --attributes <ATTRIBUTES>
+-A, --attributes-to-skip <ATTRIBUTES>
+    --before-context <NUM>
+    --conflict <CONFLICT_RESOLUTION>
+-c, --content <PATTERN> [<PATTERN_OPTIONS>]
+    --content-mode <CONTENT_MODE>
+    --context <NUM>
+    --count
+-d, --dry-run
+    --encoding <ENCODING>
+-e, --extension EXT1[,EXT2] [<EXTENSION_OPTIONS>]
+-h, --help
+-t, --highlight <HIGHLIGHT>
+-i, --include-directory <PATTERN> [<PATTERN_OPTIONS>]
+    --interactive
+    --line-number
+-m, --max-count <NUM>
+    --max-matches-in-file <NUM>
+    --modify <REPLACE_MODIFY>
+-n, --name <PATTERN> [<PATTERN_OPTIONS>]
+-C, --no-content
+-P, --no-path
+    --no-recurse
+-o, --output <PATH> [<OUTPUT_OPTIONS>]
+    --path-mode <PATH_MODE>
+    --paths <PATH>
+    --paths-from <FILE_PATH>
+    --progress
+-p, --properties <FILE_PROPERTIES>
+-r, --replacement <REPLACEMENT> [<REPLACEMENT_OPTIONS>]
+-s, --sort <SORT_OPTIONS>
+-u, --summary
+-v, --verbosity <VERBOSITY>
 ```
 
 ## Arguments
@@ -43,125 +54,171 @@ Path to one or more files and/or directories that should be searched\.
 
 ## Options
 
-##### `[--ask]`
+##### `--after-context <NUM>`
+
+Number of lines to show after matching line\.
+
+##### `--align-columns`
+
+Align columns\.
+
+##### `--ask`
 
 Ask for a permission to rename file or directory\.
 
-##### `[-a|--attributes] <ATTRIBUTES>`
+##### `-a, --attributes <ATTRIBUTES>`
 
 File attributes that are required\.
 
 [\<ATTRIBUTES>](OptionValues.md#attributes): `archive`, `compressed`, `d[irectory]`, `e[mpty]`, `encrypted`, `f[ile]`, `h[idden]`, `normal`, `offline`, `r[ead-only]`, `r[eparse-]p[oint]`, `s[ystem]`, `temporary`\.
 
-##### `[-b|--attributes-to-skip] <ATTRIBUTES>`
+##### `-A, --attributes-to-skip <ATTRIBUTES>`
 
 File attributes that should be skipped\.
 
 [\<ATTRIBUTES>](OptionValues.md#attributes): `archive`, `compressed`, `e[mpty]`, `encrypted`, `h[idden]`, `normal`, `offline`, `r[ead-only]`, `r[eparse-]p[oint]`, `s[ystem]`, `temporary`\.
 
-##### `[--conflict] <CONFLICT_RESOLUTION>`
+##### `--before-context <NUM>`
+
+Number of lines to show before matching line\.
+
+##### `--conflict <CONFLICT_RESOLUTION>`
 
 Defines how to resolve conflict when a file/directory already exists\.
 
 [\<CONFLICT_RESOLUTION>](OptionValues.md#conflict_resolution): `a[sk]`, `o[verwrite]`, `suffix`, `s[kip]`\.
 
-##### `[-c|--content] <PATTERN> [<PATTERN_OPTIONS>]`
+##### `-c, --content <PATTERN> [<PATTERN_OPTIONS>]`
 
 Regular expression for files' content\.
 
 [\<PATTERN_OPTIONS>](OptionValues.md#pattern_options): `compiled`, `c[ulture-]i[nvariant]`, `e[cma-]s[cript]`, `e[nds-]w[ith]`, `e[quals]`, `n [explicit-capture]`, `f[rom-file]`, `g[roup]=<GROUP_NAME>`, `i[gnore-case]`, `x [ignore-pattern-whitespace]`, `li[st]`, `length=<NUM>`, `l[ist-]s[eparator]`, `l[iteral]`, `m[ultiline]`, `ne[gative]`, `r[ight-to-left]`, `s[ingleline]`, `s[tarts-]w[ith]`, `timeout=<NUM>`, `w[hole-]l[ine]`, `w[hole-word]`\.
 
-##### `[-y|--display] <DISPLAY_OPTIONS>`
+##### `--content-mode <CONTENT_MODE>`
 
-Display of the results\.
+Defines which parts of a content should be included in the results\.
 
-[\<DISPLAY_OPTIONS>](OptionValues.md#display_options): `c[reation-]t[ime]`, `indent=<INDENT>`, `m[odified-]t[ime]`, `no-align`, `p[ath]=`[\<PATH_DISPLAY>](OptionValues.md#path_display), `s[ize]`, `s[eparator]=<SEPARATOR>`, `su[mmary]`\.
+[\<CONTENT_MODE>](OptionValues.md#content_mode): `a[ll-lines]`, `l[ine]`, `u[nmatched-lines]`, `v[alue]`, `d [value-detail]`, `o[mit]`\.
 
-##### `[-d|--dry-run]`
+##### `--context <NUM>`
+
+Number of lines to show before and after matching line\.
+
+##### `--count`
+
+Show number of matches in a file\.
+
+##### `-d, --dry-run`
 
 Display which files/directories should be renamed but do not actually rename any file/directory\.
 
-##### `[--encoding] <ENCODING>`
+##### `--encoding <ENCODING>`
 
 Encoding to use when a file does not contain BOM\. Default encoding is UTF\-8\.
 
-##### `[-e|--extension] EXT1[,EXT2] [<EXTENSION_OPTIONS>]`
+##### `-e, --extension EXT1[,EXT2] [<EXTENSION_OPTIONS>]`
 
 A filter for file extensions \(case\-insensitive by default\)\.
 
 [\<EXTENSION_OPTIONS>](OptionValues.md#extension_options): `c[ase-]s[ensitive]`, `c[ulture-]i[nvariant]`, `f[rom-file]`, `l[ist-]s[eparator]`, `l[iteral]`, `ne[gative]`, `timeout=<NUM>`\.
 
-##### `[-h|--help]`
+##### `-h, --help`
 
 Show command line help\.
 
-##### `[-t|--highlight] <HIGHLIGHT>`
+##### `-t, --highlight <HIGHLIGHT>`
 
 Parts of the output to highlight\.
 
 [\<HIGHLIGHT>](OptionValues.md#highlight): `n[one]`, `m[atch]`, `r[eplacement]`, `e[mpty]`\.
 
-##### `[-i|--include-directory] <PATTERN> [<PATTERN_OPTIONS>]`
+##### `-i, --include-directory <PATTERN> [<PATTERN_OPTIONS>]`
 
 Regular expression for a directory name\.
 
-##### `[--interactive]`
+##### `--interactive`
 
 Enable editing of a new name\.
 
-##### `[-m|--max-count] <NUM>`
+##### `--line-number`
+
+Include line number\.
+
+##### `-m, --max-count <NUM>`
 
 Stop renaming after specified number is reached\.
 
-##### `[--modify] <REPLACE_MODIFY>`
+##### `--max-matches-in-file <NUM>`
+
+Stop searching in a file name after specified number of matches is found\.
+
+##### `--modify <REPLACE_MODIFY>`
 
 Functions to modify result\.
 
 [\<REPLACE_MODIFY>](OptionValues.md#replace_modify): `ci [culture-invariant]`, `tl [to-lower]`, `tu [to-upper]`, `t[rim]`, `te [trim-end]`, `ts [trim-start]`\.
 
-##### `-n|--name <PATTERN> [<PATTERN_OPTIONS>]`
+##### `-n, --name <PATTERN> [<PATTERN_OPTIONS>]`
 
 Regular expression for file or directory name\.
 
 [\<PATTERN_OPTIONS>](OptionValues.md#pattern_options): `compiled`, `c[ulture-]i[nvariant]`, `e[cma-]s[cript]`, `e[nds-]w[ith]`, `e[quals]`, `n [explicit-capture]`, `f[rom-file]`, `i[gnore-case]`, `x [ignore-pattern-whitespace]`, `li[st]`, `length=<NUM>`, `l[ist-]s[eparator]`, `l[iteral]`, `m[ultiline]`, `p[art]=`[\<NAME_PART>](OptionValues.md#name_part), `r[ight-to-left]`, `s[ingleline]`, `s[tarts-]w[ith]`, `timeout=<NUM>`, `w[hole-]l[ine]`, `w[hole-word]`\.
 
-##### `[--no-recurse]`
+##### `-C, --no-content`
+
+A shortcut for '\-\-content\-mode omit'\.
+
+##### `-P, --no-path`
+
+A shortcut for '\-\-path\-mode omit'\.
+
+##### `--no-recurse`
 
 Do not search subdirectories\.
 
-##### `[-o|--output] <PATH> [<OUTPUT_OPTIONS>]`
+##### `-o, --output <PATH> [<OUTPUT_OPTIONS>]`
 
 Path to a file that should store output\.
 
-##### `[--paths] <PATH>`
+##### `--path-mode <PATH_MODE>`
+
+Defines which part of a path should be included in the results\.
+
+[\<PATH_MODE>](OptionValues.md#path_mode): `f[ull]`, `r[elative]`, `m[atch]`, `o[mit]`\.
+
+##### `--paths <PATH>`
 
 Path to one or more files and/or directories that should be searched\.
 
-##### `[--paths-from] <FILE_PATH>`
+##### `--paths-from <FILE_PATH>`
 
 Read the list of paths to search from a file\. Paths should be separated by newlines\.
 
-##### `[--progress]`
+##### `--progress`
 
 Display dot \(\.\) for every hundredth searched file or directory\.
 
-##### `[-p|--properties] <FILE_PROPERTIES>`
+##### `-p, --properties <FILE_PROPERTIES>`
 
-A filter for file properties\.
+Display file's properties and optionally filter by that properties\.
 
-[\<FILE_PROPERTIES>](OptionValues.md#file_properties): `c[reation-]t[ime]`, `m[odified-]t[ime]`, `s[ize]=<NUM>`\.
+[\<FILE_PROPERTIES>](OptionValues.md#file_properties): `c[reation-]t[ime][=<DATE>]`, `m[odified-]t[ime][=<DATE>]`, `s[ize][=<NUM>]`\.
 
-##### `[-r|--replacement] <REPLACEMENT> [<REPLACEMENT_OPTIONS>]`
+##### `-r, --replacement <REPLACEMENT> [<REPLACEMENT_OPTIONS>]`
 
 Replacement pattern\.
 
-##### `[-s|--sort] <SORT_OPTIONS>`
+##### `-s, --sort <SORT_OPTIONS>`
 
 Sort matched files and directories\.
 
 [\<SORT_OPTIONS>](OptionValues.md#sort_options): `a[scending]`, `c[reation-]t[ime]`, `ci [culture-invariant]`, `d[escending]`, `m[ax-count]=<NUM>`, `m[odified-]t[ime]`, `n[ame]`, `s[ize]`\.
 
-##### `[-v|--verbosity] <VERBOSITY>`
+##### `-u, --summary`
+
+Show summary at the end of search\.
+
+##### `-v, --verbosity <VERBOSITY>`
 
 The amount of information to display in the log\.
 

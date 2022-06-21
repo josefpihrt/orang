@@ -26,13 +26,13 @@ namespace Orang.CommandLine
                 WriteArgs(args.Take(args.Length - 1).ToArray(), Verbosity.Quiet, logger);
                 return ExitCodes.NoMatch;
             }
-
+#endif
             if (args?.Length > 0
                 && !CommandUtility.CheckCommandName(ref args, logger))
             {
                 return ExitCodes.Error;
             }
-#endif
+
             try
             {
                 Parser parser = CreateParser(ignoreUnknownArguments: true);

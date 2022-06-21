@@ -48,8 +48,8 @@ namespace Orang.FileSystem
                     matches.Add(match);
 
                     match = match.NextMatch();
-
-                } while (match.Success);
+                }
+                while (match.Success);
 
                 if (matches.Count > 1
                     && matches[0].Index > matches[1].Index)

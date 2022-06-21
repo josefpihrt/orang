@@ -7,30 +7,40 @@ Deletes files and directories\.
 ## Synopsis
 
 ```
-orang delete [<PATH>]
-[   --ask]
-[-a|--attributes]         <ATTRIBUTES>
-[-b|--attributes-to-skip] <ATTRIBUTES>
-[-c|--content]            <PATTERN> [<PATTERN_OPTIONS>]
-[   --content-only]
-[-y|--display]            <DISPLAY_OPTIONS>
-[-d|--dry-run]
-[   --encoding]           <ENCODING>
-[-e|--extension]          EXT1[,EXT2] [<EXTENSION_OPTIONS>]
-[-h|--help]
-[-t|--highlight]          <HIGHLIGHT>
-[-i|--include-directory]  <PATTERN> [<PATTERN_OPTIONS>]
-[   --including-bom]
-[-m|--max-count]          <NUM>
-[-n|--name]               <PATTERN> [<PATTERN_OPTIONS>]
-[   --no-recurse]
-[-o|--output]             <PATH> [<OUTPUT_OPTIONS>]
-[   --paths]              <PATH>
-[   --paths-from]         <FILE_PATH>
-[   --progress]
-[-p|--properties]         <FILE_PROPERTIES>
-[-s|--sort]               <SORT_OPTIONS>
-[-v|--verbosity]          <VERBOSITY>
+orang delete <PATH>
+    --after-context <NUM>
+    --align-columns
+    --ask
+-a, --attributes <ATTRIBUTES>
+-A, --attributes-to-skip <ATTRIBUTES>
+    --before-context <NUM>
+-c, --content <PATTERN> [<PATTERN_OPTIONS>]
+    --content-mode <CONTENT_MODE>
+    --content-only
+    --context <NUM>
+    --count
+-d, --dry-run
+    --encoding <ENCODING>
+-e, --extension EXT1[,EXT2] [<EXTENSION_OPTIONS>]
+-h, --help
+-t, --highlight <HIGHLIGHT>
+-i, --include-directory <PATTERN> [<PATTERN_OPTIONS>]
+    --including-bom
+    --line-number
+-m, --max-count <NUM>
+-n, --name <PATTERN> [<PATTERN_OPTIONS>]
+-C, --no-content
+-P, --no-path
+    --no-recurse
+-o, --output <PATH> [<OUTPUT_OPTIONS>]
+    --path-mode <PATH_MODE>
+    --paths <PATH>
+    --paths-from <FILE_PATH>
+    --progress
+-p, --properties <FILE_PROPERTIES>
+-s, --sort <SORT_OPTIONS>
+-u, --summary
+-v, --verbosity <VERBOSITY>
 ```
 
 ## Arguments
@@ -41,111 +51,153 @@ Path to one or more files and/or directories that should be searched\.
 
 ## Options
 
-##### `[--ask]`
+##### `--after-context <NUM>`
+
+Number of lines to show after matching line\.
+
+##### `--align-columns`
+
+Align columns\.
+
+##### `--ask`
 
 Ask for a permission to delete file or directory\.
 
-##### `[-a|--attributes] <ATTRIBUTES>`
+##### `-a, --attributes <ATTRIBUTES>`
 
 File attributes that are required\.
 
 [\<ATTRIBUTES>](OptionValues.md#attributes): `archive`, `compressed`, `d[irectory]`, `e[mpty]`, `encrypted`, `f[ile]`, `h[idden]`, `normal`, `offline`, `r[ead-only]`, `r[eparse-]p[oint]`, `s[ystem]`, `temporary`\.
 
-##### `[-b|--attributes-to-skip] <ATTRIBUTES>`
+##### `-A, --attributes-to-skip <ATTRIBUTES>`
 
 File attributes that should be skipped\.
 
 [\<ATTRIBUTES>](OptionValues.md#attributes): `archive`, `compressed`, `e[mpty]`, `encrypted`, `h[idden]`, `normal`, `offline`, `r[ead-only]`, `r[eparse-]p[oint]`, `s[ystem]`, `temporary`\.
 
-##### `[-c|--content] <PATTERN> [<PATTERN_OPTIONS>]`
+##### `--before-context <NUM>`
+
+Number of lines to show before matching line\.
+
+##### `-c, --content <PATTERN> [<PATTERN_OPTIONS>]`
 
 Regular expression for files' content\.
 
 [\<PATTERN_OPTIONS>](OptionValues.md#pattern_options): `compiled`, `c[ulture-]i[nvariant]`, `e[cma-]s[cript]`, `e[nds-]w[ith]`, `e[quals]`, `n [explicit-capture]`, `f[rom-file]`, `g[roup]=<GROUP_NAME>`, `i[gnore-case]`, `x [ignore-pattern-whitespace]`, `li[st]`, `length=<NUM>`, `l[ist-]s[eparator]`, `l[iteral]`, `m[ultiline]`, `ne[gative]`, `r[ight-to-left]`, `s[ingleline]`, `s[tarts-]w[ith]`, `timeout=<NUM>`, `w[hole-]l[ine]`, `w[hole-word]`\.
 
-##### `[--content-only]`
+##### `--content-mode <CONTENT_MODE>`
+
+Defines which parts of a content should be included in the results\.
+
+[\<CONTENT_MODE>](OptionValues.md#content_mode): `a[ll-lines]`, `l[ine]`, `u[nmatched-lines]`, `v[alue]`, `d [value-detail]`, `o[mit]`\.
+
+##### `--content-only`
 
 Delete content of a file or directory but not the file or directory itself\.
 
-##### `[-y|--display] <DISPLAY_OPTIONS>`
+##### `--context <NUM>`
 
-Display of the results\.
+Number of lines to show before and after matching line\.
 
-[\<DISPLAY_OPTIONS>](OptionValues.md#display_options): `c[reation-]t[ime]`, `indent=<INDENT>`, `m[odified-]t[ime]`, `no-align`, `p[ath]=`[\<PATH_DISPLAY>](OptionValues.md#path_display), `s[ize]`, `s[eparator]=<SEPARATOR>`, `su[mmary]`\.
+##### `--count`
 
-##### `[-d|--dry-run]`
+Show number of matches in a file\.
+
+##### `-d, --dry-run`
 
 Display which files/directories should be deleted but do not actually delete any file/directory\.
 
-##### `[--encoding] <ENCODING>`
+##### `--encoding <ENCODING>`
 
 Encoding to use when a file does not contain BOM\. Default encoding is UTF\-8\.
 
-##### `[-e|--extension] EXT1[,EXT2] [<EXTENSION_OPTIONS>]`
+##### `-e, --extension EXT1[,EXT2] [<EXTENSION_OPTIONS>]`
 
 A filter for file extensions \(case\-insensitive by default\)\.
 
 [\<EXTENSION_OPTIONS>](OptionValues.md#extension_options): `c[ase-]s[ensitive]`, `c[ulture-]i[nvariant]`, `f[rom-file]`, `l[ist-]s[eparator]`, `l[iteral]`, `ne[gative]`, `timeout=<NUM>`\.
 
-##### `[-h|--help]`
+##### `-h, --help`
 
 Show command line help\.
 
-##### `[-t|--highlight] <HIGHLIGHT>`
+##### `-t, --highlight <HIGHLIGHT>`
 
 Parts of the output to highlight\.
 
 [\<HIGHLIGHT>](OptionValues.md#highlight): `n[one]`, `m[atch]`, `e[mpty]`\.
 
-##### `[-i|--include-directory] <PATTERN> [<PATTERN_OPTIONS>]`
+##### `-i, --include-directory <PATTERN> [<PATTERN_OPTIONS>]`
 
 Regular expression for a directory name\.
 
-##### `[--including-bom]`
+##### `--including-bom`
 
 Delete byte order mark \(BOM\) when deleting file's content\.
 
-##### `[-m|--max-count] <NUM>`
+##### `--line-number`
+
+Include line number\.
+
+##### `-m, --max-count <NUM>`
 
 Stop deleting after specified number is reached\.
 
-##### `[-n|--name] <PATTERN> [<PATTERN_OPTIONS>]`
+##### `-n, --name <PATTERN> [<PATTERN_OPTIONS>]`
 
 Regular expression for file or directory name\.
 
-##### `[--no-recurse]`
+##### `-C, --no-content`
+
+A shortcut for '\-\-content\-mode omit'\.
+
+##### `-P, --no-path`
+
+A shortcut for '\-\-path\-mode omit'\.
+
+##### `--no-recurse`
 
 Do not search subdirectories\.
 
-##### `[-o|--output] <PATH> [<OUTPUT_OPTIONS>]`
+##### `-o, --output <PATH> [<OUTPUT_OPTIONS>]`
 
 Path to a file that should store output\.
 
-##### `[--paths] <PATH>`
+##### `--path-mode <PATH_MODE>`
+
+Defines which part of a path should be included in the results\.
+
+[\<PATH_MODE>](OptionValues.md#path_mode): `f[ull]`, `r[elative]`, `m[atch]`, `o[mit]`\.
+
+##### `--paths <PATH>`
 
 Path to one or more files and/or directories that should be searched\.
 
-##### `[--paths-from] <FILE_PATH>`
+##### `--paths-from <FILE_PATH>`
 
 Read the list of paths to search from a file\. Paths should be separated by newlines\.
 
-##### `[--progress]`
+##### `--progress`
 
 Display dot \(\.\) for every hundredth searched file or directory\.
 
-##### `[-p|--properties] <FILE_PROPERTIES>`
+##### `-p, --properties <FILE_PROPERTIES>`
 
-A filter for file properties\.
+Display file's properties and optionally filter by that properties\.
 
-[\<FILE_PROPERTIES>](OptionValues.md#file_properties): `c[reation-]t[ime]`, `m[odified-]t[ime]`, `s[ize]=<NUM>`\.
+[\<FILE_PROPERTIES>](OptionValues.md#file_properties): `c[reation-]t[ime][=<DATE>]`, `m[odified-]t[ime][=<DATE>]`, `s[ize][=<NUM>]`\.
 
-##### `[-s|--sort] <SORT_OPTIONS>`
+##### `-s, --sort <SORT_OPTIONS>`
 
 Sort matched files and directories\.
 
 [\<SORT_OPTIONS>](OptionValues.md#sort_options): `a[scending]`, `c[reation-]t[ime]`, `ci [culture-invariant]`, `d[escending]`, `m[ax-count]=<NUM>`, `m[odified-]t[ime]`, `n[ame]`, `s[ize]`\.
 
-##### `[-v|--verbosity] <VERBOSITY>`
+##### `-u, --summary`
+
+Show summary at the end of search\.
+
+##### `-v, --verbosity <VERBOSITY>`
 
 The amount of information to display in the log\.
 

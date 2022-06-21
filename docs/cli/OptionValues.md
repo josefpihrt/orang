@@ -4,17 +4,15 @@
 * [\<ATTRIBUTES>](#attributes)
 * [\<COMPARE_OPTIONS>](#compare_options)
 * [\<CONFLICT_RESOLUTION>](#conflict_resolution)
-* [\<CONTENT_DISPLAY>](#content_display)
-* [\<DISPLAY_OPTIONS>](#display_options)
+* [\<CONTENT_MODE>](#content_mode)
 * [\<EXTENSION_OPTIONS>](#extension_options)
 * [\<FILE_PROPERTIES>](#file_properties)
 * [\<HIGHLIGHT>](#highlight)
 * [\<INPUT_OPTIONS>](#input_options)
-* [\<MAX_OPTIONS>](#max_options)
 * [\<MODIFY_OPTIONS>](#modify_options)
 * [\<NAME_PART>](#name_part)
 * [\<OUTPUT_OPTIONS>](#output_options)
-* [\<PATH_DISPLAY>](#path_display)
+* [\<PATH_MODE>](#path_mode)
 * [\<PATTERN_OPTIONS>](#pattern_options)
 * [\<PIPE_MODE>](#pipe_mode)
 * [\<REGEX_OPTIONS>](#regex_options)
@@ -74,7 +72,7 @@
 | suffix    |     | Add suffix to file name if it already exists\.    |
 | skip      | s   | Do not copy or move a file if it already exists\. |
 
-## \<CONTENT\_DISPLAY>
+## \<CONTENT\_MODE>
 
 | Value            |     | Description                                                                              |
 | ---------------- | --- | ---------------------------------------------------------------------------------------- |
@@ -84,26 +82,6 @@
 | value            | v   | Display just the matched value\.                                                         |
 | value\-detail    | d   | Display matched value and include information about each value such as index or length\. |
 | omit             | o   | Do not display file's content\.                                                          |
-
-## \<DISPLAY\_OPTIONS>
-
-| Value                                          |     | Description                                                            |
-| ---------------------------------------------- | --- | ---------------------------------------------------------------------- |
-| content=[\<CONTENT_DISPLAY>](#content_display) | c   |                                                                        |
-| context=\<NUM>                                 | co  | A number of lines to display before and after matching line\.          |
-| context\-before=\<NUM>                         | b   | A number of lines to display before matching line\.                    |
-| context\-after=\<NUM>                          | a   | A number of lines to display after matching line\.                     |
-| count                                          | c   | Include number of matches in file\.                                    |
-| creation\-time                                 | ct  | Include file creation time\.                                           |
-| indent=\<INDENT>                               |     | Indentation for a list of results\. Default indentation are 2 spaces\. |
-| line\-number                                   | l   | Include line number\.                                                  |
-| modified\-time                                 | mt  | Include file last modified time\.                                      |
-| no\-align                                      |     | Do not align columns\.                                                 |
-| path=[\<PATH_DISPLAY>](#path_display)          | p   |                                                                        |
-| size                                           | s   | Include file size\.                                                    |
-| separator=\<SEPARATOR>                         | s   | String that separate each value\.                                      |
-| summary                                        | su  | Include summary\.                                                      |
-| trim\-line                                     |     | Trim leading and trailing white\-space from a line\.                   |
 
 ## \<EXTENSION\_OPTIONS>
 
@@ -119,11 +97,11 @@
 
 ## \<FILE\_PROPERTIES>
 
-| Value                  |     | Description                                                                       |
-| ---------------------- | --- | --------------------------------------------------------------------------------- |
-| creation\-time=\<DATE> | ct  | Filter files by creation time \(See 'Expression syntax' for other expressions\)\. |
-| modified\-time=\<DATE> | mt  | Filter files by modified time \(See 'Expression syntax' for other expressions\)\. |
-| size=\<NUM>            | s   | Filter files by size \(See 'Expression syntax' for other expressions\)\.          |
+| Value                  |     | Description                                                                                                   |
+| ---------------------- | --- | ------------------------------------------------------------------------------------------------------------- |
+| creation\-time=\<DATE> | ct  | Show file's creation time and optionally define condition \(See 'Expression syntax' for other expressions\)\. |
+| modified\-time=\<DATE> | mt  | Show file's modified time and optionally define condition \(See 'Expression syntax' for other expressions\)\. |
+| size=\<NUM>            | s   | Show file's size and optionally define condition \(See 'Expression syntax' for other expressions\)\.          |
 
 ## \<HIGHLIGHT>
 
@@ -150,13 +128,6 @@
 | ------ | --- | ------------------------------------------------------------------------------ |
 | escape | e   | Interpret literals \\a, \\b, \\f, \\n, \\r, \\t and \\v as character escapes\. |
 
-## \<MAX\_OPTIONS>
-
-| Value          |     | Description                                                     |
-| -------------- | --- | --------------------------------------------------------------- |
-| \<NUM>         |     | Stop searching after \<NUM> matching files and/or directories\. |
-| matches=\<NUM> | m   | Stop searching in each file after \<NUM> matches\.              |
-
 ## \<MODIFY\_OPTIONS>
 
 | Value                                       |     | Description                                                    |
@@ -170,6 +141,7 @@
 | except                                      |     | Return values from first file except values from second file\. |
 | intersect                                   |     | Return values that were found in all files\.                   |
 | group                                       |     | Group matching files by matched values\.                       |
+| count                                       |     | Show number of values in a group\.                             |
 | ignore\-case                                | i   | Use case\-insensitive matching\.                               |
 | remove\-empty                               | re  | Remove values that are empty strings\.                         |
 | remove\-white\-space                        | rw  | Remove values that are empty or consist of white\-space\.      |
@@ -197,7 +169,7 @@
 | verbosity=[\<VERBOSITY>](#verbosity) | v   |                                                                     |
 | append                               | a   | If the file exists output will be appended to the end of the file\. |
 
-## \<PATH\_DISPLAY>
+## \<PATH\_MODE>
 
 | Value    |     | Description                                     |
 | -------- | --- | ----------------------------------------------- |
@@ -294,6 +266,7 @@
 | Value  |     | Description                     |
 | ------ | --- | ------------------------------- |
 | length | l   | Sort values by value's length\. |
+| count  | c   | Sort values by group's count\.  |
 
 ## \<SYNC\_CONFLICT\_RESOLUTION>
 
@@ -317,8 +290,10 @@
 | miscellaneous             | m   |             |
 | named\-blocks             | n   |             |
 | options                   | o   |             |
+| regex\-options            | ro  |             |
 | quantifiers               | q   |             |
 | substitutions             | s   |             |
+| all                       |     |             |
 
 ## \<VERBOSITY>
 

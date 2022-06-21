@@ -16,9 +16,9 @@ namespace Orang.Spelling
 
         public static StringComparer DefaultComparer { get; } = StringComparer.FromComparison(DefaultComparison);
 
-        public static WordList Default { get; } = new WordList(null, DefaultComparison);
+        public static WordList Default { get; } = new(null, DefaultComparison);
 
-        public static WordList CaseSensitive { get; } = new WordList(
+        public static WordList CaseSensitive { get; } = new(
             null,
             StringComparison.InvariantCulture);
 

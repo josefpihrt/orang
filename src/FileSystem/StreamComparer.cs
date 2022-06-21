@@ -25,7 +25,7 @@ namespace Orang
             _buffer2 = new byte[BufferSize];
         }
 
-        public static StreamComparer Default { get; } = new StreamComparer();
+        public static StreamComparer Default { get; } = new();
 
         public bool Equals(Stream stream1, Stream stream2)
         {

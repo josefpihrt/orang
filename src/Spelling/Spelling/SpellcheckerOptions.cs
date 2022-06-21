@@ -4,7 +4,7 @@ namespace Orang.Spelling
 {
     public class SpellcheckerOptions
     {
-        public static SpellcheckerOptions Default { get; } = new SpellcheckerOptions(SplitMode.CaseAndHyphen);
+        public static SpellcheckerOptions Default { get; } = new(SplitMode.CaseAndHyphen);
 
         public SpellcheckerOptions(
             SplitMode splitMode = SplitMode.CaseAndHyphen,

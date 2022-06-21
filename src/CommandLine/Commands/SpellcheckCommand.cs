@@ -187,8 +187,8 @@ namespace Orang.CommandLine
                 {
                     ImmutableArray<SpellingFix> fixes = possibleFixes
                         .Where(
-                            f => (TextUtility.GetTextCasing(f.Value) != TextCasing.Undefined
-                                || string.Equals(grouping.Key, f.Value, StringComparison.OrdinalIgnoreCase)))
+                            f => TextUtility.GetTextCasing(f.Value) != TextCasing.Undefined
+                                || string.Equals(grouping.Key, f.Value, StringComparison.OrdinalIgnoreCase))
                         .ToImmutableArray();
 
                     if (fixes.Any())
@@ -196,7 +196,9 @@ namespace Orang.CommandLine
                         _logger.Write(": ", Colors.ContextLine, Verbosity.Normal);
 
                         _logger.Write(
-                            string.Join(", ", fixes.Select(f => TextUtility.SetTextCasing(f.Value, TextUtility.GetTextCasing(grouping.Key)))),
+                            string.Join(
+                                ", ",
+                                fixes.Select(f => TextUtility.SetTextCasing(f.Value, TextUtility.GetTextCasing(grouping.Key)))),
                             Colors.Replacement,
                             Verbosity.Normal);
                     }

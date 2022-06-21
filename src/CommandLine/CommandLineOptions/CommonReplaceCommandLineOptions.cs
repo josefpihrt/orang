@@ -335,6 +335,7 @@ namespace Orang.CommandLine
                 context.WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Input)}' and "
                     + $"argument '{ArgumentMetaNames.Path}' cannot be set both at the same time.");
 
+                paths = default;
                 return false;
             }
 

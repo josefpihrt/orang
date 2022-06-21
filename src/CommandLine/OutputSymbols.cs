@@ -4,9 +4,9 @@ namespace Orang
 {
     internal class OutputSymbols
     {
-        public static OutputSymbols Empty { get; } = new OutputSymbols();
+        public static OutputSymbols Empty { get; } = new();
 
-        public static OutputSymbols Default { get; } = new OutputSymbols(
+        public static OutputSymbols Default { get; } = new(
             tab: "T",
             carriageReturn: "CR",
             linefeed: "LF",

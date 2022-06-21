@@ -15,7 +15,7 @@ namespace Orang.Spelling
     public class FixList
     {
         public static FixList Empty { get; }
-            = new FixList(ImmutableDictionary.Create<string, ImmutableHashSet<SpellingFix>>(
+            = new(ImmutableDictionary.Create<string, ImmutableHashSet<SpellingFix>>(
                 WordList.DefaultComparer));
 
         public FixList(ImmutableDictionary<string, ImmutableHashSet<SpellingFix>> values)

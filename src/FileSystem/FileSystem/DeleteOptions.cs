@@ -7,7 +7,7 @@ namespace Orang.FileSystem
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class DeleteOptions
     {
-        internal static DeleteOptions Default { get; } = new DeleteOptions();
+        internal static DeleteOptions Default { get; } = new();
 
         public DeleteOptions(
             bool contentOnly = false,

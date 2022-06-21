@@ -9,7 +9,7 @@ namespace Orang.Spelling
     {
         private static readonly Regex _delimiterRegex = new Regex(@"(\s|,|\.|:|;|!|\?|""|\|)+", RegexOptions.ExplicitCapture);
 
-        private static readonly Regex _wordRegex = new Regex(
+        private static readonly Regex _wordRegex = new(
             @"
 \b
 \p{L}{2,}
@@ -42,11 +42,11 @@ namespace Orang.Spelling
     )
 ";
 
-        private static readonly Regex _splitIdentifierRegex = new Regex(
+        private static readonly Regex _splitIdentifierRegex = new(
             @"\P{L}+|" + _splitCasePattern,
             RegexOptions.IgnorePatternWhitespace);
 
-        private static readonly Regex _urlRegex = new Regex(
+        private static readonly Regex _urlRegex = new(
             @"\bhttps?://[^\s]+(?=\s|\z)", RegexOptions.IgnoreCase);
 
         private readonly Regex _splitRegex;
@@ -248,8 +248,8 @@ namespace Orang.Spelling
                     prevIndex = match.Index + match.Length;
 
                     match = match.NextMatch();
-
-                } while (match.Success);
+                }
+                while (match.Success);
 
                 AnalyzeValue(input[prevIndex..], prevIndex + offset, input, offset, ref builder);
             }

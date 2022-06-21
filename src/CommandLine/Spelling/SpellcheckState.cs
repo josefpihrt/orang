@@ -29,7 +29,7 @@ namespace Orang.CommandLine
 
         internal FixList OriginalFixes { get; }
 
-        public List<SpellingFixResult> Results { get; } = new List<SpellingFixResult>();
+        public List<SpellingFixResult> Results { get; } = new();
 
         public string? CurrentPath { get; set; }
 

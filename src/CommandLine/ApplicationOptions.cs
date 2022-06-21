@@ -4,7 +4,7 @@ namespace Orang.CommandLine
 {
     internal class ApplicationOptions
     {
-        public static ApplicationOptions Default { get; } = new ApplicationOptions();
+        public static ApplicationOptions Default { get; } = new();
 
         public ApplicationOptions(
             string? contentIndent = null,

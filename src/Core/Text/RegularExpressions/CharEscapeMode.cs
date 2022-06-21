@@ -55,4 +55,3 @@ namespace Orang.Text.RegularExpressions
         VerticalTab = 9,
     }
 }
-

@@ -7,7 +7,7 @@ namespace Orang.FileSystem
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class CopyOptions
     {
-        internal static CopyOptions Default { get; } = new CopyOptions();
+        internal static CopyOptions Default { get; } = new();
 
         public CopyOptions(
             ConflictResolution conflictResolution = ConflictResolution.Skip,

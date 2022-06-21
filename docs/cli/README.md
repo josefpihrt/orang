@@ -4,21 +4,21 @@ Search, replace, rename and delete files and its content using the power of \.NE
 
 ## Commands
 
-| Command                                   | Description                                                                                           |
-| ----------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| [copy](copy-command.md)                   | Searches the file system for files and directories and copy them to a destination directory\.         |
-| [delete](delete-command.md)               | Deletes files and directories\.                                                                       |
-| [escape](escape-command.md)               | Escapes special characters by replacing them with their escape codes\.                                |
-| [find](find-command.md)                   | Searches the file system for files and directories and optionally searches files' content\.           |
-| [help](help-command.md)                   | Displays help\.                                                                                       |
-| [list-patterns](list-patterns-command.md) | Lists regular expression patterns\.                                                                   |
-| [match](match-command.md)                 | Searches the input string for occurrences of the regular expression\.                                 |
-| [move](move-command.md)                   | Searches the file system for files and directories and move them to a destination directory\.         |
-| [rename](rename-command.md)               | Renames files and directories\.                                                                       |
-| [replace](replace-command.md)             | Searches the file system for files and replaces its content\.                                         |
-| [spellcheck](spellcheck-command.md)       | Searches the files' content for potential misspellings and typos\.                                    |
-| [split](split-command.md)                 | Splits the input string into an list of substrings at the positions defined by a regular expression\. |
-| [sync](sync-command.md)                   | Synchronizes content of two directories\.                                                             |
+| Command                                 | Description                                                                                           |
+| --------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| [copy](copy-command.md)                 | Searches the file system for files and directories and copy them to a destination directory\.         |
+| [delete](delete-command.md)             | Deletes files and directories\.                                                                       |
+| [find](find-command.md)                 | Searches the file system for files and directories and optionally searches files' content\.           |
+| [help](help-command.md)                 | Displays help\.                                                                                       |
+| [move](move-command.md)                 | Searches the file system for files and directories and move them to a destination directory\.         |
+| [regex escape](regex-escape-command.md) | Escapes special characters by replacing them with their escape codes\.                                |
+| [regex list](regex-list-command.md)     | Lists regular expression patterns\.                                                                   |
+| [regex match](regex-match-command.md)   | Searches the input string for occurrences of the regular expression\.                                 |
+| [regex split](regex-split-command.md)   | Splits the input string into an list of substrings at the positions defined by a regular expression\. |
+| [rename](rename-command.md)             | Renames files and directories\.                                                                       |
+| [replace](replace-command.md)           | Searches the file system for files and replaces its content\.                                         |
+| [spellcheck](spellcheck-command.md)     | Searches the files' content for potential misspellings and typos\.                                    |
+| [sync](sync-command.md)                 | Synchronizes content of two directories\.                                                             |
 
 
 ## Exit Code

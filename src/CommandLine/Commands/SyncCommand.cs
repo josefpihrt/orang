@@ -655,7 +655,7 @@ namespace Orang.CommandLine
         {
             public string? Path { get; private set; }
 
-            public List<FileData> Files { get; } = new List<FileData>();
+            public List<FileData> Files { get; } = new();
 
             [DebuggerBrowsable(DebuggerBrowsableState.Never)]
             private string DebuggerDisplay => $"{Path}  Files = {Files.Count}";

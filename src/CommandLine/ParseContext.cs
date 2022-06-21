@@ -877,7 +877,9 @@ namespace Orang.CommandLine
                 return false;
             }
 
-            if ((options & (ReplacementOptions.CSharp | ReplacementOptions.FromFile | ReplacementOptions.FromDll)) != 0)
+            if ((options & (ReplacementOptions.CSharp)) != 0
+                || ((options & (ReplacementOptions.FromCSharpFile)) == (ReplacementOptions.FromCSharpFile))
+                || (options & (ReplacementOptions.FromDll)) != 0)
             {
                 return TryParseDelegate(
                     optionName: OptionNames.Replacement,
@@ -1151,7 +1153,10 @@ namespace Orang.CommandLine
             foreach (string value in values)
             {
                 if (!TryParseAsEnum(value, optionName, out TEnum result2, provider: provider))
+                {
+                    result = default;
                     return false;
+                }
 
                 builder.Add(result2);
             }
@@ -1293,7 +1298,10 @@ namespace Orang.CommandLine
             foreach (string path in paths)
             {
                 if (!TryEnsureFullPath(path, out string? fullPath))
+                {
+                    fullPaths = default;
                     return false;
+                }
 
                 builder.Add(fullPath);
             }

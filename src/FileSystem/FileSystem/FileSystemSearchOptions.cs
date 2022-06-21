@@ -10,7 +10,7 @@ namespace Orang.FileSystem
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class FileSystemSearchOptions
     {
-        public static FileSystemSearchOptions Default { get; } = new FileSystemSearchOptions();
+        public static FileSystemSearchOptions Default { get; } = new();
 
         public FileSystemSearchOptions(
             SearchTarget searchTarget = SearchTarget.Files,

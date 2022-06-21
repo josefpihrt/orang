@@ -4,7 +4,7 @@ namespace Orang
 {
     internal class OutputCaptions
     {
-        public static OutputCaptions Default { get; } = new OutputCaptions(
+        public static OutputCaptions Default { get; } = new(
             match: "Match",
             group: "Group",
             capture: "Capture",

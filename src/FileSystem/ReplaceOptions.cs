@@ -11,7 +11,7 @@ namespace Orang
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class ReplaceOptions : IReplacer
     {
-        public static ReplaceOptions Empty { get; } = new ReplaceOptions("");
+        public static ReplaceOptions Empty { get; } = new("");
 
         public ReplaceOptions(
             string? replacement,

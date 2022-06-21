@@ -25,9 +25,9 @@ namespace Orang.CommandLine
 
         public Verbosity Verbosity { get; } = Verbosity.Diagnostic;
 
-        private ConsoleColors ValueColors { get; } = new ConsoleColors(ConsoleColor.Cyan);
+        private ConsoleColors ValueColors { get; } = new(ConsoleColor.Cyan);
 
-        private ConsoleColors NullValueColors { get; } = new ConsoleColors(ConsoleColor.DarkGray);
+        private ConsoleColors NullValueColors { get; } = new(ConsoleColor.DarkGray);
 
         private ValueWriter ValueWriter { get; }
 

@@ -209,7 +209,8 @@ namespace Orang.CommandLine
             options.ContentFilter = contentFilter;
             options.MaxTotalMatches = MaxCount;
             options.MaxMatchesInFile = MaxMatchesInFile;
-            options.MaxMatchingFiles = (contentFilter != null) ? MaxMatchingFiles : Math.Min(MaxMatchingFiles, MaxCount);
+
+            options.MaxMatchingFiles = (contentFilter == null && MaxMatchingFiles == 0) ? MaxCount : MaxMatchingFiles;
 
             return true;
         }

@@ -66,21 +66,21 @@ namespace Orang.CommandLine
             longName: OptionNames.LineNumber,
             HelpText = "Include line number.")]
         public bool LineNumber { get; set; }
-#if DEBUG
-        // --omit-content
+
+        [HideFromConsoleHelp]
         [Option(
             shortName: OptionShortNames.NoContent,
             longName: OptionNames.NoContent,
             HelpText = "A shortcut for '--" + OptionNames.ContentMode + " omit'.")]
         public bool NoContent { get; set; }
 
-        // --omit-path
+        [HideFromConsoleHelp]
         [Option(
             shortName: OptionShortNames.NoPath,
             longName: OptionNames.NoPath,
             HelpText = "A shortcut for '--" + OptionNames.PathMode + " omit'.")]
         public bool NoPath { get; set; }
-#endif
+
         [Value(
             index: 0,
             HelpText = "Path to one or more files and/or directories that should be searched.",
@@ -176,13 +176,13 @@ namespace Orang.CommandLine
                     + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.Context)}"
                     + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.Count)}"
                     + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.LineNumber)}"
+                    + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.NoContent)}"
+                    + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.NoPath)}"
                     + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.PathMode)}"
                     + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.Summary)}"
 #if DEBUG
                     + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.ContentIndent)}"
                     + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.ContentSeparator)}"
-                    + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.NoContent)}"
-                    + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.NoPath)}"
 #endif
                     );
             }
@@ -367,7 +367,10 @@ namespace Orang.CommandLine
             foreach (string path in paths)
             {
                 if (!context.TryEnsureFullPath(path, out string? fullPath))
+                {
+                    fullPaths = default;
                     return false;
+                }
 
                 builder.Add(new PathInfo(fullPath, kind));
             }

@@ -9,7 +9,7 @@ namespace Orang
 {
     internal class ModifyOptions
     {
-        public static ModifyOptions Default { get; } = new ModifyOptions();
+        public static ModifyOptions Default { get; } = new();
 
         public ModifyOptions(
             ModifyFunctions functions = ModifyFunctions.None,

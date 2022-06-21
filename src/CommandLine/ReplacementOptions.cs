@@ -13,5 +13,6 @@ namespace Orang.CommandLine
         Escape = 1 << 2,
         FromDll = 1 << 3,
         CSharp = 1 << 4,
+        FromCSharpFile = FromFile | CSharp,
     }
 }

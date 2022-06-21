@@ -20,7 +20,7 @@ namespace Orang.Documentation
 {
     internal static class Program
     {
-        private static readonly Regex _removeNewlineRegex = new Regex(@"\ *\r?\n\ *");
+        private static readonly Regex _removeNewlineRegex = new(@"\ *\r?\n\ *");
 
         private static void Main(params string[] args)
         {

@@ -1,38 +1,35 @@
-﻿# `orang spellcheck`
+﻿---
+sidebar_label: find
+---
 
-Searches the files' content for potential misspellings and typos\.
+# `orang find`
 
-[Home](README.md#readme) &#x2022; [Synopsis](#Synopsis) &#x2022; [Arguments](#Arguments) &#x2022; [Options](#Options) &#x2022; [Samples](#Samples)
+Searches the file system for files and directories and optionally searches files' content\.
 
 ## Synopsis
 
 ```
-orang spellcheck <PATH>
+orang find <PATH>
     --after-context <NUM>
     --align-columns
     --ask <ASK_MODE>
 -a, --attributes <ATTRIBUTES>
 -A, --attributes-to-skip <ATTRIBUTES>
     --before-context <NUM>
-    --case-sensitive
 -c, --content <PATTERN> [<PATTERN_OPTIONS>]
     --content-mode <CONTENT_MODE>
     --context <NUM>
     --count
--d, --dry-run
     --encoding <ENCODING>
 -e, --extension EXT1[,EXT2] [<EXTENSION_OPTIONS>]
 -h, --help
 -t, --highlight <HIGHLIGHT>
 -i, --include-directory <PATTERN> [<PATTERN_OPTIONS>]
-    --input <INPUT> [<INPUT_OPTIONS>]
-    --interactive
     --line-number
 -m, --max-count <NUM>
     --max-matches-in-file <NUM>
     --max-matching-files <NUM>
-    --max-word-length
-    --min-word-length
+    --modify <MODIFY_OPTIONS>
 -n, --name <PATTERN> [<PATTERN_OPTIONS>]
 -C, --no-content
 -P, --no-path
@@ -45,9 +42,9 @@ orang spellcheck <PATH>
     --progress
 -p, --properties <FILE_PROPERTIES>
 -s, --sort <SORT_OPTIONS>
+    --split
 -u, --summary
 -v, --verbosity <VERBOSITY>
-    --words <PATH>
 ```
 
 ## Arguments
@@ -70,39 +67,35 @@ Align columns\.
 
 Ask for permission after each file or value\.
 
-[\<ASK_MODE>](OptionValues.md#ask_mode): `f[ile]`, `v[alue]`\.
+[&lt;ASK_MODE&gt;](../OptionValues.md#ask_mode): `f[ile]`, `v[alue]`\.
 
 ##### `-a, --attributes <ATTRIBUTES>`
 
 File attributes that are required\.
 
-[\<ATTRIBUTES>](OptionValues.md#attributes): `archive`, `compressed`, `d[irectory]`, `e[mpty]`, `encrypted`, `f[ile]`, `h[idden]`, `normal`, `offline`, `r[ead-only]`, `r[eparse-]p[oint]`, `s[ystem]`, `temporary`\.
+[&lt;ATTRIBUTES&gt;](../OptionValues.md#attributes): `archive`, `compressed`, `d[irectory]`, `e[mpty]`, `encrypted`, `f[ile]`, `h[idden]`, `normal`, `offline`, `r[ead-only]`, `r[eparse-]p[oint]`, `s[ystem]`, `temporary`\.
 
 ##### `-A, --attributes-to-skip <ATTRIBUTES>`
 
 File attributes that should be skipped\.
 
-[\<ATTRIBUTES>](OptionValues.md#attributes): `archive`, `compressed`, `e[mpty]`, `encrypted`, `h[idden]`, `normal`, `offline`, `r[ead-only]`, `r[eparse-]p[oint]`, `s[ystem]`, `temporary`\.
+[&lt;ATTRIBUTES&gt;](../OptionValues.md#attributes): `archive`, `compressed`, `e[mpty]`, `encrypted`, `h[idden]`, `normal`, `offline`, `r[ead-only]`, `r[eparse-]p[oint]`, `s[ystem]`, `temporary`\.
 
 ##### `--before-context <NUM>`
 
 Number of lines to show before matching line\.
 
-##### `--case-sensitive`
-
-Specifies case\-sensitive matching\.
-
 ##### `-c, --content <PATTERN> [<PATTERN_OPTIONS>]`
 
 Regular expression for files' content\.
 
-[\<PATTERN_OPTIONS>](OptionValues.md#pattern_options): `compiled`, `c[ulture-]i[nvariant]`, `e[cma-]s[cript]`, `e[nds-]w[ith]`, `e[quals]`, `n [explicit-capture]`, `f[rom-file]`, `i[gnore-case]`, `x [ignore-pattern-whitespace]`, `li[st]`, `length=<NUM>`, `l[ist-]s[eparator]`, `l[iteral]`, `m[ultiline]`, `r[ight-to-left]`, `s[ingleline]`, `s[tarts-]w[ith]`, `timeout=<NUM>`, `w[hole-]l[ine]`, `w[hole-word]`\.
+[&lt;PATTERN_OPTIONS&gt;](../OptionValues.md#pattern_options): `compiled`, `c[ulture-]i[nvariant]`, `e[cma-]s[cript]`, `e[nds-]w[ith]`, `e[quals]`, `n [explicit-capture]`, `f[rom-file]`, `g[roup]=<GROUP_NAME>`, `i[gnore-case]`, `x [ignore-pattern-whitespace]`, `li[st]`, `length=<NUM>`, `l[ist-]s[eparator]`, `l[iteral]`, `m[ultiline]`, `ne[gative]`, `r[ight-to-left]`, `s[ingleline]`, `s[tarts-]w[ith]`, `timeout=<NUM>`, `w[hole-]l[ine]`, `w[hole-word]`\.
 
 ##### `--content-mode <CONTENT_MODE>`
 
 Defines which parts of a content should be included in the results\.
 
-[\<CONTENT_MODE>](OptionValues.md#content_mode): `a[ll-lines]`, `l[ine]`, `u[nmatched-lines]`, `v[alue]`, `d [value-detail]`, `o[mit]`\.
+[&lt;CONTENT_MODE&gt;](../OptionValues.md#content_mode): `a[ll-lines]`, `l[ine]`, `u[nmatched-lines]`, `v[alue]`, `d [value-detail]`, `o[mit]`\.
 
 ##### `--context <NUM>`
 
@@ -112,10 +105,6 @@ Number of lines to show before and after matching line\.
 
 Show number of matches in a file\.
 
-##### `-d, --dry-run`
-
-Display which files should be updated but do not actually update any file\.
-
 ##### `--encoding <ENCODING>`
 
 Encoding to use when a file does not contain BOM\. Default encoding is UTF\-8\.
@@ -124,7 +113,7 @@ Encoding to use when a file does not contain BOM\. Default encoding is UTF\-8\.
 
 A filter for file extensions \(case\-insensitive by default\)\.
 
-[\<EXTENSION_OPTIONS>](OptionValues.md#extension_options): `c[ase-]s[ensitive]`, `c[ulture-]i[nvariant]`, `f[rom-file]`, `l[ist-]s[eparator]`, `l[iteral]`, `ne[gative]`, `timeout=<NUM>`\.
+[&lt;EXTENSION_OPTIONS&gt;](../OptionValues.md#extension_options): `c[ase-]s[ensitive]`, `c[ulture-]i[nvariant]`, `f[rom-file]`, `l[ist-]s[eparator]`, `l[iteral]`, `ne[gative]`, `timeout=<NUM>`\.
 
 ##### `-h, --help`
 
@@ -134,19 +123,11 @@ Show command line help\.
 
 Parts of the output to highlight\.
 
-[\<HIGHLIGHT>](OptionValues.md#highlight): `n[one]`, `m[atch]`, `r[eplacement]`, `e[mpty-]m[atch]`, `e[mpty-]r[eplacement]`, `e[mpty]`, `b[oundary]`, `t[ab]`, `c[arriage-]r[eturn]`, `l[ine]f[eed]`, `newline`, `space`\.
+[&lt;HIGHLIGHT&gt;](../OptionValues.md#highlight): `n[one]`, `m[atch]`, `e[mpty-]m[atch]`, `e[mpty]`, `b[oundary]`, `t[ab]`, `c[arriage-]r[eturn]`, `l[ine]f[eed]`, `newline`, `space`\.
 
 ##### `-i, --include-directory <PATTERN> [<PATTERN_OPTIONS>]`
 
 Regular expression for a directory name\.
-
-##### `--input <INPUT> [<INPUT_OPTIONS>]`
-
-The input string to be searched\.
-
-##### `--interactive`
-
-Enable editing of a replacement\.
 
 ##### `--line-number`
 
@@ -164,13 +145,11 @@ Stop searching in a file after specified number of matches is found\.
 
 Stop searching after specified number of files is found\.
 
-##### `--max-word-length`
+##### `--modify <MODIFY_OPTIONS>`
 
-Specifies maximal word length to be checked\.
+Functions to modify results\.
 
-##### `--min-word-length`
-
-Specifies minimal word length to be checked\. Default value is 3\.
+[&lt;MODIFY_OPTIONS&gt;](../OptionValues.md#modify_options): `ag[gregate]`, `o [aggregate-only]`, `a[scending]`, `ci [culture-invariant]`, `d[escending]`, `di[stinct]`, `except`, `intersect`, `group`, `count`, `i[gnore-case]`, `re[move-empty]`, `rw [remove-white-space]`, `sort-by=`[&lt;SORT_PROPERTY&gt;](../OptionValues.md#sort_property), `tl [to-lower]`, `tu [to-upper]`, `t[rim]`, `te [trim-end]`, `ts [trim-start]`\.
 
 ##### `-n, --name <PATTERN> [<PATTERN_OPTIONS>]`
 
@@ -196,7 +175,7 @@ Path to a file that should store output\.
 
 Defines which part of a path should be included in the results\.
 
-[\<PATH_MODE>](OptionValues.md#path_mode): `f[ull]`, `r[elative]`, `m[atch]`, `o[mit]`\.
+[&lt;PATH_MODE&gt;](../OptionValues.md#path_mode): `f[ull]`, `r[elative]`, `m[atch]`, `o[mit]`\.
 
 ##### `--paths <PATH>`
 
@@ -210,7 +189,7 @@ Read the list of paths to search from a file\. Paths should be separated by newl
 
 Defines how to use redirected/piped input\.
 
-[\<PIPE_MODE>](OptionValues.md#pipe_mode): `t[ext]`, `p[aths]`\.
+[&lt;PIPE_MODE&gt;](../OptionValues.md#pipe_mode): `t[ext]`, `p[aths]`\.
 
 ##### `--progress`
 
@@ -220,13 +199,17 @@ Display dot \(\.\) for every hundredth searched file or directory\.
 
 Display file's properties and optionally filter by that properties\.
 
-[\<FILE_PROPERTIES>](OptionValues.md#file_properties): `c[reation-]t[ime][=<DATE>]`, `m[odified-]t[ime][=<DATE>]`, `s[ize][=<NUM>]`\.
+[&lt;FILE_PROPERTIES&gt;](../OptionValues.md#file_properties): `c[reation-]t[ime][=<DATE>]`, `m[odified-]t[ime][=<DATE>]`, `s[ize][=<NUM>]`\.
 
 ##### `-s, --sort <SORT_OPTIONS>`
 
 Sort matched files and directories\.
 
-[\<SORT_OPTIONS>](OptionValues.md#sort_options): `a[scending]`, `c[reation-]t[ime]`, `ci [culture-invariant]`, `d[escending]`, `m[ax-count]=<NUM>`, `m[odified-]t[ime]`, `n[ame]`, `s[ize]`\.
+[&lt;SORT_OPTIONS&gt;](../OptionValues.md#sort_options): `a[scending]`, `c[reation-]t[ime]`, `ci [culture-invariant]`, `d[escending]`, `m[ax-count]=<NUM>`, `m[odified-]t[ime]`, `n[ame]`, `s[ize]`\.
+
+##### `--split`
+
+Execute regex in a split mode\.
 
 ##### `-u, --summary`
 
@@ -236,22 +219,92 @@ Show summary at the end of search\.
 
 The amount of information to display in the log\.
 
-[\<VERBOSITY>](OptionValues.md#verbosity): `q[uiet]`, `m[inimal]`, `n[ormal]`, `d[etailed]`, `di[agnostic]`\.
-
-##### `--words <PATH>`
-
-Specified path to file and/or directory that contains list of allowed words\.
+[&lt;VERBOSITY&gt;](../OptionValues.md#verbosity): `q[uiet]`, `m[inimal]`, `n[ormal]`, `d[etailed]`, `di[agnostic]`\.
 
 ## Redirected/Piped Input
 
 Redirected/piped input will be used either as a text to be searched (default) or as a list of paths separated with newlines (when `--pipe p[aths]` is specified.
 
-## List of Allowed Words
+## Samples
 
-* It is required to specify one or more wordlists (parameter `--words`).
-* Wordlist is defined as a text file that contains list of values separated with newlines.
-* Each value is either a valid word (for example `misspell`) or a fix in a format `<ERROR>: <FIX>` (for example `mispell: misspell`).
-* Word matching is case-insensitive by default (use option `--case-sensitive` to specify case-sensitive matching).
-* It is recommended to use [Wordb](https://github.com/JosefPihrt/Wordb/tree/main/data) wordlists that are specifically tailored to be used for spellchecking.
+### Sample
+
+Find TODO comments in a C# source files in a current directory.
+
+Current directory contains file **pattern.txt** with a following content:
+
+```
+(?im)
+(?<=
+  ^(\ |\t)*/{2,}\ *todo\ *
+)
+[^\r\n]+
+```
+
+#### Syntax
+
+```
+orang find ^
+ --extension cs ^
+ --content "pattern.txt" from-file
+```
+
+#### Short Syntax
+
+```
+orang find ^
+ -e cs ^
+ -c "pattern.txt" f
+```
+
+### Sample
+
+Display content of new csproj files and pause after each file.
+
+#### Syntax
+
+```
+orang find ^
+ --extension csproj ^
+ --content "<Project Sdk=\"Microsoft.NET.Sdk\">" literal ^
+ --display content=all-lines ^
+ --ask file
+```
+
+#### Short Syntax
+
+```
+orang find ^
+ -e csproj ^
+ -c "<Project Sdk=\"Microsoft.NET.Sdk\">" l ^
+ -y c=a ^
+ --ask f
+```
+
+### Sample
+
+Add copyright banner to each C# file in a current directory.
+
+#### Syntax
+
+```
+orang find ^
+ --extension cs ^
+ --content "banner.txt" from-file literal starts-with negative | ^
+orang replace ^
+ --content "" starts-with ^
+ --replacement "banner.txt" from-file
+```
+
+#### Short Syntax
+
+```
+orang find ^
+ -e cs ^
+ -c "banner.txt" f l sw ne | ^
+orang replace ^
+ -c "" sw ^
+ -r "banner.txt" f
+```
 
 *\(Generated with [DotMarkdown](http://github.com/JosefPihrt/DotMarkdown)\)*

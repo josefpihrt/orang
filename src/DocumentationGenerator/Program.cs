@@ -54,18 +54,30 @@ namespace Orang.Documentation
                 dataDirectoryPath = @"..\src\DocumentationGenerator\data";
             }
 
-            string readmeFilePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "README.md"));
+            string readmeFilePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "index.md"));
+
+            var markdownFormat = new MarkdownFormat(
+                tableOptions: MarkdownFormat.Default.TableOptions | TableOptions.FormatHeaderAndContent,
+                angleBracketEscapeStyle: AngleBracketEscapeStyle.EntityRef);
 
             var settings = new MarkdownWriterSettings(
-                MarkdownFormat.Default.WithTableOptions(
-                    MarkdownFormat.Default.TableOptions | TableOptions.FormatHeaderAndContent));
+                markdownFormat);
 
             using (var sw = new StreamWriter(readmeFilePath, append: false, Encoding.UTF8))
             using (MarkdownWriter mw = MarkdownWriter.Create(sw, settings))
             {
+                mw.WriteRaw("---");
+                mw.WriteLine();
+                mw.WriteRaw("sidebar_position: 0");
+                mw.WriteLine();
+                mw.WriteRaw("sidebar_label: Orang Command-line Tool");
+                mw.WriteLine();
+                mw.WriteRaw("---");
+                mw.WriteLine();
+
                 mw.WriteStartHeading(1);
-                mw.WriteString("Orang Command-Line Interface");
-                mw.WriteRaw(" <img align=\"left\" src=\"../../images/icon48.png\">");
+                mw.WriteString("Orang Command-line Tool");
+                mw.WriteRaw(" <img align=\"left\" src=\"../../images/icon48.png\" />");
                 mw.WriteEndHeading();
                 mw.WriteString(application.Description);
                 mw.WriteLine();
@@ -76,7 +88,7 @@ namespace Orang.Documentation
                     TableRow("Command", "Description"),
                     application
                         .Commands
-                        .Select(f => TableRow(Link(f.DisplayName, f.Name + "-command.md"), f.Description)))
+                        .Select(f => TableRow(Link(f.DisplayName, $"Commands/{f.Name}.md"), f.Description)))
                     .WriteTo(mw);
 
                 mw.WriteLine();
@@ -100,9 +112,9 @@ namespace Orang.Documentation
 
             MDocument document = Document(
                 Heading1("List of Option Values"),
-                BulletList(providers.Select(f => Link(
-                    f.Name,
-                    MarkdownHelpers.CreateGitHubHeadingLink(f.Name)))),
+                //BulletList(providers.Select(f => Link(
+                //    f.Name,
+                //    MarkdownHelpers.CreateGitHubHeadingLink(f.Name)))),
                 providers.Select(provider =>
                 {
                     return new MObject[]
@@ -123,34 +135,38 @@ namespace Orang.Documentation
 
             AddFootnote(document);
 
-            var markdownFormat = new MarkdownFormat(
-                tableOptions: MarkdownFormat.Default.TableOptions | TableOptions.FormatContent);
-
             File.WriteAllText(valuesFilePath, document.ToString(markdownFormat));
 
             foreach (Command command in application.Commands)
             {
-                readmeFilePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, $"{command.Name}-command.md"));
+                readmeFilePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "Commands", $"{command.Name}.md"));
 
                 using (var sw = new StreamWriter(readmeFilePath, append: false, Encoding.UTF8))
-                using (MarkdownWriter mw = MarkdownWriter.Create(sw))
+                using (MarkdownWriter mw = MarkdownWriter.Create(sw, settings))
                 {
                     var writer = new DocumentationWriter(mw);
+
+                    mw.WriteRaw("---");
+                    mw.WriteLine();
+                    mw.WriteRaw($"sidebar_label: {command.DisplayName}");
+                    mw.WriteLine();
+                    mw.WriteRaw("---");
+                    mw.WriteLine();
 
                     writer.WriteCommandHeading(command, application);
                     writer.WriteCommandDescription(command);
 
-                    mw.WriteLink("Home", "README.md#readme");
+                    //mw.WriteLink("Home", "index.md#readme");
 
-                    foreach (string section in new[] { "Synopsis", "Arguments", "Options", "Samples" })
-                    {
-                        mw.WriteString(" ");
-                        mw.WriteCharEntity((char)0x2022);
-                        mw.WriteString(" ");
-                        mw.WriteLink(section, "#" + section);
-                    }
+                    //foreach (string section in new[] { "Synopsis", "Arguments", "Options", "Samples" })
+                    //{
+                    //    mw.WriteString(" ");
+                    //    mw.WriteCharEntity((char)0x2022);
+                    //    mw.WriteString(" ");
+                    //    mw.WriteLink(section, "#" + section);
+                    //}
 
-                    mw.WriteLine();
+                    //mw.WriteLine();
 
                     writer.WriteCommandSynopsis(command, application);
                     writer.WriteArguments(command.Arguments);
@@ -169,11 +185,6 @@ namespace Orang.Documentation
                     Console.WriteLine(readmeFilePath);
                 }
             }
-
-            Console.WriteLine("Done");
-
-            if (Debugger.IsAttached)
-                Console.ReadKey();
         }
 
         private static MTableRow CreateTableRow(

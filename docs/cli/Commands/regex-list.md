@@ -1,8 +1,10 @@
-﻿# `orang regex list`
+﻿---
+sidebar_label: regex list
+---
+
+# `orang regex list`
 
 Lists regular expression patterns\.
-
-[Home](README.md#readme) &#x2022; [Synopsis](#Synopsis) &#x2022; [Arguments](#Arguments) &#x2022; [Options](#Options) &#x2022; [Samples](#Samples)
 
 ## Synopsis
 
@@ -40,19 +42,19 @@ Show command line help\.
 
 Regex options that should be used\. Relevant values are ecma\-script or ignore\-case\.
 
-[\<REGEX_OPTIONS>](OptionValues.md#regex_options): `c[ompiled]`, `c[ulture-]i[nvariant]`, `e[cma-]s[cript]`, `n [explicit-capture]`, `i[gnore-case]`, `x [ignore-pattern-whitespace]`, `m[ultiline]`, `r[ight-to-left]`, `s[ingleline]`\.
+[&lt;REGEX_OPTIONS&gt;](../OptionValues.md#regex_options): `c[ompiled]`, `c[ulture-]i[nvariant]`, `e[cma-]s[cript]`, `n [explicit-capture]`, `i[gnore-case]`, `x [ignore-pattern-whitespace]`, `m[ultiline]`, `r[ight-to-left]`, `s[ingleline]`\.
 
 ##### `-s, --section <SYNTAX_SECTIONS>`
 
 Syntax sections to filter\.
 
-[\<SYNTAX_SECTIONS>](OptionValues.md#syntax_sections): `a[lternation-]c[onstructs]`, `a[nchors]`, `b[ackreference-constructs]`, `c[haracter-classes]`, `c[haracter-]e[scapes]`, `g[eneral-]c[ategories]`, `g[rouping-constructs]`, `m[iscellaneous]`, `n[amed-blocks]`, `o[ptions]`, `r[egex-]o[ptions]`, `q[uantifiers]`, `s[ubstitutions]`, `all`\.
+[&lt;SYNTAX_SECTIONS&gt;](../OptionValues.md#syntax_sections): `a[lternation-]c[onstructs]`, `a[nchors]`, `b[ackreference-constructs]`, `c[haracter-classes]`, `c[haracter-]e[scapes]`, `g[eneral-]c[ategories]`, `g[rouping-constructs]`, `m[iscellaneous]`, `n[amed-blocks]`, `o[ptions]`, `r[egex-]o[ptions]`, `q[uantifiers]`, `s[ubstitutions]`, `all`\.
 
 ##### `-v, --verbosity <VERBOSITY>`
 
 The amount of information to display in the log\.
 
-[\<VERBOSITY>](OptionValues.md#verbosity): `q[uiet]`, `m[inimal]`, `n[ormal]`, `d[etailed]`, `di[agnostic]`\.
+[&lt;VERBOSITY&gt;](../OptionValues.md#verbosity): `q[uiet]`, `m[inimal]`, `n[ormal]`, `d[etailed]`, `di[agnostic]`\.
 
 ### Sample
 

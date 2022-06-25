@@ -12,16 +12,16 @@ Redirected/piped input will be used either as a raw text or as a list of paths s
 
 Command | Piped Input
 --- | ---
-[copy](copy-command.md) | list of paths
-[delete](delete-command.md) | list of paths
-[escape](escape-command.md) | text
-[find](find-command.md) | text (default) or list of paths when `--pipe p[aths]` is specified
-[match](match-command.md) | text
-[move](move-command.md) | list of paths
-[rename](rename-command.md) | list of paths
-[replace](replace-command.md) | text (default) or list of paths when `--pipe p[aths]` is specified
-[split](split-command.md) | text
-[sync](sync-command.md) | list of paths
+[copy](Commands/copy.md) | list of paths
+[delete](Commands/delete.md) | list of paths
+[find](Commands/find.md) | text (default) or list of paths when `--pipe p[aths]` is specified
+[move](Commands/move.md) | list of paths
+[regex escape](Commands/regex-escape.md) | text
+[regex match](Commands/regex-match.md) | text
+[regex split](Commands/regex-split.md) | text
+[rename](Commands/rename.md) | list of paths
+[replace](Commands/replace.md) | text (default) or list of paths when `--pipe p[aths]` is specified
+[sync](Commands/sync.md) | list of paths
 
 ## Multi-value Parameters
 

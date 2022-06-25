@@ -1,37 +1,13 @@
 # List of Option Values
 
-* [\<ASK_MODE>](#ask_mode)
-* [\<ATTRIBUTES>](#attributes)
-* [\<COMPARE_OPTIONS>](#compare_options)
-* [\<CONFLICT_RESOLUTION>](#conflict_resolution)
-* [\<CONTENT_MODE>](#content_mode)
-* [\<EXTENSION_OPTIONS>](#extension_options)
-* [\<FILE_PROPERTIES>](#file_properties)
-* [\<HIGHLIGHT>](#highlight)
-* [\<INPUT_OPTIONS>](#input_options)
-* [\<MODIFY_OPTIONS>](#modify_options)
-* [\<NAME_PART>](#name_part)
-* [\<OUTPUT_OPTIONS>](#output_options)
-* [\<PATH_MODE>](#path_mode)
-* [\<PATTERN_OPTIONS>](#pattern_options)
-* [\<PIPE_MODE>](#pipe_mode)
-* [\<REGEX_OPTIONS>](#regex_options)
-* [\<REPLACE_MODIFY>](#replace_modify)
-* [\<REPLACEMENT_OPTIONS>](#replacement_options)
-* [\<SORT_OPTIONS>](#sort_options)
-* [\<SORT_PROPERTY>](#sort_property)
-* [\<SYNC_CONFLICT_RESOLUTION>](#sync_conflict_resolution)
-* [\<SYNTAX_SECTIONS>](#syntax_sections)
-* [\<VERBOSITY>](#verbosity)
-
-## \<ASK\_MODE>
+## &lt;ASK\_MODE&gt;
 
 | Value |     | Description                             |
 | ----- | --- | --------------------------------------- |
 | file  | f   | Ask for confirmation after each file\.  |
 | value | v   | Ask for confirmation after each value\. |
 
-## \<ATTRIBUTES>
+## &lt;ATTRIBUTES&gt;
 
 | Value                 |     | Description |
 | --------------------- | --- | ----------- |
@@ -53,7 +29,7 @@
 | system                | s   |             |
 | temporary             |     |             |
 
-## \<COMPARE\_OPTIONS>
+## &lt;COMPARE\_OPTIONS&gt;
 
 | Value          |     | Description                             |
 | -------------- | --- | --------------------------------------- |
@@ -63,7 +39,7 @@
 | modified\-time | mt  | Compare time a file was last modified\. |
 | size           | s   | Compare file size\.                     |
 
-## \<CONFLICT\_RESOLUTION>
+## &lt;CONFLICT\_RESOLUTION&gt;
 
 | Value     |     | Description                                       |
 | --------- | --- | ------------------------------------------------- |
@@ -72,7 +48,7 @@
 | suffix    |     | Add suffix to file name if it already exists\.    |
 | skip      | s   | Do not copy or move a file if it already exists\. |
 
-## \<CONTENT\_MODE>
+## &lt;CONTENT\_MODE&gt;
 
 | Value            |     | Description                                                                              |
 | ---------------- | --- | ---------------------------------------------------------------------------------------- |
@@ -83,27 +59,27 @@
 | value\-detail    | d   | Display matched value and include information about each value such as index or length\. |
 | omit             | o   | Do not display file's content\.                                                          |
 
-## \<EXTENSION\_OPTIONS>
+## &lt;EXTENSION\_OPTIONS&gt;
 
-| Value                        |     | Description                                                                                                             |
-| ---------------------------- | --- | ----------------------------------------------------------------------------------------------------------------------- |
-| case\-sensitive              | cs  | Use case\-sensitive matching\.                                                                                          |
-| culture\-invariant           | ci  | Ignore cultural differences between languages\.                                                                         |
-| from\-file                   | f   | Load pattern from a file\.                                                                                              |
-| list\-separator=\<SEPARATOR> | ls  | String that separate each value in a list\. Default value is comma \(,\) or newline if the list is loaded from a file\. |
-| literal                      | l   | Pattern should be treated as a literal expression and not as a regular expression\.                                     |
-| negative                     | ne  | Search succeeds if the regular expression does not match\.                                                              |
-| timeout=\<NUM>               |     | Match time\-out interval in seconds\.                                                                                   |
+| Value                             |     | Description                                                                                                             |
+| --------------------------------- | --- | ----------------------------------------------------------------------------------------------------------------------- |
+| case\-sensitive                   | cs  | Use case\-sensitive matching\.                                                                                          |
+| culture\-invariant                | ci  | Ignore cultural differences between languages\.                                                                         |
+| from\-file                        | f   | Load pattern from a file\.                                                                                              |
+| list\-separator=&lt;SEPARATOR&gt; | ls  | String that separate each value in a list\. Default value is comma \(,\) or newline if the list is loaded from a file\. |
+| literal                           | l   | Pattern should be treated as a literal expression and not as a regular expression\.                                     |
+| negative                          | ne  | Search succeeds if the regular expression does not match\.                                                              |
+| timeout=&lt;NUM&gt;               |     | Match time\-out interval in seconds\.                                                                                   |
 
-## \<FILE\_PROPERTIES>
+## &lt;FILE\_PROPERTIES&gt;
 
-| Value                  |     | Description                                                                                                   |
-| ---------------------- | --- | ------------------------------------------------------------------------------------------------------------- |
-| creation\-time=\<DATE> | ct  | Show file's creation time and optionally define condition \(See 'Expression syntax' for other expressions\)\. |
-| modified\-time=\<DATE> | mt  | Show file's modified time and optionally define condition \(See 'Expression syntax' for other expressions\)\. |
-| size=\<NUM>            | s   | Show file's size and optionally define condition \(See 'Expression syntax' for other expressions\)\.          |
+| Value                       |     | Description                                                                                                   |
+| --------------------------- | --- | ------------------------------------------------------------------------------------------------------------- |
+| creation\-time=&lt;DATE&gt; | ct  | Show file's creation time and optionally define condition \(See 'Expression syntax' for other expressions\)\. |
+| modified\-time=&lt;DATE&gt; | mt  | Show file's modified time and optionally define condition \(See 'Expression syntax' for other expressions\)\. |
+| size=&lt;NUM&gt;            | s   | Show file's size and optionally define condition \(See 'Expression syntax' for other expressions\)\.          |
 
-## \<HIGHLIGHT>
+## &lt;HIGHLIGHT&gt;
 
 | Value              |     | Description                                         |
 | ------------------ | --- | --------------------------------------------------- |
@@ -122,37 +98,37 @@
 | newline            |     | Highlight carriage return and linefeed characters\. |
 | space              |     | Highlight space character\.                         |
 
-## \<INPUT\_OPTIONS>
+## &lt;INPUT\_OPTIONS&gt;
 
 | Value  |     | Description                                                                    |
 | ------ | --- | ------------------------------------------------------------------------------ |
 | escape | e   | Interpret literals \\a, \\b, \\f, \\n, \\r, \\t and \\v as character escapes\. |
 
-## \<MODIFY\_OPTIONS>
+## &lt;MODIFY\_OPTIONS&gt;
 
-| Value                                       |     | Description                                                    |
-| ------------------------------------------- | --- | -------------------------------------------------------------- |
-| aggregate                                   | ag  | Display list of all values at the end of search\.              |
-| aggregate\-only                             | o   | Display only list of all values at the end of search\.         |
-| ascending                                   | a   | Sort values in an ascending order\.                            |
-| culture\-invariant                          | ci  | Ignore cultural differences between languages\.                |
-| descending                                  | d   | Sort values in a descending order\.                            |
-| distinct                                    | di  | Return distinct values\.                                       |
-| except                                      |     | Return values from first file except values from second file\. |
-| intersect                                   |     | Return values that were found in all files\.                   |
-| group                                       |     | Group matching files by matched values\.                       |
-| count                                       |     | Show number of values in a group\.                             |
-| ignore\-case                                | i   | Use case\-insensitive matching\.                               |
-| remove\-empty                               | re  | Remove values that are empty strings\.                         |
-| remove\-white\-space                        | rw  | Remove values that are empty or consist of white\-space\.      |
-| sort\-by=[\<SORT_PROPERTY>](#sort_property) |     |                                                                |
-| to\-lower                                   | tl  | Convert value to lowercase\.                                   |
-| to\-upper                                   | tu  | Convert value to uppercase\.                                   |
-| trim                                        | t   | Trim leading and trailing white\-space\.                       |
-| trim\-end                                   | te  | Trim trailing white\-space\.                                   |
-| trim\-start                                 | ts  | Trim leading white\-space\.                                    |
+| Value                                            |     | Description                                                    |
+| ------------------------------------------------ | --- | -------------------------------------------------------------- |
+| aggregate                                        | ag  | Display list of all values at the end of search\.              |
+| aggregate\-only                                  | o   | Display only list of all values at the end of search\.         |
+| ascending                                        | a   | Sort values in an ascending order\.                            |
+| culture\-invariant                               | ci  | Ignore cultural differences between languages\.                |
+| descending                                       | d   | Sort values in a descending order\.                            |
+| distinct                                         | di  | Return distinct values\.                                       |
+| except                                           |     | Return values from first file except values from second file\. |
+| intersect                                        |     | Return values that were found in all files\.                   |
+| group                                            |     | Group matching files by matched values\.                       |
+| count                                            |     | Show number of values in a group\.                             |
+| ignore\-case                                     | i   | Use case\-insensitive matching\.                               |
+| remove\-empty                                    | re  | Remove values that are empty strings\.                         |
+| remove\-white\-space                             | rw  | Remove values that are empty or consist of white\-space\.      |
+| sort\-by=[&lt;SORT_PROPERTY&gt;](#sort_property) |     |                                                                |
+| to\-lower                                        | tl  | Convert value to lowercase\.                                   |
+| to\-upper                                        | tu  | Convert value to uppercase\.                                   |
+| trim                                             | t   | Trim leading and trailing white\-space\.                       |
+| trim\-end                                        | te  | Trim trailing white\-space\.                                   |
+| trim\-start                                      | ts  | Trim leading white\-space\.                                    |
 
-## \<NAME\_PART>
+## &lt;NAME\_PART&gt;
 
 | Value                    |     | Description                             |
 | ------------------------ | --- | --------------------------------------- |
@@ -161,15 +137,15 @@
 | name                     | n   | Search in file name and its extension\. |
 | name\-without\-extension | w   | Search in file name without extension\. |
 
-## \<OUTPUT\_OPTIONS>
+## &lt;OUTPUT\_OPTIONS&gt;
 
-| Value                                |     | Description                                                         |
-| ------------------------------------ | --- | ------------------------------------------------------------------- |
-| encoding=\<ENCODING>                 | e   |                                                                     |
-| verbosity=[\<VERBOSITY>](#verbosity) | v   |                                                                     |
-| append                               | a   | If the file exists output will be appended to the end of the file\. |
+| Value                                     |     | Description                                                         |
+| ----------------------------------------- | --- | ------------------------------------------------------------------- |
+| encoding=&lt;ENCODING&gt;                 | e   |                                                                     |
+| verbosity=[&lt;VERBOSITY&gt;](#verbosity) | v   |                                                                     |
+| append                                    | a   | If the file exists output will be appended to the end of the file\. |
 
-## \<PATH\_MODE>
+## &lt;PATH\_MODE&gt;
 
 | Value    |     | Description                                     |
 | -------- | --- | ----------------------------------------------- |
@@ -178,42 +154,42 @@
 | match    | m   | Display only match\.                            |
 | omit     | o   | Do not display path\.                           |
 
-## \<PATTERN\_OPTIONS>
+## &lt;PATTERN\_OPTIONS&gt;
 
-| Value                           |     | Description                                                                                                                                            |
-| ------------------------------- | --- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| compiled                        |     | Compile the regular expression to an assembly\.                                                                                                        |
-| culture\-invariant              | ci  | Ignore cultural differences between languages\.                                                                                                        |
-| ecma\-script                    | es  | Enable ECMAScript\-compliant behavior for the expression\.                                                                                             |
-| ends\-with                      | ew  | Pattern should match from the end of the input string\.                                                                                                |
-| equals                          | e   | Pattern should match whole input string\.                                                                                                              |
-| explicit\-capture               | n   | Do not capture unnamed groups\.                                                                                                                        |
-| from\-file                      | f   | Load pattern from a file\.                                                                                                                             |
-| group=\<GROUP\_NAME>            | g   |                                                                                                                                                        |
-| ignore\-case                    | i   | Use case\-insensitive matching\.                                                                                                                       |
-| ignore\-pattern\-whitespace     | x   | Exclude unescaped white\-space from the pattern and enable comments after a number sign \(\#\)\.                                                       |
-| list                            | li  | Interpret pattern as a list of patterns any of which is to be matched\. Separator is either comma \(,\) or newline if the list is loaded from a file\. |
-| length=\<NUM>                   |     | Include matches whose length matches the expression \(See 'Expression syntax' for other expressions\)\.                                                |
-| list\-separator=\<SEPARATOR>    | ls  | String that separate each value in a list\. Default value is comma \(,\) or newline if the list is loaded from a file\.                                |
-| literal                         | l   | Pattern should be treated as a literal expression and not as a regular expression\.                                                                    |
-| multiline                       | m   | ^ and $ match the beginning and end of each line \(instead of the beginning and end of the input string\)\.                                            |
-| negative                        | ne  | Search succeeds if the regular expression does not match\.                                                                                             |
-| part=[\<NAME_PART>](#name_part) | p   | The part of a file or a directory name that should be matched\.                                                                                        |
-| right\-to\-left                 | r   | Specifies that the search will be from right to left\.                                                                                                 |
-| singleline                      | s   | The period \(\.\) matches every character \(instead of every character except \\n\)\.                                                                  |
-| starts\-with                    | sw  | Pattern should match from the start of the input string\.                                                                                              |
-| timeout=\<NUM>                  |     | Match time\-out interval in seconds\.                                                                                                                  |
-| whole\-line                     | wl  | Pattern should match whole line\.                                                                                                                      |
-| whole\-word                     | w   | Pattern should match whole word\.                                                                                                                      |
+| Value                                |     | Description                                                                                                                                            |
+| ------------------------------------ | --- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| compiled                             |     | Compile the regular expression to an assembly\.                                                                                                        |
+| culture\-invariant                   | ci  | Ignore cultural differences between languages\.                                                                                                        |
+| ecma\-script                         | es  | Enable ECMAScript\-compliant behavior for the expression\.                                                                                             |
+| ends\-with                           | ew  | Pattern should match from the end of the input string\.                                                                                                |
+| equals                               | e   | Pattern should match whole input string\.                                                                                                              |
+| explicit\-capture                    | n   | Do not capture unnamed groups\.                                                                                                                        |
+| from\-file                           | f   | Load pattern from a file\.                                                                                                                             |
+| group=&lt;GROUP\_NAME&gt;            | g   |                                                                                                                                                        |
+| ignore\-case                         | i   | Use case\-insensitive matching\.                                                                                                                       |
+| ignore\-pattern\-whitespace          | x   | Exclude unescaped white\-space from the pattern and enable comments after a number sign \(\#\)\.                                                       |
+| list                                 | li  | Interpret pattern as a list of patterns any of which is to be matched\. Separator is either comma \(,\) or newline if the list is loaded from a file\. |
+| length=&lt;NUM&gt;                   |     | Include matches whose length matches the expression \(See 'Expression syntax' for other expressions\)\.                                                |
+| list\-separator=&lt;SEPARATOR&gt;    | ls  | String that separate each value in a list\. Default value is comma \(,\) or newline if the list is loaded from a file\.                                |
+| literal                              | l   | Pattern should be treated as a literal expression and not as a regular expression\.                                                                    |
+| multiline                            | m   | ^ and $ match the beginning and end of each line \(instead of the beginning and end of the input string\)\.                                            |
+| negative                             | ne  | Search succeeds if the regular expression does not match\.                                                                                             |
+| part=[&lt;NAME_PART&gt;](#name_part) | p   | The part of a file or a directory name that should be matched\.                                                                                        |
+| right\-to\-left                      | r   | Specifies that the search will be from right to left\.                                                                                                 |
+| singleline                           | s   | The period \(\.\) matches every character \(instead of every character except \\n\)\.                                                                  |
+| starts\-with                         | sw  | Pattern should match from the start of the input string\.                                                                                              |
+| timeout=&lt;NUM&gt;                  |     | Match time\-out interval in seconds\.                                                                                                                  |
+| whole\-line                          | wl  | Pattern should match whole line\.                                                                                                                      |
+| whole\-word                          | w   | Pattern should match whole word\.                                                                                                                      |
 
-## \<PIPE\_MODE>
+## &lt;PIPE\_MODE&gt;
 
 | Value |     | Description                                                       |
 | ----- | --- | ----------------------------------------------------------------- |
 | text  | t   | Use redirected input as a text to be searched\.                   |
 | paths | p   | Use redirected input as a list of paths separated with newlines\. |
 
-## \<REGEX\_OPTIONS>
+## &lt;REGEX\_OPTIONS&gt;
 
 | Value                       |     | Description                                                                                                 |
 | --------------------------- | --- | ----------------------------------------------------------------------------------------------------------- |
@@ -227,7 +203,7 @@
 | right\-to\-left             | r   | Specifies that the search will be from right to left\.                                                      |
 | singleline                  | s   | The period \(\.\) matches every character \(instead of every character except \\n\)\.                       |
 
-## \<REPLACE\_MODIFY>
+## &lt;REPLACE\_MODIFY&gt;
 
 | Value              |     | Description                                     |
 | ------------------ | --- | ----------------------------------------------- |
@@ -238,37 +214,37 @@
 | trim\-end          | te  | Trim trailing white\-space\.                    |
 | trim\-start        | ts  | Trim leading white\-space\.                     |
 
-## \<REPLACEMENT\_OPTIONS>
+## &lt;REPLACEMENT\_OPTIONS&gt;
 
-| Value      |     | Description                                                                                                                                                                                                                                                                                                                                                |
-| ---------- | --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| from\-file | f   | Load text from a file whose path is specified in \<REPLACEMENT> value\.                                                                                                                                                                                                                                                                                    |
-| literal    | l   | Replacement should be treated as a literal expression and not as a replacement expression\.                                                                                                                                                                                                                                                                |
-| escape     | e   | Interpret literals \\a, \\b, \\f, \\n, \\r, \\t and \\v as character escapes\.                                                                                                                                                                                                                                                                             |
-| csharp     | cs  | \<REPLACEMENT> is either expression\-body of a method with signature 'string M\(Match match\)' or a path to a code file that contains public method with signature 'string M\(Match match\)'\. Imported namespaces \(when inline expression is specified\): System System\.Collections\.Generic System\.Linq System\.Text System\.Text\.RegularExpressions |
-| from\-dll  |     | \<REPLACEMENT> is a path to a method in DLL file\. The format is 'DllPath,FullTypeName\.MethodName'\.                                                                                                                                                                                                                                                      |
+| Value      |     | Description                                                                                                                                                                                                                                                                                                                                                     |
+| ---------- | --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| from\-file | f   | Load text from a file whose path is specified in &lt;REPLACEMENT&gt; value\.                                                                                                                                                                                                                                                                                    |
+| literal    | l   | Replacement should be treated as a literal expression and not as a replacement expression\.                                                                                                                                                                                                                                                                     |
+| escape     | e   | Interpret literals \\a, \\b, \\f, \\n, \\r, \\t and \\v as character escapes\.                                                                                                                                                                                                                                                                                  |
+| csharp     | cs  | &lt;REPLACEMENT&gt; is either expression\-body of a method with signature 'string M\(Match match\)' or a path to a code file that contains public method with signature 'string M\(Match match\)'\. Imported namespaces \(when inline expression is specified\): System System\.Collections\.Generic System\.Linq System\.Text System\.Text\.RegularExpressions |
+| from\-dll  |     | &lt;REPLACEMENT&gt; is a path to a method in DLL file\. The format is 'DllPath,FullTypeName\.MethodName'\.                                                                                                                                                                                                                                                      |
 
-## \<SORT\_OPTIONS>
+## &lt;SORT\_OPTIONS&gt;
 
-| Value              |     | Description                                     |
-| ------------------ | --- | ----------------------------------------------- |
-| ascending          | a   | Sort items in ascending order\.                 |
-| creation\-time     | ct  | Sort items by creation time\.                   |
-| culture\-invariant | ci  | Ignore cultural differences between languages\. |
-| descending         | d   | Sort items in descending order\.                |
-| max\-count=\<NUM>  | m   | Show only \<NUM> items\.                        |
-| modified\-time     | mt  | Sort items by last modified time\.              |
-| name               | n   | Sort items by full name\.                       |
-| size               | s   | Sort items by size\.                            |
+| Value                  |     | Description                                     |
+| ---------------------- | --- | ----------------------------------------------- |
+| ascending              | a   | Sort items in ascending order\.                 |
+| creation\-time         | ct  | Sort items by creation time\.                   |
+| culture\-invariant     | ci  | Ignore cultural differences between languages\. |
+| descending             | d   | Sort items in descending order\.                |
+| max\-count=&lt;NUM&gt; | m   | Show only &lt;NUM&gt; items\.                   |
+| modified\-time         | mt  | Sort items by last modified time\.              |
+| name                   | n   | Sort items by full name\.                       |
+| size                   | s   | Sort items by size\.                            |
 
-## \<SORT\_PROPERTY>
+## &lt;SORT\_PROPERTY&gt;
 
 | Value  |     | Description                     |
 | ------ | --- | ------------------------------- |
 | length | l   | Sort values by value's length\. |
 | count  | c   | Sort values by group's count\.  |
 
-## \<SYNC\_CONFLICT\_RESOLUTION>
+## &lt;SYNC\_CONFLICT\_RESOLUTION&gt;
 
 | Value        |     | Description |
 | ------------ | --- | ----------- |
@@ -276,7 +252,7 @@
 | first\-wins  | f   |             |
 | second\-wins | s   |             |
 
-## \<SYNTAX\_SECTIONS>
+## &lt;SYNTAX\_SECTIONS&gt;
 
 | Value                     |     | Description |
 | ------------------------- | --- | ----------- |
@@ -295,7 +271,7 @@
 | substitutions             | s   |             |
 | all                       |     |             |
 
-## \<VERBOSITY>
+## &lt;VERBOSITY&gt;
 
 | Value      |     | Description |
 | ---------- | --- | ----------- |
@@ -307,15 +283,15 @@
 
 ## Expression Syntax
 
-| Expression            | Description                               |
-| --------------------- | ----------------------------------------- |
+| Expression            | Description                                    |
+| --------------------- | ---------------------------------------------- |
 | `x=n`                 |
 | `x<n`                 |
 | `x>n`                 |
 | `x<=n`                |
 | `x>=n`                |
-| `x=<min;max>`         | Inclusive interval                        |
-| `x=(min;max)`         | Exclusive interval                        |
-| `x=-d\|[d.]hh:mm[:ss]` | x is greater than actual date \- \<VALUE> |
+| `x=<min;max>`         | Inclusive interval                             |
+| `x=(min;max)`         | Exclusive interval                             |
+| `x=-d\|[d.]hh:mm[:ss]` | x is greater than actual date \- &lt;VALUE&gt; |
 
 *\(Generated with [DotMarkdown](http://github.com/JosefPihrt/DotMarkdown)\)*

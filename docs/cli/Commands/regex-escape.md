@@ -1,8 +1,10 @@
-﻿# `orang regex escape`
+﻿---
+sidebar_label: regex escape
+---
+
+# `orang regex escape`
 
 Escapes special characters by replacing them with their escape codes\.
-
-[Home](README.md#readme) &#x2022; [Synopsis](#Synopsis) &#x2022; [Arguments](#Arguments) &#x2022; [Options](#Options) &#x2022; [Samples](#Samples)
 
 ## Synopsis
 
@@ -42,7 +44,7 @@ Text is a replacement string\.
 
 The amount of information to display in the log\.
 
-[\<VERBOSITY>](OptionValues.md#verbosity): `q[uiet]`, `m[inimal]`, `n[ormal]`, `d[etailed]`, `di[agnostic]`\.
+[&lt;VERBOSITY&gt;](../OptionValues.md#verbosity): `q[uiet]`, `m[inimal]`, `n[ormal]`, `d[etailed]`, `di[agnostic]`\.
 
 ## Redirected/Piped Input
 

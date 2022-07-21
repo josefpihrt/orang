@@ -1,9 +1,9 @@
 ﻿---
 sidebar_position: 0
-sidebar_label: Orang Command-line Tool
+sidebar_label: Orang Command Line Tool
 ---
 
-# Orang Command\-line Tool <img align="left" src="../../images/icon48.png" />
+# Orang Command Line Tool
 
 Search, replace, rename and delete files and its content using the power of \.NET regular expressions\.
 

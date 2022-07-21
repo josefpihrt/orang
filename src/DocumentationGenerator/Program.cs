@@ -70,14 +70,13 @@ namespace Orang.Documentation
                 mw.WriteLine();
                 mw.WriteRaw("sidebar_position: 0");
                 mw.WriteLine();
-                mw.WriteRaw("sidebar_label: Orang Command-line Tool");
+                mw.WriteRaw("sidebar_label: Orang Command Line Tool");
                 mw.WriteLine();
                 mw.WriteRaw("---");
                 mw.WriteLine();
 
                 mw.WriteStartHeading(1);
-                mw.WriteString("Orang Command-line Tool");
-                mw.WriteRaw(" <img align=\"left\" src=\"../../images/icon48.png\" />");
+                mw.WriteString("Orang Command Line Tool");
                 mw.WriteEndHeading();
                 mw.WriteString(application.Description);
                 mw.WriteLine();

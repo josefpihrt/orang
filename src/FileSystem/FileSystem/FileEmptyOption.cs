@@ -2,6 +2,7 @@
 
 namespace Orang.FileSystem
 {
+    //TODO: EmptyFileOption
     public enum FileEmptyOption
     {
         None = 0,

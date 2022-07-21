@@ -16,7 +16,7 @@ using static Orang.FileSystem.FileSystemHelpers;
 
 namespace Orang.FileSystem
 {
-    //TODO: FileSearch, Search
+    //TODO: FileSearch, Search, SearchDefinition
     public partial class FileSystemSearch
     {
         private readonly bool _allDirectoryFiltersArePositive;
@@ -70,6 +70,7 @@ namespace Orang.FileSystem
 
         public FileSystemSearchOptions Options { get; }
 
+        //TODO: rename to Progress
         public IProgress<SearchProgress>? SearchProgress { get; }
 
         internal bool DisallowEnumeration { get; set; }
@@ -501,7 +502,7 @@ namespace Orang.FileSystem
             return MatchStatus.Success;
         }
 
-        public static bool IsMatch(string directoryPath, NameFilter filter)
+        private static bool IsMatch(string directoryPath, NameFilter filter)
         {
             return filter.Name.IsMatch(FileNameSpan.FromDirectory(directoryPath, filter.Part));
         }

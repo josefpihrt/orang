@@ -5,14 +5,17 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Threading;
-using Orang.Operations;
+using Orang.FileSystem.Operations;
 using static Orang.FileSystem.FileSystemHelpers;
 
 namespace Orang.FileSystem
 {
-    public partial class FileSystemSearch
+    //TODO: return OperationResult, ReplaceOperationResult (Telemetry)
+    public static class FileSystemOperation
     {
-        internal static void Replace(
+        //TODO: use FileSystemSearchOptions
+        //TODO: use Progress
+        public static void Replace(
             string directoryPath,
             FileSystemFilter filter,
             IEnumerable<NameFilter>? directoryFilters = null,
@@ -41,7 +44,7 @@ namespace Orang.FileSystem
             if (filter.Content.IsNegative)
                 throw new InvalidOperationException("Content filter cannot be negative.");
 
-            var command = new ReplaceOperation()
+            var operation = new ReplaceOperation()
             {
                 Search = search,
                 ReplaceOptions = replaceOptions ?? ReplaceOptions.Empty,
@@ -53,10 +56,10 @@ namespace Orang.FileSystem
                 MaxTotalMatches = 0,
             };
 
-            command.Execute(directoryPath);
+            operation.Execute(directoryPath);
         }
 
-        internal static void Delete(
+        public static void Delete(
             string directoryPath,
             FileSystemFilter filter,
             IEnumerable<NameFilter>? directoryFilters = null,
@@ -83,7 +86,7 @@ namespace Orang.FileSystem
                 CanRecurseMatch = false
             };
 
-            var command = new DeleteOperation()
+            var operation = new DeleteOperation()
             {
                 Search = search,
                 DeleteOptions = deleteOptions ?? DeleteOptions.Default,
@@ -93,10 +96,10 @@ namespace Orang.FileSystem
                 MaxMatchingFiles = 0,
             };
 
-            command.Execute(directoryPath);
+            operation.Execute(directoryPath);
         }
 
-        internal static void Rename(
+        public static void Rename(
             string directoryPath,
             FileSystemFilter filter,
             IEnumerable<NameFilter>? directoryFilters = null,
@@ -104,6 +107,7 @@ namespace Orang.FileSystem
             SearchTarget searchTarget = SearchTarget.Files,
             IDialogProvider<OperationProgress>? dialogProvider = null,
             IProgress<OperationProgress>? progress = null,
+            //TODO: topDirectoryOnly = false
             bool recurseSubdirectories = true,
             bool dryRun = false,
             CancellationToken cancellationToken = default)
@@ -144,7 +148,7 @@ namespace Orang.FileSystem
 
             VerifyConflictResolution(renameOptions.ConflictResolution, dialogProvider);
 
-            var command = new RenameOperation()
+            var operation = new RenameOperation()
             {
                 Search = search,
                 RenameOptions = renameOptions,
@@ -155,10 +159,10 @@ namespace Orang.FileSystem
                 MaxMatchingFiles = 0,
             };
 
-            command.Execute(directoryPath);
+            operation.Execute(directoryPath);
         }
 
-        internal static void Copy(
+        public static void Copy(
             string directoryPath,
             string destinationPath,
             FileSystemFilter filter,
@@ -192,7 +196,7 @@ namespace Orang.FileSystem
 
             VerifyCopyMoveArguments(directoryPath, destinationPath, copyOptions, dialogProvider);
 
-            var command = new CopyOperation()
+            var operation = new CopyOperation()
             {
                 Search = search,
                 DestinationPath = destinationPath,
@@ -207,10 +211,10 @@ namespace Orang.FileSystem
                 ConflictResolution = copyOptions.ConflictResolution,
             };
 
-            command.Execute(directoryPath);
+            operation.Execute(directoryPath);
         }
 
-        internal static void Move(
+        public static void Move(
             string directoryPath,
             string destinationPath,
             FileSystemFilter filter,
@@ -244,7 +248,7 @@ namespace Orang.FileSystem
 
             VerifyCopyMoveArguments(directoryPath, destinationPath, copyOptions, dialogProvider);
 
-            var command = new MoveOperation()
+            var operation = new MoveOperation()
             {
                 Search = search,
                 DestinationPath = destinationPath,
@@ -259,7 +263,7 @@ namespace Orang.FileSystem
                 ConflictResolution = copyOptions.ConflictResolution,
             };
 
-            command.Execute(directoryPath);
+            operation.Execute(directoryPath);
         }
 
         private static void VerifyCopyMoveArguments(
@@ -274,10 +278,10 @@ namespace Orang.FileSystem
             if (destinationPath == null)
                 throw new ArgumentNullException(nameof(destinationPath));
 
-            if (!System.IO.Directory.Exists(directoryPath))
+            if (!Directory.Exists(directoryPath))
                 throw new DirectoryNotFoundException($"Directory not found: {directoryPath}");
 
-            if (!System.IO.Directory.Exists(destinationPath))
+            if (!Directory.Exists(destinationPath))
                 throw new DirectoryNotFoundException($"Directory not found: {destinationPath}");
 
             if (IsSubdirectory(destinationPath, directoryPath))

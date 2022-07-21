@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 namespace Orang.Text.RegularExpressions
 {
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class SplitCapture : ICapture
+    internal class SplitCapture : ICapture
     {
         public SplitCapture(string value, int index)
         {

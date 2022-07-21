@@ -4,13 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using Orang.FileSystem;
 
-namespace Orang.Operations
+namespace Orang.FileSystem.Operations
 {
-    internal abstract class FileSystemOperation
+    //TODO: bool UseTelemetry
+    internal abstract class Operation
     {
-        protected FileSystemOperation()
+        protected Operation()
         {
             Telemetry = new SearchTelemetry();
         }

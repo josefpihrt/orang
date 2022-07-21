@@ -2,9 +2,8 @@
 
 using System;
 using System.IO;
-using Orang.FileSystem;
 
-namespace Orang.Operations
+namespace Orang.FileSystem.Operations
 {
     internal class DeleteOperation : DeleteOrRenameOperation
     {

@@ -5,9 +5,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
-using Orang.FileSystem;
 
-namespace Orang.Operations
+namespace Orang.FileSystem.Operations
 {
     internal class ReplaceOperation : CommonFindOperation
     {

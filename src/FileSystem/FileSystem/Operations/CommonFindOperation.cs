@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 
-namespace Orang.Operations
+namespace Orang.FileSystem.Operations
 {
-    internal abstract class CommonFindOperation : FileSystemOperation
+    internal abstract class CommonFindOperation : Operation
     {
         protected CommonFindOperation()
         {
@@ -60,7 +60,7 @@ namespace Orang.Operations
                 && maxTotalMatches > 0
                 && (maxMatchesInFile == 0 || maxTotalMatches <= maxMatchesInFile))
             {
-                TerminationReason = FileSystem.TerminationReason.MaxReached;
+                TerminationReason = TerminationReason.MaxReached;
             }
 
             return maxReason;

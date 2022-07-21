@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 namespace Orang.Text.RegularExpressions
 {
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class RegexCapture : ICapture
+    internal class RegexCapture : ICapture
     {
         public RegexCapture(Capture capture)
         {

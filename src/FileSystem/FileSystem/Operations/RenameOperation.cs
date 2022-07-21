@@ -4,10 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using Orang.FileSystem;
 using Orang.Text.RegularExpressions;
 
-namespace Orang.Operations
+namespace Orang.FileSystem.Operations
 {
     internal class RenameOperation : DeleteOrRenameOperation
     {

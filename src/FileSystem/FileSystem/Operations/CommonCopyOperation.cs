@@ -3,9 +3,8 @@
 using System;
 using System.Diagnostics;
 using System.IO;
-using Orang.FileSystem;
 
-namespace Orang.Operations
+namespace Orang.FileSystem.Operations
 {
     internal abstract class CommonCopyOperation : CommonFindOperation
     {

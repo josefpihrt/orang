@@ -16,7 +16,10 @@ namespace Orang.FileSystem.Operations
 
         public ConflictResolution ConflictResolution { get; set; }
 
-        public IDialogProvider<OperationProgress>? DialogProvider { get; set; }
+        public IDialogProvider<ConflictInfo>? DialogProvider { get; set; }
+
+        //TODO: ModifyNewName
+        public Func<string, string>? ModifyNewName { get; set; }
 
         protected override void ExecuteDirectory(string directoryPath)
         {
@@ -32,14 +35,13 @@ namespace Orang.FileSystem.Operations
             (List<ReplaceItem> replaceItems, MaxReason maxReason) = ReplaceHelpers.GetReplaceItems(
                 fileMatch.NameMatch!,
                 RenameOptions,
-                predicate: NameFilter?.Predicate,
+                count: 0,
+                predicate: NameFilter!.Predicate,
                 cancellationToken: CancellationToken);
 
             string path = fileMatch.Path;
 
             string newName = ReplaceHelpers.GetNewName(fileMatch, replaceItems);
-
-            ListCache<ReplaceItem>.Free(replaceItems);
 
             if (string.IsNullOrWhiteSpace(newName))
             {
@@ -47,39 +49,61 @@ namespace Orang.FileSystem.Operations
                 return;
             }
 
-            if (string.Compare(
+            bool changed = string.Compare(
                 path,
                 fileMatch.NameSpan.Start,
                 newName,
                 0,
                 fileMatch.NameSpan.Length,
-                StringComparison.Ordinal) == 0)
+                StringComparison.Ordinal) != 0;
+
+            bool isInvalidName = changed
+                && FileSystemHelpers.ContainsInvalidFileNameChars(newName);
+
+            string newPath = path.Substring(0, fileMatch.NameSpan.Start) + newName;
+
+            ListCache<ReplaceItem>.Free(replaceItems);
+
+            if (ModifyNewName is not null)
             {
-                return;
+                string newName2 = ModifyNewName(newName);
+
+                newPath = newPath.Substring(0, newPath.Length - newName.Length) + newName2;
+
+                changed = !string.Equals(path, newPath, StringComparison.Ordinal);
+
+                if (changed)
+                {
+                    isInvalidName = FileSystemHelpers.ContainsInvalidFileNameChars(newName2);
+
+                    if (isInvalidName)
+                    {
+                        Report(fileMatch, newName, new IOException("New file name contains invalid characters."));
+                        return;
+                    }
+                }
             }
 
-            if (FileSystemHelpers.ContainsInvalidFileNameChars(newName))
+            if (!changed)
+                return;
+
+            if (isInvalidName)
             {
                 Report(fileMatch, newName, new IOException("New file name contains invalid characters."));
                 return;
             }
 
-            string newPath = path.Substring(0, fileMatch.NameSpan.Start) + newName;
-
-            if (File.Exists(newPath))
+            if (File.Exists(newPath)
+                || Directory.Exists(newPath))
             {
                 if (ConflictResolution == ConflictResolution.Skip)
+                    return;
+
+                if (ConflictResolution == ConflictResolution.Ask
+                    && !DryRun
+                    && !AskToOverwrite(fileMatch, newPath))
                 {
                     return;
-                }
-                else if (ConflictResolution == ConflictResolution.Suffix)
-                {
-                    newPath = FileSystemHelpers.CreateNewFilePath(newPath);
-                }
-                else if (ConflictResolution == ConflictResolution.Ask)
-                {
-                    if (!AskToOverwrite(fileMatch, newPath))
-                        return;
                 }
             }
 
@@ -89,6 +113,15 @@ namespace Orang.FileSystem.Operations
             {
                 if (!DryRun)
                 {
+                    if (File.Exists(newPath))
+                    {
+                        File.Delete(newPath);
+                    }
+                    else if (Directory.Exists(newPath))
+                    {
+                        Directory.Delete(newPath, recursive: true);
+                    }
+
                     if (fileMatch.IsDirectory)
                     {
                         Directory.Move(path, newPath);
@@ -101,9 +134,14 @@ namespace Orang.FileSystem.Operations
                     renamed = true;
                 }
 
-                Report(fileMatch, newPath);
-
-                Telemetry.IncrementProcessedCount(fileMatch.IsDirectory);
+                if (fileMatch.IsDirectory)
+                {
+                    Telemetry.ProcessedDirectoryCount++;
+                }
+                else
+                {
+                    Telemetry.ProcessedFileCount++;
+                }
             }
             catch (Exception ex) when (ex is IOException
                 || ex is UnauthorizedAccessException)
@@ -120,7 +158,7 @@ namespace Orang.FileSystem.Operations
 
         private bool AskToOverwrite(FileMatch fileMatch, string newPath)
         {
-            DialogResult result = DialogProvider!.GetResult(new OperationProgress(fileMatch, newPath, OperationKind));
+            DialogResult result = DialogProvider!.GetResult(new ConflictInfo(fileMatch.Path, newPath));
 
             switch (result)
             {

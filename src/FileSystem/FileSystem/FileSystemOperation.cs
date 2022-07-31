@@ -178,6 +178,9 @@ namespace Orang.FileSystem
             if (directoryPath == null)
                 throw new ArgumentNullException(nameof(directoryPath));
 
+            if (searchTarget == SearchTarget.All)
+                throw new ArgumentException($"Search target cannot be '{nameof(SearchTarget.All)}'.", nameof(searchTarget));
+
             var searchOptions = new FileSystemSearchOptions(
                 searchTarget: searchTarget,
                 recurseSubdirectories: recurseSubdirectories);
@@ -229,6 +232,9 @@ namespace Orang.FileSystem
         {
             if (directoryPath == null)
                 throw new ArgumentNullException(nameof(directoryPath));
+
+            if (searchTarget == SearchTarget.All)
+                throw new ArgumentException($"Search target cannot be '{nameof(SearchTarget.All)}'.", nameof(searchTarget));
 
             var searchOptions = new FileSystemSearchOptions(
                 searchTarget: searchTarget,

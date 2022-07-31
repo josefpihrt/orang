@@ -10,6 +10,7 @@ namespace Orang.FileSystem.Operations
         {
         }
 
+        //TODO: ?
         public event EventHandler<DirectoryChangedEventArgs>? DirectoryChanged;
 
         protected virtual void OnDirectoryChanged(DirectoryChangedEventArgs e)

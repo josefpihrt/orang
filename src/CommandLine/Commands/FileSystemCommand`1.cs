@@ -49,7 +49,7 @@ namespace Orang.CommandLine
                     Options.FilePropertyOptions.SizePredicate),
                 attributes: Options.Attributes,
                 attributesToSkip: Options.AttributesToSkip,
-                emptyOption: Options.EmptyOption);
+                fileEmptyOption: Options.EmptyOption);
 
             var directoryFilters = new List<NameFilter>();
 
@@ -67,16 +67,13 @@ namespace Orang.CommandLine
             if (additionalDirectoryFilter != null)
                 directoryFilters.Add(additionalDirectoryFilter);
 
-            var options = new FileSystemSearchOptions(
-                searchTarget: Options.SearchTarget,
-                recurseSubdirectories: Options.RecurseSubdirectories,
-                defaultEncoding: Options.DefaultEncoding);
-
             var search = new FileSystemSearch(
                 filter: filter,
                 directoryFilters: directoryFilters,
-                searchProgress: ProgressReporter,
-                options: options);
+                progress: ProgressReporter,
+                searchTarget: Options.SearchTarget,
+                recurseSubdirectories: Options.RecurseSubdirectories,
+                defaultEncoding: Options.DefaultEncoding);
 
             OnSearchCreating(search);
 

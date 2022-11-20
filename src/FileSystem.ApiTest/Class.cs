@@ -15,12 +15,6 @@ namespace N
             var name = new Filter(regex);
 
             var filter = new FileSystemFilter(name);
-
-            var searchOptions = new FileSystemSearchOptions(recurseSubdirectories: false);
-
-            var search = new FileSystemSearch(filter, options: searchOptions);
-
-            search.Replace("directoryPath", ReplaceOptions.Empty);
         }
 
         public void M2()
@@ -28,8 +22,6 @@ namespace N
             var name = new Filter("pattern", RegexOptions.IgnoreCase);
 
             var filter = new FileSystemFilter(name);
-
-            //FileSystemSearch.Replace("directoryPath", filter, recurseSubdirectories: false);
         }
 
         public static void SM()

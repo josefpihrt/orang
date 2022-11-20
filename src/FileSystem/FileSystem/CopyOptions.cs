@@ -39,7 +39,6 @@ namespace Orang.FileSystem
         private string DebuggerDisplay
             => $"{nameof(ConflictResolution)} = {ConflictResolution}  {nameof(CompareOptions)} = {CompareOptions}";
 
-        //TODO: 
         internal bool StructureOnly { get; }
     }
 }

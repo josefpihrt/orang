@@ -6,7 +6,6 @@ using static Orang.FileSystem.FileSystemHelpers;
 
 namespace Orang.FileSystem
 {
-    //TODO: PathSpan, FilePathSpan
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public readonly struct FileNameSpan
     {

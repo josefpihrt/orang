@@ -3,7 +3,7 @@
 namespace Orang.FileSystem
 {
     //TODO: MatchingLineCount
-    internal class SearchTelemetry
+    public class SearchTelemetry
     {
         internal SearchTelemetry()
         {

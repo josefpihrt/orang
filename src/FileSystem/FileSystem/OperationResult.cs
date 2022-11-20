@@ -2,10 +2,13 @@
 
 namespace Orang.FileSystem
 {
-    public enum FileEmptyOption
+    public class OperationResult
     {
-        None = 0,
-        Empty = 1,
-        NonEmpty = 2,
+        public OperationResult(SearchTelemetry telemetry)
+        {
+            Telemetry = telemetry;
+        }
+
+        public SearchTelemetry Telemetry { get; }
     }
 }

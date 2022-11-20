@@ -5,12 +5,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 
-namespace Orang.FileSystem.Operations
+namespace Orang.FileSystem.Commands
 {
     //TODO: bool UseTelemetry
-    internal abstract class Operation
+    internal abstract class Command
     {
-        protected Operation()
+        protected Command()
         {
             Telemetry = new SearchTelemetry();
         }

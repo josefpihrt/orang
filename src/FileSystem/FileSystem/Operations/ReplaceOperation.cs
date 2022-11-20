@@ -2,91 +2,133 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Text.RegularExpressions;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using Orang.FileSystem.Commands;
+
+#pragma warning disable RCS1223 // Mark publicly visible type with DebuggerDisplay attribute.
 
 namespace Orang.FileSystem.Operations
 {
-    internal class ReplaceOperation : CommonFindOperation
+    public class ReplaceOperation
     {
-        public override OperationKind OperationKind => OperationKind.Replace;
-
-        public ReplaceOptions ReplaceOptions { get; set; } = null!;
-
-        protected override void ExecuteDirectory(string path)
+        public ReplaceOperation(
+            string directoryPath,
+            FileSystemFilter filter)
         {
-            Debug.Assert(ContentFilter?.IsNegative == false);
+            DirectoryPath = directoryPath ?? throw new ArgumentNullException(nameof(directoryPath));
+
+            if (filter == null)
+                throw new ArgumentNullException(nameof(filter));
+
+            if (filter.Content == null)
+                throw new InvalidOperationException("Content filter is not defined.");
+
+            if (filter.Content.IsNegative)
+                throw new InvalidOperationException("Content filter cannot be negative.");
+
+            Filter = filter;
         }
 
-        protected override void ExecuteMatch(
-            FileMatch fileMatch,
-            string directoryPath)
+        public string DirectoryPath { get; }
+
+        public FileSystemFilter Filter { get; }
+
+        public NameFilter[]? DirectoryFilters { get; set; }
+
+        public SearchTarget SearchTarget { get; set; }
+
+        public bool RecurseSubdirectories { get; set; }
+
+        public Encoding? DefaultEncoding { get; set; }
+
+        public bool DryRun { get; set; }
+
+        public ReplaceOptions? ReplaceOptions { get; set; }
+
+        public IProgress<OperationProgress>? Progress { get; set; }
+
+        public ReplaceOperation WithDirectoryFilter(NameFilter directoryFilter)
         {
-            TextWriter? textWriter = null;
-            List<Capture>? captures = null;
-
-            try
-            {
-                captures = ListCache<Capture>.GetInstance();
-
-                GetCaptures(
-                    fileMatch.ContentMatch!,
-                    ContentFilter!.GroupNumber,
-                    predicate: ContentFilter.Predicate,
-                    captures: captures);
-
-                if (!DryRun)
-                {
-                    textWriter = new StreamWriter(fileMatch.Path, false, fileMatch.Encoding);
-
-                    WriteMatches(fileMatch.ContentText, captures, ReplaceOptions, textWriter);
-                }
-
-                int fileMatchCount = captures.Count;
-                int fileReplacementCount = fileMatchCount;
-                Telemetry.MatchCount += fileMatchCount;
-                Telemetry.ProcessedMatchCount += fileReplacementCount;
-
-                if (fileReplacementCount > 0)
-                    Telemetry.ProcessedFileCount++;
-
-                Report(fileMatch);
-            }
-            catch (Exception ex) when (ex is IOException
-                || ex is UnauthorizedAccessException)
-            {
-                Report(fileMatch, ex);
-            }
-            finally
-            {
-                textWriter?.Dispose();
-
-                if (captures != null)
-                    ListCache<Capture>.Free(captures);
-            }
+            DirectoryFilters = new NameFilter[] { directoryFilter };
+            return this;
         }
 
-        private void WriteMatches(
-            string input,
-            IEnumerable<Capture> captures,
-            ReplaceOptions replaceOptions,
-            TextWriter textWriter)
+        public ReplaceOperation WithDirectoryFilters(IEnumerable<NameFilter> directoryFilters)
         {
-            int index = 0;
+            if (directoryFilters is null)
+                throw new ArgumentNullException(nameof(directoryFilters));
 
-            foreach (Capture capture in captures)
+            DirectoryFilters = directoryFilters.ToArray();
+            return this;
+        }
+
+        public ReplaceOperation WithSearchTarget(SearchTarget searchTarget)
+        {
+            SearchTarget = searchTarget;
+            return this;
+        }
+
+        public ReplaceOperation WithTopDirectoryOnly()
+        {
+            RecurseSubdirectories = false;
+            return this;
+        }
+
+        public ReplaceOperation WithDefaultEncoding(Encoding encoding)
+        {
+            DefaultEncoding = encoding;
+            return this;
+        }
+
+        public ReplaceOperation WithDryRun()
+        {
+            DryRun = true;
+            return this;
+        }
+
+        public ReplaceOperation WithReplaceOptions(ReplaceOptions replaceOptions)
+        {
+            ReplaceOptions = replaceOptions;
+            return this;
+        }
+
+        public ReplaceOperation WithProgress(IProgress<OperationProgress> progress)
+        {
+            Progress = progress;
+            return this;
+        }
+
+        public OperationResult Execute(CancellationToken cancellationToken = default)
+        {
+            var search = new FileSystemSearch(
+                Filter,
+                directoryFilters: DirectoryFilters?.ToImmutableArray() ?? ImmutableArray<NameFilter>.Empty,
+                progress: null,
+                searchTarget: SearchTarget,
+                recurseSubdirectories: RecurseSubdirectories,
+                defaultEncoding: DefaultEncoding)
             {
-                textWriter.Write(input.AsSpan(index, capture.Index - index));
+                CanRecurseMatch = false,
+            };
 
-                string result = replaceOptions.Replace((Match)capture);
+            var command = new ReplaceCommand()
+            {
+                Search = search,
+                ReplaceOptions = ReplaceOptions ?? ReplaceOptions.Empty,
+                Progress = Progress,
+                DryRun = DryRun,
+                CancellationToken = cancellationToken,
+                MaxMatchingFiles = 0,
+                MaxMatchesInFile = 0,
+                MaxTotalMatches = 0,
+            };
 
-                textWriter.Write(result);
+            command.Execute(DirectoryPath);
 
-                index = capture.Index + capture.Length;
-            }
-
-            textWriter.Write(input.AsSpan(index, input.Length - index));
+            return new OperationResult(command.Telemetry);
         }
     }
 }

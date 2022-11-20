@@ -16,7 +16,7 @@ namespace Orang.FileSystem
             FilePropertyFilter? properties = null,
             FileAttributes attributes = default,
             FileAttributes attributesToSkip = default,
-            FileEmptyOption emptyOption = FileEmptyOption.None)
+            FileEmptyOption fileEmptyOption = FileEmptyOption.None)
         {
             Name = name;
             Part = part;
@@ -25,7 +25,7 @@ namespace Orang.FileSystem
             Properties = properties;
             Attributes = attributes;
             AttributesToSkip = attributesToSkip;
-            EmptyOption = emptyOption;
+            FileEmptyOption = fileEmptyOption;
         }
 
         public Filter? Name { get; }
@@ -42,6 +42,6 @@ namespace Orang.FileSystem
 
         public FileAttributes AttributesToSkip { get; }
 
-        public FileEmptyOption EmptyOption { get; }
+        public FileEmptyOption FileEmptyOption { get; }
     }
 }

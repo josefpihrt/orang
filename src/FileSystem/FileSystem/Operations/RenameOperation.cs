@@ -2,194 +2,148 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using Orang.Text.RegularExpressions;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using Orang.FileSystem.Commands;
+
+#pragma warning disable RCS1223 // Mark publicly visible type with DebuggerDisplay attribute.
 
 namespace Orang.FileSystem.Operations
 {
-    internal class RenameOperation : DeleteOrRenameOperation
+    public class RenameOperation
     {
-        public override OperationKind OperationKind => OperationKind.Rename;
+        public RenameOperation(
+            string directoryPath,
+            FileSystemFilter filter)
+        {
+            DirectoryPath = directoryPath ?? throw new ArgumentNullException(nameof(directoryPath));
 
-        public RenameOptions RenameOptions { get; set; } = null!;
+            if (filter is null)
+                throw new ArgumentNullException(nameof(filter));
 
-        public ConflictResolution ConflictResolution { get; set; }
+            if (filter.Part == FileNamePart.FullName)
+                throw new InvalidOperationException($"Invalid file name part '{nameof(FileNamePart.FullName)}'.");
+
+            if (filter.Name == null)
+                throw new InvalidOperationException("Name filter is not defined.");
+
+            if (filter.Name.IsNegative)
+                throw new InvalidOperationException("Name filter cannot be negative.");
+
+            Filter = filter;
+        }
+
+        public string DirectoryPath { get; }
+
+        public FileSystemFilter Filter { get; }
+
+        public NameFilter[]? DirectoryFilters { get; set; }
+
+        public SearchTarget SearchTarget { get; set; }
+
+        public bool RecurseSubdirectories { get; set; }
+
+        public Encoding? DefaultEncoding { get; set; }
+
+        public bool DryRun { get; set; }
+
+        public RenameOptions? RenameOptions { get; set; }
+
+        public IProgress<OperationProgress>? Progress { get; set; }
 
         public IDialogProvider<ConflictInfo>? DialogProvider { get; set; }
 
-        //TODO: ModifyNewName
-        public Func<string, string>? ModifyNewName { get; set; }
-
-        protected override void ExecuteDirectory(string directoryPath)
+        public RenameOperation WithDirectoryFilter(NameFilter directoryFilter)
         {
-            Debug.Assert(!NameFilter!.IsNegative);
-
-            base.ExecuteDirectory(directoryPath);
+            DirectoryFilters = new NameFilter[] { directoryFilter };
+            return this;
         }
 
-        protected override void ExecuteMatch(
-            FileMatch fileMatch,
-            string directoryPath)
+        public RenameOperation WithDirectoryFilters(IEnumerable<NameFilter> directoryFilters)
         {
-            (List<ReplaceItem> replaceItems, MaxReason maxReason) = ReplaceHelpers.GetReplaceItems(
-                fileMatch.NameMatch!,
-                RenameOptions,
-                count: 0,
-                predicate: NameFilter!.Predicate,
-                cancellationToken: CancellationToken);
+            if (directoryFilters is null)
+                throw new ArgumentNullException(nameof(directoryFilters));
 
-            string path = fileMatch.Path;
-
-            string newName = ReplaceHelpers.GetNewName(fileMatch, replaceItems);
-
-            if (string.IsNullOrWhiteSpace(newName))
-            {
-                Report(fileMatch, null, new IOException("New file name cannot be empty or contains only white-space."));
-                return;
-            }
-
-            bool changed = string.Compare(
-                path,
-                fileMatch.NameSpan.Start,
-                newName,
-                0,
-                fileMatch.NameSpan.Length,
-                StringComparison.Ordinal) != 0;
-
-            bool isInvalidName = changed
-                && FileSystemHelpers.ContainsInvalidFileNameChars(newName);
-
-            string newPath = path.Substring(0, fileMatch.NameSpan.Start) + newName;
-
-            ListCache<ReplaceItem>.Free(replaceItems);
-
-            if (ModifyNewName is not null)
-            {
-                string newName2 = ModifyNewName(newName);
-
-                newPath = newPath.Substring(0, newPath.Length - newName.Length) + newName2;
-
-                changed = !string.Equals(path, newPath, StringComparison.Ordinal);
-
-                if (changed)
-                {
-                    isInvalidName = FileSystemHelpers.ContainsInvalidFileNameChars(newName2);
-
-                    if (isInvalidName)
-                    {
-                        Report(fileMatch, newName, new IOException("New file name contains invalid characters."));
-                        return;
-                    }
-                }
-            }
-
-            if (!changed)
-                return;
-
-            if (isInvalidName)
-            {
-                Report(fileMatch, newName, new IOException("New file name contains invalid characters."));
-                return;
-            }
-
-            if (File.Exists(newPath)
-                || Directory.Exists(newPath))
-            {
-                if (ConflictResolution == ConflictResolution.Skip)
-                    return;
-
-                if (ConflictResolution == ConflictResolution.Ask
-                    && !DryRun
-                    && !AskToOverwrite(fileMatch, newPath))
-                {
-                    return;
-                }
-            }
-
-            var renamed = false;
-
-            try
-            {
-                if (!DryRun)
-                {
-                    if (File.Exists(newPath))
-                    {
-                        File.Delete(newPath);
-                    }
-                    else if (Directory.Exists(newPath))
-                    {
-                        Directory.Delete(newPath, recursive: true);
-                    }
-
-                    if (fileMatch.IsDirectory)
-                    {
-                        Directory.Move(path, newPath);
-                    }
-                    else
-                    {
-                        File.Move(path, newPath);
-                    }
-
-                    renamed = true;
-                }
-
-                if (fileMatch.IsDirectory)
-                {
-                    Telemetry.ProcessedDirectoryCount++;
-                }
-                else
-                {
-                    Telemetry.ProcessedFileCount++;
-                }
-            }
-            catch (Exception ex) when (ex is IOException
-                || ex is UnauthorizedAccessException)
-            {
-                Report(fileMatch, newPath, ex);
-            }
-
-            if (fileMatch.IsDirectory
-                && renamed)
-            {
-                OnDirectoryChanged(new DirectoryChangedEventArgs(path, newPath));
-            }
+            DirectoryFilters = directoryFilters.ToArray();
+            return this;
         }
 
-        private bool AskToOverwrite(FileMatch fileMatch, string newPath)
+        public RenameOperation WithSearchTarget(SearchTarget searchTarget)
         {
-            DialogResult result = DialogProvider!.GetResult(new ConflictInfo(fileMatch.Path, newPath));
+            SearchTarget = searchTarget;
+            return this;
+        }
 
-            switch (result)
+        public RenameOperation WithTopDirectoryOnly()
+        {
+            RecurseSubdirectories = false;
+            return this;
+        }
+
+        public RenameOperation WithDefaultEncoding(Encoding encoding)
+        {
+            DefaultEncoding = encoding;
+            return this;
+        }
+
+        public RenameOperation WithDryRun()
+        {
+            DryRun = true;
+            return this;
+        }
+
+        public RenameOperation WithRenameOptions(RenameOptions renameOptions)
+        {
+            RenameOptions = renameOptions;
+            return this;
+        }
+
+        public RenameOperation WithProgress(IProgress<OperationProgress> progress)
+        {
+            Progress = progress;
+            return this;
+        }
+
+        public RenameOperation WithDialogProvider(IDialogProvider<ConflictInfo> dialogProvider)
+        {
+            DialogProvider = dialogProvider;
+            return this;
+        }
+
+        public OperationResult Execute(CancellationToken cancellationToken = default)
+        {
+            RenameOptions renameOptions = RenameOptions ?? new RenameOptions(replacement: "");
+
+            OperationHelpers.VerifyConflictResolution(renameOptions.ConflictResolution, DialogProvider);
+
+            var search = new FileSystemSearch(
+                Filter,
+                directoryFilters: DirectoryFilters?.ToImmutableArray() ?? ImmutableArray<NameFilter>.Empty,
+                progress: null,
+                searchTarget: SearchTarget,
+                recurseSubdirectories: RecurseSubdirectories,
+                defaultEncoding: DefaultEncoding)
             {
-                case DialogResult.Yes:
-                    {
-                        return true;
-                    }
-                case DialogResult.YesToAll:
-                    {
-                        DialogProvider = null;
-                        return true;
-                    }
-                case DialogResult.No:
-                case DialogResult.None:
-                    {
-                        return false;
-                    }
-                case DialogResult.NoToAll:
-                    {
-                        ConflictResolution = ConflictResolution.Skip;
-                        return false;
-                    }
-                case DialogResult.Cancel:
-                    {
-                        throw new OperationCanceledException();
-                    }
-                default:
-                    {
-                        throw new InvalidOperationException($"Unknown enum value '{result}'.");
-                    }
-            }
+                DisallowEnumeration = !DryRun,
+                MatchPartOnly = true
+            };
+
+            var command = new RenameCommand()
+            {
+                Search = search,
+                RenameOptions = renameOptions,
+                Progress = Progress,
+                DryRun = DryRun,
+                CancellationToken = cancellationToken,
+                DialogProvider = DialogProvider,
+                MaxMatchingFiles = 0,
+            };
+
+            command.Execute(DirectoryPath);
+
+            return new OperationResult(command.Telemetry);
         }
     }
 }

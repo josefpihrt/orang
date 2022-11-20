@@ -16,7 +16,6 @@ namespace Orang
         public ReplaceOptions(
             string? replacement,
             ReplaceFunctions functions = ReplaceFunctions.None,
-            //TODO: default true?
             bool cultureInvariant = false)
         {
             Replacement = replacement ?? "";

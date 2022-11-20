@@ -10,35 +10,25 @@ using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using Orang.Text;
 using static Orang.FileSystem.FileSystemHelpers;
 
 #pragma warning disable RCS1223
 
 namespace Orang.FileSystem
 {
-    //TODO: FileSearch, Search, SearchDefinition
-    public partial class FileSystemSearch
+    internal class FileSystemSearch
     {
         private readonly bool _allDirectoryFiltersArePositive;
 
         public FileSystemSearch(
             FileSystemFilter filter,
-            NameFilter? directoryFilter = null,
-            IProgress<SearchProgress>? searchProgress = null,
-            FileSystemSearchOptions? options = null)
-            : this(
-                filter,
-                (directoryFilter != null) ? ImmutableArray.Create(directoryFilter) : ImmutableArray<NameFilter>.Empty,
-                searchProgress,
-                options)
-        {
-        }
-
-        public FileSystemSearch(
-            FileSystemFilter filter,
             IEnumerable<NameFilter> directoryFilters,
-            IProgress<SearchProgress>? searchProgress = null,
-            FileSystemSearchOptions? options = null)
+            IProgress<SearchProgress>? progress = null,
+            SearchTarget searchTarget = SearchTarget.All,
+            bool recurseSubdirectories = true,
+            bool ignoreInaccessible = true,
+            Encoding? defaultEncoding = null)
         {
             if (directoryFilters == null)
                 throw new ArgumentNullException(nameof(directoryFilters));
@@ -58,8 +48,12 @@ namespace Orang.FileSystem
 
             Filter = filter ?? throw new ArgumentNullException(nameof(filter));
             DirectoryFilters = directoryFilters.ToImmutableArray();
-            SearchProgress = searchProgress;
-            Options = options ?? FileSystemSearchOptions.Default;
+            Progress = progress;
+
+            SearchTarget = searchTarget;
+            RecurseSubdirectories = recurseSubdirectories;
+            IgnoreInaccessible = ignoreInaccessible;
+            DefaultEncoding = defaultEncoding ?? EncodingHelpers.UTF8NoBom;
 
             _allDirectoryFiltersArePositive = DirectoryFilters.All(f => !f.IsNegative);
         }
@@ -68,10 +62,7 @@ namespace Orang.FileSystem
 
         public ImmutableArray<NameFilter> DirectoryFilters { get; }
 
-        public FileSystemSearchOptions Options { get; }
-
-        //TODO: rename to Progress
-        public IProgress<SearchProgress>? SearchProgress { get; }
+        public IProgress<SearchProgress>? Progress { get; }
 
         internal bool DisallowEnumeration { get; set; }
 
@@ -93,11 +84,15 @@ namespace Orang.FileSystem
 
         private FileAttributes AttributesToSkip => Filter.AttributesToSkip;
 
-        private FileEmptyOption EmptyOption => Filter.EmptyOption;
+        private FileEmptyOption EmptyOption => Filter.FileEmptyOption;
 
-        private SearchTarget SearchTarget => Options.SearchTarget;
+        private SearchTarget SearchTarget { get; }
 
-        private bool RecurseSubdirectories => Options.RecurseSubdirectories;
+        private bool RecurseSubdirectories { get; }
+
+        private bool IgnoreInaccessible { get; }
+
+        private Encoding DefaultEncoding { get; }
 
         public IEnumerable<FileMatch> Find(
             string directoryPath,
@@ -114,7 +109,7 @@ namespace Orang.FileSystem
             var enumerationOptions = new EnumerationOptions()
             {
                 AttributesToSkip = AttributesToSkip,
-                IgnoreInaccessible = Options.IgnoreInaccessible,
+                IgnoreInaccessible = IgnoreInaccessible,
                 MatchCasing = MatchCasing.PlatformDefault,
                 MatchType = MatchType.Simple,
                 RecurseSubdirectories = false,
@@ -360,7 +355,7 @@ namespace Orang.FileSystem
 
                 if (isEmpty)
                 {
-                    fileContent = new FileContent("", Options.DefaultEncoding, hasBom: false);
+                    fileContent = new FileContent("", DefaultEncoding, hasBom: false);
                 }
                 else
                 {
@@ -387,7 +382,7 @@ namespace Orang.FileSystem
                             {
                                 using (var reader = new StreamReader(
                                     stream: stream,
-                                    encoding: bomEncoding ?? Options.DefaultEncoding,
+                                    encoding: bomEncoding ?? DefaultEncoding,
                                     detectEncodingFromByteOrderMarks: bomEncoding == null))
                                 {
                                     string content = reader.ReadToEnd();
@@ -509,7 +504,7 @@ namespace Orang.FileSystem
 
         private void Report(string path, SearchProgressKind kind, bool isDirectory = false, Exception? exception = null)
         {
-            SearchProgress?.Report(path, kind, isDirectory: isDirectory, exception);
+            Progress?.Report(path, kind, isDirectory: isDirectory, exception);
         }
 
         private static bool IsWellKnownException(Exception ex)

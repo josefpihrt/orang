@@ -8,7 +8,6 @@ using Orang.Text.RegularExpressions;
 
 namespace Orang.FileSystem
 {
-    //TODO: NameFilter : Filter
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class NameFilter
     {

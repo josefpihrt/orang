@@ -5,11 +5,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
-namespace Orang.FileSystem.Operations
+namespace Orang.FileSystem.Commands
 {
-    internal abstract class CommonCopyOperation : CommonFindOperation
+    internal abstract class CommonCopyCommand : CommonFindCommand
     {
-        protected CommonCopyOperation()
+        protected CommonCopyCommand()
         {
         }
 

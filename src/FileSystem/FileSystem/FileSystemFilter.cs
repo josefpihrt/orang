@@ -4,44 +4,43 @@ using System.IO;
 
 #pragma warning disable RCS1223
 
-namespace Orang.FileSystem
+namespace Orang.FileSystem;
+
+public class FileSystemFilter
 {
-    public class FileSystemFilter
+    public FileSystemFilter(
+        Filter? name = null,
+        FileNamePart part = FileNamePart.Name,
+        Filter? extension = null,
+        Filter? content = null,
+        FilePropertyFilter? properties = null,
+        FileAttributes attributes = default,
+        FileAttributes attributesToSkip = default,
+        FileEmptyOption fileEmptyOption = FileEmptyOption.None)
     {
-        public FileSystemFilter(
-            Filter? name = null,
-            FileNamePart part = FileNamePart.Name,
-            Filter? extension = null,
-            Filter? content = null,
-            FilePropertyFilter? properties = null,
-            FileAttributes attributes = default,
-            FileAttributes attributesToSkip = default,
-            FileEmptyOption fileEmptyOption = FileEmptyOption.None)
-        {
-            Name = name;
-            Part = part;
-            Extension = extension;
-            Content = content;
-            Properties = properties;
-            Attributes = attributes;
-            AttributesToSkip = attributesToSkip;
-            FileEmptyOption = fileEmptyOption;
-        }
-
-        public Filter? Name { get; }
-
-        public FileNamePart Part { get; }
-
-        public Filter? Extension { get; }
-
-        public Filter? Content { get; }
-
-        public FilePropertyFilter? Properties { get; }
-
-        public FileAttributes Attributes { get; }
-
-        public FileAttributes AttributesToSkip { get; }
-
-        public FileEmptyOption FileEmptyOption { get; }
+        Name = name;
+        Part = part;
+        Extension = extension;
+        Content = content;
+        Properties = properties;
+        Attributes = attributes;
+        AttributesToSkip = attributesToSkip;
+        FileEmptyOption = fileEmptyOption;
     }
+
+    public Filter? Name { get; }
+
+    public FileNamePart Part { get; }
+
+    public Filter? Extension { get; }
+
+    public Filter? Content { get; }
+
+    public FilePropertyFilter? Properties { get; }
+
+    public FileAttributes Attributes { get; }
+
+    public FileAttributes AttributesToSkip { get; }
+
+    public FileEmptyOption FileEmptyOption { get; }
 }

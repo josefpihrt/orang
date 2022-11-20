@@ -2,23 +2,22 @@
 
 using System.Diagnostics;
 
-namespace Orang.FileSystem
+namespace Orang.FileSystem;
+
+//TODO: ConflictInfo
+[DebuggerDisplay("{DebuggerDisplay,nq}")]
+public readonly struct ConflictInfo
 {
-    //TODO: ConflictInfo
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public readonly struct ConflictInfo
+    internal ConflictInfo(string sourcePath, string destinationPath)
     {
-        internal ConflictInfo(string sourcePath, string destinationPath)
-        {
-            SourcePath = sourcePath;
-            DestinationPath = destinationPath;
-        }
-
-        public string SourcePath { get; }
-
-        public string DestinationPath { get; }
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private string DebuggerDisplay => $"{SourcePath}  {DestinationPath}";
+        SourcePath = sourcePath;
+        DestinationPath = destinationPath;
     }
+
+    public string SourcePath { get; }
+
+    public string DestinationPath { get; }
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    private string DebuggerDisplay => $"{SourcePath}  {DestinationPath}";
 }

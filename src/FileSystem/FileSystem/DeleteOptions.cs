@@ -2,34 +2,33 @@
 
 using System.Diagnostics;
 
-namespace Orang.FileSystem
+namespace Orang.FileSystem;
+
+[DebuggerDisplay("{DebuggerDisplay,nq}")]
+public class DeleteOptions
 {
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class DeleteOptions
+    internal static DeleteOptions Default { get; } = new();
+
+    public DeleteOptions(
+        bool contentOnly = false,
+        bool includingBom = false,
+        bool filesOnly = false,
+        bool directoriesOnly = false)
     {
-        internal static DeleteOptions Default { get; } = new();
-
-        public DeleteOptions(
-            bool contentOnly = false,
-            bool includingBom = false,
-            bool filesOnly = false,
-            bool directoriesOnly = false)
-        {
-            ContentOnly = contentOnly;
-            IncludingBom = includingBom;
-            FilesOnly = filesOnly;
-            DirectoriesOnly = directoriesOnly;
-        }
-
-        public bool ContentOnly { get; }
-
-        public bool IncludingBom { get; }
-
-        public bool FilesOnly { get; }
-
-        public bool DirectoriesOnly { get; }
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private string DebuggerDisplay => $"{nameof(ContentOnly)} = {ContentOnly}  {nameof(IncludingBom)} = {IncludingBom}";
+        ContentOnly = contentOnly;
+        IncludingBom = includingBom;
+        FilesOnly = filesOnly;
+        DirectoriesOnly = directoriesOnly;
     }
+
+    public bool ContentOnly { get; }
+
+    public bool IncludingBom { get; }
+
+    public bool FilesOnly { get; }
+
+    public bool DirectoriesOnly { get; }
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    private string DebuggerDisplay => $"{nameof(ContentOnly)} = {ContentOnly}  {nameof(IncludingBom)} = {IncludingBom}";
 }

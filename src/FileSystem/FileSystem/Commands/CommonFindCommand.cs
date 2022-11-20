@@ -5,65 +5,64 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 
-namespace Orang.FileSystem.Commands
+namespace Orang.FileSystem.Commands;
+
+internal abstract class CommonFindCommand : Command
 {
-    internal abstract class CommonFindCommand : Command
+    protected CommonFindCommand()
     {
-        protected CommonFindCommand()
+    }
+
+    public int MaxTotalMatches { get; set; }
+
+    public int MaxMatchesInFile { get; set; }
+
+    protected MaxReason GetCaptures(
+        Match match,
+        int groupNumber,
+        Func<string, bool>? predicate,
+        List<Capture> captures)
+    {
+        int maxMatchesInFile = MaxMatchesInFile;
+        int maxTotalMatches = MaxTotalMatches;
+
+        int count = 0;
+
+        if (maxMatchesInFile > 0)
         {
-        }
-
-        public int MaxTotalMatches { get; set; }
-
-        public int MaxMatchesInFile { get; set; }
-
-        protected MaxReason GetCaptures(
-            Match match,
-            int groupNumber,
-            Func<string, bool>? predicate,
-            List<Capture> captures)
-        {
-            int maxMatchesInFile = MaxMatchesInFile;
-            int maxTotalMatches = MaxTotalMatches;
-
-            int count = 0;
-
-            if (maxMatchesInFile > 0)
-            {
-                if (maxTotalMatches > 0)
-                {
-                    maxTotalMatches -= Telemetry.MatchCount;
-                    count = Math.Min(maxMatchesInFile, maxTotalMatches);
-                }
-                else
-                {
-                    count = maxMatchesInFile;
-                }
-            }
-            else if (maxTotalMatches > 0)
+            if (maxTotalMatches > 0)
             {
                 maxTotalMatches -= Telemetry.MatchCount;
-                count = maxTotalMatches;
+                count = Math.Min(maxMatchesInFile, maxTotalMatches);
             }
-
-            Debug.Assert(count >= 0, count.ToString());
-
-            MaxReason maxReason = CaptureFactory.GetCaptures(
-                ref captures,
-                match,
-                groupNumber,
-                count,
-                predicate,
-                CancellationToken);
-
-            if ((maxReason == MaxReason.CountEqualsMax || maxReason == MaxReason.CountExceedsMax)
-                && maxTotalMatches > 0
-                && (maxMatchesInFile == 0 || maxTotalMatches <= maxMatchesInFile))
+            else
             {
-                TerminationReason = TerminationReason.MaxReached;
+                count = maxMatchesInFile;
             }
-
-            return maxReason;
         }
+        else if (maxTotalMatches > 0)
+        {
+            maxTotalMatches -= Telemetry.MatchCount;
+            count = maxTotalMatches;
+        }
+
+        Debug.Assert(count >= 0, count.ToString());
+
+        MaxReason maxReason = CaptureFactory.GetCaptures(
+            ref captures,
+            match,
+            groupNumber,
+            count,
+            predicate,
+            CancellationToken);
+
+        if ((maxReason == MaxReason.CountEqualsMax || maxReason == MaxReason.CountExceedsMax)
+            && maxTotalMatches > 0
+            && (maxMatchesInFile == 0 || maxTotalMatches <= maxMatchesInFile))
+        {
+            TerminationReason = TerminationReason.MaxReached;
+        }
+
+        return maxReason;
     }
 }

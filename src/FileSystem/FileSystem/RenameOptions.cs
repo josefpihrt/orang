@@ -2,30 +2,29 @@
 
 using System.Text.RegularExpressions;
 
-namespace Orang.FileSystem
+namespace Orang.FileSystem;
+
+public class RenameOptions : ReplaceOptions
 {
-    public class RenameOptions : ReplaceOptions
+    public RenameOptions(
+        string replacement,
+        ReplaceFunctions functions = ReplaceFunctions.None,
+        bool cultureInvariant = false,
+        ConflictResolution conflictResolution = ConflictResolution.Skip)
+        : base(replacement, functions, cultureInvariant)
     {
-        public RenameOptions(
-            string replacement,
-            ReplaceFunctions functions = ReplaceFunctions.None,
-            bool cultureInvariant = false,
-            ConflictResolution conflictResolution = ConflictResolution.Skip)
-            : base(replacement, functions, cultureInvariant)
-        {
-            ConflictResolution = conflictResolution;
-        }
-
-        public RenameOptions(
-            MatchEvaluator matchEvaluator,
-            ReplaceFunctions functions = ReplaceFunctions.None,
-            bool cultureInvariant = false,
-            ConflictResolution conflictResolution = ConflictResolution.Skip)
-            : base(matchEvaluator, functions, cultureInvariant)
-        {
-            ConflictResolution = conflictResolution;
-        }
-
-        public ConflictResolution ConflictResolution { get; }
+        ConflictResolution = conflictResolution;
     }
+
+    public RenameOptions(
+        MatchEvaluator matchEvaluator,
+        ReplaceFunctions functions = ReplaceFunctions.None,
+        bool cultureInvariant = false,
+        ConflictResolution conflictResolution = ConflictResolution.Skip)
+        : base(matchEvaluator, functions, cultureInvariant)
+    {
+        ConflictResolution = conflictResolution;
+    }
+
+    public ConflictResolution ConflictResolution { get; }
 }

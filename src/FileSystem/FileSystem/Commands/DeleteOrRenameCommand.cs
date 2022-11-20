@@ -2,20 +2,19 @@
 
 using System;
 
-namespace Orang.FileSystem.Commands
+namespace Orang.FileSystem.Commands;
+
+internal abstract class DeleteOrRenameCommand : Command, INotifyDirectoryChanged
 {
-    internal abstract class DeleteOrRenameCommand : Command, INotifyDirectoryChanged
+    protected DeleteOrRenameCommand()
     {
-        protected DeleteOrRenameCommand()
-        {
-        }
+    }
 
-        //TODO: ?
-        public event EventHandler<DirectoryChangedEventArgs>? DirectoryChanged;
+    //TODO: ?
+    public event EventHandler<DirectoryChangedEventArgs>? DirectoryChanged;
 
-        protected virtual void OnDirectoryChanged(DirectoryChangedEventArgs e)
-        {
-            DirectoryChanged?.Invoke(this, e);
-        }
+    protected virtual void OnDirectoryChanged(DirectoryChangedEventArgs e)
+    {
+        DirectoryChanged?.Invoke(this, e);
     }
 }

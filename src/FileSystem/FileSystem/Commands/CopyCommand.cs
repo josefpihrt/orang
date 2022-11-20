@@ -2,15 +2,14 @@
 
 using System.IO;
 
-namespace Orang.FileSystem.Commands
-{
-    internal class CopyCommand : CommonCopyCommand
-    {
-        public override OperationKind OperationKind => OperationKind.Copy;
+namespace Orang.FileSystem.Commands;
 
-        protected override void ExecuteOperation(string sourcePath, string destinationPath)
-        {
-            File.Copy(sourcePath, destinationPath);
-        }
+internal class CopyCommand : CommonCopyCommand
+{
+    public override OperationKind OperationKind => OperationKind.Copy;
+
+    protected override void ExecuteOperation(string sourcePath, string destinationPath)
+    {
+        File.Copy(sourcePath, destinationPath);
     }
 }

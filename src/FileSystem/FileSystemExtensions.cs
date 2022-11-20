@@ -4,45 +4,44 @@ using System;
 using System.Text.RegularExpressions;
 using Orang.FileSystem;
 
-namespace Orang
+namespace Orang;
+
+internal static class FileSystemExtensions
 {
-    internal static class FileSystemExtensions
+    public static void Report(
+        this IProgress<SearchProgress> progress,
+        string path,
+        SearchProgressKind kind,
+        bool isDirectory = false,
+        Exception? exception = null)
     {
-        public static void Report(
-            this IProgress<SearchProgress> progress,
-            string path,
-            SearchProgressKind kind,
-            bool isDirectory = false,
-            Exception? exception = null)
-        {
-            progress.Report(new SearchProgress(path, kind, isDirectory, exception));
-        }
+        progress.Report(new SearchProgress(path, kind, isDirectory, exception));
+    }
 
-        public static void Report(
-            this IProgress<OperationProgress> progress,
-            FileMatch fileMatch,
-            string? newPath,
-            OperationKind kind,
-            Exception? exception = null)
-        {
-            progress.Report(new OperationProgress(fileMatch, newPath, kind, exception));
-        }
+    public static void Report(
+        this IProgress<OperationProgress> progress,
+        FileMatch fileMatch,
+        string? newPath,
+        OperationKind kind,
+        Exception? exception = null)
+    {
+        progress.Report(new OperationProgress(fileMatch, newPath, kind, exception));
+    }
 
-        public static Match? Match(this Filter filter, in FileNameSpan name)
-        {
-            return filter.Match(filter.Regex.Match(name.Path, name.Start, name.Length));
-        }
+    public static Match? Match(this Filter filter, in FileNameSpan name)
+    {
+        return filter.Match(filter.Regex.Match(name.Path, name.Start, name.Length));
+    }
 
-        public static Match? Match(this Filter filter, in FileNameSpan name, bool matchPartOnly)
-        {
-            return (matchPartOnly)
-                ? filter.Match(name.ToString())
-                : filter.Match(name);
-        }
+    public static Match? Match(this Filter filter, in FileNameSpan name, bool matchPartOnly)
+    {
+        return (matchPartOnly)
+            ? filter.Match(name.ToString())
+            : filter.Match(name);
+    }
 
-        public static bool IsMatch(this Filter filter, in FileNameSpan name)
-        {
-            return Match(filter, name) != null;
-        }
+    public static bool IsMatch(this Filter filter, in FileNameSpan name)
+    {
+        return Match(filter, name) != null;
     }
 }

@@ -2,16 +2,15 @@
 
 using System;
 
-namespace Orang
+namespace Orang;
+
+[Flags]
+public enum ReplaceFunctions
 {
-    [Flags]
-    public enum ReplaceFunctions
-    {
-        None = 0,
-        TrimStart = 1,
-        TrimEnd = 1 << 1,
-        Trim = TrimStart | TrimEnd,
-        ToLower = 1 << 2,
-        ToUpper = 1 << 3,
-    }
+    None = 0,
+    TrimStart = 1,
+    TrimEnd = 1 << 1,
+    Trim = TrimStart | TrimEnd,
+    ToLower = 1 << 2,
+    ToUpper = 1 << 3,
 }

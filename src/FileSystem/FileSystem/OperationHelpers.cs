@@ -4,50 +4,49 @@ using System;
 using System.IO;
 using static Orang.FileSystem.FileSystemHelpers;
 
-namespace Orang.FileSystem
+namespace Orang.FileSystem;
+
+internal static class OperationHelpers
 {
-    internal static class OperationHelpers
+    public static void VerifyConflictResolution(
+        ConflictResolution conflictResolution,
+        IDialogProvider<ConflictInfo>? dialogProvider)
     {
-        public static void VerifyConflictResolution(
-            ConflictResolution conflictResolution,
-            IDialogProvider<ConflictInfo>? dialogProvider)
+        if (conflictResolution == ConflictResolution.Ask
+            && dialogProvider == null)
         {
-            if (conflictResolution == ConflictResolution.Ask
-                && dialogProvider == null)
-            {
-                throw new ArgumentNullException(
-                    nameof(dialogProvider),
-                    $"'{nameof(dialogProvider)}' cannot be null when {nameof(ConflictResolution)} "
-                        + $"is set to {nameof(ConflictResolution.Ask)}.");
-            }
+            throw new ArgumentNullException(
+                nameof(dialogProvider),
+                $"'{nameof(dialogProvider)}' cannot be null when {nameof(ConflictResolution)} "
+                    + $"is set to {nameof(ConflictResolution.Ask)}.");
+        }
+    }
+
+    public static void VerifyCopyMoveArguments(
+        string directoryPath,
+        string destinationPath,
+        CopyOptions copyOptions,
+        IDialogProvider<ConflictInfo>? dialogProvider)
+    {
+        if (directoryPath == null)
+            throw new ArgumentNullException(nameof(directoryPath));
+
+        if (destinationPath == null)
+            throw new ArgumentNullException(nameof(destinationPath));
+
+        if (!Directory.Exists(directoryPath))
+            throw new DirectoryNotFoundException($"Directory not found: {directoryPath}");
+
+        if (!Directory.Exists(destinationPath))
+            throw new DirectoryNotFoundException($"Directory not found: {destinationPath}");
+
+        if (IsSubdirectory(destinationPath, directoryPath))
+        {
+            throw new ArgumentException(
+                "Source directory cannot be subdirectory of a destination directory.",
+                nameof(directoryPath));
         }
 
-        public static void VerifyCopyMoveArguments(
-            string directoryPath,
-            string destinationPath,
-            CopyOptions copyOptions,
-            IDialogProvider<ConflictInfo>? dialogProvider)
-        {
-            if (directoryPath == null)
-                throw new ArgumentNullException(nameof(directoryPath));
-
-            if (destinationPath == null)
-                throw new ArgumentNullException(nameof(destinationPath));
-
-            if (!Directory.Exists(directoryPath))
-                throw new DirectoryNotFoundException($"Directory not found: {directoryPath}");
-
-            if (!Directory.Exists(destinationPath))
-                throw new DirectoryNotFoundException($"Directory not found: {destinationPath}");
-
-            if (IsSubdirectory(destinationPath, directoryPath))
-            {
-                throw new ArgumentException(
-                    "Source directory cannot be subdirectory of a destination directory.",
-                    nameof(directoryPath));
-            }
-
-            VerifyConflictResolution(copyOptions.ConflictResolution, dialogProvider);
-        }
+        VerifyConflictResolution(copyOptions.ConflictResolution, dialogProvider);
     }
 }

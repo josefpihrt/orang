@@ -11,165 +11,143 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 
-namespace Orang.FileSystem
+namespace Orang.FileSystem;
+
+internal static class FileSystemHelpers
 {
-    internal static class FileSystemHelpers
+    private static ImmutableHashSet<char>? _invalidFileNameChars;
+
+    private static readonly EnumerationOptions _enumerationOptionsNoRecurse = new()
     {
-        private static ImmutableHashSet<char>? _invalidFileNameChars;
+        AttributesToSkip = 0,
+        IgnoreInaccessible = true,
+        RecurseSubdirectories = false,
+    };
 
-        private static readonly EnumerationOptions _enumerationOptionsNoRecurse = new()
+    private static readonly EnumerationOptions _enumerationOptionsRecurse = new()
+    {
+        AttributesToSkip = 0,
+        IgnoreInaccessible = true,
+        RecurseSubdirectories = true,
+    };
+
+    public static bool IsCaseSensitive { get; } = GetIsCaseSensitive();
+
+    public static StringComparer Comparer { get; }
+        = (IsCaseSensitive) ? StringComparer.CurrentCulture : StringComparer.CurrentCultureIgnoreCase;
+
+    public static StringComparison Comparison { get; }
+        = (IsCaseSensitive) ? StringComparison.CurrentCulture : StringComparison.CurrentCultureIgnoreCase;
+
+    public static ImmutableHashSet<char> InvalidFileNameChars
+    {
+        get
         {
-            AttributesToSkip = 0,
-            IgnoreInaccessible = true,
-            RecurseSubdirectories = false,
-        };
-
-        private static readonly EnumerationOptions _enumerationOptionsRecurse = new()
-        {
-            AttributesToSkip = 0,
-            IgnoreInaccessible = true,
-            RecurseSubdirectories = true,
-        };
-
-        public static bool IsCaseSensitive { get; } = GetIsCaseSensitive();
-
-        public static StringComparer Comparer { get; }
-            = (IsCaseSensitive) ? StringComparer.CurrentCulture : StringComparer.CurrentCultureIgnoreCase;
-
-        public static StringComparison Comparison { get; }
-            = (IsCaseSensitive) ? StringComparison.CurrentCulture : StringComparison.CurrentCultureIgnoreCase;
-
-        public static ImmutableHashSet<char> InvalidFileNameChars
-        {
-            get
+            if (_invalidFileNameChars == null)
             {
-                if (_invalidFileNameChars == null)
-                {
-                    Interlocked.CompareExchange(
-                        ref _invalidFileNameChars,
-                        Path.GetInvalidFileNameChars().ToImmutableHashSet(),
-                        null);
-                }
-
-                return _invalidFileNameChars;
+                Interlocked.CompareExchange(
+                    ref _invalidFileNameChars,
+                    Path.GetInvalidFileNameChars().ToImmutableHashSet(),
+                    null);
             }
+
+            return _invalidFileNameChars;
         }
+    }
 
-        public static IEnumerable<string> EnumerateFiles(string path, EnumerationOptions options)
-        {
-            return Directory.EnumerateFiles(path, "*", options);
-        }
+    public static IEnumerable<string> EnumerateFiles(string path, EnumerationOptions options)
+    {
+        return Directory.EnumerateFiles(path, "*", options);
+    }
 
-        public static IEnumerable<string> EnumerateDirectories(string path, EnumerationOptions options)
-        {
-            return Directory.EnumerateDirectories(path, "*", options);
-        }
+    public static IEnumerable<string> EnumerateDirectories(string path, EnumerationOptions options)
+    {
+        return Directory.EnumerateDirectories(path, "*", options);
+    }
 
-        public static string[] GetFiles(string path, EnumerationOptions options)
-        {
-            return Directory.GetFiles(path, "*", options);
-        }
+    public static string[] GetFiles(string path, EnumerationOptions options)
+    {
+        return Directory.GetFiles(path, "*", options);
+    }
 
-        public static string[] GetDirectories(string path, EnumerationOptions options)
-        {
-            return Directory.GetDirectories(path, "*", options);
-        }
+    public static string[] GetDirectories(string path, EnumerationOptions options)
+    {
+        return Directory.GetDirectories(path, "*", options);
+    }
 
-        private static bool GetIsCaseSensitive()
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                return false;
+    private static bool GetIsCaseSensitive()
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            return false;
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                return true;
-
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-                return true;
-
-            Debug.Fail(RuntimeInformation.OSDescription);
-
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             return true;
-        }
 
-        internal static bool FileEquals(
-            string path1,
-            string path2,
-            FileCompareOptions options,
-            FileAttributes ignoredAttributes = 0,
-            TimeSpan? allowedTimeDiff = null)
-        {
-            if ((options & FileCompareOptions.ModifiedTime) != 0
-                && !LastWriteTimeUtcEquals(path1, path2, allowedTimeDiff))
-            {
-                return false;
-            }
-
-            if ((options & FileCompareOptions.Attributes) != 0
-                && !AttributeEquals(path1, path2, ignoredAttributes))
-            {
-                return false;
-            }
-
-            if ((options & (FileCompareOptions.Size | FileCompareOptions.Content)) != 0)
-            {
-                using (var fs1 = new FileStream(path1, FileMode.Open, FileAccess.Read))
-                using (var fs2 = new FileStream(path2, FileMode.Open, FileAccess.Read))
-                {
-                    if ((options & FileCompareOptions.Size) != 0
-                        && fs1.Length != fs2.Length)
-                    {
-                        return false;
-                    }
-
-                    if ((options & FileCompareOptions.Content) != 0
-                        && !StreamComparer.Default.ByteEquals(fs1, fs2))
-                    {
-                        return false;
-                    }
-                }
-            }
-
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
             return true;
+
+        Debug.Fail(RuntimeInformation.OSDescription);
+
+        return true;
+    }
+
+    internal static bool FileEquals(
+        string path1,
+        string path2,
+        FileCompareOptions options,
+        FileAttributes ignoredAttributes = 0,
+        TimeSpan? allowedTimeDiff = null)
+    {
+        if ((options & FileCompareOptions.ModifiedTime) != 0
+            && !LastWriteTimeUtcEquals(path1, path2, allowedTimeDiff))
+        {
+            return false;
         }
 
-        internal static FileCompareOptions CompareFiles(
-            string path1,
-            string path2,
-            FileCompareOptions options,
-            FileAttributes ignoredAttributes = 0,
-            TimeSpan? allowedTimeDiff = null)
+        if ((options & FileCompareOptions.Attributes) != 0
+            && !AttributeEquals(path1, path2, ignoredAttributes))
         {
-            if ((options & FileCompareOptions.ModifiedTime) != 0
-                && !LastWriteTimeUtcEquals(path1, path2, allowedTimeDiff))
-            {
-                return FileCompareOptions.ModifiedTime;
-            }
+            return false;
+        }
 
-            if ((options & FileCompareOptions.Attributes) != 0
-                && !AttributeEquals(path1, path2, ignoredAttributes))
+        if ((options & (FileCompareOptions.Size | FileCompareOptions.Content)) != 0)
+        {
+            using (var fs1 = new FileStream(path1, FileMode.Open, FileAccess.Read))
+            using (var fs2 = new FileStream(path2, FileMode.Open, FileAccess.Read))
             {
-                if ((options & (FileCompareOptions.Size | FileCompareOptions.Content)) != 0)
+                if ((options & FileCompareOptions.Size) != 0
+                    && fs1.Length != fs2.Length)
                 {
-                    using (var fs1 = new FileStream(path1, FileMode.Open, FileAccess.Read))
-                    using (var fs2 = new FileStream(path2, FileMode.Open, FileAccess.Read))
-                    {
-                        if ((options & FileCompareOptions.Size) != 0
-                            && fs1.Length != fs2.Length)
-                        {
-                            return FileCompareOptions.Size;
-                        }
-
-                        if ((options & FileCompareOptions.Content) != 0
-                            && !StreamComparer.Default.ByteEquals(fs1, fs2))
-                        {
-                            return FileCompareOptions.Content;
-                        }
-                    }
+                    return false;
                 }
 
-                return FileCompareOptions.Attributes;
+                if ((options & FileCompareOptions.Content) != 0
+                    && !StreamComparer.Default.ByteEquals(fs1, fs2))
+                {
+                    return false;
+                }
             }
+        }
 
+        return true;
+    }
+
+    internal static FileCompareOptions CompareFiles(
+        string path1,
+        string path2,
+        FileCompareOptions options,
+        FileAttributes ignoredAttributes = 0,
+        TimeSpan? allowedTimeDiff = null)
+    {
+        if ((options & FileCompareOptions.ModifiedTime) != 0
+            && !LastWriteTimeUtcEquals(path1, path2, allowedTimeDiff))
+        {
+            return FileCompareOptions.ModifiedTime;
+        }
+
+        if ((options & FileCompareOptions.Attributes) != 0
+            && !AttributeEquals(path1, path2, ignoredAttributes))
+        {
             if ((options & (FileCompareOptions.Size | FileCompareOptions.Content)) != 0)
             {
                 using (var fs1 = new FileStream(path1, FileMode.Open, FileAccess.Read))
@@ -189,399 +167,420 @@ namespace Orang.FileSystem
                 }
             }
 
-            return FileCompareOptions.None;
+            return FileCompareOptions.Attributes;
         }
 
-        internal static bool AttributeEquals(
-            string path1,
-            string path2,
-            FileAttributes ignoredAttributes = 0)
+        if ((options & (FileCompareOptions.Size | FileCompareOptions.Content)) != 0)
         {
-            FileAttributes attr1 = File.GetAttributes(path1) & ~ignoredAttributes;
-            FileAttributes attr2 = File.GetAttributes(path2) & ~ignoredAttributes;
-
-            return attr1 == attr2;
-        }
-
-        internal static bool LastWriteTimeUtcEquals(string path1, string path2, TimeSpan? allowedDiff = null)
-        {
-            return CompareLastWriteTimeUtc(path1, path2, allowedDiff) == 0;
-        }
-
-        internal static int CompareLastWriteTimeUtc(string path1, string path2, TimeSpan? allowedDiff = null)
-        {
-            DateTime dateTime1 = File.GetLastWriteTimeUtc(path1);
-            DateTime dateTime2 = File.GetLastWriteTimeUtc(path2);
-
-            if (allowedDiff == null)
-                return dateTime1.CompareTo(dateTime2);
-
-            TimeSpan diff = dateTime1 - dateTime2;
-
-            if (diff.Duration() <= allowedDiff.Value)
-                return 0;
-
-            Debug.Assert(dateTime1.CompareTo(dateTime2) == ((diff.Ticks > 0) ? 1 : -1));
-
-            return (diff.Ticks > 0) ? 1 : -1;
-        }
-
-        internal static bool IsSubdirectory(string basePath, string path)
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            using (var fs1 = new FileStream(path1, FileMode.Open, FileAccess.Read))
+            using (var fs2 = new FileStream(path2, FileMode.Open, FileAccess.Read))
             {
-                basePath = basePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
-                path = path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
-            }
-
-            return path.Length > basePath.Length
-                && (IsDirectorySeparator(basePath[^1])
-                    || IsDirectorySeparator(path[basePath.Length]))
-                && path.StartsWith(basePath, Comparison);
-        }
-
-        internal static bool IsParentDirectory(string directoryPath, string path)
-        {
-            return path.Length > directoryPath.Length
-                && IsDirectorySeparator(path[directoryPath.Length])
-                && directoryPath.Length == LastIndexOfDirectorySeparator(path)
-                && path.StartsWith(directoryPath, Comparison);
-        }
-
-        internal static bool UpdateAttributes(string sourcePath, string destinationPath)
-        {
-            FileAttributes sourceAttributes = File.GetAttributes(sourcePath);
-            FileAttributes destinationAttributes = File.GetAttributes(destinationPath);
-
-            if (sourceAttributes != destinationAttributes)
-            {
-                File.SetAttributes(destinationPath, sourceAttributes);
-                return true;
-            }
-
-            return false;
-        }
-
-        internal static int IndexOfDirectorySeparator(string path, int start)
-        {
-            for (int i = start; i < path.Length; i++)
-            {
-                if (IsDirectorySeparator(path[i]))
-                    return i;
-            }
-
-            return path.Length;
-        }
-
-        internal static int LastIndexOfDirectorySeparator(string path)
-        {
-            for (int i = path.Length - 1; i >= 0; i--)
-            {
-                if (IsDirectorySeparator(path[i]))
-                    return i;
-            }
-
-            return -1;
-        }
-
-        public static void Delete(
-            FileMatch fileMatch,
-            bool contentOnly = false,
-            bool includingBom = false,
-            bool filesOnly = false,
-            bool directoriesOnly = false)
-        {
-            if (fileMatch.IsDirectory)
-            {
-                DeleteDirectory(
-                    fileMatch.Path,
-                    contentOnly: contentOnly,
-                    filesOnly: filesOnly,
-                    directoriesOnly: directoriesOnly);
-            }
-            else
-            {
-                DeleteFile(fileMatch.Path, contentOnly: contentOnly, includingBom: includingBom);
-            }
-        }
-
-        public static void DeleteDirectory(string directoryPath, bool contentOnly, bool filesOnly, bool directoriesOnly)
-        {
-            if (contentOnly)
-            {
-                if (!directoriesOnly)
+                if ((options & FileCompareOptions.Size) != 0
+                    && fs1.Length != fs2.Length)
                 {
-                    foreach (string path in EnumerateFiles(directoryPath, _enumerationOptionsNoRecurse))
-                        File.Delete(path);
+                    return FileCompareOptions.Size;
                 }
 
-                if (!filesOnly)
+                if ((options & FileCompareOptions.Content) != 0
+                    && !StreamComparer.Default.ByteEquals(fs1, fs2))
                 {
-                    foreach (string path in EnumerateDirectories(directoryPath, _enumerationOptionsNoRecurse))
-                        Directory.Delete(path, recursive: true);
+                    return FileCompareOptions.Content;
                 }
             }
-            else
+        }
+
+        return FileCompareOptions.None;
+    }
+
+    internal static bool AttributeEquals(
+        string path1,
+        string path2,
+        FileAttributes ignoredAttributes = 0)
+    {
+        FileAttributes attr1 = File.GetAttributes(path1) & ~ignoredAttributes;
+        FileAttributes attr2 = File.GetAttributes(path2) & ~ignoredAttributes;
+
+        return attr1 == attr2;
+    }
+
+    internal static bool LastWriteTimeUtcEquals(string path1, string path2, TimeSpan? allowedDiff = null)
+    {
+        return CompareLastWriteTimeUtc(path1, path2, allowedDiff) == 0;
+    }
+
+    internal static int CompareLastWriteTimeUtc(string path1, string path2, TimeSpan? allowedDiff = null)
+    {
+        DateTime dateTime1 = File.GetLastWriteTimeUtc(path1);
+        DateTime dateTime2 = File.GetLastWriteTimeUtc(path2);
+
+        if (allowedDiff == null)
+            return dateTime1.CompareTo(dateTime2);
+
+        TimeSpan diff = dateTime1 - dateTime2;
+
+        if (diff.Duration() <= allowedDiff.Value)
+            return 0;
+
+        Debug.Assert(dateTime1.CompareTo(dateTime2) == ((diff.Ticks > 0) ? 1 : -1));
+
+        return (diff.Ticks > 0) ? 1 : -1;
+    }
+
+    internal static bool IsSubdirectory(string basePath, string path)
+    {
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            basePath = basePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+            path = path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+        }
+
+        return path.Length > basePath.Length
+            && (IsDirectorySeparator(basePath[^1])
+                || IsDirectorySeparator(path[basePath.Length]))
+            && path.StartsWith(basePath, Comparison);
+    }
+
+    internal static bool IsParentDirectory(string directoryPath, string path)
+    {
+        return path.Length > directoryPath.Length
+            && IsDirectorySeparator(path[directoryPath.Length])
+            && directoryPath.Length == LastIndexOfDirectorySeparator(path)
+            && path.StartsWith(directoryPath, Comparison);
+    }
+
+    internal static bool UpdateAttributes(string sourcePath, string destinationPath)
+    {
+        FileAttributes sourceAttributes = File.GetAttributes(sourcePath);
+        FileAttributes destinationAttributes = File.GetAttributes(destinationPath);
+
+        if (sourceAttributes != destinationAttributes)
+        {
+            File.SetAttributes(destinationPath, sourceAttributes);
+            return true;
+        }
+
+        return false;
+    }
+
+    internal static int IndexOfDirectorySeparator(string path, int start)
+    {
+        for (int i = start; i < path.Length; i++)
+        {
+            if (IsDirectorySeparator(path[i]))
+                return i;
+        }
+
+        return path.Length;
+    }
+
+    internal static int LastIndexOfDirectorySeparator(string path)
+    {
+        for (int i = path.Length - 1; i >= 0; i--)
+        {
+            if (IsDirectorySeparator(path[i]))
+                return i;
+        }
+
+        return -1;
+    }
+
+    public static void Delete(
+        FileMatch fileMatch,
+        bool contentOnly = false,
+        bool includingBom = false,
+        bool filesOnly = false,
+        bool directoriesOnly = false)
+    {
+        if (fileMatch.IsDirectory)
+        {
+            DeleteDirectory(
+                fileMatch.Path,
+                contentOnly: contentOnly,
+                filesOnly: filesOnly,
+                directoriesOnly: directoriesOnly);
+        }
+        else
+        {
+            DeleteFile(fileMatch.Path, contentOnly: contentOnly, includingBom: includingBom);
+        }
+    }
+
+    public static void DeleteDirectory(string directoryPath, bool contentOnly, bool filesOnly, bool directoriesOnly)
+    {
+        if (contentOnly)
+        {
+            if (!directoriesOnly)
             {
-                Directory.Delete(directoryPath, recursive: true);
+                foreach (string path in EnumerateFiles(directoryPath, _enumerationOptionsNoRecurse))
+                    File.Delete(path);
+            }
+
+            if (!filesOnly)
+            {
+                foreach (string path in EnumerateDirectories(directoryPath, _enumerationOptionsNoRecurse))
+                    Directory.Delete(path, recursive: true);
             }
         }
-
-        public static void DeleteFile(string filePath, bool contentOnly, bool includingBom)
+        else
         {
-            if (contentOnly)
+            Directory.Delete(directoryPath, recursive: true);
+        }
+    }
+
+    public static void DeleteFile(string filePath, bool contentOnly, bool includingBom)
+    {
+        if (contentOnly)
+        {
+            FileAccess fileAccess = (includingBom) ? FileAccess.Write : FileAccess.ReadWrite;
+
+            using (var stream = new FileStream(filePath, FileMode.Open, fileAccess))
             {
-                FileAccess fileAccess = (includingBom) ? FileAccess.Write : FileAccess.ReadWrite;
+                int length = 0;
 
-                using (var stream = new FileStream(filePath, FileMode.Open, fileAccess))
-                {
-                    int length = 0;
-
-                    if (includingBom)
-                    {
-                        Encoding? encoding = DetectEncoding(stream);
-
-                        if (encoding != null)
-                            length = encoding.Preamble.Length;
-                    }
-
-                    stream.SetLength(length);
-                }
-            }
-            else
-            {
-                File.Delete(filePath);
-            }
-        }
-
-        public static IEnumerable<string> EnumerateAllFiles(string directoryPath, string? searchPattern = null)
-        {
-            return Directory.EnumerateFiles(directoryPath, searchPattern ?? "*", _enumerationOptionsRecurse);
-        }
-
-        public static IEnumerable<string> EnumerateAllDirectories(string directoryPath, string? searchPattern = null)
-        {
-            return Directory.EnumerateDirectories(directoryPath, searchPattern ?? "*", _enumerationOptionsRecurse);
-        }
-
-        public static bool IsEmptyFile(string path)
-        {
-            var fileInfo = new FileInfo(path);
-
-            return IsEmptyFile(fileInfo);
-        }
-
-        public static bool IsEmptyFile(FileInfo fileInfo)
-        {
-            if (fileInfo.Length == 0)
-                return true;
-
-            if (fileInfo.Length <= 4)
-            {
-                using (FileStream stream = fileInfo.OpenRead())
+                if (includingBom)
                 {
                     Encoding? encoding = DetectEncoding(stream);
 
-                    return encoding?.Preamble.Length == stream.Length;
+                    if (encoding != null)
+                        length = encoding.Preamble.Length;
                 }
+
+                stream.SetLength(length);
             }
-
-            return false;
         }
-
-        public static bool IsEmptyDirectory(string path)
+        else
         {
-            return !Directory.EnumerateFileSystemEntries(path).Any();
+            File.Delete(filePath);
         }
+    }
 
-        public static int GetFileNameIndex(string path)
+    public static IEnumerable<string> EnumerateAllFiles(string directoryPath, string? searchPattern = null)
+    {
+        return Directory.EnumerateFiles(directoryPath, searchPattern ?? "*", _enumerationOptionsRecurse);
+    }
+
+    public static IEnumerable<string> EnumerateAllDirectories(string directoryPath, string? searchPattern = null)
+    {
+        return Directory.EnumerateDirectories(directoryPath, searchPattern ?? "*", _enumerationOptionsRecurse);
+    }
+
+    public static bool IsEmptyFile(string path)
+    {
+        var fileInfo = new FileInfo(path);
+
+        return IsEmptyFile(fileInfo);
+    }
+
+    public static bool IsEmptyFile(FileInfo fileInfo)
+    {
+        if (fileInfo.Length == 0)
+            return true;
+
+        if (fileInfo.Length <= 4)
         {
-            int rootLength = Path.GetPathRoot(path).Length;
-
-            for (int i = path.Length - 1; i >= 0; i--)
+            using (FileStream stream = fileInfo.OpenRead())
             {
-                if (i < rootLength
-                    || IsDirectorySeparator(path[i]))
+                Encoding? encoding = DetectEncoding(stream);
+
+                return encoding?.Preamble.Length == stream.Length;
+            }
+        }
+
+        return false;
+    }
+
+    public static bool IsEmptyDirectory(string path)
+    {
+        return !Directory.EnumerateFileSystemEntries(path).Any();
+    }
+
+    public static int GetFileNameIndex(string path)
+    {
+        int rootLength = Path.GetPathRoot(path).Length;
+
+        for (int i = path.Length - 1; i >= 0; i--)
+        {
+            if (i < rootLength
+                || IsDirectorySeparator(path[i]))
+            {
+                return i + 1;
+            }
+        }
+
+        return 0;
+    }
+
+    public static int GetExtensionIndex(string path)
+    {
+        int length = path.Length;
+
+        for (int i = length - 1; i >= 0; i--)
+        {
+            char ch = path[i];
+
+            if (ch == '.')
+                return i;
+
+            if (IsDirectorySeparator(ch))
+                break;
+        }
+
+        return path.Length;
+    }
+
+    public static bool IsDirectorySeparator(char ch)
+    {
+        return ch == Path.DirectorySeparatorChar
+            || ch == Path.AltDirectorySeparatorChar;
+    }
+
+    public static long GetDirectorySize(string directoryPath)
+    {
+        long size = 0;
+
+        foreach (string filePath in EnumerateFiles(directoryPath, _enumerationOptionsRecurse))
+        {
+            size += new FileInfo(filePath).Length;
+        }
+
+        return size;
+    }
+
+    public static bool ContainsInvalidFileNameChars(string path)
+    {
+        return ContainsInvalidFileNameChars(path, 0);
+    }
+
+    public static bool ContainsInvalidFileNameChars(string path, int startIndex)
+    {
+        for (int i = startIndex; i < path.Length; i++)
+        {
+            if (InvalidFileNameChars.Contains(path[i]))
+                return true;
+        }
+
+        return false;
+    }
+
+    public static string CreateNewFilePath(string path)
+    {
+        int count = 2;
+        int extensionIndex = GetExtensionIndex(path);
+
+        if (extensionIndex > 0
+            && IsDirectorySeparator(path[extensionIndex - 1]))
+        {
+            extensionIndex = path.Length;
+        }
+
+        string newPath;
+
+        do
+        {
+            newPath = path.Insert(extensionIndex, count.ToString());
+
+            count++;
+        }
+        while (File.Exists(newPath));
+
+        return newPath;
+    }
+
+    public static Encoding? DetectEncoding(Stream stream)
+    {
+        long length = stream.Length;
+
+        if (length < 2)
+            return null;
+
+        var buffer = new byte[2];
+
+        stream.Read(buffer, 0, 2);
+
+        if (buffer[0] == 0xEF)
+        {
+            if (buffer[1] == 0xBB
+                && length >= 3)
+            {
+                stream.Read(buffer, 0, 1);
+
+                if (buffer[0] == 0xBF)
                 {
-                    return i + 1;
+                    // UTF-8  EF BB BF
+                    return Encoding.UTF8;
                 }
             }
-
-            return 0;
         }
-
-        public static int GetExtensionIndex(string path)
+        else if (buffer[0] == 0xFE)
         {
-            int length = path.Length;
-
-            for (int i = length - 1; i >= 0; i--)
-            {
-                char ch = path[i];
-
-                if (ch == '.')
-                    return i;
-
-                if (IsDirectorySeparator(ch))
-                    break;
-            }
-
-            return path.Length;
+            // UTF-16 (BE)  FE FF
+            if (buffer[1] == 0xFF)
+                return Encoding.BigEndianUnicode;
         }
-
-        public static bool IsDirectorySeparator(char ch)
+        else if (buffer[0] == 0xFF)
         {
-            return ch == Path.DirectorySeparatorChar
-                || ch == Path.AltDirectorySeparatorChar;
-        }
-
-        public static long GetDirectorySize(string directoryPath)
-        {
-            long size = 0;
-
-            foreach (string filePath in EnumerateFiles(directoryPath, _enumerationOptionsRecurse))
+            if (buffer[1] == 0xFE)
             {
-                size += new FileInfo(filePath).Length;
-            }
-
-            return size;
-        }
-
-        public static bool ContainsInvalidFileNameChars(string path)
-        {
-            return ContainsInvalidFileNameChars(path, 0);
-        }
-
-        public static bool ContainsInvalidFileNameChars(string path, int startIndex)
-        {
-            for (int i = startIndex; i < path.Length; i++)
-            {
-                if (InvalidFileNameChars.Contains(path[i]))
-                    return true;
-            }
-
-            return false;
-        }
-
-        public static string CreateNewFilePath(string path)
-        {
-            int count = 2;
-            int extensionIndex = GetExtensionIndex(path);
-
-            if (extensionIndex > 0
-                && IsDirectorySeparator(path[extensionIndex - 1]))
-            {
-                extensionIndex = path.Length;
-            }
-
-            string newPath;
-
-            do
-            {
-                newPath = path.Insert(extensionIndex, count.ToString());
-
-                count++;
-            }
-            while (File.Exists(newPath));
-
-            return newPath;
-        }
-
-        public static Encoding? DetectEncoding(Stream stream)
-        {
-            long length = stream.Length;
-
-            if (length < 2)
-                return null;
-
-            var buffer = new byte[2];
-
-            stream.Read(buffer, 0, 2);
-
-            if (buffer[0] == 0xEF)
-            {
-                if (buffer[1] == 0xBB
-                    && length >= 3)
-                {
-                    stream.Read(buffer, 0, 1);
-
-                    if (buffer[0] == 0xBF)
-                    {
-                        // UTF-8  EF BB BF
-                        return Encoding.UTF8;
-                    }
-                }
-            }
-            else if (buffer[0] == 0xFE)
-            {
-                // UTF-16 (BE)  FE FF
-                if (buffer[1] == 0xFF)
-                    return Encoding.BigEndianUnicode;
-            }
-            else if (buffer[0] == 0xFF)
-            {
-                if (buffer[1] == 0xFE)
-                {
-                    if (length >= 4)
-                    {
-                        stream.Read(buffer, 0, 2);
-
-                        if (buffer[0] == 0
-                            && buffer[1] == 0)
-                        {
-                            // UTF-32 (LE)  FF FE 00 00
-                            return Encoding.UTF32;
-                        }
-
-                        stream.Position = 2;
-                    }
-
-                    // UTF-16 (LE)  FF FE
-                    return Encoding.Unicode;
-                }
-            }
-            else if (buffer[0] == 0)
-            {
-                if (buffer[1] == 0
-                    && length >= 4)
+                if (length >= 4)
                 {
                     stream.Read(buffer, 0, 2);
 
-                    if (buffer[0] == 0xFE
-                        && buffer[1] == 0xFF)
+                    if (buffer[0] == 0
+                        && buffer[1] == 0)
                     {
-                        // UTF-32 (BE)  00 00 FE FF
-                        return new UTF32Encoding(bigEndian: true, byteOrderMark: true);
+                        // UTF-32 (LE)  FF FE 00 00
+                        return Encoding.UTF32;
                     }
+
+                    stream.Position = 2;
+                }
+
+                // UTF-16 (LE)  FF FE
+                return Encoding.Unicode;
+            }
+        }
+        else if (buffer[0] == 0)
+        {
+            if (buffer[1] == 0
+                && length >= 4)
+            {
+                stream.Read(buffer, 0, 2);
+
+                if (buffer[0] == 0xFE
+                    && buffer[1] == 0xFF)
+                {
+                    // UTF-32 (BE)  00 00 FE FF
+                    return new UTF32Encoding(bigEndian: true, byteOrderMark: true);
                 }
             }
-
-            stream.Position = 0;
-            return null;
         }
 
-        public static bool TryReadAllText(
-            string path,
-            [NotNullWhen(true)] out string? content,
-            Action<Exception>? exceptionHandler = null)
+        stream.Position = 0;
+        return null;
+    }
+
+    public static bool TryReadAllText(
+        string path,
+        [NotNullWhen(true)] out string? content,
+        Action<Exception>? exceptionHandler = null)
+    {
+        try
         {
-            try
-            {
-                content = File.ReadAllText(path);
-                return true;
-            }
-            catch (Exception ex) when (ex is ArgumentException
-                || ex is IOException
-                || ex is UnauthorizedAccessException)
-            {
-                exceptionHandler?.Invoke(ex);
-                content = null;
-                return false;
-            }
+            content = File.ReadAllText(path);
+            return true;
         }
-
-        public static string EnsureFullPath(string path)
+        catch (Exception ex) when (ex is ArgumentException
+            || ex is IOException
+            || ex is UnauthorizedAccessException)
         {
-            return (Path.IsPathRooted(path)) ? path : Path.GetFullPath(path);
+            exceptionHandler?.Invoke(ex);
+            content = null;
+            return false;
         }
+    }
+
+    public static string EnsureFullPath(string path)
+    {
+        return (Path.IsPathRooted(path)) ? path : Path.GetFullPath(path);
     }
 }

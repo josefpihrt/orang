@@ -10,466 +10,465 @@ using System.Threading;
 using Orang.FileSystem;
 using Orang.Text.RegularExpressions;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+internal class CommonReplaceCommand<TOptions> : CommonFindCommand<TOptions> where TOptions : CommonReplaceCommandOptions
 {
-    internal class CommonReplaceCommand<TOptions> : CommonFindCommand<TOptions> where TOptions : CommonReplaceCommandOptions
+    private OutputSymbols? _symbols;
+
+    public CommonReplaceCommand(TOptions options, Logger logger) : base(options, logger)
     {
-        private OutputSymbols? _symbols;
+        Debug.Assert(!options.ContentFilter!.IsNegative);
+    }
 
-        public CommonReplaceCommand(TOptions options, Logger logger) : base(options, logger)
+    protected override bool CanDisplaySummary => Options.Input == null;
+
+    protected virtual bool ReportProgress => false;
+
+    protected virtual bool CanUseStreamWriter => true;
+
+    protected virtual bool CanUseEmptyWriter => true;
+
+    protected virtual SpellcheckState? SpellcheckState => null;
+
+    private OutputSymbols Symbols => _symbols ??= OutputSymbols.Create(Options.HighlightOptions);
+
+    protected override void ExecuteCore(SearchContext context)
+    {
+        context.Telemetry.MatchingLineCount = -1;
+
+        if (Options.Input != null)
         {
-            Debug.Assert(!options.ContentFilter!.IsNegative);
+            ExecuteInput(context, Options.Input);
         }
-
-        protected override bool CanDisplaySummary => Options.Input == null;
-
-        protected virtual bool ReportProgress => false;
-
-        protected virtual bool CanUseStreamWriter => true;
-
-        protected virtual bool CanUseEmptyWriter => true;
-
-        protected virtual SpellcheckState? SpellcheckState => null;
-
-        private OutputSymbols Symbols => _symbols ??= OutputSymbols.Create(Options.HighlightOptions);
-
-        protected override void ExecuteCore(SearchContext context)
+        else
         {
-            context.Telemetry.MatchingLineCount = -1;
-
-            if (Options.Input != null)
-            {
-                ExecuteInput(context, Options.Input);
-            }
-            else
-            {
-                base.ExecuteCore(context);
-            }
+            base.ExecuteCore(context);
         }
+    }
 
-        private void ExecuteInput(SearchContext context, string input)
+    private void ExecuteInput(SearchContext context, string input)
+    {
+        int count = 0;
+        var maxReason = MaxReason.None;
+        Filter contentFilter = ContentFilter!;
+        Match? match = contentFilter.Match(input);
+
+        if (match != null)
         {
-            int count = 0;
-            var maxReason = MaxReason.None;
-            Filter contentFilter = ContentFilter!;
-            Match? match = contentFilter.Match(input);
-
-            if (match != null)
-            {
-                ContentWriter? contentWriter = null;
-                List<Capture>? groups = null;
-
-                try
-                {
-                    groups = ListCache<Capture>.GetInstance();
-
-                    maxReason = GetCaptures(
-                        match,
-                        FileWriterOptions.GroupNumber,
-                        context,
-                        isPathDisplayed: false,
-                        predicate: contentFilter.Predicate,
-                        captures: groups);
-
-                    IEnumerable<ICapture> captures = GetCaptures(groups, context.CancellationToken)
-                        ?? groups.Select(f => (ICapture)new RegexCapture(f));
-
-                    using (IEnumerator<ICapture> en = captures.GetEnumerator())
-                    {
-                        if (en.MoveNext())
-                        {
-                            if (_logger.ShouldWrite(Verbosity.Normal))
-                            {
-                                MatchOutputInfo? outputInfo = Options.CreateOutputInfo(input, match, contentFilter);
-
-                                contentWriter = CreateReplacementWriter(
-                                    Options.ContentDisplayStyle,
-                                    input,
-                                    Options.Replacer,
-                                    ContentWriter,
-                                    FileWriterOptions,
-                                    outputInfo: outputInfo);
-                            }
-                            else
-                            {
-                                contentWriter = new EmptyContentWriter(ContentWriter, FileWriterOptions);
-                            }
-
-                            WriteMatches(contentWriter, en, context);
-                            count = contentWriter.MatchCount;
-                        }
-                    }
-                }
-                finally
-                {
-                    contentWriter?.Dispose();
-
-                    if (groups != null)
-                        ListCache<Capture>.Free(groups);
-                }
-            }
-
-            if (_logger.ShouldWrite(Verbosity.Detailed)
-                || Options.IncludeSummary)
-            {
-                Verbosity verbosity = (Options.IncludeSummary) ? Verbosity.Minimal : Verbosity.Detailed;
-
-                _logger.WriteLine(verbosity);
-                _logger.WriteCount("Replacements", count, Colors.Message_OK, verbosity);
-                _logger.WriteIf(maxReason == MaxReason.CountExceedsMax, "+", Colors.Message_OK, verbosity);
-                _logger.WriteLine(verbosity);
-            }
-        }
-
-        protected override void ExecuteMatchCore(
-            FileMatch fileMatch,
-            SearchContext context,
-            string? baseDirectoryPath = null,
-            ColumnWidths? columnWidths = null)
-        {
-            throw new NotSupportedException();
-        }
-
-        protected override void ExecuteMatchWithContentCore(
-            FileMatch fileMatch,
-            SearchContext context,
-            ContentWriterOptions writerOptions,
-            string? baseDirectoryPath = null,
-            ColumnWidths? columnWidths = null)
-        {
+            ContentWriter? contentWriter = null;
             List<Capture>? groups = null;
 
             try
             {
                 groups = ListCache<Capture>.GetInstance();
 
-                MaxReason maxReason = GetCaptures(
-                    fileMatch.ContentMatch!,
-                    writerOptions.GroupNumber,
+                maxReason = GetCaptures(
+                    match,
+                    FileWriterOptions.GroupNumber,
                     context,
                     isPathDisplayed: false,
-                    predicate: Options.ContentFilter!.Predicate,
+                    predicate: contentFilter.Predicate,
                     captures: groups);
 
-                List<ICapture>? captures = GetCaptures(groups, context.CancellationToken);
+                IEnumerable<ICapture> captures = GetCaptures(groups, context.CancellationToken)
+                    ?? groups.Select(f => (ICapture)new RegexCapture(f));
 
-                using (IEnumerator<ICapture> en = (captures ?? groups.Select(f => (ICapture)new RegexCapture(f))).GetEnumerator())
+                using (IEnumerator<ICapture> en = captures.GetEnumerator())
                 {
                     if (en.MoveNext())
                     {
-                        if (SpellcheckState != null)
-                            SpellcheckState.CurrentPath = fileMatch.Path;
+                        if (_logger.ShouldWrite(Verbosity.Normal))
+                        {
+                            MatchOutputInfo? outputInfo = Options.CreateOutputInfo(input, match, contentFilter);
 
-                        ExecuteMatchWithContentCore(
-                            en,
-                            captures?.Count ?? groups.Count,
-                            maxReason,
-                            fileMatch,
-                            context,
-                            writerOptions,
-                            baseDirectoryPath,
-                            columnWidths);
+                            contentWriter = CreateReplacementWriter(
+                                Options.ContentDisplayStyle,
+                                input,
+                                Options.Replacer,
+                                ContentWriter,
+                                FileWriterOptions,
+                                outputInfo: outputInfo);
+                        }
+                        else
+                        {
+                            contentWriter = new EmptyContentWriter(ContentWriter, FileWriterOptions);
+                        }
+
+                        WriteMatches(contentWriter, en, context);
+                        count = contentWriter.MatchCount;
                     }
                 }
             }
             finally
             {
+                contentWriter?.Dispose();
+
                 if (groups != null)
                     ListCache<Capture>.Free(groups);
-
-                if (SpellcheckState != null)
-                    SpellcheckState.CurrentPath = null;
             }
         }
 
-        private void ExecuteMatchWithContentCore(
-            IEnumerator<ICapture> groups,
-            int count,
-            MaxReason maxReason,
-            FileMatch fileMatch,
-            SearchContext context,
-            ContentWriterOptions writerOptions,
-            string? baseDirectoryPath = null,
-            ColumnWidths? columnWidths = null)
+        if (_logger.ShouldWrite(Verbosity.Detailed)
+            || Options.IncludeSummary)
         {
-            string indent = GetPathIndent(baseDirectoryPath);
+            Verbosity verbosity = (Options.IncludeSummary) ? Verbosity.Minimal : Verbosity.Detailed;
 
-            if (!Options.OmitPath)
+            _logger.WriteLine(verbosity);
+            _logger.WriteCount("Replacements", count, Colors.Message_OK, verbosity);
+            _logger.WriteIf(maxReason == MaxReason.CountExceedsMax, "+", Colors.Message_OK, verbosity);
+            _logger.WriteLine(verbosity);
+        }
+    }
+
+    protected override void ExecuteMatchCore(
+        FileMatch fileMatch,
+        SearchContext context,
+        string? baseDirectoryPath = null,
+        ColumnWidths? columnWidths = null)
+    {
+        throw new NotSupportedException();
+    }
+
+    protected override void ExecuteMatchWithContentCore(
+        FileMatch fileMatch,
+        SearchContext context,
+        ContentWriterOptions writerOptions,
+        string? baseDirectoryPath = null,
+        ColumnWidths? columnWidths = null)
+    {
+        List<Capture>? groups = null;
+
+        try
+        {
+            groups = ListCache<Capture>.GetInstance();
+
+            MaxReason maxReason = GetCaptures(
+                fileMatch.ContentMatch!,
+                writerOptions.GroupNumber,
+                context,
+                isPathDisplayed: false,
+                predicate: Options.ContentFilter!.Predicate,
+                captures: groups);
+
+            List<ICapture>? captures = GetCaptures(groups, context.CancellationToken);
+
+            using (IEnumerator<ICapture> en = (captures ?? groups.Select(f => (ICapture)new RegexCapture(f))).GetEnumerator())
             {
-                WritePath(context, fileMatch, baseDirectoryPath, indent, columnWidths, includeNewline: false);
-                _logger.WriteFilePathEnd(count, maxReason, Options.IncludeCount);
+                if (en.MoveNext())
+                {
+                    if (SpellcheckState != null)
+                        SpellcheckState.CurrentPath = fileMatch.Path;
+
+                    ExecuteMatchWithContentCore(
+                        en,
+                        captures?.Count ?? groups.Count,
+                        maxReason,
+                        fileMatch,
+                        context,
+                        writerOptions,
+                        baseDirectoryPath,
+                        columnWidths);
+                }
+            }
+        }
+        finally
+        {
+            if (groups != null)
+                ListCache<Capture>.Free(groups);
+
+            if (SpellcheckState != null)
+                SpellcheckState.CurrentPath = null;
+        }
+    }
+
+    private void ExecuteMatchWithContentCore(
+        IEnumerator<ICapture> groups,
+        int count,
+        MaxReason maxReason,
+        FileMatch fileMatch,
+        SearchContext context,
+        ContentWriterOptions writerOptions,
+        string? baseDirectoryPath = null,
+        ColumnWidths? columnWidths = null)
+    {
+        string indent = GetPathIndent(baseDirectoryPath);
+
+        if (!Options.OmitPath)
+        {
+            WritePath(context, fileMatch, baseDirectoryPath, indent, columnWidths, includeNewline: false);
+            _logger.WriteFilePathEnd(count, maxReason, Options.IncludeCount);
+        }
+
+        SearchTelemetry telemetry = context.Telemetry;
+
+        ContentWriter? contentWriter = null;
+        TextWriter? textWriter = null;
+
+        try
+        {
+            int fileMatchCount = 0;
+            int fileReplacementCount = 0;
+
+            if (!Options.DryRun)
+            {
+                if (Options.AskMode == AskMode.File)
+                {
+                    textWriter = new StringWriter();
+                }
+                else if (Options.AskMode != AskMode.Value
+                    && !Options.Interactive)
+                {
+                    textWriter = (CanUseStreamWriter)
+                        ? new StreamWriter(fileMatch.Path, false, fileMatch.Encoding)
+                        : new StringWriter();
+                }
             }
 
-            SearchTelemetry telemetry = context.Telemetry;
-
-            ContentWriter? contentWriter = null;
-            TextWriter? textWriter = null;
-
-            try
+            if (Options.AskMode == AskMode.Value
+                || Options.Interactive
+                || (!Options.OmitContent
+                    && _logger.ShouldWrite(Verbosity.Normal)))
             {
-                int fileMatchCount = 0;
-                int fileReplacementCount = 0;
-
-                if (!Options.DryRun)
-                {
-                    if (Options.AskMode == AskMode.File)
-                    {
-                        textWriter = new StringWriter();
-                    }
-                    else if (Options.AskMode != AskMode.Value
-                        && !Options.Interactive)
-                    {
-                        textWriter = (CanUseStreamWriter)
-                            ? new StreamWriter(fileMatch.Path, false, fileMatch.Encoding)
-                            : new StringWriter();
-                    }
-                }
+                MatchOutputInfo? outputInfo = Options.CreateOutputInfo(
+                    fileMatch.ContentText,
+                    fileMatch.ContentMatch!,
+                    ContentFilter!);
 
                 if (Options.AskMode == AskMode.Value
-                    || Options.Interactive
-                    || (!Options.OmitContent
-                        && _logger.ShouldWrite(Verbosity.Normal)))
+                    || Options.Interactive)
                 {
-                    MatchOutputInfo? outputInfo = Options.CreateOutputInfo(
-                        fileMatch.ContentText,
-                        fileMatch.ContentMatch!,
-                        ContentFilter!);
+                    Lazy<TextWriter>? lazyWriter = null;
 
-                    if (Options.AskMode == AskMode.Value
-                        || Options.Interactive)
+                    if (!Options.DryRun)
                     {
-                        Lazy<TextWriter>? lazyWriter = null;
-
-                        if (!Options.DryRun)
+                        lazyWriter = new Lazy<TextWriter>(() =>
                         {
-                            lazyWriter = new Lazy<TextWriter>(() =>
-                            {
-                                textWriter = new StringWriter();
-                                return textWriter;
-                            });
-                        }
+                            textWriter = new StringWriter();
+                            return textWriter;
+                        });
+                    }
 
-                        contentWriter = AskReplacementWriter.Create(
-                            Options.ContentDisplayStyle,
-                            fileMatch.ContentText,
-                            Options.Replacer,
-                            lazyWriter,
-                            ContentWriter,
-                            writerOptions,
-                            outputInfo,
-                            isInteractive: Options.Interactive,
-                            SpellcheckState);
-                    }
-                    else
-                    {
-                        contentWriter = CreateReplacementWriter(
-                            Options.ContentDisplayStyle,
-                            fileMatch.ContentText,
-                            Options.Replacer,
-                            ContentWriter,
-                            writerOptions,
-                            textWriter,
-                            outputInfo);
-                    }
-                }
-                else if (Options.DryRun
-                    && CanUseEmptyWriter)
-                {
-                    contentWriter = new EmptyContentWriter(ContentWriter, FileWriterOptions);
+                    contentWriter = AskReplacementWriter.Create(
+                        Options.ContentDisplayStyle,
+                        fileMatch.ContentText,
+                        Options.Replacer,
+                        lazyWriter,
+                        ContentWriter,
+                        writerOptions,
+                        outputInfo,
+                        isInteractive: Options.Interactive,
+                        SpellcheckState);
                 }
                 else
                 {
-                    contentWriter = new TextWriterContentWriter(
+                    contentWriter = CreateReplacementWriter(
+                        Options.ContentDisplayStyle,
                         fileMatch.ContentText,
                         Options.Replacer,
                         ContentWriter,
                         writerOptions,
                         textWriter,
-                        SpellcheckState);
+                        outputInfo);
                 }
+            }
+            else if (Options.DryRun
+                && CanUseEmptyWriter)
+            {
+                contentWriter = new EmptyContentWriter(ContentWriter, FileWriterOptions);
+            }
+            else
+            {
+                contentWriter = new TextWriterContentWriter(
+                    fileMatch.ContentText,
+                    Options.Replacer,
+                    ContentWriter,
+                    writerOptions,
+                    textWriter,
+                    SpellcheckState);
+            }
 
-                WriteMatches(contentWriter, groups, context);
+            WriteMatches(contentWriter, groups, context);
 
-                fileMatchCount = contentWriter.MatchCount;
+            fileMatchCount = contentWriter.MatchCount;
 
-                fileReplacementCount = (contentWriter is IReportReplacement reportReplacement)
-                    ? reportReplacement.ReplacementCount
-                    : fileMatchCount;
+            fileReplacementCount = (contentWriter is IReportReplacement reportReplacement)
+                ? reportReplacement.ReplacementCount
+                : fileMatchCount;
 
-                telemetry.MatchCount += fileMatchCount;
+            telemetry.MatchCount += fileMatchCount;
 
-                if (contentWriter.MatchingLineCount >= 0)
+            if (contentWriter.MatchingLineCount >= 0)
+            {
+                if (telemetry.MatchingLineCount == -1)
+                    telemetry.MatchingLineCount = 0;
+
+                telemetry.MatchingLineCount += contentWriter.MatchingLineCount;
+            }
+
+            if (Options.AskMode == AskMode.Value
+                || Options.Interactive)
+            {
+                if (textWriter != null)
                 {
-                    if (telemetry.MatchingLineCount == -1)
-                        telemetry.MatchingLineCount = 0;
+                    File.WriteAllText(fileMatch.Path, textWriter.ToString(), fileMatch.Encoding);
 
-                    telemetry.MatchingLineCount += contentWriter.MatchingLineCount;
-                }
-
-                if (Options.AskMode == AskMode.Value
-                    || Options.Interactive)
-                {
-                    if (textWriter != null)
+                    if (Options.AskMode == AskMode.Value
+                        && ((AskReplacementWriter)contentWriter).ContinueWithoutAsking)
                     {
-                        File.WriteAllText(fileMatch.Path, textWriter.ToString(), fileMatch.Encoding);
-
-                        if (Options.AskMode == AskMode.Value
-                            && ((AskReplacementWriter)contentWriter).ContinueWithoutAsking)
-                        {
-                            Options.AskMode = AskMode.None;
-                        }
+                        Options.AskMode = AskMode.None;
                     }
                 }
-                else if (Options.AskMode == AskMode.File)
+            }
+            else if (Options.AskMode == AskMode.File)
+            {
+                if (context.TerminationReason == TerminationReason.Canceled)
                 {
-                    if (context.TerminationReason == TerminationReason.Canceled)
+                    fileReplacementCount = 0;
+                }
+                else
+                {
+                    try
                     {
-                        fileReplacementCount = 0;
-                    }
-                    else
-                    {
-                        try
+                        if (Options.DryRun)
                         {
-                            if (Options.DryRun)
-                            {
-                                if (ConsoleHelpers.AskToContinue(indent) == DialogResult.YesToAll)
-                                    Options.AskMode = AskMode.None;
-                            }
-                            else if (fileReplacementCount > 0
-                                && ConsoleHelpers.AskToExecute("Replace content?", indent))
-                            {
-                                File.WriteAllText(fileMatch.Path, textWriter!.ToString(), fileMatch.Encoding);
-                            }
-                            else
-                            {
-                                fileReplacementCount = 0;
-                            }
+                            if (ConsoleHelpers.AskToContinue(indent) == DialogResult.YesToAll)
+                                Options.AskMode = AskMode.None;
                         }
-                        catch (OperationCanceledException)
+                        else if (fileReplacementCount > 0
+                            && ConsoleHelpers.AskToExecute("Replace content?", indent))
                         {
-                            context.TerminationReason = TerminationReason.Canceled;
+                            File.WriteAllText(fileMatch.Path, textWriter!.ToString(), fileMatch.Encoding);
+                        }
+                        else
+                        {
                             fileReplacementCount = 0;
                         }
                     }
+                    catch (OperationCanceledException)
+                    {
+                        context.TerminationReason = TerminationReason.Canceled;
+                        fileReplacementCount = 0;
+                    }
                 }
-                else if (fileReplacementCount > 0
-                    && textWriter is StringWriter)
-                {
-                    File.WriteAllText(fileMatch.Path, textWriter.ToString(), fileMatch.Encoding);
-                }
-
-                telemetry.ProcessedMatchCount += fileReplacementCount;
-
-                if (fileReplacementCount > 0)
-                    telemetry.ProcessedFileCount++;
             }
-            catch (Exception ex) when (ex is IOException
-                || ex is UnauthorizedAccessException)
+            else if (fileReplacementCount > 0
+                && textWriter is StringWriter)
             {
-                _logger.WriteFileError(ex, indent: indent);
+                File.WriteAllText(fileMatch.Path, textWriter.ToString(), fileMatch.Encoding);
             }
-            finally
-            {
-                contentWriter?.Dispose();
-            }
+
+            telemetry.ProcessedMatchCount += fileReplacementCount;
+
+            if (fileReplacementCount > 0)
+                telemetry.ProcessedFileCount++;
         }
-
-        protected override void WriteSummary(SearchTelemetry telemetry, Verbosity verbosity)
+        catch (Exception ex) when (ex is IOException
+            || ex is UnauthorizedAccessException)
         {
-            _logger.WriteSearchedFilesAndDirectories(telemetry, Options.SearchTarget, verbosity);
+            _logger.WriteFileError(ex, indent: indent);
+        }
+        finally
+        {
+            contentWriter?.Dispose();
+        }
+    }
 
-            if (!_logger.ShouldWrite(verbosity))
-                return;
+    protected override void WriteSummary(SearchTelemetry telemetry, Verbosity verbosity)
+    {
+        _logger.WriteSearchedFilesAndDirectories(telemetry, Options.SearchTarget, verbosity);
 
-            _logger.WriteLine(verbosity);
+        if (!_logger.ShouldWrite(verbosity))
+            return;
 
-            string matchCount = telemetry.MatchCount.ToString("n0");
-            string matchingFileCount = telemetry.MatchingFileCount.ToString("n0");
-            string processedMatchCount = telemetry.ProcessedMatchCount.ToString("n0");
-            string processedFileCount = telemetry.ProcessedFileCount.ToString("n0");
+        _logger.WriteLine(verbosity);
 
-            const string matchesTitle = "Matches";
-            const string matchingFilesTitle = "Matching files";
-            const string replacementsTitle = "Replacements";
-            const string replacedFilesTitle = "Replaced files";
+        string matchCount = telemetry.MatchCount.ToString("n0");
+        string matchingFileCount = telemetry.MatchingFileCount.ToString("n0");
+        string processedMatchCount = telemetry.ProcessedMatchCount.ToString("n0");
+        string processedFileCount = telemetry.ProcessedFileCount.ToString("n0");
 
-            int width1 = Math.Max(matchesTitle.Length, replacementsTitle.Length);
-            int width2 = Math.Max(matchCount.Length, processedMatchCount.Length);
-            int width3 = Math.Max(matchingFilesTitle.Length, replacedFilesTitle.Length);
-            int width4 = Math.Max(matchingFileCount.Length, processedFileCount.Length);
+        const string matchesTitle = "Matches";
+        const string matchingFilesTitle = "Matching files";
+        const string replacementsTitle = "Replacements";
+        const string replacedFilesTitle = "Replaced files";
 
-            ConsoleColors colors = Colors.Message_OK;
+        int width1 = Math.Max(matchesTitle.Length, replacementsTitle.Length);
+        int width2 = Math.Max(matchCount.Length, processedMatchCount.Length);
+        int width3 = Math.Max(matchingFilesTitle.Length, replacedFilesTitle.Length);
+        int width4 = Math.Max(matchingFileCount.Length, processedFileCount.Length);
 
-            _logger.WriteCount(matchesTitle, matchCount, width1, width2, colors, verbosity);
+        ConsoleColors colors = Colors.Message_OK;
+
+        _logger.WriteCount(matchesTitle, matchCount, width1, width2, colors, verbosity);
+        _logger.Write("  ", colors, verbosity);
+
+        int matchingLinesWidth = 0;
+        if (telemetry.MatchingLineCount >= 0)
+        {
+            matchingLinesWidth += _logger.WriteCount("Matching lines", telemetry.MatchingLineCount, colors, verbosity);
             _logger.Write("  ", colors, verbosity);
-
-            int matchingLinesWidth = 0;
-            if (telemetry.MatchingLineCount >= 0)
-            {
-                matchingLinesWidth += _logger.WriteCount("Matching lines", telemetry.MatchingLineCount, colors, verbosity);
-                _logger.Write("  ", colors, verbosity);
-                matchingLinesWidth += 2;
-            }
-
-            _logger.WriteCount(matchingFilesTitle, matchingFileCount, width3, width4, colors, verbosity);
-            _logger.WriteLine(verbosity);
-
-            colors = (Options.DryRun) ? Colors.Message_DryRun : Colors.Message_Change;
-
-            _logger.WriteCount(replacementsTitle, processedMatchCount, width1, width2, colors, verbosity);
-            _logger.Write("  ", colors, verbosity);
-            _logger.Write(' ', matchingLinesWidth, colors, verbosity);
-            _logger.WriteCount(replacedFilesTitle, processedFileCount, width3, width4, colors, verbosity);
-
-            _logger.WriteLine(verbosity);
+            matchingLinesWidth += 2;
         }
 
-        protected override ContentWriterOptions CreateContentWriterOptions(string indent)
+        _logger.WriteCount(matchingFilesTitle, matchingFileCount, width3, width4, colors, verbosity);
+        _logger.WriteLine(verbosity);
+
+        colors = (Options.DryRun) ? Colors.Message_DryRun : Colors.Message_Change;
+
+        _logger.WriteCount(replacementsTitle, processedMatchCount, width1, width2, colors, verbosity);
+        _logger.Write("  ", colors, verbosity);
+        _logger.Write(' ', matchingLinesWidth, colors, verbosity);
+        _logger.WriteCount(replacedFilesTitle, processedFileCount, width3, width4, colors, verbosity);
+
+        _logger.WriteLine(verbosity);
+    }
+
+    protected override ContentWriterOptions CreateContentWriterOptions(string indent)
+    {
+        return new ContentWriterOptions(
+            format: Options.Format,
+            symbols: Symbols,
+            highlightOptions: Options.HighlightOptions,
+            indent: indent);
+    }
+
+    private void WriteMatches(ContentWriter writer, IEnumerator<ICapture> en, SearchContext context)
+    {
+        try
         {
-            return new ContentWriterOptions(
-                format: Options.Format,
-                symbols: Symbols,
-                highlightOptions: Options.HighlightOptions,
-                indent: indent);
+            writer.WriteMatches(en, context.CancellationToken);
         }
-
-        private void WriteMatches(ContentWriter writer, IEnumerator<ICapture> en, SearchContext context)
+        catch (OperationCanceledException)
         {
-            try
-            {
-                writer.WriteMatches(en, context.CancellationToken);
-            }
-            catch (OperationCanceledException)
-            {
-                context.TerminationReason = TerminationReason.Canceled;
-            }
+            context.TerminationReason = TerminationReason.Canceled;
         }
+    }
 
-        protected virtual List<ICapture>? GetCaptures(
-            List<Capture> groups,
-            CancellationToken cancellationToken)
-        {
-            return null;
-        }
+    protected virtual List<ICapture>? GetCaptures(
+        List<Capture> groups,
+        CancellationToken cancellationToken)
+    {
+        return null;
+    }
 
-        private ContentWriter CreateReplacementWriter(
-            ContentDisplayStyle contentDisplayStyle,
-            string input,
-            IReplacer replacer,
-            ContentTextWriter writer,
-            ContentWriterOptions options,
-            TextWriter? textWriter = null,
-            MatchOutputInfo? outputInfo = null)
-        {
-            return CommandLine.ContentWriter.CreateReplace(
-                contentDisplayStyle,
-                input,
-                replacer,
-                writer,
-                options,
-                textWriter,
-                outputInfo,
-                SpellcheckState);
-        }
+    private ContentWriter CreateReplacementWriter(
+        ContentDisplayStyle contentDisplayStyle,
+        string input,
+        IReplacer replacer,
+        ContentTextWriter writer,
+        ContentWriterOptions options,
+        TextWriter? textWriter = null,
+        MatchOutputInfo? outputInfo = null)
+    {
+        return CommandLine.ContentWriter.CreateReplace(
+            contentDisplayStyle,
+            input,
+            replacer,
+            writer,
+            options,
+            textWriter,
+            outputInfo,
+            SpellcheckState);
     }
 }

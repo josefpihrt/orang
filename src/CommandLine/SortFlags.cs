@@ -2,18 +2,17 @@
 
 using System;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+[Flags]
+internal enum SortFlags
 {
-    [Flags]
-    internal enum SortFlags
-    {
-        None = 0,
-        Ascending = 1,
-        Descending = 1 << 1,
-        Name = 1 << 2,
-        CreationTime = 1 << 3,
-        ModifiedTime = 1 << 4,
-        Size = 1 << 5,
-        CultureInvariant = 1 << 6,
-    }
+    None = 0,
+    Ascending = 1,
+    Descending = 1 << 1,
+    Name = 1 << 2,
+    CreationTime = 1 << 3,
+    ModifiedTime = 1 << 4,
+    Size = 1 << 5,
+    CultureInvariant = 1 << 6,
 }

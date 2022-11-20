@@ -2,24 +2,23 @@
 
 using System;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+internal abstract class RegexCommandOptions : CommonRegexCommandOptions
 {
-    internal abstract class RegexCommandOptions : CommonRegexCommandOptions
+    internal RegexCommandOptions()
     {
-        internal RegexCommandOptions()
-        {
-        }
-
-        public Filter Filter { get; internal set; } = null!;
-
-        public string Input { get; internal set; } = null!;
-
-        public int MaxCount { get; internal set; }
-
-        public ModifyOptions ModifyOptions { get; internal set; } = null!;
-
-        public ContentDisplayStyle ContentDisplayStyle => Format.ContentDisplayStyle;
-
-        public string Separator => Format.Separator ?? Environment.NewLine;
     }
+
+    public Filter Filter { get; internal set; } = null!;
+
+    public string Input { get; internal set; } = null!;
+
+    public int MaxCount { get; internal set; }
+
+    public ModifyOptions ModifyOptions { get; internal set; } = null!;
+
+    public ContentDisplayStyle ContentDisplayStyle => Format.ContentDisplayStyle;
+
+    public string Separator => Format.Separator ?? Environment.NewLine;
 }

@@ -3,18 +3,17 @@
 using System;
 using Orang.Expressions;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+internal class FilterPredicate<T>
 {
-    internal class FilterPredicate<T>
+    public FilterPredicate(Expression expression, Func<T, bool> predicate)
     {
-        public FilterPredicate(Expression expression, Func<T, bool> predicate)
-        {
-            Expression = expression;
-            Predicate = predicate;
-        }
-
-        public Expression Expression { get; }
-
-        public Func<T, bool> Predicate { get; }
+        Expression = expression;
+        Predicate = predicate;
     }
+
+    public Expression Expression { get; }
+
+    public Func<T, bool> Predicate { get; }
 }

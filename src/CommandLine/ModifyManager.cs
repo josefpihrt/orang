@@ -3,57 +3,56 @@
 using System.Collections.Generic;
 using Orang.Aggregation;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+internal class ModifyManager
 {
-    internal class ModifyManager
+    private OutputSymbols? _symbols;
+
+    public ModifyManager(FindCommandOptions options)
     {
-        private OutputSymbols? _symbols;
+        Options = options;
+    }
 
-        public ModifyManager(FindCommandOptions options)
+    public FindCommandOptions Options { get; }
+
+    public List<string>? FileValues { get; private set; }
+
+    internal IResultStorage? FileStorage { get; private set; }
+
+    internal OutputSymbols Symbols
+    {
+        get
         {
-            Options = options;
-        }
-
-        public FindCommandOptions Options { get; }
-
-        public List<string>? FileValues { get; private set; }
-
-        internal IResultStorage? FileStorage { get; private set; }
-
-        internal OutputSymbols Symbols
-        {
-            get
+            if (_symbols == null)
             {
-                if (_symbols == null)
+                HighlightOptions highlightOptions = Options.HighlightOptions;
+
+                if (Options.ContentDisplayStyle != ContentDisplayStyle.Value
+                    && Options.ContentDisplayStyle != ContentDisplayStyle.ValueDetail)
                 {
-                    HighlightOptions highlightOptions = Options.HighlightOptions;
-
-                    if (Options.ContentDisplayStyle != ContentDisplayStyle.Value
-                        && Options.ContentDisplayStyle != ContentDisplayStyle.ValueDetail)
-                    {
-                        highlightOptions &= ~HighlightOptions.Boundary;
-                    }
-
-                    _symbols = OutputSymbols.Create(highlightOptions);
+                    highlightOptions &= ~HighlightOptions.Boundary;
                 }
 
-                return _symbols;
+                _symbols = OutputSymbols.Create(highlightOptions);
             }
-        }
 
-        public void Reset()
+            return _symbols;
+        }
+    }
+
+    public void Reset()
+    {
+        if (FileValues == null)
         {
-            if (FileValues == null)
-            {
-                FileValues = new List<string>();
-            }
-            else
-            {
-                FileValues.Clear();
-            }
-
-            if (FileStorage == null)
-                FileStorage = new ListResultStorage(FileValues);
+            FileValues = new List<string>();
         }
+        else
+        {
+            FileValues.Clear();
+        }
+
+        if (FileStorage == null)
+            FileStorage = new ListResultStorage(FileValues);
     }
 }

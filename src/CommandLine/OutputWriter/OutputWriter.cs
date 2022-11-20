@@ -6,402 +6,401 @@ using System.Linq;
 using System.Threading;
 using Orang.Text.RegularExpressions;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+internal class OutputWriter
 {
-    internal class OutputWriter
+    private readonly Logger _logger;
+
+    public OutputWriter(HighlightOptions highlightOptions, Logger logger)
     {
-        private readonly Logger _logger;
+        HighlightOptions = highlightOptions;
+        _logger = logger;
+    }
 
-        public OutputWriter(HighlightOptions highlightOptions, Logger logger)
+    public HighlightOptions HighlightOptions { get; }
+
+    public bool HighlightSplit => (HighlightOptions & HighlightOptions.Split) != 0;
+
+    public bool HighlightBoundary => (HighlightOptions & HighlightOptions.Boundary) != 0;
+
+    public int WriteMatches(
+        MatchData matchData,
+        RegexMatchCommandOptions options,
+        in CancellationToken cancellationToken = default)
+    {
+        string input = options.Input;
+
+        MatchItemCollection matchItems = matchData.Items;
+
+        if (matchItems.Count == 0)
+            return default;
+
+        int groupNumber = options.Filter.GroupNumber;
+
+        OutputSymbols symbols = OutputSymbols.Create(HighlightOptions);
+
+        if (options.ContentDisplayStyle == ContentDisplayStyle.Value
+            || options.ContentDisplayStyle == ContentDisplayStyle.ValueDetail)
         {
-            HighlightOptions = highlightOptions;
-            _logger = logger;
+            bool addDetails = options.ContentDisplayStyle == ContentDisplayStyle.ValueDetail;
+            MatchOutputInfo? outputInfo = null;
+            string? indent = null;
+
+            if (addDetails)
+            {
+                outputInfo = MatchOutputInfo.Create(matchData, groupNumber);
+                indent = new string(' ', outputInfo.Width);
+            }
+
+            int count = 0;
+
+            if (options.ModifyOptions.HasAnyFunction)
+            {
+                using (IEnumerator<string> en = matchItems
+                    .SelectMany(f => f.GroupItems)
+                    .Where(f => groupNumber < 0 || groupNumber == f.Number)
+                    .OrderBy(f => f.Index)
+                    .ThenBy(f => f.Number)
+                    .SelectMany(f => f.CaptureItems)
+                    .Select(f => f.Value)
+                    .Where(f => options.Filter.Predicate?.Invoke(f) != false)
+                    .Modify(options.ModifyOptions)
+                    .GetEnumerator())
+                {
+                    if (en.MoveNext())
+                    {
+                        var valueWriter = new OutputValueWriter(indent, HighlightOptions, _logger);
+
+                        while (true)
+                        {
+                            cancellationToken.ThrowIfCancellationRequested();
+
+                            valueWriter.WriteMatch(
+                                en.Current,
+                                symbols,
+                                highlightMatch: (HighlightOptions & HighlightOptions.Match) != 0);
+
+                            count++;
+
+                            if (en.MoveNext())
+                            {
+                                Write(options.Separator);
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return count;
+            }
+            else
+            {
+                var valueWriter = new OutputValueWriter(indent, HighlightOptions, _logger);
+                var addSeparator = false;
+                int captureCount = 0;
+
+                for (int i = 0; i < matchItems.Count; i++)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+
+                    MatchItem matchItem = matchItems[i];
+                    var omitMatchInfo = false;
+
+                    foreach (GroupItem groupItem in matchItem.GroupItems
+                        .Where(f => groupNumber < 0 || groupNumber == f.Number)
+                        .OrderBy(f => f.Index)
+                        .ThenBy(f => f.Number))
+                    {
+                        var omitGroupInfo = false;
+
+                        for (int j = 0; j < groupItem.CaptureItems.Count; j++)
+                        {
+                            CaptureItem captureItem = groupItem.CaptureItems[j];
+
+                            if (options.Filter.Predicate?.Invoke(captureItem.Value) == false)
+                                continue;
+
+                            if (addSeparator)
+                                Write((addDetails) ? Environment.NewLine : options.Separator);
+
+                            if (addDetails)
+                            {
+                                Write(outputInfo!.GetText(
+                                    captureItem,
+                                    i + 1,
+                                    j + 1,
+                                    omitMatchInfo,
+                                    omitGroupInfo));
+                            }
+
+                            valueWriter.WriteMatch(
+                                captureItem.Value,
+                                symbols,
+                                highlightMatch: (HighlightOptions & HighlightOptions.Match) != 0);
+
+                            omitMatchInfo = true;
+                            omitGroupInfo = true;
+                            addSeparator = true;
+                            captureCount++;
+                        }
+                    }
+                }
+
+                return captureCount;
+            }
         }
-
-        public HighlightOptions HighlightOptions { get; }
-
-        public bool HighlightSplit => (HighlightOptions & HighlightOptions.Split) != 0;
-
-        public bool HighlightBoundary => (HighlightOptions & HighlightOptions.Boundary) != 0;
-
-        public int WriteMatches(
-            MatchData matchData,
-            RegexMatchCommandOptions options,
-            in CancellationToken cancellationToken = default)
+        else if (options.ContentDisplayStyle == ContentDisplayStyle.AllLines)
         {
-            string input = options.Input;
+            bool addDetails = options.ContentDisplayStyle == ContentDisplayStyle.ValueDetail;
 
-            MatchItemCollection matchItems = matchData.Items;
+            MatchOutputInfo? outputInfo = (addDetails) ? MatchOutputInfo.Create(matchData, groupNumber) : null;
 
-            if (matchItems.Count == 0)
-                return default;
+            var valueWriter = new OutputValueWriter(null, HighlightOptions, _logger);
 
-            int groupNumber = options.Filter.GroupNumber;
+            int captureCount = 0;
+            int lastPos = 0;
 
-            OutputSymbols symbols = OutputSymbols.Create(HighlightOptions);
+            foreach (MatchItem matchItem in matchData.Items)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
 
-            if (options.ContentDisplayStyle == ContentDisplayStyle.Value
-                || options.ContentDisplayStyle == ContentDisplayStyle.ValueDetail)
+                if (options.Filter.Predicate?.Invoke(matchItem.Value) == false)
+                    continue;
+
+                valueWriter.Write(input, lastPos, matchItem.Index - lastPos, symbols: null);
+
+                valueWriter.WriteMatch(
+                    matchItem.Value,
+                    symbols,
+                    highlightMatch: (HighlightOptions & HighlightOptions.DefaultOrMatch) != 0);
+
+                captureCount += matchItem.GroupItems
+                    .Where(f => groupNumber < 0 || groupNumber == f.Number)
+                    .Sum(f => f.CaptureItems.Count);
+
+                lastPos = matchItem.EndIndex;
+            }
+
+            valueWriter.Write(input, lastPos, input.Length - lastPos, symbols: null);
+
+            return captureCount;
+        }
+        else
+        {
+            throw new InvalidOperationException();
+        }
+    }
+
+    public int WriteSplits(
+        SplitData splitData,
+        RegexSplitCommandOptions options,
+        in CancellationToken cancellationToken = default)
+    {
+        OutputSymbols symbols = OutputSymbols.Create(HighlightOptions);
+        ConsoleColors splitColors = (HighlightSplit) ? Colors.Split : default;
+        ConsoleColors boundaryColors = (HighlightBoundary) ? Colors.SplitBoundary : default;
+
+        if (options.ContentDisplayStyle == ContentDisplayStyle.Value
+            || options.ContentDisplayStyle == ContentDisplayStyle.ValueDetail)
+        {
+            if (options.ModifyOptions.HasAnyFunction)
+            {
+                int count = 0;
+
+                using (IEnumerator<string> en = splitData.Items
+                    .Select(f => f.Value)
+                    .Modify(options.ModifyOptions)
+                    .GetEnumerator())
+                {
+                    if (en.MoveNext())
+                    {
+                        var valueWriter = new OutputValueWriter(null, HighlightOptions, _logger);
+
+                        while (true)
+                        {
+                            cancellationToken.ThrowIfCancellationRequested();
+
+                            bool success = options.Filter.Predicate?.Invoke(en.Current) != false;
+
+                            if (success)
+                            {
+                                valueWriter.WriteSplit(en.Current, symbols, splitColors, boundaryColors);
+
+                                count++;
+                            }
+
+                            if (en.MoveNext())
+                            {
+                                if (success)
+                                    Write(options.Separator);
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                return count;
+            }
+            else
             {
                 bool addDetails = options.ContentDisplayStyle == ContentDisplayStyle.ValueDetail;
-                MatchOutputInfo? outputInfo = null;
+                SplitOutputInfo? outputInfo = null;
                 string? indent = null;
 
                 if (addDetails)
                 {
-                    outputInfo = MatchOutputInfo.Create(matchData, groupNumber);
+                    outputInfo = SplitOutputInfo.Create(splitData);
                     indent = new string(' ', outputInfo.Width);
                 }
 
-                int count = 0;
-
-                if (options.ModifyOptions.HasAnyFunction)
+                using (IEnumerator<SplitItem> en = splitData.Items.GetEnumerator())
                 {
-                    using (IEnumerator<string> en = matchItems
-                        .SelectMany(f => f.GroupItems)
-                        .Where(f => groupNumber < 0 || groupNumber == f.Number)
-                        .OrderBy(f => f.Index)
-                        .ThenBy(f => f.Number)
-                        .SelectMany(f => f.CaptureItems)
-                        .Select(f => f.Value)
-                        .Where(f => options.Filter.Predicate?.Invoke(f) != false)
-                        .Modify(options.ModifyOptions)
-                        .GetEnumerator())
+                    if (en.MoveNext())
                     {
-                        if (en.MoveNext())
+                        var valueWriter = new OutputValueWriter(indent, HighlightOptions, _logger);
+
+                        while (true)
                         {
-                            var valueWriter = new OutputValueWriter(indent, HighlightOptions, _logger);
+                            cancellationToken.ThrowIfCancellationRequested();
 
-                            while (true)
+                            SplitItem item = en.Current;
+
+                            bool success = options.Filter.Predicate?.Invoke(item.Value) != false;
+
+                            if (success)
                             {
-                                cancellationToken.ThrowIfCancellationRequested();
-
-                                valueWriter.WriteMatch(
-                                    en.Current,
-                                    symbols,
-                                    highlightMatch: (HighlightOptions & HighlightOptions.Match) != 0);
-
-                                count++;
-
-                                if (en.MoveNext())
-                                {
-                                    Write(options.Separator);
-                                }
-                                else
-                                {
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    return count;
-                }
-                else
-                {
-                    var valueWriter = new OutputValueWriter(indent, HighlightOptions, _logger);
-                    var addSeparator = false;
-                    int captureCount = 0;
-
-                    for (int i = 0; i < matchItems.Count; i++)
-                    {
-                        cancellationToken.ThrowIfCancellationRequested();
-
-                        MatchItem matchItem = matchItems[i];
-                        var omitMatchInfo = false;
-
-                        foreach (GroupItem groupItem in matchItem.GroupItems
-                            .Where(f => groupNumber < 0 || groupNumber == f.Number)
-                            .OrderBy(f => f.Index)
-                            .ThenBy(f => f.Number))
-                        {
-                            var omitGroupInfo = false;
-
-                            for (int j = 0; j < groupItem.CaptureItems.Count; j++)
-                            {
-                                CaptureItem captureItem = groupItem.CaptureItems[j];
-
-                                if (options.Filter.Predicate?.Invoke(captureItem.Value) == false)
-                                    continue;
-
-                                if (addSeparator)
-                                    Write((addDetails) ? Environment.NewLine : options.Separator);
-
                                 if (addDetails)
-                                {
-                                    Write(outputInfo!.GetText(
-                                        captureItem,
-                                        i + 1,
-                                        j + 1,
-                                        omitMatchInfo,
-                                        omitGroupInfo));
-                                }
+                                    Write(outputInfo!.GetText(item));
 
-                                valueWriter.WriteMatch(
-                                    captureItem.Value,
-                                    symbols,
-                                    highlightMatch: (HighlightOptions & HighlightOptions.Match) != 0);
-
-                                omitMatchInfo = true;
-                                omitGroupInfo = true;
-                                addSeparator = true;
-                                captureCount++;
+                                valueWriter.WriteSplit(item.Value, symbols, splitColors, boundaryColors);
                             }
-                        }
-                    }
 
-                    return captureCount;
-                }
-            }
-            else if (options.ContentDisplayStyle == ContentDisplayStyle.AllLines)
-            {
-                bool addDetails = options.ContentDisplayStyle == ContentDisplayStyle.ValueDetail;
-
-                MatchOutputInfo? outputInfo = (addDetails) ? MatchOutputInfo.Create(matchData, groupNumber) : null;
-
-                var valueWriter = new OutputValueWriter(null, HighlightOptions, _logger);
-
-                int captureCount = 0;
-                int lastPos = 0;
-
-                foreach (MatchItem matchItem in matchData.Items)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    if (options.Filter.Predicate?.Invoke(matchItem.Value) == false)
-                        continue;
-
-                    valueWriter.Write(input, lastPos, matchItem.Index - lastPos, symbols: null);
-
-                    valueWriter.WriteMatch(
-                        matchItem.Value,
-                        symbols,
-                        highlightMatch: (HighlightOptions & HighlightOptions.DefaultOrMatch) != 0);
-
-                    captureCount += matchItem.GroupItems
-                        .Where(f => groupNumber < 0 || groupNumber == f.Number)
-                        .Sum(f => f.CaptureItems.Count);
-
-                    lastPos = matchItem.EndIndex;
-                }
-
-                valueWriter.Write(input, lastPos, input.Length - lastPos, symbols: null);
-
-                return captureCount;
-            }
-            else
-            {
-                throw new InvalidOperationException();
-            }
-        }
-
-        public int WriteSplits(
-            SplitData splitData,
-            RegexSplitCommandOptions options,
-            in CancellationToken cancellationToken = default)
-        {
-            OutputSymbols symbols = OutputSymbols.Create(HighlightOptions);
-            ConsoleColors splitColors = (HighlightSplit) ? Colors.Split : default;
-            ConsoleColors boundaryColors = (HighlightBoundary) ? Colors.SplitBoundary : default;
-
-            if (options.ContentDisplayStyle == ContentDisplayStyle.Value
-                || options.ContentDisplayStyle == ContentDisplayStyle.ValueDetail)
-            {
-                if (options.ModifyOptions.HasAnyFunction)
-                {
-                    int count = 0;
-
-                    using (IEnumerator<string> en = splitData.Items
-                        .Select(f => f.Value)
-                        .Modify(options.ModifyOptions)
-                        .GetEnumerator())
-                    {
-                        if (en.MoveNext())
-                        {
-                            var valueWriter = new OutputValueWriter(null, HighlightOptions, _logger);
-
-                            while (true)
+                            if (en.MoveNext())
                             {
-                                cancellationToken.ThrowIfCancellationRequested();
-
-                                bool success = options.Filter.Predicate?.Invoke(en.Current) != false;
-
                                 if (success)
-                                {
-                                    valueWriter.WriteSplit(en.Current, symbols, splitColors, boundaryColors);
-
-                                    count++;
-                                }
-
-                                if (en.MoveNext())
-                                {
-                                    if (success)
-                                        Write(options.Separator);
-                                }
-                                else
-                                {
-                                    break;
-                                }
+                                    Write((addDetails) ? Environment.NewLine : options.Separator);
                             }
-                        }
-                    }
-
-                    return count;
-                }
-                else
-                {
-                    bool addDetails = options.ContentDisplayStyle == ContentDisplayStyle.ValueDetail;
-                    SplitOutputInfo? outputInfo = null;
-                    string? indent = null;
-
-                    if (addDetails)
-                    {
-                        outputInfo = SplitOutputInfo.Create(splitData);
-                        indent = new string(' ', outputInfo.Width);
-                    }
-
-                    using (IEnumerator<SplitItem> en = splitData.Items.GetEnumerator())
-                    {
-                        if (en.MoveNext())
-                        {
-                            var valueWriter = new OutputValueWriter(indent, HighlightOptions, _logger);
-
-                            while (true)
+                            else
                             {
-                                cancellationToken.ThrowIfCancellationRequested();
-
-                                SplitItem item = en.Current;
-
-                                bool success = options.Filter.Predicate?.Invoke(item.Value) != false;
-
-                                if (success)
-                                {
-                                    if (addDetails)
-                                        Write(outputInfo!.GetText(item));
-
-                                    valueWriter.WriteSplit(item.Value, symbols, splitColors, boundaryColors);
-                                }
-
-                                if (en.MoveNext())
-                                {
-                                    if (success)
-                                        Write((addDetails) ? Environment.NewLine : options.Separator);
-                                }
-                                else
-                                {
-                                    break;
-                                }
+                                break;
                             }
                         }
                     }
                 }
             }
-            else if (options.ContentDisplayStyle == ContentDisplayStyle.AllLines)
+        }
+        else if (options.ContentDisplayStyle == ContentDisplayStyle.AllLines)
+        {
+            var valueWriter = new OutputValueWriter(null, HighlightOptions, _logger);
+
+            string input = splitData.Input;
+
+            int lastPos = 0;
+
+            foreach (SplitItem item in splitData.Items)
             {
-                var valueWriter = new OutputValueWriter(null, HighlightOptions, _logger);
+                cancellationToken.ThrowIfCancellationRequested();
 
-                string input = splitData.Input;
+                if (options.Filter.Predicate?.Invoke(item.Value) == false)
+                    continue;
 
-                int lastPos = 0;
+                valueWriter.Write(input, lastPos, item.Index - lastPos, symbols: null);
 
-                foreach (SplitItem item in splitData.Items)
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
+                valueWriter.WriteSplit(item.Value, symbols, splitColors, boundaryColors);
 
-                    if (options.Filter.Predicate?.Invoke(item.Value) == false)
-                        continue;
-
-                    valueWriter.Write(input, lastPos, item.Index - lastPos, symbols: null);
-
-                    valueWriter.WriteSplit(item.Value, symbols, splitColors, boundaryColors);
-
-                    lastPos = item.Index + item.Length;
-                }
-
-                valueWriter.Write(input, lastPos, input.Length - lastPos, symbols: null);
-            }
-            else
-            {
-                throw new InvalidOperationException();
+                lastPos = item.Index + item.Length;
             }
 
-            return splitData.Count;
+            valueWriter.Write(input, lastPos, input.Length - lastPos, symbols: null);
+        }
+        else
+        {
+            throw new InvalidOperationException();
         }
 
-        private void Write(string value)
+        return splitData.Count;
+    }
+
+    private void Write(string value)
+    {
+        _logger.Write(value);
+    }
+
+    private class OutputValueWriter : ValueWriter
+    {
+        public OutputValueWriter(
+            string? indent,
+            HighlightOptions highlightOptions,
+            Logger logger) : base(
+                new ContentTextWriter(logger, Verbosity.Minimal),
+                indent,
+                includeEndingIndent: false)
         {
-            _logger.Write(value);
+            HighlightOptions = highlightOptions;
         }
 
-        private class OutputValueWriter : ValueWriter
+        public HighlightOptions HighlightOptions { get; }
+
+        public void WriteMatch(string value, OutputSymbols symbols)
         {
-            public OutputValueWriter(
-                string? indent,
-                HighlightOptions highlightOptions,
-                Logger logger) : base(
-                    new ContentTextWriter(logger, Verbosity.Minimal),
-                    indent,
-                    includeEndingIndent: false)
+            WriteMatch(value, symbols, (HighlightOptions & HighlightOptions.Match) != 0);
+        }
+
+        public void WriteMatch(string value, OutputSymbols symbols, bool highlightMatch)
+        {
+            if (value.Length > 0)
             {
-                HighlightOptions = highlightOptions;
+                Write(
+                    value,
+                    symbols,
+                    colors: (highlightMatch) ? Colors.Match : default,
+                    boundaryColors: ((HighlightOptions & HighlightOptions.Boundary) != 0)
+                        ? Colors.MatchBoundary
+                        : default);
             }
-
-            public HighlightOptions HighlightOptions { get; }
-
-            public void WriteMatch(string value, OutputSymbols symbols)
+            else if ((HighlightOptions & HighlightOptions.EmptyMatch) != 0)
             {
-                WriteMatch(value, symbols, (HighlightOptions & HighlightOptions.Match) != 0);
+                Write("|", Colors.EmptyMatch);
             }
+        }
 
-            public void WriteMatch(string value, OutputSymbols symbols, bool highlightMatch)
+        public void WriteSplit(
+            string value,
+            OutputSymbols symbols,
+            in ConsoleColors colors,
+            in ConsoleColors boundaryColors)
+        {
+            if (value.Length > 0)
             {
-                if (value.Length > 0)
-                {
-                    Write(
-                        value,
-                        symbols,
-                        colors: (highlightMatch) ? Colors.Match : default,
-                        boundaryColors: ((HighlightOptions & HighlightOptions.Boundary) != 0)
-                            ? Colors.MatchBoundary
-                            : default);
-                }
-                else if ((HighlightOptions & HighlightOptions.EmptyMatch) != 0)
-                {
-                    Write("|", Colors.EmptyMatch);
-                }
+                Write(
+                    value,
+                    symbols,
+                    colors: colors,
+                    boundaryColors: boundaryColors);
             }
-
-            public void WriteSplit(
-                string value,
-                OutputSymbols symbols,
-                in ConsoleColors colors,
-                in ConsoleColors boundaryColors)
+            else if ((HighlightOptions & HighlightOptions.EmptySplit) != 0)
             {
-                if (value.Length > 0)
-                {
-                    Write(
-                        value,
-                        symbols,
-                        colors: colors,
-                        boundaryColors: boundaryColors);
-                }
-                else if ((HighlightOptions & HighlightOptions.EmptySplit) != 0)
-                {
-                    Write("|", Colors.EmptySplit);
-                }
+                Write("|", Colors.EmptySplit);
             }
+        }
 
-            protected override void WriteEndOfLine(string value, int index, int endIndex, OutputSymbols symbols)
+        protected override void WriteEndOfLine(string value, int index, int endIndex, OutputSymbols symbols)
+        {
+            if (index < endIndex)
             {
-                if (index < endIndex)
-                {
-                    WriteNewLine(value, index);
-                    Write(Indent);
-                }
-                else if (symbols.Linefeed == null)
-                {
-                    WriteNewLine(value, index);
-                }
+                WriteNewLine(value, index);
+                Write(Indent);
+            }
+            else if (symbols.Linefeed == null)
+            {
+                WriteNewLine(value, index);
             }
         }
     }

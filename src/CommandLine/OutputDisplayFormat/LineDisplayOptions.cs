@@ -2,13 +2,12 @@
 
 using System;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+[Flags]
+internal enum LineDisplayOptions
 {
-    [Flags]
-    internal enum LineDisplayOptions
-    {
-        None = 0,
-        IncludeLineNumber = 1,
-        TrimLine = 1 << 1,
-    }
+    None = 0,
+    IncludeLineNumber = 1,
+    TrimLine = 1 << 1,
 }

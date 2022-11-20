@@ -2,74 +2,73 @@
 
 using System;
 
-namespace Orang.FileSystem
+namespace Orang.FileSystem;
+
+internal class ProgressReporter : IProgress<SearchProgress>
 {
-    internal class ProgressReporter : IProgress<SearchProgress>
+    protected readonly Logger _logger;
+
+    public ProgressReporter(string indent, Logger logger)
     {
-        protected readonly Logger _logger;
+        Indent = indent;
+        _logger = logger;
+    }
 
-        public ProgressReporter(string indent, Logger logger)
+    public string Indent { get; }
+
+    public string? BaseDirectoryPath { get; private set; }
+
+    public int SearchedDirectoryCount { get; protected set; }
+
+    public int DirectoryCount { get; protected set; }
+
+    public int FileCount { get; protected set; }
+
+    public bool ProgressReported { get; set; }
+
+    public void SetBaseDirectoryPath(string? baseDirectoryPath)
+    {
+        BaseDirectoryPath = baseDirectoryPath;
+    }
+
+    public virtual void Report(SearchProgress value)
+    {
+        if (value.Exception != null)
         {
-            Indent = indent;
-            _logger = logger;
+            WriteError(value);
+            return;
         }
 
-        public string Indent { get; }
-
-        public string? BaseDirectoryPath { get; private set; }
-
-        public int SearchedDirectoryCount { get; protected set; }
-
-        public int DirectoryCount { get; protected set; }
-
-        public int FileCount { get; protected set; }
-
-        public bool ProgressReported { get; set; }
-
-        public void SetBaseDirectoryPath(string? baseDirectoryPath)
+        switch (value.Kind)
         {
-            BaseDirectoryPath = baseDirectoryPath;
+            case SearchProgressKind.SearchDirectory:
+                {
+                    SearchedDirectoryCount++;
+                    break;
+                }
+            case SearchProgressKind.Directory:
+                {
+                    DirectoryCount++;
+                    break;
+                }
+            case SearchProgressKind.File:
+                {
+                    FileCount++;
+                    break;
+                }
+            default:
+                {
+                    throw new InvalidOperationException($"Unknown enum value '{value.Kind}'.");
+                }
         }
+    }
 
-        public virtual void Report(SearchProgress value)
-        {
-            if (value.Exception != null)
-            {
-                WriteError(value);
-                return;
-            }
-
-            switch (value.Kind)
-            {
-                case SearchProgressKind.SearchDirectory:
-                    {
-                        SearchedDirectoryCount++;
-                        break;
-                    }
-                case SearchProgressKind.Directory:
-                    {
-                        DirectoryCount++;
-                        break;
-                    }
-                case SearchProgressKind.File:
-                    {
-                        FileCount++;
-                        break;
-                    }
-                default:
-                    {
-                        throw new InvalidOperationException($"Unknown enum value '{value.Kind}'.");
-                    }
-            }
-        }
-
-        protected void WriteError(SearchProgress value)
-        {
-            _logger.WriteFileError(
-                value.Exception!,
-                value.Path,
-                indent: Indent,
-                verbosity: Verbosity.Detailed);
-        }
+    protected void WriteError(SearchProgress value)
+    {
+        _logger.WriteFileError(
+            value.Exception!,
+            value.Path,
+            indent: Indent,
+            verbosity: Verbosity.Detailed);
     }
 }

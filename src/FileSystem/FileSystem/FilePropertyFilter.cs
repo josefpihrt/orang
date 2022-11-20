@@ -4,24 +4,23 @@ using System;
 
 #pragma warning disable RCS1223
 
-namespace Orang.FileSystem
+namespace Orang.FileSystem;
+
+public class FilePropertyFilter
 {
-    public class FilePropertyFilter
+    public FilePropertyFilter(
+        Func<DateTime, bool>? creationTimePredicate = null,
+        Func<DateTime, bool>? modifiedTimePredicate = null,
+        Func<long, bool>? sizePredicate = null)
     {
-        public FilePropertyFilter(
-            Func<DateTime, bool>? creationTimePredicate = null,
-            Func<DateTime, bool>? modifiedTimePredicate = null,
-            Func<long, bool>? sizePredicate = null)
-        {
-            CreationTimePredicate = creationTimePredicate;
-            ModifiedTimePredicate = modifiedTimePredicate;
-            SizePredicate = sizePredicate;
-        }
-
-        public Func<DateTime, bool>? CreationTimePredicate { get; }
-
-        public Func<DateTime, bool>? ModifiedTimePredicate { get; }
-
-        public Func<long, bool>? SizePredicate { get; }
+        CreationTimePredicate = creationTimePredicate;
+        ModifiedTimePredicate = modifiedTimePredicate;
+        SizePredicate = sizePredicate;
     }
+
+    public Func<DateTime, bool>? CreationTimePredicate { get; }
+
+    public Func<DateTime, bool>? ModifiedTimePredicate { get; }
+
+    public Func<long, bool>? SizePredicate { get; }
 }

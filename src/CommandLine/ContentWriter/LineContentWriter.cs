@@ -1,174 +1,173 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-namespace Orang.CommandLine
-{
-    internal class LineContentWriter : ContentWriter
-    {
-        private int _lastEndIndex;
-        protected int _solIndex;
-        protected int _eolIndex;
-        protected int _lineNumber;
-        private ValueWriter? _valueWriter;
+namespace Orang.CommandLine;
 
-        public LineContentWriter(
-            string input,
-            ContentTextWriter? writer,
-            ContentWriterOptions options,
-            IResultStorage? storage = null) : base(input, writer, options)
+internal class LineContentWriter : ContentWriter
+{
+    private int _lastEndIndex;
+    protected int _solIndex;
+    protected int _eolIndex;
+    protected int _lineNumber;
+    private ValueWriter? _valueWriter;
+
+    public LineContentWriter(
+        string input,
+        ContentTextWriter? writer,
+        ContentWriterOptions options,
+        IResultStorage? storage = null) : base(input, writer, options)
+    {
+        ResultStorage = storage;
+        MatchingLineCount = 0;
+    }
+
+    public IResultStorage? ResultStorage { get; }
+
+    protected override ValueWriter ValueWriter
+    {
+        get
         {
-            ResultStorage = storage;
-            MatchingLineCount = 0;
+            return _valueWriter ??= (Options.IncludeLineNumber)
+                ? new LineNumberValueWriter(Writer, Options.Indent, includeEndingIndent: false)
+                : new ValueWriter(Writer, Options.Indent, includeEndingIndent: false);
+        }
+    }
+
+    protected override void WriteStartMatches()
+    {
+        _lastEndIndex = -1;
+        _solIndex = 0;
+        _eolIndex = -1;
+        _lineNumber = 1;
+    }
+
+    protected override void WriteStartMatch(ICapture capture)
+    {
+        int index = capture.Index;
+
+        int prevLineNumber = _lineNumber;
+
+        if (Options.IncludeLineNumber)
+        {
+            _lineNumber += TextHelpers.CountLines(Input, _solIndex, index - _solIndex);
+            ((LineNumberValueWriter)ValueWriter).LineNumber = _lineNumber;
         }
 
-        public IResultStorage? ResultStorage { get; }
+        bool isSameBlock = index < _eolIndex;
 
-        protected override ValueWriter ValueWriter
+        int solIndex = FindStartOfLine(index);
+
+        if (isSameBlock)
         {
-            get
+            int endIndex = index;
+
+            if (endIndex > _lastEndIndex)
             {
-                return _valueWriter ??= (Options.IncludeLineNumber)
-                    ? new LineNumberValueWriter(Writer, Options.Indent, includeEndingIndent: false)
-                    : new ValueWriter(Writer, Options.Indent, includeEndingIndent: false);
+                if (Input[endIndex - 1] == '\r')
+                    endIndex--;
+
+                Write(Input, _lastEndIndex, endIndex - _lastEndIndex);
             }
         }
-
-        protected override void WriteStartMatches()
+        else
         {
-            _lastEndIndex = -1;
-            _solIndex = 0;
-            _eolIndex = -1;
-            _lineNumber = 1;
-        }
+            int startIndex = 0;
 
-        protected override void WriteStartMatch(ICapture capture)
-        {
-            int index = capture.Index;
+            if (_lastEndIndex >= 0)
+            {
+                WriteEndLine();
+                Write(Options.Separator);
 
-            int prevLineNumber = _lineNumber;
+                if (Options.AfterContext > 0)
+                {
+                    startIndex = WriteAfterContext(_eolIndex, solIndex, prevLineNumber);
+                }
+                else
+                {
+                    startIndex = _eolIndex;
+                }
+            }
+
+            if (Options.BeforeContext > 0)
+                WriteBeforeContext(startIndex, solIndex, _lineNumber);
+
+            Write(Options.Indent);
 
             if (Options.IncludeLineNumber)
+                WriteLineNumber(_lineNumber);
+
+            MatchingLineCount++;
+        }
+
+        int length = capture.Length;
+
+        if (length > 0)
+        {
+            if (Input[index + length - 1] == '\n')
+                length--;
+
+            MatchingLineCount += TextHelpers.CountLines(Input, index, length);
+        }
+
+        _solIndex = solIndex;
+        _eolIndex = FindEndOfLine(capture);
+
+        if (!isSameBlock)
+        {
+            WriteStartLine(_solIndex, index);
+
+            if (ResultStorage != null)
             {
-                _lineNumber += TextHelpers.CountLines(Input, _solIndex, index - _solIndex);
-                ((LineNumberValueWriter)ValueWriter).LineNumber = _lineNumber;
-            }
+                int endIndex = _eolIndex;
 
-            bool isSameBlock = index < _eolIndex;
-
-            int solIndex = FindStartOfLine(index);
-
-            if (isSameBlock)
-            {
-                int endIndex = index;
-
-                if (endIndex > _lastEndIndex)
+                if (length > 0
+                    && endIndex > 0
+                    && Input[endIndex - 1] == '\n')
                 {
-                    if (Input[endIndex - 1] == '\r')
-                        endIndex--;
+                    endIndex--;
 
-                    Write(Input, _lastEndIndex, endIndex - _lastEndIndex);
-                }
-            }
-            else
-            {
-                int startIndex = 0;
-
-                if (_lastEndIndex >= 0)
-                {
-                    WriteEndLine();
-                    Write(Options.Separator);
-
-                    if (Options.AfterContext > 0)
-                    {
-                        startIndex = WriteAfterContext(_eolIndex, solIndex, prevLineNumber);
-                    }
-                    else
-                    {
-                        startIndex = _eolIndex;
-                    }
-                }
-
-                if (Options.BeforeContext > 0)
-                    WriteBeforeContext(startIndex, solIndex, _lineNumber);
-
-                Write(Options.Indent);
-
-                if (Options.IncludeLineNumber)
-                    WriteLineNumber(_lineNumber);
-
-                MatchingLineCount++;
-            }
-
-            int length = capture.Length;
-
-            if (length > 0)
-            {
-                if (Input[index + length - 1] == '\n')
-                    length--;
-
-                MatchingLineCount += TextHelpers.CountLines(Input, index, length);
-            }
-
-            _solIndex = solIndex;
-            _eolIndex = FindEndOfLine(capture);
-
-            if (!isSameBlock)
-            {
-                WriteStartLine(_solIndex, index);
-
-                if (ResultStorage != null)
-                {
-                    int endIndex = _eolIndex;
-
-                    if (length > 0
-                        && endIndex > 0
-                        && Input[endIndex - 1] == '\n')
+                    if (endIndex > 0
+                        && Input[endIndex - 1] == '\r')
                     {
                         endIndex--;
-
-                        if (endIndex > 0
-                            && Input[endIndex - 1] == '\r')
-                        {
-                            endIndex--;
-                        }
                     }
-
-                    ResultStorage.Add(Input, _solIndex, endIndex - _solIndex);
                 }
+
+                ResultStorage.Add(Input, _solIndex, endIndex - _solIndex);
             }
         }
+    }
 
-        protected override void WriteEndMatch(ICapture capture)
-        {
-            _lastEndIndex = capture.Index + capture.Length;
-        }
+    protected override void WriteEndMatch(ICapture capture)
+    {
+        _lastEndIndex = capture.Index + capture.Length;
+    }
 
-        protected override void WriteMatchSeparator()
-        {
-        }
+    protected override void WriteMatchSeparator()
+    {
+    }
 
-        protected override void WriteStartReplacement(ICapture capture, string? result)
-        {
-        }
+    protected override void WriteStartReplacement(ICapture capture, string? result)
+    {
+    }
 
-        protected override void WriteEndReplacement(ICapture capture, string? result)
-        {
-        }
+    protected override void WriteEndReplacement(ICapture capture, string? result)
+    {
+    }
 
-        protected override void WriteEndMatches()
-        {
-            WriteEndLine();
+    protected override void WriteEndMatches()
+    {
+        WriteEndLine();
 
-            if (Options.AfterContext > 0)
-                WriteAfterContext(_eolIndex, Input.Length, _lineNumber);
-        }
+        if (Options.AfterContext > 0)
+            WriteAfterContext(_eolIndex, Input.Length, _lineNumber);
+    }
 
-        public override void Dispose()
-        {
-        }
+    public override void Dispose()
+    {
+    }
 
-        private void WriteEndLine()
-        {
-            WriteEndLine(_lastEndIndex, _eolIndex);
-        }
+    private void WriteEndLine()
+    {
+        WriteEndLine(_lastEndIndex, _eolIndex);
     }
 }

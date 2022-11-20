@@ -5,92 +5,91 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using Orang.Spelling;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+internal class SpellcheckState : IReplacer
 {
-    internal class SpellcheckState : IReplacer
+    public SpellcheckState(
+        Spellchecker spellchecker,
+        SpellingData data,
+        IEnumerable<Filter>? filters = null)
     {
-        public SpellcheckState(
-            Spellchecker spellchecker,
-            SpellingData data,
-            IEnumerable<Filter>? filters = null)
-        {
-            Spellchecker = spellchecker;
-            Data = data;
-            Filters = filters?.ToImmutableArray() ?? ImmutableArray<Filter>.Empty;
+        Spellchecker = spellchecker;
+        Data = data;
+        Filters = filters?.ToImmutableArray() ?? ImmutableArray<Filter>.Empty;
 
-            OriginalFixes = data.Fixes;
+        OriginalFixes = data.Fixes;
+    }
+
+    public Spellchecker Spellchecker { get; }
+
+    public SpellingData Data { get; internal set; }
+
+    public ImmutableArray<Filter> Filters { get; }
+
+    internal FixList OriginalFixes { get; }
+
+    public List<SpellingFixResult> Results { get; } = new();
+
+    public string? CurrentPath { get; set; }
+
+    public string Replace(ICapture capture)
+    {
+        SpellingFix fix = GetFix(capture.Value);
+
+        return fix.Value;
+    }
+
+    private SpellingFix GetFix(string value)
+    {
+        TextCasing textCasing = TextUtility.GetTextCasing(value);
+
+        if (textCasing != TextCasing.Undefined
+            && Data.Fixes.TryGetValue(value, out ImmutableHashSet<SpellingFix>? fixes))
+        {
+            SpellingFix fix = fixes.SingleOrDefault(
+                f => TextUtility.GetTextCasing(f.Value) != TextCasing.Undefined,
+                shouldThrow: false);
+
+            if (!fix.IsDefault)
+                return fix.WithValue(TextUtility.SetTextCasing(fix.Value, textCasing));
         }
 
-        public Spellchecker Spellchecker { get; }
+        return default;
+    }
 
-        public SpellingData Data { get; internal set; }
+    public void ProcessReplacement(string input, ICapture capture, string? newValue, int? lineNumber = null, bool isUserInput = false)
+    {
+        SpellingFix fix = default;
 
-        public ImmutableArray<Filter> Filters { get; }
-
-        internal FixList OriginalFixes { get; }
-
-        public List<SpellingFixResult> Results { get; } = new();
-
-        public string? CurrentPath { get; set; }
-
-        public string Replace(ICapture capture)
+        if (newValue != null)
         {
-            SpellingFix fix = GetFix(capture.Value);
-
-            return fix.Value;
-        }
-
-        private SpellingFix GetFix(string value)
-        {
-            TextCasing textCasing = TextUtility.GetTextCasing(value);
-
-            if (textCasing != TextCasing.Undefined
-                && Data.Fixes.TryGetValue(value, out ImmutableHashSet<SpellingFix>? fixes))
+            if (!string.Equals(capture.Value, newValue, StringComparison.Ordinal))
             {
-                SpellingFix fix = fixes.SingleOrDefault(
-                    f => TextUtility.GetTextCasing(f.Value) != TextCasing.Undefined,
-                    shouldThrow: false);
+                fix = new SpellingFix(newValue, (isUserInput) ? SpellingFixKind.User : SpellingFixKind.Predefined);
 
-                if (!fix.IsDefault)
-                    return fix.WithValue(TextUtility.SetTextCasing(fix.Value, textCasing));
+                if (fix.Kind != SpellingFixKind.Predefined
+                    && (fix.Kind != SpellingFixKind.User
+                        || TextUtility.TextCasingEquals(capture.Value, fix.Value)))
+                {
+                    Data = Data.AddFix(capture.Value, fix);
+                }
+
+                Data = Data.AddWord(newValue);
             }
-
-            return default;
-        }
-
-        public void ProcessReplacement(string input, ICapture capture, string? newValue, int? lineNumber = null, bool isUserInput = false)
-        {
-            SpellingFix fix = default;
-
-            if (newValue != null)
+            else
             {
-                if (!string.Equals(capture.Value, newValue, StringComparison.Ordinal))
-                {
-                    fix = new SpellingFix(newValue, (isUserInput) ? SpellingFixKind.User : SpellingFixKind.Predefined);
-
-                    if (fix.Kind != SpellingFixKind.Predefined
-                        && (fix.Kind != SpellingFixKind.User
-                            || TextUtility.TextCasingEquals(capture.Value, fix.Value)))
-                    {
-                        Data = Data.AddFix(capture.Value, fix);
-                    }
-
-                    Data = Data.AddWord(newValue);
-                }
-                else
-                {
-                    Data = Data.AddIgnoredValue(capture.Value);
-                }
+                Data = Data.AddIgnoredValue(capture.Value);
             }
-
-            var result = new SpellingFixResult(
-                input,
-                (SpellingCapture)capture,
-                fix,
-                lineNumber,
-                CurrentPath);
-
-            Results.Add(result);
         }
+
+        var result = new SpellingFixResult(
+            input,
+            (SpellingCapture)capture,
+            fix,
+            lineNumber,
+            CurrentPath);
+
+        Results.Add(result);
     }
 }

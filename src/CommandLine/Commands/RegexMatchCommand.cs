@@ -3,57 +3,56 @@
 using System.Threading;
 using Orang.Text.RegularExpressions;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+internal class RegexMatchCommand : RegexCommand<RegexMatchCommandOptions>
 {
-    internal class RegexMatchCommand : RegexCommand<RegexMatchCommandOptions>
+    public RegexMatchCommand(RegexMatchCommandOptions options, Logger logger) : base(options, logger)
     {
-        public RegexMatchCommand(RegexMatchCommandOptions options, Logger logger) : base(options, logger)
+    }
+
+    protected override CommandResult ExecuteCore(CancellationToken cancellationToken = default)
+    {
+        MatchData matchData = MatchData.Create(
+            Options.Input,
+            Options.Filter.Regex,
+            Options.MaxCount,
+            cancellationToken);
+
+        var outputWriter = new OutputWriter(Options.HighlightOptions, _logger);
+
+        int count = outputWriter.WriteMatches(matchData, Options, cancellationToken);
+
+        if (count > 0)
+            _logger.WriteLine();
+
+        if (_logger.ShouldWrite(Verbosity.Detailed)
+            || Options.IncludeSummary)
         {
-        }
+            Verbosity verbosity = (Options.IncludeSummary) ? Verbosity.Minimal : Verbosity.Detailed;
 
-        protected override CommandResult ExecuteCore(CancellationToken cancellationToken = default)
-        {
-            MatchData matchData = MatchData.Create(
-                Options.Input,
-                Options.Filter.Regex,
-                Options.MaxCount,
-                cancellationToken);
+            _logger.WriteGroups(matchData.GroupDefinitions, verbosity: verbosity);
+            _logger.WriteLine(verbosity);
 
-            var outputWriter = new OutputWriter(Options.HighlightOptions, _logger);
-
-            int count = outputWriter.WriteMatches(matchData, Options, cancellationToken);
-
-            if (count > 0)
-                _logger.WriteLine();
-
-            if (_logger.ShouldWrite(Verbosity.Detailed)
-                || Options.IncludeSummary)
+            if (Options.ContentDisplayStyle == ContentDisplayStyle.Value
+                && Options.ModifyOptions.HasAnyFunction)
             {
-                Verbosity verbosity = (Options.IncludeSummary) ? Verbosity.Minimal : Verbosity.Detailed;
+                _logger.WriteCount("Values", count, Colors.Message_OK, verbosity);
+            }
+            else
+            {
+                _logger.WriteCount("Matches", matchData.Count, Colors.Message_OK, verbosity);
 
-                _logger.WriteGroups(matchData.GroupDefinitions, verbosity: verbosity);
-                _logger.WriteLine(verbosity);
-
-                if (Options.ContentDisplayStyle == ContentDisplayStyle.Value
-                    && Options.ModifyOptions.HasAnyFunction)
+                if (count != matchData.Count)
                 {
-                    _logger.WriteCount("Values", count, Colors.Message_OK, verbosity);
+                    _logger.Write("  ", Colors.Message_OK, verbosity);
+                    _logger.WriteCount("Captures", count, Colors.Message_OK, verbosity);
                 }
-                else
-                {
-                    _logger.WriteCount("Matches", matchData.Count, Colors.Message_OK, verbosity);
-
-                    if (count != matchData.Count)
-                    {
-                        _logger.Write("  ", Colors.Message_OK, verbosity);
-                        _logger.WriteCount("Captures", count, Colors.Message_OK, verbosity);
-                    }
-                }
-
-                _logger.WriteLine(verbosity);
             }
 
-            return (count > 0) ? CommandResult.Success : CommandResult.NoMatch;
+            _logger.WriteLine(verbosity);
         }
+
+        return (count > 0) ? CommandResult.Success : CommandResult.NoMatch;
     }
 }

@@ -3,25 +3,24 @@
 using System.Diagnostics;
 using Orang.FileSystem;
 
-namespace Orang.Aggregation
+namespace Orang.Aggregation;
+
+[DebuggerDisplay("{DebuggerDisplay,nq}")]
+internal readonly struct StorageSection
 {
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    internal readonly struct StorageSection
+    public StorageSection(FileMatch fileMatch, string? baseDirectoryPath, int count)
     {
-        public StorageSection(FileMatch fileMatch, string? baseDirectoryPath, int count)
-        {
-            FileMatch = fileMatch;
-            BaseDirectoryPath = baseDirectoryPath;
-            Count = count;
-        }
-
-        public FileMatch FileMatch { get; }
-
-        public string? BaseDirectoryPath { get; }
-
-        public int Count { get; }
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private string DebuggerDisplay => $"{FileMatch.Path}  Count = {Count}";
+        FileMatch = fileMatch;
+        BaseDirectoryPath = baseDirectoryPath;
+        Count = count;
     }
+
+    public FileMatch FileMatch { get; }
+
+    public string? BaseDirectoryPath { get; }
+
+    public int Count { get; }
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    private string DebuggerDisplay => $"{FileMatch.Path}  Count = {Count}";
 }

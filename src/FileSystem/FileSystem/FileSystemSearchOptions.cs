@@ -4,35 +4,34 @@ using System.Diagnostics;
 using System.Text;
 using Orang.Text;
 
-namespace Orang.FileSystem
+namespace Orang.FileSystem;
+
+//TODO: FileSearchOptions, SearchOptions
+[DebuggerDisplay("{DebuggerDisplay,nq}")]
+public class FileSystemSearchOptions
 {
-    //TODO: FileSearchOptions, SearchOptions
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class FileSystemSearchOptions
+    public static FileSystemSearchOptions Default { get; } = new();
+
+    public FileSystemSearchOptions(
+        SearchTarget searchTarget = SearchTarget.Files,
+        bool recurseSubdirectories = true,
+        bool ignoreInaccessible = true,
+        Encoding? defaultEncoding = null)
     {
-        public static FileSystemSearchOptions Default { get; } = new();
-
-        public FileSystemSearchOptions(
-            SearchTarget searchTarget = SearchTarget.Files,
-            bool recurseSubdirectories = true,
-            bool ignoreInaccessible = true,
-            Encoding? defaultEncoding = null)
-        {
-            SearchTarget = searchTarget;
-            RecurseSubdirectories = recurseSubdirectories;
-            IgnoreInaccessible = ignoreInaccessible;
-            DefaultEncoding = defaultEncoding ?? EncodingHelpers.UTF8NoBom;
-        }
-
-        public SearchTarget SearchTarget { get; }
-
-        public bool RecurseSubdirectories { get; }
-
-        public bool IgnoreInaccessible { get; }
-
-        public Encoding DefaultEncoding { get; }
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private string DebuggerDisplay => $"{SearchTarget}  {nameof(RecurseSubdirectories)} = {RecurseSubdirectories}";
+        SearchTarget = searchTarget;
+        RecurseSubdirectories = recurseSubdirectories;
+        IgnoreInaccessible = ignoreInaccessible;
+        DefaultEncoding = defaultEncoding ?? EncodingHelpers.UTF8NoBom;
     }
+
+    public SearchTarget SearchTarget { get; }
+
+    public bool RecurseSubdirectories { get; }
+
+    public bool IgnoreInaccessible { get; }
+
+    public Encoding DefaultEncoding { get; }
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    private string DebuggerDisplay => $"{SearchTarget}  {nameof(RecurseSubdirectories)} = {RecurseSubdirectories}";
 }

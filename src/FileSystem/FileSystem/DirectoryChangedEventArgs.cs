@@ -2,18 +2,17 @@
 
 using System;
 
-namespace Orang.FileSystem
+namespace Orang.FileSystem;
+
+internal class DirectoryChangedEventArgs : EventArgs
 {
-    internal class DirectoryChangedEventArgs : EventArgs
+    public DirectoryChangedEventArgs(string name, string? newName)
     {
-        public DirectoryChangedEventArgs(string name, string? newName)
-        {
-            Name = name;
-            NewName = newName;
-        }
-
-        public string Name { get; }
-
-        public string? NewName { get; }
+        Name = name;
+        NewName = newName;
     }
+
+    public string Name { get; }
+
+    public string? NewName { get; }
 }

@@ -2,21 +2,20 @@
 
 using CommandLine;
 
-namespace Orang.CommandLine
-{
-    internal abstract class AbstractCommandLineOptions
-    {
-        [Option(
-            shortName: OptionShortNames.Help,
-            longName: OptionNames.Help,
-            HelpText = "Show command line help.")]
-        public bool Help { get; set; }
+namespace Orang.CommandLine;
 
-        [Option(
-            shortName: OptionShortNames.Verbosity,
-            longName: OptionNames.Verbosity,
-            HelpText = "The amount of information to display in the log.",
-            MetaValue = MetaValues.Verbosity)]
-        public string Verbosity { get; set; } = null!;
-    }
+internal abstract class AbstractCommandLineOptions
+{
+    [Option(
+        shortName: OptionShortNames.Help,
+        longName: OptionNames.Help,
+        HelpText = "Show command line help.")]
+    public bool Help { get; set; }
+
+    [Option(
+        shortName: OptionShortNames.Verbosity,
+        longName: OptionNames.Verbosity,
+        HelpText = "The amount of information to display in the log.",
+        MetaValue = MetaValues.Verbosity)]
+    public string Verbosity { get; set; } = null!;
 }

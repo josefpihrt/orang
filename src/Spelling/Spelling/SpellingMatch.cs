@@ -2,28 +2,27 @@
 
 using System.Diagnostics;
 
-namespace Orang.Spelling
+namespace Orang.Spelling;
+
+[DebuggerDisplay("{DebuggerDisplay,nq}")]
+public readonly struct SpellingMatch
 {
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public readonly struct SpellingMatch
+    public SpellingMatch(string value, int index, string? parent = null, int parentIndex = 0)
     {
-        public SpellingMatch(string value, int index, string? parent = null, int parentIndex = 0)
-        {
-            Value = value;
-            Index = index;
-            Parent = parent;
-            ParentIndex = parentIndex;
-        }
-
-        public string Value { get; }
-
-        public int Index { get; }
-
-        public string? Parent { get; }
-
-        public int ParentIndex { get; }
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private string DebuggerDisplay => $"{Index}  {Value}";
+        Value = value;
+        Index = index;
+        Parent = parent;
+        ParentIndex = parentIndex;
     }
+
+    public string Value { get; }
+
+    public int Index { get; }
+
+    public string? Parent { get; }
+
+    public int ParentIndex { get; }
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    private string DebuggerDisplay => $"{Index}  {Value}";
 }

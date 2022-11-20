@@ -2,22 +2,21 @@
 
 using System.Diagnostics;
 
-namespace Orang.FileSystem
+namespace Orang.FileSystem;
+
+[DebuggerDisplay("{DebuggerDisplay,nq}")]
+internal readonly struct PathInfo
 {
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    internal readonly struct PathInfo
+    public PathInfo(string path, PathOrigin origin)
     {
-        public PathInfo(string path, PathOrigin origin)
-        {
-            Path = path;
-            Origin = origin;
-        }
-
-        public string Path { get; }
-
-        public PathOrigin Origin { get; }
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private string DebuggerDisplay => $"{Origin}  {Path}";
+        Path = path;
+        Origin = origin;
     }
+
+    public string Path { get; }
+
+    public PathOrigin Origin { get; }
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    private string DebuggerDisplay => $"{Origin}  {Path}";
 }

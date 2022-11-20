@@ -43,7 +43,7 @@ internal static class FileSystemHelpers
     {
         get
         {
-            if (_invalidFileNameChars == null)
+            if (_invalidFileNameChars is null)
             {
                 Interlocked.CompareExchange(
                     ref _invalidFileNameChars,
@@ -213,7 +213,7 @@ internal static class FileSystemHelpers
         DateTime dateTime1 = File.GetLastWriteTimeUtc(path1);
         DateTime dateTime2 = File.GetLastWriteTimeUtc(path2);
 
-        if (allowedDiff == null)
+        if (allowedDiff is null)
             return dateTime1.CompareTo(dateTime2);
 
         TimeSpan diff = dateTime1 - dateTime2;
@@ -341,7 +341,7 @@ internal static class FileSystemHelpers
                 {
                     Encoding? encoding = DetectEncoding(stream);
 
-                    if (encoding != null)
+                    if (encoding is not null)
                         length = encoding.Preamble.Length;
                 }
 

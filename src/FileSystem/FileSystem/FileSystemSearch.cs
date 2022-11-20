@@ -30,12 +30,12 @@ internal class FileSystemSearch
         bool ignoreInaccessible = true,
         Encoding? defaultEncoding = null)
     {
-        if (directoryFilters == null)
+        if (directoryFilters is null)
             throw new ArgumentNullException(nameof(directoryFilters));
 
         foreach (NameFilter directoryFilter in directoryFilters)
         {
-            if (directoryFilter == null)
+            if (directoryFilter is null)
                 throw new ArgumentException("", nameof(directoryFilter));
 
             if (directoryFilter?.Part == FileNamePart.Extension)
@@ -121,7 +121,7 @@ internal class FileSystemSearch
 
         string? currentDirectory = null;
 
-        if (notifyDirectoryChanged != null)
+        if (notifyDirectoryChanged is not null)
         {
             notifyDirectoryChanged.DirectoryChanged
                 += (object sender, DirectoryChangedEventArgs e) => currentDirectory = e.NewName;
@@ -165,7 +165,7 @@ internal class FileSystemSearch
                     Report(directory.Path, SearchProgressKind.SearchDirectory, isDirectory: true, ex);
                 }
 
-                if (fi != null)
+                if (fi is not null)
                 {
                     using (fi)
                     {
@@ -173,7 +173,7 @@ internal class FileSystemSearch
                         {
                             FileMatch? match = MatchFile(fi.Current);
 
-                            if (match != null)
+                            if (match is not null)
                                 yield return match;
 
                             cancellationToken.ThrowIfCancellationRequested();
@@ -196,7 +196,7 @@ internal class FileSystemSearch
                 Report(directory.Path, SearchProgressKind.SearchDirectory, isDirectory: true, ex);
             }
 
-            if (di != null)
+            if (di is not null)
             {
                 using (di)
                 {
@@ -223,7 +223,7 @@ internal class FileSystemSearch
                             {
                                 FileMatch? match = MatchDirectory(currentDirectory);
 
-                                if (match != null)
+                                if (match is not null)
                                 {
                                     yield return match;
 
@@ -233,7 +233,7 @@ internal class FileSystemSearch
                             }
                         }
 
-                        if (currentDirectory != null
+                        if (currentDirectory is not null
                             && RecurseSubdirectories)
                         {
                             if (matchStatus == MatchStatus.Unknown
@@ -285,11 +285,11 @@ internal class FileSystemSearch
         FileNameSpan span = FileNameSpan.FromFile(path, Part);
         Match? match = null;
 
-        if (Name != null)
+        if (Name is not null)
         {
             match = Name.Match(span, MatchPartOnly);
 
-            if (match == null)
+            if (match is null)
                 return default;
         }
 
@@ -299,7 +299,7 @@ internal class FileSystemSearch
 
         if (Attributes != 0
             || emptyOption != FileEmptyOption.None
-            || Properties != null)
+            || Properties is not null)
         {
             try
             {
@@ -311,7 +311,7 @@ internal class FileSystemSearch
                     return default;
                 }
 
-                if (Properties != null)
+                if (Properties is not null)
                 {
                     if (Properties.SizePredicate?.Invoke(fileInfo.Length) == false)
                         return default;
@@ -348,7 +348,7 @@ internal class FileSystemSearch
             }
         }
 
-        if (Content != null
+        if (Content is not null
             || emptyOption != FileEmptyOption.None)
         {
             FileContent fileContent = default;
@@ -378,19 +378,19 @@ internal class FileSystemSearch
                             }
                         }
 
-                        if (Content != null)
+                        if (Content is not null)
                         {
                             using (var reader = new StreamReader(
                                 stream: stream,
                                 encoding: bomEncoding ?? DefaultEncoding,
-                                detectEncodingFromByteOrderMarks: bomEncoding == null))
+                                detectEncodingFromByteOrderMarks: bomEncoding is null))
                             {
                                 string content = reader.ReadToEnd();
 
                                 fileContent = new FileContent(
                                     content,
                                     reader.CurrentEncoding,
-                                    hasBom: bomEncoding != null);
+                                    hasBom: bomEncoding is not null);
                             }
                         }
                     }
@@ -402,11 +402,11 @@ internal class FileSystemSearch
                 }
             }
 
-            if (Content != null)
+            if (Content is not null)
             {
                 Match? contentMatch = Content.Match(fileContent.Text);
 
-                if (contentMatch == null)
+                if (contentMatch is null)
                     return default;
 
                 return (new FileMatch(span, match, fileContent, contentMatch, fileInfo), null);
@@ -430,11 +430,11 @@ internal class FileSystemSearch
         FileNameSpan span = FileNameSpan.FromDirectory(path, Part);
         Match? match = null;
 
-        if (Name != null)
+        if (Name is not null)
         {
             match = Name.Match(span, MatchPartOnly);
 
-            if (match == null)
+            if (match is null)
                 return default;
         }
 
@@ -442,7 +442,7 @@ internal class FileSystemSearch
 
         if (Attributes != 0
             || EmptyOption != FileEmptyOption.None
-            || Properties != null)
+            || Properties is not null)
         {
             try
             {
@@ -454,7 +454,7 @@ internal class FileSystemSearch
                     return default;
                 }
 
-                if (Properties != null)
+                if (Properties is not null)
                 {
                     if (Properties.CreationTimePredicate?.Invoke(directoryInfo.CreationTime) == false)
                         return default;

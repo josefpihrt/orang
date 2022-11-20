@@ -20,10 +20,10 @@ public class ReplaceOperation
     {
         DirectoryPath = directoryPath ?? throw new ArgumentNullException(nameof(directoryPath));
 
-        if (filter == null)
+        if (filter is null)
             throw new ArgumentNullException(nameof(filter));
 
-        if (filter.Content == null)
+        if (filter.Content is null)
             throw new InvalidOperationException("Content filter is not defined.");
 
         if (filter.Content.IsNegative)

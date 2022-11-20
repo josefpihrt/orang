@@ -48,7 +48,7 @@ internal static class CaptureFactory
         {
             matches.Add(match);
 
-            if (predicate != null)
+            if (predicate is not null)
             {
                 Match m = match.NextMatch();
 
@@ -100,7 +100,7 @@ internal static class CaptureFactory
 
             foreach (Capture capture in group.Captures)
             {
-                if (prevCapture != null
+                if (prevCapture is not null
                     && prevCapture.EndIndex() <= capture.EndIndex()
                     && prevCapture.Index >= capture.Index)
                 {
@@ -250,7 +250,7 @@ internal static class CaptureFactory
 
     private static List<Group> AddGroups(Match match, ref List<Group>? groups, Comparison<Group> comparison)
     {
-        if (groups == null)
+        if (groups is null)
         {
             groups = new List<Group>();
         }

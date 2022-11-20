@@ -13,7 +13,7 @@ internal static class OperationHelpers
         IDialogProvider<ConflictInfo>? dialogProvider)
     {
         if (conflictResolution == ConflictResolution.Ask
-            && dialogProvider == null)
+            && dialogProvider is null)
         {
             throw new ArgumentNullException(
                 nameof(dialogProvider),
@@ -28,10 +28,10 @@ internal static class OperationHelpers
         CopyOptions copyOptions,
         IDialogProvider<ConflictInfo>? dialogProvider)
     {
-        if (directoryPath == null)
+        if (directoryPath is null)
             throw new ArgumentNullException(nameof(directoryPath));
 
-        if (destinationPath == null)
+        if (destinationPath is null)
             throw new ArgumentNullException(nameof(destinationPath));
 
         if (!Directory.Exists(directoryPath))

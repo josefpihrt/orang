@@ -44,7 +44,7 @@ public class ReplaceOptions : IReplacer
     internal CultureInfo CultureInfo => (CultureInvariant) ? CultureInfo.InvariantCulture : CultureInfo.CurrentCulture;
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    private string DebuggerDisplay => (Replacement != null) ? $"{Replacement}" : $"{MatchEvaluator!.Method}";
+    private string DebuggerDisplay => (Replacement is not null) ? $"{Replacement}" : $"{MatchEvaluator!.Method}";
 
     public string Replace(ICapture capture)
     {
@@ -57,7 +57,7 @@ public class ReplaceOptions : IReplacer
 
     public string Replace(Match match)
     {
-        string s = (MatchEvaluator != null) ? MatchEvaluator(match) : match.Result(Replacement);
+        string s = (MatchEvaluator is not null) ? MatchEvaluator(match) : match.Result(Replacement);
 
         if (Functions != ReplaceFunctions.None)
         {

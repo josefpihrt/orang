@@ -62,7 +62,7 @@ internal class ReplaceCommand : CommonFindCommand
         {
             textWriter?.Dispose();
 
-            if (captures != null)
+            if (captures is not null)
                 ListCache<Capture>.Free(captures);
         }
     }

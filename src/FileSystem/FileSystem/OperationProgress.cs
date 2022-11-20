@@ -30,5 +30,5 @@ public readonly struct OperationProgress
     public Exception? Exception { get; }
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    private string DebuggerDisplay => (FileMatch != null) ? $"{Kind}  {FileMatch.Path}" : "Uninitialized";
+    private string DebuggerDisplay => (FileMatch is not null) ? $"{Kind}  {FileMatch.Path}" : "Uninitialized";
 }

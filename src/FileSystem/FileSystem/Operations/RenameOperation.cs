@@ -26,7 +26,7 @@ public class RenameOperation
         if (filter.Part == FileNamePart.FullName)
             throw new InvalidOperationException($"Invalid file name part '{nameof(FileNamePart.FullName)}'.");
 
-        if (filter.Name == null)
+        if (filter.Name is null)
             throw new InvalidOperationException("Name filter is not defined.");
 
         if (filter.Name.IsNegative)

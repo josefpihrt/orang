@@ -43,7 +43,7 @@ public class FindOperation
     {
         foreach (NameFilter directoryFilter in directoryFilters)
         {
-            if (directoryFilter == null)
+            if (directoryFilter is null)
                 throw new ArgumentException("", nameof(directoryFilter));
 
             if (directoryFilter?.Part == FileNamePart.Extension)

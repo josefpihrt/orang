@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -14,6 +13,8 @@ namespace Orang.FileSystem.Operations;
 
 public class MoveOperation
 {
+    private SearchTarget _searchTarget;
+
     public MoveOperation(
         string directoryPath,
         string destinationPath,
@@ -30,9 +31,19 @@ public class MoveOperation
 
     public FileSystemFilter Filter { get; }
 
-    public NameFilter[]? DirectoryFilters { get; set; }
+    public List<NameFilter> DirectoryFilters { get; set; } = new();
 
-    public SearchTarget SearchTarget { get; set; }
+    public SearchTarget SearchTarget
+    {
+        get { return _searchTarget; }
+        set
+        {
+            if (value == SearchTarget.All)
+                throw new ArgumentException($"Search target cannot be '{nameof(SearchTarget.All)}'.", nameof(value));
+
+            _searchTarget = value;
+        }
+    }
 
     public bool RecurseSubdirectories { get; set; }
 
@@ -42,80 +53,22 @@ public class MoveOperation
 
     public CopyOptions? CopyOptions { get; set; }
 
+    public IProgress<SearchProgress>? SearchProgress { get; set; }
+
     public IProgress<OperationProgress>? Progress { get; set; }
 
     public IDialogProvider<ConflictInfo>? DialogProvider { get; set; }
 
-    public MoveOperation WithDirectoryFilter(NameFilter directoryFilter)
+    public IOperationResult Execute(CancellationToken cancellationToken = default)
     {
-        DirectoryFilters = new NameFilter[] { directoryFilter };
-        return this;
-    }
-
-    public MoveOperation WithDirectoryFilters(IEnumerable<NameFilter> directoryFilters)
-    {
-        if (directoryFilters is null)
-            throw new ArgumentNullException(nameof(directoryFilters));
-
-        DirectoryFilters = directoryFilters.ToArray();
-        return this;
-    }
-
-    public MoveOperation WithSearchTarget(SearchTarget searchTarget)
-    {
-        if (searchTarget == SearchTarget.All)
-            throw new ArgumentException($"Search target cannot be '{nameof(SearchTarget.All)}'.", nameof(searchTarget));
-
-        SearchTarget = searchTarget;
-        return this;
-    }
-
-    public MoveOperation WithTopDirectoryOnly()
-    {
-        RecurseSubdirectories = false;
-        return this;
-    }
-
-    public MoveOperation WithDefaultEncoding(Encoding encoding)
-    {
-        DefaultEncoding = encoding;
-        return this;
-    }
-
-    public MoveOperation WithDryRun()
-    {
-        DryRun = true;
-        return this;
-    }
-
-    public MoveOperation WithCopyOptions(CopyOptions copyOptions)
-    {
-        CopyOptions = copyOptions;
-        return this;
-    }
-
-    public MoveOperation WithProgress(IProgress<OperationProgress> progress)
-    {
-        Progress = progress;
-        return this;
-    }
-
-    public MoveOperation WithDialogProvider(IDialogProvider<ConflictInfo> dialogProvider)
-    {
-        DialogProvider = dialogProvider;
-        return this;
-    }
-
-    public OperationResult Execute(CancellationToken cancellationToken = default)
-    {
-        ImmutableArray<NameFilter> directoryFilters2 = DirectoryFilters?.ToImmutableArray() ?? ImmutableArray<NameFilter>.Empty;
-
-        directoryFilters2 = directoryFilters2.Add(NameFilter.CreateFromDirectoryPath(DestinationPath, isNegative: true));
+        IEnumerable<NameFilter> directoryFilters = DirectoryFilters
+            .ToArray()
+            .Append(NameFilter.CreateFromDirectoryPath(DestinationPath, isNegative: true));
 
         var search = new FileSystemSearch(
             Filter,
-            directoryFilters: directoryFilters2,
-            progress: null,
+            directoryFilters: directoryFilters,
+            progress: SearchProgress,
             searchTarget: SearchTarget,
             recurseSubdirectories: RecurseSubdirectories,
             defaultEncoding: DefaultEncoding);

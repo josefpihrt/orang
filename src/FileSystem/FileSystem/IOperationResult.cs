@@ -2,12 +2,7 @@
 
 namespace Orang.FileSystem;
 
-internal class OperationResult : IOperationResult
+public interface IOperationResult
 {
-    public OperationResult(SearchTelemetry telemetry)
-    {
-        Telemetry = telemetry;
-    }
-
-    public SearchTelemetry Telemetry { get; }
+    SearchTelemetry Telemetry { get; }
 }

@@ -10,8 +10,6 @@ namespace Orang.FileSystem.Commands;
 
 internal class ReplaceCommand : CommonFindCommand
 {
-    public override OperationKind OperationKind => OperationKind.Replace;
-
     public ReplaceOptions ReplaceOptions { get; set; } = null!;
 
     protected override void ExecuteDirectory(string path)

@@ -10,16 +10,11 @@ namespace Orang.FileSystem.Commands;
 
 internal class RenameCommand : DeleteOrRenameCommand
 {
-    public override OperationKind OperationKind => OperationKind.Rename;
-
     public RenameOptions RenameOptions { get; set; } = null!;
 
     public ConflictResolution ConflictResolution { get; set; }
 
     public IDialogProvider<ConflictInfo>? DialogProvider { get; set; }
-
-    //TODO: ModifyNewName
-    public Func<string, string>? ModifyNewName { get; set; }
 
     protected override void ExecuteDirectory(string directoryPath)
     {
@@ -63,26 +58,6 @@ internal class RenameCommand : DeleteOrRenameCommand
         string newPath = path.Substring(0, fileMatch.NameSpan.Start) + newName;
 
         ListCache<ReplaceItem>.Free(replaceItems);
-
-        if (ModifyNewName is not null)
-        {
-            string newName2 = ModifyNewName(newName);
-
-            newPath = newPath.Substring(0, newPath.Length - newName.Length) + newName2;
-
-            changed = !string.Equals(path, newPath, StringComparison.Ordinal);
-
-            if (changed)
-            {
-                isInvalidName = FileSystemHelpers.ContainsInvalidFileNameChars(newName2);
-
-                if (isInvalidName)
-                {
-                    Report(fileMatch, newName, new IOException("New file name contains invalid characters."));
-                    return;
-                }
-            }
-        }
 
         if (!changed)
             return;

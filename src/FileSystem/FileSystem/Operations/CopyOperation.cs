@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -14,6 +13,8 @@ namespace Orang.FileSystem.Operations;
 
 public class CopyOperation
 {
+    private SearchTarget _searchTarget;
+
     public CopyOperation(
         string directoryPath,
         string destinationPath,
@@ -30,9 +31,19 @@ public class CopyOperation
 
     public FileSystemFilter Filter { get; }
 
-    public NameFilter[]? DirectoryFilters { get; set; }
+    public List<NameFilter> DirectoryFilters { get; } = new();
 
-    public SearchTarget SearchTarget { get; set; }
+    public SearchTarget SearchTarget
+    {
+        get { return _searchTarget; }
+        set
+        {
+            if (value == SearchTarget.All)
+                throw new ArgumentException($"Search target cannot be '{nameof(SearchTarget.All)}'.", nameof(value));
+
+            _searchTarget = value;
+        }
+    }
 
     public bool RecurseSubdirectories { get; set; }
 
@@ -42,83 +53,22 @@ public class CopyOperation
 
     public CopyOptions? CopyOptions { get; set; }
 
+    public IProgress<SearchProgress>? SearchProgress { get; set; }
+
     public IProgress<OperationProgress>? Progress { get; set; }
 
     public IDialogProvider<ConflictInfo>? DialogProvider { get; set; }
 
-    public CopyOperation WithDirectoryFilter(NameFilter directoryFilter)
+    public IOperationResult Execute(CancellationToken cancellationToken = default)
     {
-        if (directoryFilter is null)
-            throw new ArgumentNullException(nameof(directoryFilter));
-
-        DirectoryFilters = new NameFilter[] { directoryFilter };
-        return this;
-    }
-
-    public CopyOperation WithDirectoryFilters(IEnumerable<NameFilter> directoryFilters)
-    {
-        if (directoryFilters is null)
-            throw new ArgumentNullException(nameof(directoryFilters));
-
-        DirectoryFilters = directoryFilters.ToArray();
-        return this;
-    }
-
-    public CopyOperation WithSearchTarget(SearchTarget searchTarget)
-    {
-        if (searchTarget == SearchTarget.All)
-            throw new ArgumentException($"Search target cannot be '{nameof(SearchTarget.All)}'.", nameof(searchTarget));
-
-        SearchTarget = searchTarget;
-        return this;
-    }
-
-    public CopyOperation WithTopDirectoryOnly()
-    {
-        RecurseSubdirectories = false;
-        return this;
-    }
-
-    public CopyOperation WithDefaultEncoding(Encoding encoding)
-    {
-        DefaultEncoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
-        return this;
-    }
-
-    public CopyOperation WithDryRun()
-    {
-        DryRun = true;
-        return this;
-    }
-
-    public CopyOperation WithCopyOptions(CopyOptions copyOptions)
-    {
-        CopyOptions = copyOptions ?? throw new ArgumentNullException(nameof(copyOptions));
-        return this;
-    }
-
-    public CopyOperation WithProgress(IProgress<OperationProgress> progress)
-    {
-        Progress = progress ?? throw new ArgumentNullException(nameof(progress));
-        return this;
-    }
-
-    public CopyOperation WithDialogProvider(IDialogProvider<ConflictInfo> dialogProvider)
-    {
-        DialogProvider = dialogProvider ?? throw new ArgumentNullException(nameof(dialogProvider));
-        return this;
-    }
-
-    public OperationResult Execute(CancellationToken cancellationToken = default)
-    {
-        ImmutableArray<NameFilter> directoryFilters2 = DirectoryFilters?.ToImmutableArray() ?? ImmutableArray<NameFilter>.Empty;
-
-        directoryFilters2 = directoryFilters2.Add(NameFilter.CreateFromDirectoryPath(DestinationPath, isNegative: true));
+        IEnumerable<NameFilter> directoryFilters = DirectoryFilters
+            .ToArray()
+            .Append(NameFilter.CreateFromDirectoryPath(DestinationPath, isNegative: true));
 
         var search = new FileSystemSearch(
             Filter,
-            directoryFilters: directoryFilters2,
-            progress: null,
+            directoryFilters: directoryFilters,
+            progress: SearchProgress,
             searchTarget: SearchTarget,
             recurseSubdirectories: RecurseSubdirectories,
             defaultEncoding: DefaultEncoding);

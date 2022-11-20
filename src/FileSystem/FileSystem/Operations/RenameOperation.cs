@@ -2,8 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using Orang.FileSystem.Commands;
@@ -39,7 +37,7 @@ public class RenameOperation
 
     public FileSystemFilter Filter { get; }
 
-    public NameFilter[]? DirectoryFilters { get; set; }
+    public List<NameFilter> DirectoryFilters { get; set; } = new();
 
     public SearchTarget SearchTarget { get; set; }
 
@@ -51,68 +49,13 @@ public class RenameOperation
 
     public RenameOptions? RenameOptions { get; set; }
 
+    public IProgress<SearchProgress>? SearchProgress { get; set; }
+
     public IProgress<OperationProgress>? Progress { get; set; }
 
     public IDialogProvider<ConflictInfo>? DialogProvider { get; set; }
 
-    public RenameOperation WithDirectoryFilter(NameFilter directoryFilter)
-    {
-        DirectoryFilters = new NameFilter[] { directoryFilter };
-        return this;
-    }
-
-    public RenameOperation WithDirectoryFilters(IEnumerable<NameFilter> directoryFilters)
-    {
-        if (directoryFilters is null)
-            throw new ArgumentNullException(nameof(directoryFilters));
-
-        DirectoryFilters = directoryFilters.ToArray();
-        return this;
-    }
-
-    public RenameOperation WithSearchTarget(SearchTarget searchTarget)
-    {
-        SearchTarget = searchTarget;
-        return this;
-    }
-
-    public RenameOperation WithTopDirectoryOnly()
-    {
-        RecurseSubdirectories = false;
-        return this;
-    }
-
-    public RenameOperation WithDefaultEncoding(Encoding encoding)
-    {
-        DefaultEncoding = encoding;
-        return this;
-    }
-
-    public RenameOperation WithDryRun()
-    {
-        DryRun = true;
-        return this;
-    }
-
-    public RenameOperation WithRenameOptions(RenameOptions renameOptions)
-    {
-        RenameOptions = renameOptions;
-        return this;
-    }
-
-    public RenameOperation WithProgress(IProgress<OperationProgress> progress)
-    {
-        Progress = progress;
-        return this;
-    }
-
-    public RenameOperation WithDialogProvider(IDialogProvider<ConflictInfo> dialogProvider)
-    {
-        DialogProvider = dialogProvider;
-        return this;
-    }
-
-    public OperationResult Execute(CancellationToken cancellationToken = default)
+    public IOperationResult Execute(CancellationToken cancellationToken = default)
     {
         RenameOptions renameOptions = RenameOptions ?? new RenameOptions(replacement: "");
 
@@ -120,8 +63,8 @@ public class RenameOperation
 
         var search = new FileSystemSearch(
             Filter,
-            directoryFilters: DirectoryFilters?.ToImmutableArray() ?? ImmutableArray<NameFilter>.Empty,
-            progress: null,
+            directoryFilters: DirectoryFilters.ToArray(),
+            progress: SearchProgress,
             searchTarget: SearchTarget,
             recurseSubdirectories: RecurseSubdirectories,
             defaultEncoding: DefaultEncoding)

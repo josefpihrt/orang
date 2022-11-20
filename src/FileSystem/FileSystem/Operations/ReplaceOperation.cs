@@ -36,7 +36,7 @@ public class ReplaceOperation
 
     public FileSystemFilter Filter { get; }
 
-    public NameFilter[]? DirectoryFilters { get; set; }
+    public List<NameFilter> DirectoryFilters { get; set; } = new();
 
     public SearchTarget SearchTarget { get; set; }
 
@@ -48,65 +48,16 @@ public class ReplaceOperation
 
     public ReplaceOptions? ReplaceOptions { get; set; }
 
+    public IProgress<SearchProgress>? SearchProgress { get; set; }
+
     public IProgress<OperationProgress>? Progress { get; set; }
 
-    public ReplaceOperation WithDirectoryFilter(NameFilter directoryFilter)
-    {
-        DirectoryFilters = new NameFilter[] { directoryFilter };
-        return this;
-    }
-
-    public ReplaceOperation WithDirectoryFilters(IEnumerable<NameFilter> directoryFilters)
-    {
-        if (directoryFilters is null)
-            throw new ArgumentNullException(nameof(directoryFilters));
-
-        DirectoryFilters = directoryFilters.ToArray();
-        return this;
-    }
-
-    public ReplaceOperation WithSearchTarget(SearchTarget searchTarget)
-    {
-        SearchTarget = searchTarget;
-        return this;
-    }
-
-    public ReplaceOperation WithTopDirectoryOnly()
-    {
-        RecurseSubdirectories = false;
-        return this;
-    }
-
-    public ReplaceOperation WithDefaultEncoding(Encoding encoding)
-    {
-        DefaultEncoding = encoding;
-        return this;
-    }
-
-    public ReplaceOperation WithDryRun()
-    {
-        DryRun = true;
-        return this;
-    }
-
-    public ReplaceOperation WithReplaceOptions(ReplaceOptions replaceOptions)
-    {
-        ReplaceOptions = replaceOptions;
-        return this;
-    }
-
-    public ReplaceOperation WithProgress(IProgress<OperationProgress> progress)
-    {
-        Progress = progress;
-        return this;
-    }
-
-    public OperationResult Execute(CancellationToken cancellationToken = default)
+    public IOperationResult Execute(CancellationToken cancellationToken = default)
     {
         var search = new FileSystemSearch(
             Filter,
-            directoryFilters: DirectoryFilters?.ToImmutableArray() ?? ImmutableArray<NameFilter>.Empty,
-            progress: null,
+            directoryFilters: DirectoryFilters.ToArray(),
+            progress: SearchProgress,
             searchTarget: SearchTarget,
             recurseSubdirectories: RecurseSubdirectories,
             defaultEncoding: DefaultEncoding)

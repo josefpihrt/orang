@@ -3,29 +3,31 @@
 using System.Text.RegularExpressions;
 using Orang;
 using Orang.FileSystem;
+using Orang.FileSystem.Operations;
 
-namespace N
+namespace N;
+
+public class C
 {
-    public class C
+    public void M()
     {
-        public void M()
-        {
-            var regex = new Regex("pattern", RegexOptions.IgnoreCase);
+        var regex = new Regex("pattern", RegexOptions.IgnoreCase);
 
-            var name = new Filter(regex);
+        var nameFilter = new Filter(regex);
 
-            var filter = new FileSystemFilter(name);
-        }
+        var fileSystemFilter = new FileSystemFilter(nameFilter);
+    }
 
-        public void M2()
-        {
-            var name = new Filter("pattern", RegexOptions.IgnoreCase);
+    public void M2()
+    {
+        var nameFilter = new Filter("pattern", RegexOptions.IgnoreCase);
 
-            var filter = new FileSystemFilter(name);
-        }
+        var fileSystemFilter = new FileSystemFilter(nameFilter);
 
-        public static void SM()
-        {
-        }
+        var renameOperation = new RenameOperation("", fileSystemFilter);
+    }
+
+    public static void SM()
+    {
     }
 }

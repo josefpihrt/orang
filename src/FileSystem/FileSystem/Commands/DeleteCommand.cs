@@ -7,8 +7,6 @@ namespace Orang.FileSystem.Commands;
 
 internal class DeleteCommand : DeleteOrRenameCommand
 {
-    public override OperationKind OperationKind => OperationKind.Delete;
-
     public DeleteOptions DeleteOptions { get; set; } = null!;
 
     protected override void ExecuteMatch(

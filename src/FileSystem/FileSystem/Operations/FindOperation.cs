@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading;
 
@@ -24,7 +23,7 @@ public class FindOperation
 
     public FileSystemFilter Filter { get; }
 
-    public NameFilter[]? DirectoryFilters { get; set; }
+    public List<NameFilter> DirectoryFilters { get; set; } = new();
 
     public IProgress<SearchProgress>? Progress { get; set; }
 
@@ -34,14 +33,11 @@ public class FindOperation
 
     public Encoding? DefaultEncoding { get; set; }
 
-    public FindOperation WithDirectoryFilter(NameFilter directoryFilter)
+    public IEnumerable<FileMatch> Execute(CancellationToken cancellationToken = default)
     {
-        return WithDirectoryFilters(new NameFilter[] { directoryFilter });
-    }
+        var directoryFilters = new List<NameFilter>();
 
-    public FindOperation WithDirectoryFilters(IEnumerable<NameFilter> directoryFilters)
-    {
-        foreach (NameFilter directoryFilter in directoryFilters)
+        foreach (NameFilter directoryFilter in DirectoryFilters)
         {
             if (directoryFilter is null)
                 throw new ArgumentException("", nameof(directoryFilter));
@@ -52,42 +48,14 @@ public class FindOperation
                     $"Directory filter has invalid part '{FileNamePart.Extension}'.",
                     nameof(directoryFilter));
             }
+
+            directoryFilters.Add(directoryFilter!);
         }
 
-        DirectoryFilters = directoryFilters.ToArray();
-        return this;
-    }
-
-    public FindOperation WithSearchTarget(SearchTarget searchTarget)
-    {
-        SearchTarget = searchTarget;
-        return this;
-    }
-
-    public FindOperation WithTopDirectoryOnly()
-    {
-        RecurseSubdirectories = false;
-        return this;
-    }
-
-    public FindOperation WithDefaultEncoding(Encoding encoding)
-    {
-        DefaultEncoding = encoding;
-        return this;
-    }
-
-    public FindOperation WithProgress(IProgress<SearchProgress> progress)
-    {
-        Progress = progress;
-        return this;
-    }
-
-    public IEnumerable<FileMatch> Execute(CancellationToken cancellationToken = default)
-    {
         var search = new FileSystemSearch(
-            Filter,
-            DirectoryFilters ?? Array.Empty<NameFilter>(),
-            Progress,
+            filter: Filter,
+            directoryFilters: directoryFilters,
+            progress: Progress,
             searchTarget: SearchTarget,
             recurseSubdirectories: RecurseSubdirectories,
             defaultEncoding: DefaultEncoding);

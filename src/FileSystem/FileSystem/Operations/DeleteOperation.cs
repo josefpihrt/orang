@@ -2,8 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using Orang.FileSystem.Commands;
@@ -26,7 +24,7 @@ public class DeleteOperation
 
     public FileSystemFilter Filter { get; }
 
-    public NameFilter[]? DirectoryFilters { get; set; }
+    public List<NameFilter> DirectoryFilters { get; set; } = new();
 
     public SearchTarget SearchTarget { get; set; }
 
@@ -38,65 +36,16 @@ public class DeleteOperation
 
     public DeleteOptions? DeleteOptions { get; set; }
 
+    public IProgress<SearchProgress>? SearchProgress { get; set; }
+
     public IProgress<OperationProgress>? Progress { get; set; }
 
-    public DeleteOperation WithDirectoryFilter(NameFilter directoryFilter)
-    {
-        DirectoryFilters = new NameFilter[] { directoryFilter };
-        return this;
-    }
-
-    public DeleteOperation WithDirectoryFilters(IEnumerable<NameFilter> directoryFilters)
-    {
-        if (directoryFilters is null)
-            throw new ArgumentNullException(nameof(directoryFilters));
-
-        DirectoryFilters = directoryFilters.ToArray();
-        return this;
-    }
-
-    public DeleteOperation WithSearchTarget(SearchTarget searchTarget)
-    {
-        SearchTarget = searchTarget;
-        return this;
-    }
-
-    public DeleteOperation WithTopDirectoryOnly()
-    {
-        RecurseSubdirectories = false;
-        return this;
-    }
-
-    public DeleteOperation WithDefaultEncoding(Encoding encoding)
-    {
-        DefaultEncoding = encoding;
-        return this;
-    }
-
-    public DeleteOperation WithDryRun()
-    {
-        DryRun = true;
-        return this;
-    }
-
-    public DeleteOperation WithDeleteOptions(DeleteOptions deleteOptions)
-    {
-        DeleteOptions = deleteOptions;
-        return this;
-    }
-
-    public DeleteOperation WithProgress(IProgress<OperationProgress> progress)
-    {
-        Progress = progress;
-        return this;
-    }
-
-    public OperationResult Execute(CancellationToken cancellationToken = default)
+    public IOperationResult Execute(CancellationToken cancellationToken = default)
     {
         var search = new FileSystemSearch(
             Filter,
-            directoryFilters: DirectoryFilters?.ToImmutableArray() ?? ImmutableArray<NameFilter>.Empty,
-            progress: null,
+            directoryFilters: DirectoryFilters.ToArray(),
+            progress: SearchProgress,
             searchTarget: SearchTarget,
             recurseSubdirectories: RecurseSubdirectories,
             defaultEncoding: DefaultEncoding)

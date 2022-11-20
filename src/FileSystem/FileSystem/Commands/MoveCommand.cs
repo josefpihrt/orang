@@ -6,8 +6,6 @@ namespace Orang.FileSystem.Commands;
 
 internal class MoveCommand : CommonCopyCommand
 {
-    public override OperationKind OperationKind => OperationKind.Move;
-
     protected override void ExecuteOperation(string sourcePath, string destinationPath)
     {
         File.Move(sourcePath, destinationPath);

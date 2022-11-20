@@ -7,7 +7,6 @@ using System.Threading;
 
 namespace Orang.FileSystem.Commands;
 
-//TODO: bool UseTelemetry
 internal abstract class Command
 {
     protected Command()
@@ -32,8 +31,6 @@ internal abstract class Command
     protected Filter? ContentFilter => Search.Filter.Content;
 
     protected Filter? NameFilter => Search.Filter.Name;
-
-    public abstract OperationKind OperationKind { get; }
 
     protected abstract void ExecuteMatch(FileMatch fileMatch, string directoryPath);
 
@@ -78,6 +75,6 @@ internal abstract class Command
 
     protected void Report(FileMatch fileMatch, string? newPath, Exception? exception = null)
     {
-        Progress?.Report(fileMatch, newPath, OperationKind, exception);
+        Progress?.Report(fileMatch, newPath, exception);
     }
 }

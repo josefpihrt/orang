@@ -10,7 +10,6 @@ internal abstract class DeleteOrRenameCommand : Command, INotifyDirectoryChanged
     {
     }
 
-    //TODO: ?
     public event EventHandler<DirectoryChangedEventArgs>? DirectoryChanged;
 
     protected virtual void OnDirectoryChanged(DirectoryChangedEventArgs e)

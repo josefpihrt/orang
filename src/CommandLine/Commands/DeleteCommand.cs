@@ -4,83 +4,82 @@ using System;
 using System.IO;
 using Orang.FileSystem;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+internal class DeleteCommand : DeleteOrRenameCommand<DeleteCommandOptions>
 {
-    internal class DeleteCommand : DeleteOrRenameCommand<DeleteCommandOptions>
+    public DeleteCommand(DeleteCommandOptions options, Logger logger) : base(options, logger)
     {
-        public DeleteCommand(DeleteCommandOptions options, Logger logger) : base(options, logger)
+    }
+
+    protected override void OnSearchCreating(FileSystemSearch search)
+    {
+        search.CanRecurseMatch = false;
+    }
+
+    protected override void ExecuteMatchCore(
+        FileMatch fileMatch,
+        SearchContext context,
+        string? baseDirectoryPath = null,
+        ColumnWidths? columnWidths = null)
+    {
+        string indent = GetPathIndent(baseDirectoryPath);
+
+        if (!Options.OmitPath)
+            WritePath(context, fileMatch, baseDirectoryPath, indent, columnWidths, includeNewline: true);
+
+        if (Options.AskMode == AskMode.File
+            && !AskToExecute(context, (Options.ContentOnly) ? "Delete content?" : "Delete?", indent))
         {
+            return;
         }
 
-        protected override void OnSearchCreating(FileSystemSearch search)
+        try
         {
-            search.CanRecurseMatch = false;
-        }
-
-        protected override void ExecuteMatchCore(
-            FileMatch fileMatch,
-            SearchContext context,
-            string? baseDirectoryPath = null,
-            ColumnWidths? columnWidths = null)
-        {
-            string indent = GetPathIndent(baseDirectoryPath);
-
-            if (!Options.OmitPath)
-                WritePath(context, fileMatch, baseDirectoryPath, indent, columnWidths, includeNewline: true);
-
-            if (Options.AskMode == AskMode.File
-                && !AskToExecute(context, (Options.ContentOnly) ? "Delete content?" : "Delete?", indent))
+            if (!Options.DryRun)
             {
-                return;
+                FileSystemHelpers.Delete(
+                    fileMatch,
+                    contentOnly: Options.ContentOnly,
+                    includingBom: Options.IncludingBom,
+                    filesOnly: Options.FilesOnly,
+                    directoriesOnly: Options.DirectoriesOnly);
             }
 
-            try
+            if (fileMatch.IsDirectory)
             {
-                if (!Options.DryRun)
-                {
-                    FileSystemHelpers.Delete(
-                        fileMatch,
-                        contentOnly: Options.ContentOnly,
-                        includingBom: Options.IncludingBom,
-                        filesOnly: Options.FilesOnly,
-                        directoriesOnly: Options.DirectoriesOnly);
-                }
-
-                if (fileMatch.IsDirectory)
-                {
-                    context.Telemetry.ProcessedDirectoryCount++;
-                }
-                else
-                {
-                    context.Telemetry.ProcessedFileCount++;
-                }
+                context.Telemetry.ProcessedDirectoryCount++;
             }
-            catch (Exception ex) when (ex is IOException
-                || ex is UnauthorizedAccessException)
+            else
             {
-                _logger.WriteFileError(ex, indent: indent);
+                context.Telemetry.ProcessedFileCount++;
             }
         }
-
-        protected override void WriteSummary(SearchTelemetry telemetry, Verbosity verbosity)
+        catch (Exception ex) when (ex is IOException
+            || ex is UnauthorizedAccessException)
         {
-            _logger.WriteSearchedFilesAndDirectories(telemetry, Options.SearchTarget, verbosity);
-
-            string filesTitle = (Options.ContentOnly)
-                ? "Deleted files content"
-                : "Deleted files";
-
-            string directoriesTitle = (Options.ContentOnly)
-                ? "Deleted directories (content only)"
-                : "Deleted directories";
-
-            _logger.WriteProcessedFilesAndDirectories(
-                telemetry,
-                Options.SearchTarget,
-                filesTitle,
-                directoriesTitle,
-                Options.DryRun,
-                verbosity);
+            _logger.WriteFileError(ex, indent: indent);
         }
+    }
+
+    protected override void WriteSummary(SearchTelemetry telemetry, Verbosity verbosity)
+    {
+        _logger.WriteSearchedFilesAndDirectories(telemetry, Options.SearchTarget, verbosity);
+
+        string filesTitle = (Options.ContentOnly)
+            ? "Deleted files content"
+            : "Deleted files";
+
+        string directoriesTitle = (Options.ContentOnly)
+            ? "Deleted directories (content only)"
+            : "Deleted directories";
+
+        _logger.WriteProcessedFilesAndDirectories(
+            telemetry,
+            Options.SearchTarget,
+            filesTitle,
+            directoriesTitle,
+            Options.DryRun,
+            verbosity);
     }
 }

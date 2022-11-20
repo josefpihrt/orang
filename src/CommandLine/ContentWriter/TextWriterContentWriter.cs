@@ -3,90 +3,89 @@
 using System;
 using System.IO;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+internal class TextWriterContentWriter : ContentWriter, IReportReplacement
 {
-    internal class TextWriterContentWriter : ContentWriter, IReportReplacement
+    private readonly TextWriter? _textWriter;
+    private int _writerIndex;
+
+    public TextWriterContentWriter(
+        string input,
+        IReplacer replacer,
+        ContentTextWriter writer,
+        ContentWriterOptions options,
+        TextWriter? textWriter = null,
+        SpellcheckState? spellcheckState = null) : base(input, writer, options)
     {
-        private readonly TextWriter? _textWriter;
-        private int _writerIndex;
+        Replacer = replacer;
+        _textWriter = textWriter;
+        SpellcheckState = spellcheckState;
+    }
 
-        public TextWriterContentWriter(
-            string input,
-            IReplacer replacer,
-            ContentTextWriter writer,
-            ContentWriterOptions options,
-            TextWriter? textWriter = null,
-            SpellcheckState? spellcheckState = null) : base(input, writer, options)
+    public IReplacer Replacer { get; }
+
+    public SpellcheckState? SpellcheckState { get; }
+
+    public int ReplacementCount { get; private set; }
+
+    protected override ValueWriter ValueWriter => throw new NotSupportedException();
+
+    protected override void WriteStartMatches()
+    {
+        ReplacementCount = 0;
+        _writerIndex = 0;
+    }
+
+    protected override void WriteStartMatch(ICapture capture)
+    {
+    }
+
+    protected override void WriteMatch(ICapture capture)
+    {
+        if (SpellcheckState?.Data.IgnoredValues.Contains(capture.Value) == true)
+            return;
+
+        string result = Replacer.Replace(capture);
+
+        if (result is not null)
         {
-            Replacer = replacer;
-            _textWriter = textWriter;
-            SpellcheckState = spellcheckState;
+            _textWriter?.Write(Input.AsSpan(_writerIndex, capture.Index - _writerIndex));
+            _textWriter?.Write(result);
+
+            _writerIndex = capture.Index + capture.Length;
+
+            ReplacementCount++;
         }
 
-        public IReplacer Replacer { get; }
+        SpellcheckState?.ProcessReplacement(Input, capture, result);
+    }
 
-        public SpellcheckState? SpellcheckState { get; }
+    protected override void WriteEndMatch(ICapture capture)
+    {
+    }
 
-        public int ReplacementCount { get; private set; }
+    protected override void WriteMatchSeparator()
+    {
+    }
 
-        protected override ValueWriter ValueWriter => throw new NotSupportedException();
+    protected override void WriteEndMatches()
+    {
+        if (ReplacementCount > 0)
+            _textWriter?.Write(Input.AsSpan(_writerIndex, Input.Length - _writerIndex));
+    }
 
-        protected override void WriteStartMatches()
-        {
-            ReplacementCount = 0;
-            _writerIndex = 0;
-        }
+    protected override void WriteStartReplacement(ICapture capture, string? result)
+    {
+    }
 
-        protected override void WriteStartMatch(ICapture capture)
-        {
-        }
+    protected override void WriteEndReplacement(ICapture capture, string? result)
+    {
+    }
 
-        protected override void WriteMatch(ICapture capture)
-        {
-            if (SpellcheckState?.Data.IgnoredValues.Contains(capture.Value) == true)
-                return;
-
-            string result = Replacer.Replace(capture);
-
-            if (result != null)
-            {
-                _textWriter?.Write(Input.AsSpan(_writerIndex, capture.Index - _writerIndex));
-                _textWriter?.Write(result);
-
-                _writerIndex = capture.Index + capture.Length;
-
-                ReplacementCount++;
-            }
-
-            SpellcheckState?.ProcessReplacement(Input, capture, result);
-        }
-
-        protected override void WriteEndMatch(ICapture capture)
-        {
-        }
-
-        protected override void WriteMatchSeparator()
-        {
-        }
-
-        protected override void WriteEndMatches()
-        {
-            if (ReplacementCount > 0)
-                _textWriter?.Write(Input.AsSpan(_writerIndex, Input.Length - _writerIndex));
-        }
-
-        protected override void WriteStartReplacement(ICapture capture, string? result)
-        {
-        }
-
-        protected override void WriteEndReplacement(ICapture capture, string? result)
-        {
-        }
-
-        public override void Dispose()
-        {
-            if (ReplacementCount > 0)
-                _textWriter?.Dispose();
-        }
+    public override void Dispose()
+    {
+        if (ReplacementCount > 0)
+            _textWriter?.Dispose();
     }
 }

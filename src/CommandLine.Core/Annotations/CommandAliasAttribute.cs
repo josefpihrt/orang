@@ -2,16 +2,15 @@
 
 using System;
 
-namespace Orang.CommandLine.Annotations
-{
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
-    internal sealed class CommandAliasAttribute : Attribute
-    {
-        public CommandAliasAttribute(string alias)
-        {
-            Alias = alias;
-        }
+namespace Orang.CommandLine.Annotations;
 
-        public string Alias { get; }
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+internal sealed class CommandAliasAttribute : Attribute
+{
+    public CommandAliasAttribute(string alias)
+    {
+        Alias = alias;
     }
+
+    public string Alias { get; }
 }

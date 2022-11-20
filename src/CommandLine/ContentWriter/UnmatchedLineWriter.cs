@@ -111,7 +111,7 @@ internal class UnmatchedLineWriter : ContentWriter
         _lineNumber++;
         MatchingLineCount++;
 
-        if (ResultStorage != null)
+        if (ResultStorage is not null)
         {
             int lastPos = _lastEndIndex;
 

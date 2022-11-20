@@ -62,7 +62,7 @@ internal class SpellcheckState : IReplacer
     {
         SpellingFix fix = default;
 
-        if (newValue != null)
+        if (newValue is not null)
         {
             if (!string.Equals(capture.Value, newValue, StringComparison.Ordinal))
             {

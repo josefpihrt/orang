@@ -261,7 +261,7 @@ internal sealed class MatchOutputInfo
             AppendNumber(Captions.ShortMatch, matchNumber, MatchWidth);
         }
 
-        if (groupName != null)
+        if (groupName is not null)
         {
             if (omitGroupInfo)
             {

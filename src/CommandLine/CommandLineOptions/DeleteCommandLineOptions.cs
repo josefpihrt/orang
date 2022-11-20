@@ -87,7 +87,7 @@ internal sealed class DeleteCommandLineOptions : DeleteOrRenameCommandLineOption
             return false;
         }
 
-        if (nameFilter == null
+        if (nameFilter is null
             && options.Paths.Length == 1
             && options.Paths[0].Origin == PathOrigin.CurrentDirectory)
         {
@@ -127,7 +127,7 @@ internal sealed class DeleteCommandLineOptions : DeleteOrRenameCommandLineOption
             return false;
         }
 
-        if (ContentMode != null)
+        if (ContentMode is not null)
         {
             if (context.TryParseAsEnum(
                 ContentMode,
@@ -143,7 +143,7 @@ internal sealed class DeleteCommandLineOptions : DeleteOrRenameCommandLineOption
             }
         }
 
-        if (PathMode != null)
+        if (PathMode is not null)
         {
             if (context.TryParseAsEnum(
                 PathMode,
@@ -177,10 +177,10 @@ internal sealed class DeleteCommandLineOptions : DeleteOrRenameCommandLineOption
         if (LineNumber)
             lineDisplayOptions |= LineDisplayOptions.IncludeLineNumber;
 #if DEBUG
-        if (ContentIndent != null)
+        if (ContentIndent is not null)
             indent = RegexEscape.ConvertCharacterEscapes(ContentIndent);
 
-        if (ContentSeparator != null)
+        if (ContentSeparator is not null)
             separator = ContentSeparator;
 
         if (NoContent)
@@ -200,7 +200,7 @@ internal sealed class DeleteCommandLineOptions : DeleteOrRenameCommandLineOption
 
         if (pathDisplayStyle == PathDisplayStyle.Relative
             && options.Paths.Length > 1
-            && options.SortOptions != null)
+            && options.SortOptions is not null)
         {
             pathDisplayStyle = PathDisplayStyle.Full;
         }

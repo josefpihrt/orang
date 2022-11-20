@@ -32,11 +32,11 @@ internal sealed class RegexEscapeCommandLineOptions : BaseCommandLineOptions
     {
         string input = Input;
 
-        if (input == null)
+        if (input is null)
         {
             string? redirectedInput = ConsoleHelpers.ReadRedirectedInput();
 
-            if (redirectedInput == null)
+            if (redirectedInput is null)
             {
                 context.WriteError("Input is missing.");
                 return false;

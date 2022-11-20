@@ -61,7 +61,7 @@ internal abstract class CommonCopyCommandLineOptions : CommonFindCommandLineOpti
 
         TimeSpan allowedTimeDiff = TimeSpan.Zero;
 
-        if (AllowedTimeDiff != null
+        if (AllowedTimeDiff is not null
             && !TimeSpan.TryParse(AllowedTimeDiff, CultureInfo.InvariantCulture, out allowedTimeDiff))
         {
             context.WriteError($"Option '{OptionNames.GetHelpText(OptionNames.AllowedTimeDiff)}' "

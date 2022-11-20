@@ -31,7 +31,7 @@ internal abstract class CommonCopyOperation : CommonFindOperation
         string destinationPath;
 
         if (fileMatch.IsDirectory
-            || (directoryPath != null && !CopyOptions.Flat))
+            || (directoryPath is not null && !CopyOptions.Flat))
         {
             Debug.Assert(sourcePath.StartsWith(directoryPath, FileSystemHelpers.Comparison));
 

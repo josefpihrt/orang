@@ -41,7 +41,7 @@ internal abstract class CommonFindCommand<TOptions> :
         get
         {
             return !Options.OmitPath
-                || (ContentFilter != null
+                || (ContentFilter is not null
                     && !Options.OmitContent
                     && _logger.ConsoleOut.Verbosity > Verbosity.Minimal);
         }
@@ -51,7 +51,7 @@ internal abstract class CommonFindCommand<TOptions> :
     {
         get
         {
-            if (_fileWriterOptions == null)
+            if (_fileWriterOptions is null)
             {
                 string indent = (Options.OmitPath) ? "" : Options.Indent;
 
@@ -66,7 +66,7 @@ internal abstract class CommonFindCommand<TOptions> :
     {
         get
         {
-            if (_directoryWriterOptions == null)
+            if (_directoryWriterOptions is null)
             {
                 string indent = GetIndent();
 
@@ -124,9 +124,9 @@ internal abstract class CommonFindCommand<TOptions> :
     {
         FileMatch? fileMatch = MatchFile(filePath);
 
-        if (fileMatch != null)
+        if (fileMatch is not null)
         {
-            if (ContentFilter != null)
+            if (ContentFilter is not null)
             {
                 ExecuteMatchWithContent(fileMatch, context, FileWriterOptions);
             }
@@ -141,7 +141,7 @@ internal abstract class CommonFindCommand<TOptions> :
     {
         foreach (FileMatch fileMatch in GetMatches(directoryPath, context, this as INotifyDirectoryChanged))
         {
-            if (ContentFilter != null)
+            if (ContentFilter is not null)
             {
                 ExecuteMatchWithContent(fileMatch, context, DirectoryWriterOptions, directoryPath);
             }
@@ -176,7 +176,7 @@ internal abstract class CommonFindCommand<TOptions> :
         if (Options.MaxMatchingFiles == context.Telemetry.MatchingFileDirectoryCount)
             context.TerminationReason = TerminationReason.MaxReached;
 
-        if (context.Results != null)
+        if (context.Results is not null)
         {
             var searchResult = new SearchResult(fileMatch, baseDirectoryPath, writerOptions);
 
@@ -230,7 +230,7 @@ internal abstract class CommonFindCommand<TOptions> :
 
     protected override void ExecuteResult(SearchResult result, SearchContext context, ColumnWidths? columnWidths)
     {
-        if (ContentFilter != null)
+        if (ContentFilter is not null)
         {
             ExecuteMatchWithContentCore(
                 result.FileMatch,
@@ -356,7 +356,7 @@ internal abstract class CommonFindCommand<TOptions> :
         ColumnWidths? columnWidths)
     {
         if (Options.PathDisplayStyle == PathDisplayStyle.Match
-            && fileMatch.NameMatch != null
+            && fileMatch.NameMatch is not null
             && !object.ReferenceEquals(fileMatch.NameMatch, Match.Empty))
         {
             if (_logger.ShouldWrite(Verbosity.Minimal))
@@ -453,7 +453,7 @@ internal abstract class CommonFindCommand<TOptions> :
         }
         finally
         {
-            if (captures != null)
+            if (captures is not null)
                 ListCache<Capture>.Free(captures);
         }
     }
@@ -500,7 +500,7 @@ internal abstract class CommonFindCommand<TOptions> :
 
         _logger.WriteLine(verbosity);
 
-        if (ContentFilter != null)
+        if (ContentFilter is not null)
         {
             WriteContentSummary(telemetry, verbosity);
         }

@@ -144,7 +144,7 @@ internal class PathWriter
 
     protected int GetBasePathLength(string path, string? basePath)
     {
-        if (basePath != null
+        if (basePath is not null
             && path.Length > basePath.Length
             && path.StartsWith(basePath, FileSystemHelpers.Comparison))
         {

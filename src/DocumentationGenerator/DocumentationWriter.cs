@@ -31,7 +31,7 @@ internal class DocumentationWriter : MarkdownDocumentationWriter
 
             OptionValueProvider? provider2 = provider;
 
-            if (provider.Parent != null)
+            if (provider.Parent is not null)
                 provider2 = provider.Parent;
 
             string metaValueUrl = provider2.Name;
@@ -83,7 +83,7 @@ internal class DocumentationWriter : MarkdownDocumentationWriter
         }
 
         if (!string.IsNullOrEmpty(description)
-            || provider != null)
+            || provider is not null)
         {
             _writer.WriteLine();
             _writer.WriteLine();
@@ -92,10 +92,10 @@ internal class DocumentationWriter : MarkdownDocumentationWriter
 
     private static bool TryGetProvider(CommandOption option, [NotNullWhen(true)] out OptionValueProvider? provider)
     {
-        if (option.ValueProviderName != null)
+        if (option.ValueProviderName is not null)
             return OptionValueProviders.ProvidersByName.TryGetValue(option.ValueProviderName, out provider);
 
-        if (option.MetaValue != null
+        if (option.MetaValue is not null
             && OptionValueProviders.ProvidersByName.TryGetValue(option.MetaValue, out provider))
         {
             return true;

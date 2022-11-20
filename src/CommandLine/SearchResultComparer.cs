@@ -38,10 +38,10 @@ internal abstract class SearchResultComparer : Comparer<SearchResult>
             if (object.ReferenceEquals(x, y))
                 return 0;
 
-            if (x == null)
+            if (x is null)
                 return -1;
 
-            if (y == null)
+            if (y is null)
                 return 1;
 
             string path1 = x.Path;
@@ -115,10 +115,10 @@ internal abstract class SearchResultComparer : Comparer<SearchResult>
             if (object.ReferenceEquals(x, y))
                 return 0;
 
-            if (x == null)
+            if (x is null)
                 return -1;
 
-            if (y == null)
+            if (y is null)
                 return 1;
 
             return x.FileSystemInfo.CreationTime.CompareTo(y.FileSystemInfo.CreationTime);
@@ -132,10 +132,10 @@ internal abstract class SearchResultComparer : Comparer<SearchResult>
             if (object.ReferenceEquals(x, y))
                 return 0;
 
-            if (x == null)
+            if (x is null)
                 return -1;
 
-            if (y == null)
+            if (y is null)
                 return 1;
 
             return x.FileSystemInfo.LastWriteTime.CompareTo(y.FileSystemInfo.LastWriteTime);
@@ -149,10 +149,10 @@ internal abstract class SearchResultComparer : Comparer<SearchResult>
             if (object.ReferenceEquals(x, y))
                 return 0;
 
-            if (x == null)
+            if (x is null)
                 return -1;
 
-            if (y == null)
+            if (y is null)
                 return 1;
 
             int diff = x.GetSize().CompareTo(y.GetSize());
@@ -178,10 +178,10 @@ internal abstract class SearchResultComparer : Comparer<SearchResult>
             if (object.ReferenceEquals(x, y))
                 return 0;
 
-            if (x == null)
+            if (x is null)
                 return -1;
 
-            if (y == null)
+            if (y is null)
                 return 1;
 
             return string.Compare(

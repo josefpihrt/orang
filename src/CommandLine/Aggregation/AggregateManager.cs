@@ -61,7 +61,7 @@ internal sealed class AggregateManager
         {
             sections = new List<StorageSection>();
         }
-        else if ((Options.ContentFilter != null || Options.NameFilter != null)
+        else if ((Options.ContentFilter is not null || Options.NameFilter is not null)
             && modifyOptions.HasFunction(ModifyFunctions.Group))
         {
             sections = new List<StorageSection>();
@@ -95,7 +95,7 @@ internal sealed class AggregateManager
         if (Sections?.Count > 0
             && ModifyOptions.HasFunction(ModifyFunctions.Group | ModifyFunctions.Distinct))
         {
-            if (Options.ContentFilter != null)
+            if (Options.ContentFilter is not null)
             {
                 valuesMap = GroupByValues(Storage.Values);
             }
@@ -124,7 +124,7 @@ internal sealed class AggregateManager
                 .ToDictionary(f => f.Key, f => new SectionInfo(f.Count()), comparer);
         }
 
-        if (valuesMap != null)
+        if (valuesMap is not null)
         {
             if (ModifyOptions.SortProperty == ValueSortProperty.Count)
             {
@@ -176,7 +176,7 @@ internal sealed class AggregateManager
 
                     valueWriter.Write(en.Current, symbols, colors, boundaryColors);
 
-                    if (valuesMap != null
+                    if (valuesMap is not null
                         && ModifyOptions.HasFunction(ModifyFunctions.Count))
                     {
                         int groupCount = valuesMap[en.Current].Count;
@@ -189,7 +189,7 @@ internal sealed class AggregateManager
 
                     List<StorageSection>? sections = valuesMap?[en.Current].Sections;
 
-                    if (sections != null)
+                    if (sections is not null)
                         WriteGroup(sections, cancellationToken);
 
                     count++;
@@ -337,7 +337,7 @@ internal sealed class AggregateManager
                 first.WriteLine(count.ToString("n0"));
                 first = null;
 
-                if (second == null)
+                if (second is null)
                     return;
             }
         }
@@ -345,7 +345,7 @@ internal sealed class AggregateManager
         if (Options.IncludeSummary
             || _logger.ShouldWrite(Verbosity.Detailed))
         {
-            if (first == null)
+            if (first is null)
             {
                 first = second;
                 second = null;
@@ -357,12 +357,12 @@ internal sealed class AggregateManager
                     ? Verbosity.Minimal
                     : Verbosity.Detailed;
 
-                if (valuesMap != null)
+                if (valuesMap is not null)
                     count = valuesMap.Sum(f => f.Value.Count);
 
                 writer.WriteLine(verbosity);
 
-                if (valuesMap != null)
+                if (valuesMap is not null)
                 {
                     writer.WriteValue(valuesMap.Count.ToString("n0"), "Groups", verbosity: verbosity);
                     writer.Write("  ", verbosity);

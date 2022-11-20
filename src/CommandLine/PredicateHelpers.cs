@@ -294,7 +294,7 @@ internal static class PredicateHelpers
 
         static DateTime Parse(string value, out bool dateOnly)
         {
-            if (value == null)
+            if (value is null)
             {
                 dateOnly = false;
                 return DateTime.MinValue;

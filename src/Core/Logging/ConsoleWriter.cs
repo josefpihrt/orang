@@ -18,10 +18,10 @@ internal sealed class ConsoleWriter : LogWriter
         get { return new ConsoleColors(Console.ForegroundColor, Console.BackgroundColor); }
         set
         {
-            if (value.Foreground != null)
+            if (value.Foreground is not null)
                 Console.ForegroundColor = value.Foreground.Value;
 
-            if (value.Background != null)
+            if (value.Background is not null)
                 Console.BackgroundColor = value.Background.Value;
         }
     }

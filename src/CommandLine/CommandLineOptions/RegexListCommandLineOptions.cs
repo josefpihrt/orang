@@ -52,7 +52,7 @@ internal sealed class RegexListCommandLineOptions : AbstractCommandLineOptions
     {
         char? value = null;
 
-        if (Value != null)
+        if (Value is not null)
         {
             if (!context.TryParseChar(Value, out char ch))
                 return false;

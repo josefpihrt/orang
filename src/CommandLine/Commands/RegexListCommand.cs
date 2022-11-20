@@ -21,7 +21,7 @@ internal class RegexListCommand : AbstractCommand<RegexListCommandOptions>
 
     protected override CommandResult ExecuteCore(CancellationToken cancellationToken = default)
     {
-        if (Options.Value != null)
+        if (Options.Value is not null)
         {
             return ListPatterns(Options.Value.Value);
         }
@@ -46,7 +46,7 @@ internal class RegexListCommand : AbstractCommand<RegexListCommandOptions>
                 .ToImmutableArray();
         }
 
-        if (filter != null)
+        if (filter is not null)
         {
             items = items.Where(f => filter.IsMatch(f.Text)
                 || filter.IsMatch(f.Description));
@@ -193,7 +193,7 @@ internal class RegexListCommand : AbstractCommand<RegexListCommandOptions>
 
         Filter? filter = Options.Filter;
 
-        if (filter != null)
+        if (filter is not null)
         {
             patterns = patterns.Where(f => filter.IsMatch(f.Pattern)
                 || (!string.IsNullOrEmpty(f.Description) && filter.IsMatch(f.Description)));

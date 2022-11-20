@@ -27,7 +27,7 @@ internal class DiagnosticProgressReporter : DotProgressReporter
 
     public override void Report(SearchProgress value)
     {
-        if (value.Exception != null)
+        if (value.Exception is not null)
         {
             WriteError(value);
         }
@@ -126,7 +126,7 @@ internal class DiagnosticProgressReporter : DotProgressReporter
             return (relativePath) ? "." : path;
 
         if (relativePath
-            && basePath != null
+            && basePath is not null
             && path.Length > basePath.Length
             && path.StartsWith(basePath, FileSystemHelpers.Comparison))
         {

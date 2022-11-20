@@ -33,7 +33,7 @@ internal class ProgressReporter : IProgress<SearchProgress>
 
     public virtual void Report(SearchProgress value)
     {
-        if (value.Exception != null)
+        if (value.Exception is not null)
         {
             WriteError(value);
             return;

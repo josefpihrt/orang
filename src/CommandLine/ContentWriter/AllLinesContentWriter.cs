@@ -22,7 +22,7 @@ internal class AllLinesContentWriter : ContentWriter
     {
         get
         {
-            if (_valueWriter == null)
+            if (_valueWriter is null)
             {
                 if (Options.IncludeLineNumber)
                 {

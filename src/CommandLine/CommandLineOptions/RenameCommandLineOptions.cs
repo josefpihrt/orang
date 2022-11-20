@@ -132,8 +132,8 @@ internal sealed class RenameCommandLineOptions : DeleteOrRenameCommandLineOption
         if (!context.TryParseReplacement(Replacement, out string? replacement, out MatchEvaluator? matchEvaluator))
             return false;
 
-        if (matchEvaluator == null
-            && Evaluator != null)
+        if (matchEvaluator is null
+            && Evaluator is not null)
         {
             context.WriteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Evaluator)}' is has been deprecated "
                 + "and will be removed in future version. "
@@ -183,7 +183,7 @@ internal sealed class RenameCommandLineOptions : DeleteOrRenameCommandLineOption
             return false;
         }
 
-        if (ContentMode != null)
+        if (ContentMode is not null)
         {
             if (context.TryParseAsEnum(
                 ContentMode,
@@ -199,7 +199,7 @@ internal sealed class RenameCommandLineOptions : DeleteOrRenameCommandLineOption
             }
         }
 
-        if (PathMode != null)
+        if (PathMode is not null)
         {
             if (context.TryParseAsEnum(
                 PathMode,
@@ -233,10 +233,10 @@ internal sealed class RenameCommandLineOptions : DeleteOrRenameCommandLineOption
         if (LineNumber)
             lineDisplayOptions |= LineDisplayOptions.IncludeLineNumber;
 #if DEBUG
-        if (ContentIndent != null)
+        if (ContentIndent is not null)
             indent = RegexEscape.ConvertCharacterEscapes(ContentIndent);
 
-        if (ContentSeparator != null)
+        if (ContentSeparator is not null)
             separator = ContentSeparator;
 
         if (NoContent)
@@ -256,7 +256,7 @@ internal sealed class RenameCommandLineOptions : DeleteOrRenameCommandLineOption
 
         if (pathDisplayStyle == PathDisplayStyle.Relative
             && options.Paths.Length > 1
-            && options.SortOptions != null)
+            && options.SortOptions is not null)
         {
             pathDisplayStyle = PathDisplayStyle.Full;
         }

@@ -207,8 +207,8 @@ internal class ParseContext
             }
             catch (ArgumentException)
             {
-                if (expression != null
-                    && optionValue != null)
+                if (expression is not null
+                    && optionValue is not null)
                 {
                     WriteOptionValueError(
                         expression.Value,
@@ -332,7 +332,7 @@ internal class ParseContext
 
         bool cultureInvariant = flags.Contains(SortFlags.CultureInvariant);
 
-        if (descriptors != null)
+        if (descriptors is not null)
         {
             sortOptions = new SortOptions(descriptors.ToImmutableArray(), cultureInvariant: cultureInvariant, maxCount: maxCount);
         }
@@ -410,7 +410,7 @@ internal class ParseContext
 
         var modifyFlags = ModifyFlags.None;
 
-        if (options != null
+        if (options is not null
             && !TryParseAsEnumFlags(
                 options,
                 optionName,
@@ -493,7 +493,7 @@ internal class ParseContext
 
         if (modifyFlags != ModifyFlags.None
             || functions != ModifyFunctions.None
-            || modifier != null)
+            || modifier is not null)
         {
             modifyOptions = new ModifyOptions(
                 functions: functions,
@@ -572,7 +572,7 @@ internal class ParseContext
         replaceOptions = null;
         var replaceFlags = ReplaceFlags.None;
 
-        if (values != null
+        if (values is not null
             && !TryParseAsEnumFlags(
                 values,
                 optionName,
@@ -596,7 +596,7 @@ internal class ParseContext
         if ((replaceFlags & ReplaceFlags.ToUpper) != 0)
             functions |= ReplaceFunctions.ToUpper;
 
-        if (matchEvaluator != null)
+        if (matchEvaluator is not null)
         {
             replaceOptions = new ReplaceOptions(
                 matchEvaluator: matchEvaluator,
@@ -953,7 +953,7 @@ internal class ParseContext
                 .Where(f => f.Severity == DiagnosticSeverity.Error)
                 .OrderBy(f => f.Location.SourceSpan))
             {
-                if (sourceText == null)
+                if (sourceText is null)
                     sourceText = syntaxTree.GetText();
 
                 if (!hasDiagnostic)
@@ -976,7 +976,7 @@ internal class ParseContext
                 {
                     foreach (Diagnostic diagnostic in emitResult.Diagnostics.OrderBy(f => f.Location.SourceSpan))
                     {
-                        if (sourceText == null)
+                        if (sourceText is null)
                             sourceText = syntaxTree.GetText();
 
                         if (!hasDiagnostic)
@@ -1111,7 +1111,7 @@ internal class ParseContext
 
         if (values?.Any() != true)
         {
-            if (defaultValue != null)
+            if (defaultValue is not null)
             {
                 result = (TEnum)(object)defaultValue;
             }
@@ -1191,14 +1191,14 @@ internal class ParseContext
         TEnum? defaultValue = null,
         OptionValueProvider? provider = default) where TEnum : struct
     {
-        if (value == null
-            && defaultValue != null)
+        if (value is null
+            && defaultValue is not null)
         {
             result = defaultValue.Value;
             return true;
         }
 
-        if (provider != null)
+        if (provider is not null)
         {
             return provider.TryParseEnum(value, out result);
         }
@@ -1242,7 +1242,7 @@ internal class ParseContext
 
     public bool TryParseEncoding(string name, out Encoding encoding, Encoding defaultEncoding)
     {
-        if (name == null)
+        if (name is null)
         {
             encoding = defaultEncoding;
             return true;
@@ -1399,7 +1399,7 @@ internal class ParseContext
 
         string? pattern = values.FirstOrDefault();
 
-        if (pattern == null)
+        if (pattern is null)
         {
             if (allowNull)
             {
@@ -1578,7 +1578,7 @@ internal class ParseContext
 
         int groupIndex = -1;
 
-        if (groupName != null)
+        if (groupName is not null)
         {
             groupIndex = regex.GroupNumberFromName(groupName);
             if (groupIndex == -1)
@@ -1619,7 +1619,7 @@ internal class ParseContext
             IEnumerable<string> values;
 
             if ((patternOptions & PatternOptions.FromFile) != 0
-                && separator == null)
+                && separator is null)
             {
                 values = TextHelpers.ReadLines(pattern).Where(f => f.Length > 0);
             }
@@ -1842,7 +1842,7 @@ internal class ParseContext
     {
         result = null;
 
-        if (value != null)
+        if (value is not null)
         {
             if (!TryEnsureFullPath(value, out result))
                 return false;

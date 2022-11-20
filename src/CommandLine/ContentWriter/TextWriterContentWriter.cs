@@ -48,7 +48,7 @@ internal class TextWriterContentWriter : ContentWriter, IReportReplacement
 
         string result = Replacer.Replace(capture);
 
-        if (result != null)
+        if (result is not null)
         {
             _textWriter?.Write(Input.AsSpan(_writerIndex, capture.Index - _writerIndex));
             _textWriter?.Write(result);

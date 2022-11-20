@@ -27,7 +27,7 @@ public readonly struct FileContent
     {
         get
         {
-            return (Text != null)
+            return (Text is not null)
                 ? $"{Encoding.EncodingName}  {nameof(HasBom)} = {HasBom}"
                 : "Uninitialized";
         }

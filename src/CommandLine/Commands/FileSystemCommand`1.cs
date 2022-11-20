@@ -53,7 +53,7 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
 
         var directoryFilters = new List<NameFilter>();
 
-        if (Options.DirectoryFilter != null)
+        if (Options.DirectoryFilter is not null)
         {
             var directoryFilter = new NameFilter(
                 name: Options.DirectoryFilter,
@@ -64,7 +64,7 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
 
         NameFilter? additionalDirectoryFilter = CreateAdditionalDirectoryFilter();
 
-        if (additionalDirectoryFilter != null)
+        if (additionalDirectoryFilter is not null)
             directoryFilters.Add(additionalDirectoryFilter);
 
         var options = new FileSystemSearchOptions(
@@ -112,7 +112,7 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
 
         if (CanUseResults)
         {
-            if (Options.SortOptions != null)
+            if (Options.SortOptions is not null)
             {
                 results = new List<SearchResult>();
             }
@@ -201,7 +201,7 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
             }
         }
 
-        if (context.Results != null)
+        if (context.Results is not null)
         {
             if (context.Progress?.ProgressReported == true
                 && _logger.ConsoleOut.Verbosity >= Verbosity.Minimal)
@@ -223,7 +223,7 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
 
         if (ShouldWriteSummary())
         {
-            if (context.Progress != null)
+            if (context.Progress is not null)
             {
                 context.Telemetry.SearchedDirectoryCount = context.Progress.SearchedDirectoryCount;
                 context.Telemetry.FileCount = context.Progress.FileCount;
@@ -260,7 +260,7 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
             PathDisplayStyle pathDisplayStyle = Options.PathDisplayStyle;
 
             if (pathDisplayStyle == PathDisplayStyle.Match
-                && NameFilter == null)
+                && NameFilter is null)
             {
                 pathDisplayStyle = PathDisplayStyle.Full;
             }
@@ -291,7 +291,7 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
 
                     if (result.IsDirectory)
                     {
-                        if (context.DirectorySizeMap == null)
+                        if (context.DirectorySizeMap is null)
                             context.DirectorySizeMap = new Dictionary<string, long>();
 
                         context.DirectorySizeMap[result.Path] = size;
@@ -391,7 +391,7 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
     {
         if (context.Progress?.ProgressReported == true
             && _logger.ConsoleOut.Verbosity >= Verbosity.Minimal
-            && context.Results == null)
+            && context.Results is null)
         {
             _logger.ConsoleOut.WriteLine();
             context.Progress.ProgressReported = false;
@@ -412,7 +412,7 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
         if (Options.MaxMatchingFiles == context.Telemetry.MatchingFileDirectoryCount)
             context.TerminationReason = TerminationReason.MaxReached;
 
-        if (context.Results != null)
+        if (context.Results is not null)
         {
             var searchResult = new SearchResult(fileMatch, baseDirectoryPath);
 
@@ -457,7 +457,7 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
 
     protected string GetPathIndent(string? baseDirectoryPath)
     {
-        return (baseDirectoryPath != null) ? GetPathIndent() : "";
+        return (baseDirectoryPath is not null) ? GetPathIndent() : "";
     }
 
     private string GetPathIndent()
@@ -487,7 +487,7 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
 
         StringBuilder sb = StringBuilderCache.GetInstance();
 
-        if (columnWidths != null)
+        if (columnWidths is not null)
             sb.Append(' ', columnWidths.NameWidth - fileMatch.Path.Length);
 
         if (Options.FilePropertyOptions.IncludeSize)
@@ -503,7 +503,7 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
 
             string sizeText = size.ToString(ApplicationOptions.Default.SizeFormat);
 
-            if (columnWidths != null)
+            if (columnWidths is not null)
                 sb.Append(' ', columnWidths.SizeWidth - sizeText.Length);
 
             sb.Append(sizeText);

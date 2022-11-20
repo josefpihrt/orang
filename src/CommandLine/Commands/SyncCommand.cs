@@ -161,7 +161,7 @@ internal sealed class SyncCommand :
                 }
             }
 
-            if (preferLeft == null)
+            if (preferLeft is null)
             {
                 if (!_isSecondToFirst
                     && !isDirectory)
@@ -184,7 +184,7 @@ internal sealed class SyncCommand :
                     else if (Options.DetectRename
                         && (Options.CompareOptions & FileCompareOptions.Content) != 0)
                     {
-                        if (_directoryData == null)
+                        if (_directoryData is null)
                         {
                             _directoryData = new DirectoryData();
                             _directoryData.Load(Path.GetDirectoryName(destinationPath)!);
@@ -204,7 +204,7 @@ internal sealed class SyncCommand :
                     if (base.CanEndProgress)
                         EndProgress(context);
 
-                    if (renamePath != null)
+                    if (renamePath is not null)
                     {
                         WritePathPrefix(sourcePath, "FIL", default, indent);
                         WritePathPrefix(renamePath, "FIL", default, indent);
@@ -295,7 +295,7 @@ internal sealed class SyncCommand :
             {
                 ExecuteDirectoryOperations(context, sourcePath, destinationPath, fileExists, directoryExists, preferLeft.Value, indent);
             }
-            else if (renamePath != null)
+            else if (renamePath is not null)
             {
                 RenameFile(context, (preferLeft.Value) ? sourcePath : renamePath, (preferLeft.Value) ? renamePath : sourcePath, indent);
             }
@@ -702,7 +702,7 @@ internal sealed class SyncCommand :
 
                                 if (StreamComparer.Default.ByteEquals(fs, fs2))
                                 {
-                                    if (renameFile == null)
+                                    if (renameFile is null)
                                     {
                                         renameFile = fileData.Path;
                                     }

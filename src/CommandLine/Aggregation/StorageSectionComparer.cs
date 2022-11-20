@@ -32,7 +32,7 @@ internal abstract class StorageSectionComparer : IComparer<StorageSection>, IEqu
         {
             string? path = obj.FileMatch?.Path;
 
-            if (path == null)
+            if (path is null)
                 return 0;
 
             return FileSystemHelpers.Comparer.GetHashCode(path);

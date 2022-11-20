@@ -28,7 +28,7 @@ internal sealed class FindCommand<TOptions> : CommonFindCommand<TOptions> where 
         get
         {
             return !Options.OmitPath
-                || (ContentFilter != null
+                || (ContentFilter is not null
                     && !Options.OmitContent
                     && _logger.ConsoleOut.Verbosity > Verbosity.Minimal);
         }
@@ -44,7 +44,7 @@ internal sealed class FindCommand<TOptions> : CommonFindCommand<TOptions> where 
     {
         _aggregate = AggregateManager.TryCreate(Options, _logger);
 
-        if (Options.Input != null)
+        if (Options.Input is not null)
             ExecuteInput(context, Options.Input);
 
         base.ExecuteCore(context);
@@ -61,7 +61,7 @@ internal sealed class FindCommand<TOptions> : CommonFindCommand<TOptions> where 
 
         ContentWriterOptions writerOptions = CreateContentWriterOptions("");
 
-        if (match != null)
+        if (match is not null)
         {
             WriteContent(
                 context,
@@ -91,7 +91,7 @@ internal sealed class FindCommand<TOptions> : CommonFindCommand<TOptions> where 
     {
         base.ExecuteDirectory(directoryPath, context);
 
-        if (ContentFilter == null)
+        if (ContentFilter is null)
             _aggregate?.Sections?.Add(new StorageSection(null!, null, _aggregate.Storage.Count));
     }
 
@@ -149,8 +149,8 @@ internal sealed class FindCommand<TOptions> : CommonFindCommand<TOptions> where 
             WritePath(context, fileMatch, baseDirectoryPath, indent, columnWidths, includeNewline: true);
         }
 
-        if (_aggregate?.Storage != null
-            && fileMatch.NameMatch != null
+        if (_aggregate?.Storage is not null
+            && fileMatch.NameMatch is not null
             && !object.ReferenceEquals(fileMatch.NameMatch, Match.Empty))
         {
             _aggregate.Storage.Add(fileMatch.NameMatch.Value);
@@ -356,7 +356,7 @@ internal sealed class FindCommand<TOptions> : CommonFindCommand<TOptions> where 
         }
         finally
         {
-            if (splits != null)
+            if (splits is not null)
                 ListCache<ICapture>.Free(splits);
         }
 

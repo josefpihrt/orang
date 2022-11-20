@@ -322,7 +322,7 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
 
         ImmutableArray<PathInfo> pathsFromFile = ImmutableArray<PathInfo>.Empty;
 
-        if (PathsFrom != null)
+        if (PathsFrom is not null)
         {
             if (!FileSystemHelpers.TryReadAllText(PathsFrom, out string? content, ex => context.WriteError(ex)))
                 return false;

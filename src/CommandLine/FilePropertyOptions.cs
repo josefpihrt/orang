@@ -14,9 +14,9 @@ internal class FilePropertyOptions
         Func<DateTime, bool>? modifiedTimePredicate = null,
         Func<long, bool>? sizePredicate = null)
     {
-        IncludeCreationTime = includeCreationTime || creationTimePredicate != null;
-        IncludeModifiedTime = includeModifiedTime || modifiedTimePredicate != null;
-        IncludeSize = includeSize || sizePredicate != null;
+        IncludeCreationTime = includeCreationTime || creationTimePredicate is not null;
+        IncludeModifiedTime = includeModifiedTime || modifiedTimePredicate is not null;
+        IncludeSize = includeSize || sizePredicate is not null;
         CreationTimePredicate = creationTimePredicate;
         ModifiedTimePredicate = modifiedTimePredicate;
         SizePredicate = sizePredicate;
@@ -41,9 +41,9 @@ internal class FilePropertyOptions
             return !IncludeCreationTime
                 && !IncludeModifiedTime
                 && !IncludeSize
-                && CreationTimePredicate == null
-                && ModifiedTimePredicate == null
-                && SizePredicate == null;
+                && CreationTimePredicate is null
+                && ModifiedTimePredicate is null
+                && SizePredicate is null;
         }
     }
 

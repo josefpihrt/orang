@@ -398,7 +398,7 @@ internal class OutputWriter
                 WriteNewLine(value, index);
                 Write(Indent);
             }
-            else if (symbols.Linefeed == null)
+            else if (symbols.Linefeed is null)
             {
                 WriteNewLine(value, index);
             }

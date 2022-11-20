@@ -57,7 +57,7 @@ internal abstract class Expression
                                 {
                                     expression = ParseInterval();
 
-                                    return expression != null;
+                                    return expression is not null;
                                 }
                             case '-':
                                 {
@@ -193,7 +193,7 @@ internal abstract class Expression
                 semicolonIndex,
                 GetBinaryOperatorKind(value[openTokenIndex]));
 
-            if (expression1 == null)
+            if (expression1 is null)
                 return null;
 
             BinaryExpression? expression2 = CreateBinaryExpression(
@@ -203,7 +203,7 @@ internal abstract class Expression
                 closeTokenIndex,
                 GetBinaryOperatorKind(value[closeTokenIndex]));
 
-            if (expression2 == null)
+            if (expression2 is null)
                 return null;
 
             return new IntervalExpression(value, identifier, intervalValue, expression1, expression2);

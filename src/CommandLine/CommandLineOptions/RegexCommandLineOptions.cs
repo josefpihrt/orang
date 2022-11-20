@@ -52,7 +52,7 @@ internal abstract class RegexCommandLineOptions : CommonRegexCommandLineOptions
 
         if (!string.IsNullOrEmpty(Path))
         {
-            if (input != null)
+            if (input is not null)
             {
                 context.WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Input)}' and "
                     + $"argument '{ArgumentMetaNames.Path}' cannot be set both at the same time.");
@@ -76,7 +76,7 @@ internal abstract class RegexCommandLineOptions : CommonRegexCommandLineOptions
         {
             string? redirectedInput = ConsoleHelpers.ReadRedirectedInput();
 
-            if (redirectedInput == null)
+            if (redirectedInput is null)
             {
                 context.WriteError("Input is missing.");
                 return false;
@@ -125,7 +125,7 @@ internal abstract class RegexCommandLineOptions : CommonRegexCommandLineOptions
         if (Summary)
             displayParts |= DisplayParts.Summary;
 
-        if (ContentMode != null)
+        if (ContentMode is not null)
         {
             if (context.TryParseAsEnum(
                 ContentMode,
@@ -141,10 +141,10 @@ internal abstract class RegexCommandLineOptions : CommonRegexCommandLineOptions
             }
         }
 #if DEBUG
-        if (ContentIndent != null)
+        if (ContentIndent is not null)
             indent = RegexEscape.ConvertCharacterEscapes(ContentIndent);
 
-        if (ContentSeparator != null)
+        if (ContentSeparator is not null)
             separator = ContentSeparator;
 #endif
         EnumerableModifier<string>? modifier = null;

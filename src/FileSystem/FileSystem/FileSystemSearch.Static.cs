@@ -22,7 +22,7 @@ public partial class FileSystemSearch
         bool dryRun = false,
         CancellationToken cancellationToken = default)
     {
-        if (directoryPath == null)
+        if (directoryPath is null)
             throw new ArgumentNullException(nameof(directoryPath));
 
         var searchOptions = new FileSystemSearchOptions(
@@ -35,7 +35,7 @@ public partial class FileSystemSearch
             searchProgress: null,
             options: searchOptions);
 
-        if (filter.Content == null)
+        if (filter.Content is null)
             throw new InvalidOperationException("Content filter is not defined.");
 
         if (filter.Content.IsNegative)
@@ -67,7 +67,7 @@ public partial class FileSystemSearch
         bool dryRun = false,
         CancellationToken cancellationToken = default)
     {
-        if (directoryPath == null)
+        if (directoryPath is null)
             throw new ArgumentNullException(nameof(directoryPath));
 
         var searchOptions = new FileSystemSearchOptions(
@@ -108,13 +108,13 @@ public partial class FileSystemSearch
         bool dryRun = false,
         CancellationToken cancellationToken = default)
     {
-        if (directoryPath == null)
+        if (directoryPath is null)
             throw new ArgumentNullException(nameof(directoryPath));
 
-        if (renameOptions == null)
+        if (renameOptions is null)
             throw new ArgumentNullException(nameof(renameOptions));
 
-        if (directoryPath == null)
+        if (directoryPath is null)
             throw new ArgumentNullException(nameof(directoryPath));
 
         var searchOptions = new FileSystemSearchOptions(
@@ -134,7 +134,7 @@ public partial class FileSystemSearch
         if (filter.Part == FileNamePart.FullName)
             throw new InvalidOperationException($"Invalid file name part '{nameof(FileNamePart.FullName)}'.");
 
-        if (filter.Name == null)
+        if (filter.Name is null)
             throw new InvalidOperationException("Name filter is not defined.");
 
         if (filter.Name.IsNegative)
@@ -171,7 +171,7 @@ public partial class FileSystemSearch
         bool dryRun = false,
         CancellationToken cancellationToken = default)
     {
-        if (directoryPath == null)
+        if (directoryPath is null)
             throw new ArgumentNullException(nameof(directoryPath));
 
         var searchOptions = new FileSystemSearchOptions(
@@ -223,7 +223,7 @@ public partial class FileSystemSearch
         bool dryRun = false,
         CancellationToken cancellationToken = default)
     {
-        if (directoryPath == null)
+        if (directoryPath is null)
             throw new ArgumentNullException(nameof(directoryPath));
 
         var searchOptions = new FileSystemSearchOptions(
@@ -268,10 +268,10 @@ public partial class FileSystemSearch
         CopyOptions copyOptions,
         IDialogProvider<OperationProgress>? dialogProvider)
     {
-        if (directoryPath == null)
+        if (directoryPath is null)
             throw new ArgumentNullException(nameof(directoryPath));
 
-        if (destinationPath == null)
+        if (destinationPath is null)
             throw new ArgumentNullException(nameof(destinationPath));
 
         if (!System.IO.Directory.Exists(directoryPath))
@@ -295,7 +295,7 @@ public partial class FileSystemSearch
         IDialogProvider<OperationProgress>? dialogProvider)
     {
         if (conflictResolution == ConflictResolution.Ask
-            && dialogProvider == null)
+            && dialogProvider is null)
         {
             throw new ArgumentNullException(
                 nameof(dialogProvider),

@@ -42,6 +42,6 @@ internal static class FileSystemExtensions
 
     public static bool IsMatch(this Filter filter, in FileNameSpan name)
     {
-        return Match(filter, name) != null;
+        return Match(filter, name) is not null;
     }
 }

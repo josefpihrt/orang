@@ -46,7 +46,7 @@ internal class DiagnosticWriter
         {
             OptionAttribute? optionAttribute = propertyInfo.GetCustomAttribute<OptionAttribute>();
 
-            if (optionAttribute != null)
+            if (optionAttribute is not null)
             {
                 object? value = propertyInfo.GetValue(commandLineOptions);
 
@@ -56,7 +56,7 @@ internal class DiagnosticWriter
             {
                 ValueAttribute? valueAttribute = propertyInfo.GetCustomAttribute<ValueAttribute>();
 
-                if (valueAttribute != null)
+                if (valueAttribute is not null)
                 {
                     object? value = propertyInfo.GetValue(commandLineOptions);
 
@@ -627,7 +627,7 @@ internal class DiagnosticWriter
     {
         WriteName(name);
 
-        if (value == null)
+        if (value is null)
         {
             WriteNullValue();
         }
@@ -687,7 +687,7 @@ internal class DiagnosticWriter
     {
         WriteName(name);
 
-        if (filter == null)
+        if (filter is null)
         {
             WriteNullValue();
             WriteLine();
@@ -714,7 +714,7 @@ internal class DiagnosticWriter
             WriteLine(filter.GroupName);
         }
 
-        if (part != null)
+        if (part is not null)
         {
             WriteIndent();
             WriteName("part");
@@ -727,7 +727,7 @@ internal class DiagnosticWriter
     {
         WriteName(name);
 
-        if (regex == null)
+        if (regex is null)
         {
             WriteNullValue();
             WriteLine();
@@ -758,9 +758,9 @@ internal class DiagnosticWriter
     {
         WriteName(name);
 
-        if (sizePredicate == null
-            && creationTimePredicate == null
-            && modifiedTimePredicate == null)
+        if (sizePredicate is null
+            && creationTimePredicate is null
+            && modifiedTimePredicate is null)
         {
             WriteNullValue();
             WriteLine();
@@ -777,7 +777,7 @@ internal class DiagnosticWriter
 
     private void WriteFilterPredicate<T>(string name, FilterPredicate<T>? filterPredicate)
     {
-        if (filterPredicate == null)
+        if (filterPredicate is null)
             return;
 
         WriteIndent();
@@ -814,9 +814,9 @@ internal class DiagnosticWriter
         if (!filePropertyOptions.IncludeCreationTime
             && !filePropertyOptions.IncludeModifiedTime
             && !filePropertyOptions.IncludeSize
-            && filePropertyOptions.CreationTimePredicate == null
-            && filePropertyOptions.ModifiedTimePredicate == null
-            && filePropertyOptions.SizePredicate == null)
+            && filePropertyOptions.CreationTimePredicate is null
+            && filePropertyOptions.ModifiedTimePredicate is null
+            && filePropertyOptions.SizePredicate is null)
         {
             WriteNullValue();
             WriteLine();
@@ -842,7 +842,7 @@ internal class DiagnosticWriter
     {
         WriteName(name);
 
-        if (options == null)
+        if (options is null)
         {
             WriteNullValue();
             WriteLine();
@@ -883,7 +883,7 @@ internal class DiagnosticWriter
     {
         WriteName(name);
 
-        if (matchEvaluator != null
+        if (matchEvaluator is not null
             && !object.ReferenceEquals(matchEvaluator.Method.DeclaringType!.Assembly, typeof(Program).Assembly))
         {
             WriteLine();
@@ -997,7 +997,7 @@ internal class DiagnosticWriter
 
     private void WriteValue(string? value, bool replaceAllSymbols = false)
     {
-        if (value == null)
+        if (value is null)
         {
             WriteNullValue();
         }

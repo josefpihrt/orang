@@ -91,7 +91,7 @@ internal sealed class FindCommandLineOptions : CommonFindCommandLineOptions
         if (pipeMode != PipeMode.Paths
             && Console.IsInputRedirected)
         {
-            if (options.ContentFilter == null)
+            if (options.ContentFilter is null)
             {
                 context.WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Content)}' is required "
                     + "when redirected/piped input is used as a text to be searched.");
@@ -103,8 +103,8 @@ internal sealed class FindCommandLineOptions : CommonFindCommandLineOptions
 
             if (options.Paths.Length == 1
                 && options.Paths[0].Origin == PathOrigin.CurrentDirectory
-                && options.ExtensionFilter == null
-                && options.NameFilter == null)
+                && options.ExtensionFilter is null
+                && options.NameFilter is null)
             {
                 options.Paths = ImmutableArray<PathInfo>.Empty;
             }

@@ -51,7 +51,7 @@ internal sealed class SpellcheckCommand : CommonReplaceCommand<SpellcheckCommand
                     containingValue: spellingMatch.Parent,
                     containingValueIndex: spellingMatch.ParentIndex);
 
-                if (filteredSpans == null)
+                if (filteredSpans is null)
                     filteredSpans = GetFilteredSpans(groups, cancellationToken);
 
                 var captureSpan = new TextSpan(captureInfo.Index, captureInfo.Length);
@@ -79,7 +79,7 @@ internal sealed class SpellcheckCommand : CommonReplaceCommand<SpellcheckCommand
             {
                 Match? match = filter.Match(group.Value);
 
-                if (match != null)
+                if (match is not null)
                 {
                     var captures = new List<Capture>();
 
@@ -91,7 +91,7 @@ internal sealed class SpellcheckCommand : CommonReplaceCommand<SpellcheckCommand
                         filter.Predicate,
                         cancellationToken);
 
-                    if (allSpans == null)
+                    if (allSpans is null)
                         allSpans = ImmutableArray.CreateBuilder<TextSpan>();
 
                     foreach (Capture capture in captures)
@@ -100,7 +100,7 @@ internal sealed class SpellcheckCommand : CommonReplaceCommand<SpellcheckCommand
             }
         }
 
-        if (allSpans == null)
+        if (allSpans is null)
             return new List<TextSpan>();
 
         allSpans.Sort((x, y) =>
@@ -149,7 +149,7 @@ internal sealed class SpellcheckCommand : CommonReplaceCommand<SpellcheckCommand
         if (_logger.ShouldWrite(Verbosity.Normal))
         {
             foreach (IGrouping<string, SpellingFixResult> grouping in SpellcheckState.Results
-                .Where(f => !f.HasFix && f.ContainingValue != null)
+                .Where(f => !f.HasFix && f.ContainingValue is not null)
                 .GroupBy(f => f.ContainingValue!, comparer)
                 .OrderBy(f => f.Key, comparer))
             {
@@ -266,7 +266,7 @@ internal sealed class SpellcheckCommand : CommonReplaceCommand<SpellcheckCommand
                 {
                     _logger.Write(indent, Verbosity.Detailed);
 
-                    if (result.LineNumber != null)
+                    if (result.LineNumber is not null)
                     {
                         _logger.Write(result.LineNumber.Value.ToString(), Colors.LineNumber, Verbosity.Detailed);
                         _logger.Write(" ", Verbosity.Detailed);
@@ -312,7 +312,7 @@ internal sealed class SpellcheckCommand : CommonReplaceCommand<SpellcheckCommand
         string? outputPath = null,
         CancellationToken cancellationToken = default)
     {
-        if (newFixesPath != null)
+        if (newFixesPath is not null)
         {
             Dictionary<string, List<SpellingFix>> fixes = spellingData.Fixes.Items.ToDictionary(
                 f => f.Key,
@@ -362,7 +362,7 @@ internal sealed class SpellcheckCommand : CommonReplaceCommand<SpellcheckCommand
         const StringComparison comparison = StringComparison.InvariantCulture;
         StringComparer comparer = StringComparer.FromComparison(comparison);
 
-        if (newWordsPath != null)
+        if (newWordsPath is not null)
         {
             HashSet<string> newValues = spellingData.IgnoredValues
                 .Concat(results.Select(f => f.Value))
@@ -388,13 +388,13 @@ internal sealed class SpellcheckCommand : CommonReplaceCommand<SpellcheckCommand
 
             IEnumerable<string> compoundWords = results
                 .Select(f => f.ContainingValue)
-                .Where(f => f != null)
+                .Where(f => f is not null)
                 .Select(f => f!);
 
             WordList.Save(newWordsPath, newValues.Concat(compoundWords).Concat(possibleNewFixes), comparer, merge: true);
         }
 
-        if (outputPath != null
+        if (outputPath is not null
             && results.Count > 0)
         {
             using (var writer = new StreamWriter(outputPath, false, Encoding.UTF8))
@@ -416,7 +416,7 @@ internal sealed class SpellcheckCommand : CommonReplaceCommand<SpellcheckCommand
                         {
                             writer.Write("    ");
 
-                            if (result.LineNumber != null)
+                            if (result.LineNumber is not null)
                             {
                                 writer.Write(result.LineNumber.Value);
                                 writer.Write(" ");

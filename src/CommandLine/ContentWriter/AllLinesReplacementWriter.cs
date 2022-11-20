@@ -35,7 +35,7 @@ internal class AllLinesReplacementWriter : AllLinesContentWriter, IReportReplace
     {
         get
         {
-            if (_valueWriter == null)
+            if (_valueWriter is null)
             {
                 if (Options.IncludeLineNumber)
                 {
@@ -130,7 +130,7 @@ internal class AllLinesReplacementWriter : AllLinesContentWriter, IReportReplace
 
     protected override void WriteEndReplacement(ICapture capture, string? result)
     {
-        if (result != null)
+        if (result is not null)
         {
             _textWriter?.Write(Input.AsSpan(_writerIndex, capture.Index - _writerIndex));
             _textWriter?.Write(result);

@@ -121,7 +121,7 @@ internal static class CommandUtility
 
     private static void ReplaceArgs(string commandName, string commandAlias, Logger logger, ref string[] args)
     {
-        if (commandAlias != null)
+        if (commandAlias is not null)
         {
             logger.WriteWarning($"Command '{args[0]}' has been deprecated "
                 + $"and will be removed in future version. Use command '{commandAlias}' instead.");

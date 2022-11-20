@@ -29,7 +29,7 @@ internal static class DelegateFactory
     {
         result = default;
 
-        if (path == null)
+        if (path is null)
             return false;
 
         int index = path.LastIndexOf(',');
@@ -78,7 +78,7 @@ internal static class DelegateFactory
 
         result = CreateDelegateAndCatchIfThrows<TDelegate>(assembly, returnType, parameters, logger, typeName, methodName);
 
-        return result != null;
+        return result is not null;
     }
 
     private static TDelegate? CreateDelegateAndCatchIfThrows<TDelegate>(
@@ -116,20 +116,20 @@ internal static class DelegateFactory
         Type? type;
         MethodInfo? method;
 
-        if (typeName != null)
+        if (typeName is not null)
         {
             type = assembly.GetType(typeName);
 
-            if (type == null)
+            if (type is null)
             {
                 throw new InvalidOperationException($"Cannot find type '{typeName}' in assembly '{assembly.FullName}'");
             }
 
-            if (methodName != null)
+            if (methodName is not null)
             {
                 method = type.GetMethod(methodName, parameters);
 
-                if (method == null)
+                if (method is null)
                 {
                     throw new InvalidOperationException($"Cannot find method '{methodName}' in type '{typeName}'");
                 }
@@ -138,7 +138,7 @@ internal static class DelegateFactory
             {
                 method = FindMethod(type, returnType, parameters);
 
-                if (method == null)
+                if (method is null)
                 {
                     throw new InvalidOperationException("Cannot find public method with signature "
                         + $"'{returnType.Name} M({string.Join(", ", parameters.Select(f => f.Name))})'"
@@ -152,7 +152,7 @@ internal static class DelegateFactory
         {
             method = FindMethod(assembly, returnType, parameters, methodName);
 
-            if (method == null)
+            if (method is null)
             {
                 throw new InvalidOperationException("Cannot find public method with signature "
                     + $"'{returnType.Name} {methodName ?? "M"}({string.Join(", ", parameters.Select(f => f.Name))})'");
@@ -171,7 +171,7 @@ internal static class DelegateFactory
         {
             object? typeInstance = Activator.CreateInstance(type!);
 
-            if (typeInstance == null)
+            if (typeInstance is null)
             {
                 throw new InvalidOperationException($"Cannot create instance of '{typeName}'");
             }
@@ -188,11 +188,11 @@ internal static class DelegateFactory
     {
         foreach (Type type in assembly.GetTypes())
         {
-            MethodInfo? method = (methodName != null)
+            MethodInfo? method = (methodName is not null)
                 ? type.GetMethod(methodName, parameters)
                 : FindMethod(type, returnType, parameters);
 
-            if (method != null)
+            if (method is not null)
                 return method;
         }
 

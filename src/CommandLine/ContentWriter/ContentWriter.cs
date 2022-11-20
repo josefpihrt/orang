@@ -194,7 +194,7 @@ internal abstract class ContentWriter : IDisposable
 
         if (replacement.Length > 0)
         {
-            if (result != null)
+            if (result is not null)
             {
                 WriteNonEmptyReplacementValue(replacement, ReplacementColors, ReplacementBoundaryColors);
             }
@@ -205,7 +205,7 @@ internal abstract class ContentWriter : IDisposable
         }
         else if (Options.HighlightEmptyReplacement)
         {
-            Write("|", (result != null) ? Colors.EmptyReplacement : Colors.EmptyMatch);
+            Write("|", (result is not null) ? Colors.EmptyReplacement : Colors.EmptyMatch);
         }
     }
 

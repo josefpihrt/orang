@@ -13,7 +13,7 @@ internal class DotProgressReporter : ProgressReporter
 
     public override void Report(SearchProgress value)
     {
-        if (value.Exception != null)
+        if (value.Exception is not null)
             return;
 
         switch (value.Kind)

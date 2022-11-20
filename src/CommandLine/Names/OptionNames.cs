@@ -86,7 +86,7 @@ internal static class OptionNames
     {
         get
         {
-            if (_namesToShortNames == null)
+            if (_namesToShortNames is null)
                 Interlocked.CompareExchange(ref _namesToShortNames, Create(), null);
 
             return _namesToShortNames;

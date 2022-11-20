@@ -463,7 +463,7 @@ internal class Logger : TextWriter, ILogWriter
     public bool ShouldWrite(Verbosity verbosity)
     {
         return verbosity <= ConsoleOut.Verbosity
-            || (Out != null && verbosity <= Out.Verbosity);
+            || (Out is not null && verbosity <= Out.Verbosity);
     }
 
     protected override void Dispose(bool disposing)

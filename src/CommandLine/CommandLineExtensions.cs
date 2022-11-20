@@ -41,7 +41,7 @@ internal static class CommandLineExtensions
 
         logger.ConsoleOut.WriteLine(Verbosity.Minimal);
 
-        if (logger.Out != null)
+        if (logger.Out is not null)
         {
             verbosity = logger.Out.Verbosity;
 
@@ -364,7 +364,7 @@ internal static class CommandLineExtensions
         {
             if (ex is OperationCanceledException operationCanceledException2)
             {
-                if (operationCanceledException == null)
+                if (operationCanceledException is null)
                     operationCanceledException = operationCanceledException2;
             }
             else if (ex is AggregateException aggregateException2)
@@ -373,7 +373,7 @@ internal static class CommandLineExtensions
                 {
                     if (ex2 is OperationCanceledException operationCanceledException3)
                     {
-                        if (operationCanceledException == null)
+                        if (operationCanceledException is null)
                             operationCanceledException = operationCanceledException3;
                     }
                     else

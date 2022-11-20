@@ -21,7 +21,7 @@ internal class CommonReplaceCommand<TOptions> : CommonFindCommand<TOptions> wher
         Debug.Assert(!options.ContentFilter!.IsNegative);
     }
 
-    protected override bool CanDisplaySummary => Options.Input == null;
+    protected override bool CanDisplaySummary => Options.Input is null;
 
     protected virtual bool ReportProgress => false;
 
@@ -37,7 +37,7 @@ internal class CommonReplaceCommand<TOptions> : CommonFindCommand<TOptions> wher
     {
         context.Telemetry.MatchingLineCount = -1;
 
-        if (Options.Input != null)
+        if (Options.Input is not null)
         {
             ExecuteInput(context, Options.Input);
         }
@@ -54,7 +54,7 @@ internal class CommonReplaceCommand<TOptions> : CommonFindCommand<TOptions> wher
         Filter contentFilter = ContentFilter!;
         Match? match = contentFilter.Match(input);
 
-        if (match != null)
+        if (match is not null)
         {
             ContentWriter? contentWriter = null;
             List<Capture>? groups = null;
@@ -104,7 +104,7 @@ internal class CommonReplaceCommand<TOptions> : CommonFindCommand<TOptions> wher
             {
                 contentWriter?.Dispose();
 
-                if (groups != null)
+                if (groups is not null)
                     ListCache<Capture>.Free(groups);
             }
         }
@@ -157,7 +157,7 @@ internal class CommonReplaceCommand<TOptions> : CommonFindCommand<TOptions> wher
             {
                 if (en.MoveNext())
                 {
-                    if (SpellcheckState != null)
+                    if (SpellcheckState is not null)
                         SpellcheckState.CurrentPath = fileMatch.Path;
 
                     ExecuteMatchWithContentCore(
@@ -174,10 +174,10 @@ internal class CommonReplaceCommand<TOptions> : CommonFindCommand<TOptions> wher
         }
         finally
         {
-            if (groups != null)
+            if (groups is not null)
                 ListCache<Capture>.Free(groups);
 
-            if (SpellcheckState != null)
+            if (SpellcheckState is not null)
                 SpellcheckState.CurrentPath = null;
         }
     }
@@ -309,7 +309,7 @@ internal class CommonReplaceCommand<TOptions> : CommonFindCommand<TOptions> wher
             if (Options.AskMode == AskMode.Value
                 || Options.Interactive)
             {
-                if (textWriter != null)
+                if (textWriter is not null)
                 {
                     File.WriteAllText(fileMatch.Path, textWriter.ToString(), fileMatch.Encoding);
 

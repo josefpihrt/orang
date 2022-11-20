@@ -28,7 +28,7 @@ internal static class Program
             .Select(c =>
             {
                 IEnumerable<CommandOption> options = c.Options
-                    .Where(f => f.PropertyInfo.GetCustomAttribute<HideFromHelpAttribute>() == null)
+                    .Where(f => f.PropertyInfo.GetCustomAttribute<HideFromHelpAttribute>() is null)
                     .OrderBy(f => f, CommandOptionComparer.Name);
 
                 return c.WithOptions(options);

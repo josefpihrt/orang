@@ -572,7 +572,7 @@ internal static class OptionValueProviders
     {
         get
         {
-            if (_providersByName == null)
+            if (_providersByName is null)
                 Interlocked.CompareExchange(ref _providersByName, LoadProviders(), null);
 
             return _providersByName;
@@ -598,7 +598,7 @@ internal static class OptionValueProviders
     {
         IEnumerable<string> metaValues = options
             .SelectMany(f => OptionValueProvider.MetaValueRegex.Matches(f.Description).Select(m => m.Value))
-            .Concat(options.Where(f => f.MetaValue != null).Select(f => f.MetaValue).Cast<string>())
+            .Concat(options.Where(f => f.MetaValue is not null).Select(f => f.MetaValue).Cast<string>())
             .Distinct();
 
         ImmutableArray<OptionValueProvider> providers = metaValues
@@ -621,14 +621,14 @@ internal static class OptionValueProviders
         Func<OptionValue, bool>? predicate = null,
         bool multiline = false)
     {
-        if (provider == null)
+        if (provider is null)
             return null;
 
         ImmutableArray<OptionValue> Values = provider.Values;
 
         if (multiline)
         {
-            IEnumerable<OptionValue> optionValues = (predicate != null)
+            IEnumerable<OptionValue> optionValues = (predicate is not null)
                 ? Values.Where(predicate)
                 : Values;
 
@@ -663,7 +663,7 @@ internal static class OptionValueProviders
         }
         else
         {
-            IEnumerable<string> values = (predicate != null)
+            IEnumerable<string> values = (predicate is not null)
                 ? Values.Where(predicate).Select(f => f.HelpValue)
                 : Values.Select(f => f.HelpValue);
 

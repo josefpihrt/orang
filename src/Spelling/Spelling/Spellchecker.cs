@@ -124,7 +124,7 @@ public class Spellchecker
 
             if (IsAllowedLength(match.Length))
             {
-                if (_splitRegex == null)
+                if (_splitRegex is null)
                 {
                     AnalyzeValue(match.Value, match.Index, null, 0, ref builder);
                 }

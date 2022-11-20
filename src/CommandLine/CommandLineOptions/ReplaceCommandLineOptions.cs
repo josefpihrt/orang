@@ -56,8 +56,8 @@ internal sealed class ReplaceCommandLineOptions : CommonReplaceCommandLineOption
         if (!context.TryParseReplacement(Replacement, out string? replacement, out MatchEvaluator? matchEvaluator))
             return false;
 
-        if (matchEvaluator == null
-            && Evaluator != null)
+        if (matchEvaluator is null
+            && Evaluator is not null)
         {
             context.WriteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Evaluator)}' is has been deprecated "
                 + "and will be removed in future version. "

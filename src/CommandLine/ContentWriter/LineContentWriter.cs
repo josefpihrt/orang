@@ -115,7 +115,7 @@ internal class LineContentWriter : ContentWriter
         {
             WriteStartLine(_solIndex, index);
 
-            if (ResultStorage != null)
+            if (ResultStorage is not null)
             {
                 int endIndex = _eolIndex;
 

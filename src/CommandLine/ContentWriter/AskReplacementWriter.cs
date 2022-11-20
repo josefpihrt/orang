@@ -86,8 +86,8 @@ internal abstract class AskReplacementWriter : ContentWriter, IReportReplacement
     {
         bool isUserInput = IsInteractive
             && (capture is RegexCapture
-                || result == null)
-            && (result == null
+                || result is null)
+            && (result is null
                 || result.IndexOfAny(_newLineChars) == -1);
 
         string replacement = result ?? capture.Value;
@@ -97,7 +97,7 @@ internal abstract class AskReplacementWriter : ContentWriter, IReportReplacement
 
         if (!string.Equals(capture.Value, replacement, StringComparison.Ordinal))
         {
-            if (_lazyWriter != null)
+            if (_lazyWriter is not null)
             {
                 if (IsInteractive
                     || ConsoleHelpers.AskToExecute("Replace?", Options.Indent))
@@ -187,7 +187,7 @@ internal abstract class AskReplacementWriter : ContentWriter, IReportReplacement
         {
             get
             {
-                if (_valueWriter == null)
+                if (_valueWriter is null)
                 {
                     string infoIndent = Options.Indent + new string(' ', OutputInfo?.Width ?? 0);
 
@@ -202,7 +202,7 @@ internal abstract class AskReplacementWriter : ContentWriter, IReportReplacement
         {
             Write(Options.Indent);
 
-            if (OutputInfo != null)
+            if (OutputInfo is not null)
                 Write(OutputInfo.GetText(capture, MatchCount + 1, groupName: Options.GroupName));
         }
 
@@ -238,7 +238,7 @@ internal abstract class AskReplacementWriter : ContentWriter, IReportReplacement
         {
             get
             {
-                if (_valueWriter == null)
+                if (_valueWriter is null)
                 {
                     if (Options.IncludeLineNumber)
                     {

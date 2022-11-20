@@ -35,7 +35,7 @@ internal class ValueReplacementWriter : ValueContentWriter, IReportReplacement
     {
         get
         {
-            if (_valueWriter == null)
+            if (_valueWriter is null)
             {
                 string infoIndent = Options.Indent + new string(' ', OutputInfo?.Width ?? 0);
 
@@ -79,7 +79,7 @@ internal class ValueReplacementWriter : ValueContentWriter, IReportReplacement
 
     protected override void WriteEndReplacement(ICapture capture, string? result)
     {
-        if (result != null)
+        if (result is not null)
         {
             _textWriter?.Write(Input.AsSpan(_writerIndex, capture.Index - _writerIndex));
             _textWriter?.Write(result);

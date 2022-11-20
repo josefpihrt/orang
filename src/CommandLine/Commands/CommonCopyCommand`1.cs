@@ -82,7 +82,7 @@ internal abstract class CommonCopyCommand<TOptions> :
         string destinationPath;
 
         if (fileMatch.IsDirectory
-            || (baseDirectoryPath != null && !Options.Flat))
+            || (baseDirectoryPath is not null && !Options.Flat))
         {
             Debug.Assert(sourcePath.StartsWith(baseDirectoryPath!, FileSystemHelpers.Comparison));
 

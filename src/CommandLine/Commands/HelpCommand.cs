@@ -49,7 +49,7 @@ internal class HelpCommand : AbstractCommand<HelpCommandOptions>
         var isCompoundCommand = false;
         string? commandName2 = commandName.FirstOrDefault();
 
-        if (commandName2 != null)
+        if (commandName2 is not null)
             isCompoundCommand = CommandUtility.IsCompoundCommand(commandName2);
 
         if (commandName.Length > 0)
@@ -61,14 +61,14 @@ internal class HelpCommand : AbstractCommand<HelpCommandOptions>
         {
             OpenHelpInBrowser(commandName2);
         }
-        else if (commandName2 != null)
+        else if (commandName2 is not null)
         {
             Command? command = null;
 
             if (!isCompoundCommand)
                 command = CommandLoader.LoadCommand(typeof(HelpCommand).Assembly, commandName2);
 
-            if (command == null)
+            if (command is null)
                 throw new InvalidOperationException($"Command '{string.Join(' ', commandName)}' does not exist.");
 
             WriteCommandHelp(command, _logger, verbose: verbose, filter: filter);
@@ -88,7 +88,7 @@ internal class HelpCommand : AbstractCommand<HelpCommandOptions>
     {
         var url = "http://pihrt.net/redirect?id=orang-cli";
 
-        if (commandName != null)
+        if (commandName is not null)
             url += "-" + commandName;
 
         url += $"&version={PackageInfo.Version}";

@@ -89,7 +89,7 @@ internal abstract class CommonFindCommandLineOptions : FileSystemCommandLineOpti
             return false;
         }
 
-        if (ContentMode != null)
+        if (ContentMode is not null)
         {
             if (context.TryParseAsEnum(
                 ContentMode,
@@ -105,7 +105,7 @@ internal abstract class CommonFindCommandLineOptions : FileSystemCommandLineOpti
             }
         }
 
-        if (PathMode != null)
+        if (PathMode is not null)
         {
             if (context.TryParseAsEnum(
                 PathMode,
@@ -139,10 +139,10 @@ internal abstract class CommonFindCommandLineOptions : FileSystemCommandLineOpti
         if (LineNumber)
             lineDisplayOptions |= LineDisplayOptions.IncludeLineNumber;
 #if DEBUG
-        if (ContentIndent != null)
+        if (ContentIndent is not null)
             indent = RegexEscape.ConvertCharacterEscapes(ContentIndent);
 
-        if (ContentSeparator != null)
+        if (ContentSeparator is not null)
             separator = ContentSeparator;
 
         if (NoContent)
@@ -162,7 +162,7 @@ internal abstract class CommonFindCommandLineOptions : FileSystemCommandLineOpti
 
         if (pathDisplayStyle == PathDisplayStyle.Relative
             && options.Paths.Length > 1
-            && options.SortOptions != null)
+            && options.SortOptions is not null)
         {
             pathDisplayStyle = PathDisplayStyle.Full;
         }
@@ -210,7 +210,7 @@ internal abstract class CommonFindCommandLineOptions : FileSystemCommandLineOpti
         options.MaxTotalMatches = MaxCount;
         options.MaxMatchesInFile = MaxMatchesInFile;
 
-        options.MaxMatchingFiles = (contentFilter == null && MaxMatchingFiles == 0) ? MaxCount : MaxMatchingFiles;
+        options.MaxMatchingFiles = (contentFilter is null && MaxMatchingFiles == 0) ? MaxCount : MaxMatchingFiles;
 
         return true;
     }

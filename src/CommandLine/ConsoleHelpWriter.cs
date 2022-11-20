@@ -27,8 +27,8 @@ internal class ConsoleHelpWriter : HelpWriter
     {
         get
         {
-            if (_contentWriterOptions == null
-                && Filter != null)
+            if (_contentWriterOptions is null
+                && Filter is not null)
             {
                 _contentWriterOptions = new ContentWriterOptions(
                     format: new OutputDisplayFormat(ContentDisplayStyle.AllLines),
@@ -81,7 +81,7 @@ internal class ConsoleHelpWriter : HelpWriter
 
             WriteEndCommands(commands);
         }
-        else if (Options.Filter != null)
+        else if (Options.Filter is not null)
         {
             WriteLine("No command found");
         }
@@ -137,11 +137,11 @@ internal class ConsoleHelpWriter : HelpWriter
     {
         string value = helpItem.Text;
 
-        if (Filter != null)
+        if (Filter is not null)
         {
             Match? match = Filter.Match(value);
 
-            if (match != null)
+            if (match is not null)
             {
                 List<Capture> captures = ListCache<Capture>.GetInstance();
 

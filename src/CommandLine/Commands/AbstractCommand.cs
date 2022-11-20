@@ -22,7 +22,7 @@ internal abstract class AbstractCommand<TOptions> where TOptions : AbstractComma
     {
         get
         {
-            if (_contentWriter == null)
+            if (_contentWriter is null)
                 Interlocked.CompareExchange(ref _contentWriter, new ContentTextWriter(_logger), null);
 
             return _contentWriter;
@@ -45,7 +45,7 @@ internal abstract class AbstractCommand<TOptions> where TOptions : AbstractComma
         {
             OperationCanceledException? operationCanceledException = ex.GetOperationCanceledException();
 
-            if (operationCanceledException != null)
+            if (operationCanceledException is not null)
             {
                 OperationCanceled(operationCanceledException);
             }

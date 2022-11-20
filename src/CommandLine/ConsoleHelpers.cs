@@ -45,7 +45,7 @@ internal static class ConsoleHelpers
             {
                 string? line;
 
-                while ((line = streamReader.ReadLine()) != null)
+                while ((line = streamReader.ReadLine()) is not null)
                     yield return line;
             }
         }
@@ -122,7 +122,7 @@ internal static class ConsoleHelpers
             }
             finally
             {
-                if (handler != null)
+                if (handler is not null)
                     Console.CancelKeyPress -= handler;
             }
 
@@ -135,7 +135,7 @@ internal static class ConsoleHelpers
                 throw new OperationCanceledException();
             }
 
-            if (s != null)
+            if (s is not null)
             {
                 if (s.Length == 0)
                     return DialogResult.None;

@@ -63,7 +63,7 @@ internal class ModifyOptions
         get
         {
             return Functions != ModifyFunctions.None
-                || Modifier != null;
+                || Modifier is not null;
         }
     }
 
@@ -75,7 +75,7 @@ internal class ModifyOptions
     {
         ModifyFunctions functions = Functions;
 
-        if (filter != null)
+        if (filter is not null)
             functions &= filter.Value;
 
         StringComparer comparer = StringComparer;
@@ -137,7 +137,7 @@ internal class ModifyOptions
             }
         }
 
-        if (Modifier != null)
+        if (Modifier is not null)
             values = Modifier(values);
 
         return values;

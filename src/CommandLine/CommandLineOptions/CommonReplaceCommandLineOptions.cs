@@ -120,7 +120,7 @@ internal abstract class CommonReplaceCommandLineOptions : FileSystemCommandLineO
             contentFilter = GetDefaultContentFilter();
         }
 
-        if (contentFilter == null
+        if (contentFilter is null
             && !context.TryParseFilter(
                 Content,
                 OptionNames.Content,
@@ -141,7 +141,7 @@ internal abstract class CommonReplaceCommandLineOptions : FileSystemCommandLineO
         if (pipeMode != PipeMode.Paths
             && Console.IsInputRedirected)
         {
-            if (input != null)
+            if (input is not null)
             {
                 context.WriteError("Cannot use both redirected/piped input and "
                     + $"option '{OptionNames.GetHelpText(OptionNames.Input)}'.");
@@ -149,7 +149,7 @@ internal abstract class CommonReplaceCommandLineOptions : FileSystemCommandLineO
                 return false;
             }
 
-            if (contentFilter == null)
+            if (contentFilter is null)
             {
                 context.WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Content)}' is required "
                     + "when redirected/piped input is used as a text to be searched.");
@@ -183,7 +183,7 @@ internal abstract class CommonReplaceCommandLineOptions : FileSystemCommandLineO
             return false;
         }
 
-        if (ContentMode != null)
+        if (ContentMode is not null)
         {
             if (context.TryParseAsEnum(
                 ContentMode,
@@ -199,7 +199,7 @@ internal abstract class CommonReplaceCommandLineOptions : FileSystemCommandLineO
             }
         }
 
-        if (PathMode != null)
+        if (PathMode is not null)
         {
             if (context.TryParseAsEnum(
                 PathMode,
@@ -233,10 +233,10 @@ internal abstract class CommonReplaceCommandLineOptions : FileSystemCommandLineO
         if (LineNumber)
             lineDisplayOptions |= LineDisplayOptions.IncludeLineNumber;
 #if DEBUG
-        if (ContentIndent != null)
+        if (ContentIndent is not null)
             indent = RegexEscape.ConvertCharacterEscapes(ContentIndent);
 
-        if (ContentSeparator != null)
+        if (ContentSeparator is not null)
             separator = ContentSeparator;
 
         if (NoContent)
@@ -254,7 +254,7 @@ internal abstract class CommonReplaceCommandLineOptions : FileSystemCommandLineO
         if (includeSize)
             options.FilePropertyOptions = options.FilePropertyOptions.WithIncludeSize(true);
 
-        if (contentDisplayStyle2 != null)
+        if (contentDisplayStyle2 is not null)
         {
             if (options.AskMode == AskMode.Value
                 && contentDisplayStyle2 == ContentDisplayStyle.AllLines)
@@ -286,7 +286,7 @@ internal abstract class CommonReplaceCommandLineOptions : FileSystemCommandLineO
 
         if (pathDisplayStyle == PathDisplayStyle.Relative
             && options.Paths.Length > 1
-            && options.SortOptions != null)
+            && options.SortOptions is not null)
         {
             pathDisplayStyle = PathDisplayStyle.Full;
         }

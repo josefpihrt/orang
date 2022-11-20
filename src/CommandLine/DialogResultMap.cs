@@ -16,7 +16,7 @@ internal static class DialogResultMap
     {
         get
         {
-            if (_all == null)
+            if (_all is null)
                 Interlocked.CompareExchange(ref _all, Create(), null);
 
             return _all;
@@ -46,7 +46,7 @@ internal static class DialogResultMap
     {
         get
         {
-            if (_yes_No_Cancel == null)
+            if (_yes_No_Cancel is null)
                 Interlocked.CompareExchange(ref _yes_No_Cancel, Create(), null);
 
             return _yes_No_Cancel;
@@ -72,7 +72,7 @@ internal static class DialogResultMap
     {
         get
         {
-            if (_yes_YesToAll_Cancel == null)
+            if (_yes_YesToAll_Cancel is null)
                 Interlocked.CompareExchange(ref _yes_YesToAll_Cancel, Create(), null);
 
             return _yes_YesToAll_Cancel;

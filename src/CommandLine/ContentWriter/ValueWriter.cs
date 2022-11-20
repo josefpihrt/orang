@@ -39,7 +39,7 @@ internal class ValueWriter
         in ConsoleColors colors = default,
         in ConsoleColors boundaryColors = default)
     {
-        if (symbols == null)
+        if (symbols is null)
             symbols = OutputSymbols.Empty;
 
         Write(symbols.OpenBoundary, boundaryColors);
@@ -114,7 +114,7 @@ internal class ValueWriter
 
         void WriteSymbol(string? symbol)
         {
-            if (symbol != null)
+            if (symbol is not null)
             {
                 Write(value, lastPos, i - lastPos, colors);
                 lastPos = i + 1;

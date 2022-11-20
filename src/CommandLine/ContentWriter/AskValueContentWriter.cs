@@ -22,7 +22,7 @@ internal class AskValueContentWriter : ValueContentWriter
 
         Write(Options.Indent);
 
-        if (OutputInfo != null)
+        if (OutputInfo is not null)
             Write(OutputInfo.GetText(capture, MatchCount + 1, groupName: Options.GroupName));
     }
 

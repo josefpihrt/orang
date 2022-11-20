@@ -40,7 +40,7 @@ public readonly struct FileNameSpan
 
     public static FileNameSpan FromFile(string path, FileNamePart part)
     {
-        if (path == null)
+        if (path is null)
             throw new ArgumentNullException(nameof(path));
 
         switch (part)
@@ -83,7 +83,7 @@ public readonly struct FileNameSpan
 
     public static FileNameSpan FromDirectory(string path, FileNamePart part)
     {
-        if (path == null)
+        if (path is null)
             throw new ArgumentNullException(nameof(path));
 
         switch (part)

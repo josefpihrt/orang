@@ -25,7 +25,7 @@ internal class ValueContentWriter : ContentWriter
     {
         get
         {
-            if (_valueWriter == null)
+            if (_valueWriter is null)
             {
                 string infoIndent = Options.Indent + new string(' ', OutputInfo?.Width ?? 0);
 
@@ -50,7 +50,7 @@ internal class ValueContentWriter : ContentWriter
             Write(Options.Indent);
         }
 
-        if (OutputInfo != null)
+        if (OutputInfo is not null)
             Write(OutputInfo.GetText(capture, MatchCount + 1, groupName: Options.GroupName));
     }
 
@@ -60,7 +60,7 @@ internal class ValueContentWriter : ContentWriter
 
     protected override void WriteMatchSeparator()
     {
-        if (Options.Separator != null)
+        if (Options.Separator is not null)
         {
             Write(Options.Separator);
         }

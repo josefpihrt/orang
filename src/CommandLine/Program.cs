@@ -37,7 +37,7 @@ internal static class Program
         {
             Parser parser = CreateParser(ignoreUnknownArguments: true);
 
-            if (args == null
+            if (args is null
                 || args.Length == 0)
             {
                 HelpCommand.WriteCommandsHelp(logger);
@@ -54,7 +54,7 @@ internal static class Program
                         return;
 
                     string? commandName = args?.FirstOrDefault();
-                    Command? command = (commandName != null)
+                    Command? command = (commandName is not null)
                         ? CommandLoader.LoadCommand(typeof(Program).Assembly, commandName)
                         : null;
 
@@ -66,7 +66,7 @@ internal static class Program
 
                     WriteArgs(args, Verbosity.Diagnostic, logger);
 
-                    if (command != null)
+                    if (command is not null)
                     {
                         HelpCommand.WriteCommandHelp(command, logger);
                     }
@@ -115,7 +115,7 @@ internal static class Program
                     .OfType<UnknownOptionError>()
                     .FirstOrDefault(f => f.Token == "b");
 
-                if (oldAttributesToSkipShortName != null)
+                if (oldAttributesToSkipShortName is not null)
                     logger.WriteWarning("Shortcut '-b' has been deprecated. Use '-A' instead.");
 
                 var helpText = new HelpText(SentenceBuilder.Create(), HelpCommand.GetHeadingText());
@@ -124,7 +124,7 @@ internal static class Program
 
                 VerbAttribute? verbAttribute = parserResult.TypeInfo.Current.GetCustomAttribute<VerbAttribute>();
 
-                if (verbAttribute != null)
+                if (verbAttribute is not null)
                 {
                     CommandAliasAttribute? commandAlias = parserResult.TypeInfo.Current.GetCustomAttribute<CommandAliasAttribute>();
 
@@ -210,7 +210,7 @@ internal static class Program
     {
         var defaultVerbosity = Verbosity.Normal;
 
-        if (options.Verbosity != null
+        if (options.Verbosity is not null
             && !context.TryParseVerbosity(options.Verbosity, out defaultVerbosity))
         {
             return false;
@@ -231,7 +231,7 @@ internal static class Program
                 return false;
             }
 
-            if (filePath != null)
+            if (filePath is not null)
             {
                 FileMode fileMode = (append)
                     ? FileMode.Append
@@ -249,7 +249,7 @@ internal static class Program
     [Conditional("DEBUG")]
     private static void WriteArgs(string[]? args, Verbosity verbosity, Logger logger)
     {
-        if (args != null
+        if (args is not null
             && logger.ShouldWrite(verbosity))
         {
             logger.WriteLine("--- ARGS ---", verbosity);

@@ -51,7 +51,7 @@ public class FileMatch
     {
         get
         {
-            if (_fileSystemInfo == null)
+            if (_fileSystemInfo is null)
             {
                 if (IsDirectory)
                 {

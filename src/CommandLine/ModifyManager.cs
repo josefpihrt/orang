@@ -24,7 +24,7 @@ internal class ModifyManager
     {
         get
         {
-            if (_symbols == null)
+            if (_symbols is null)
             {
                 HighlightOptions highlightOptions = Options.HighlightOptions;
 
@@ -43,7 +43,7 @@ internal class ModifyManager
 
     public void Reset()
     {
-        if (FileValues == null)
+        if (FileValues is null)
         {
             FileValues = new List<string>();
         }
@@ -52,7 +52,7 @@ internal class ModifyManager
             FileValues.Clear();
         }
 
-        if (FileStorage == null)
+        if (FileStorage is null)
             FileStorage = new ListResultStorage(FileValues);
     }
 }

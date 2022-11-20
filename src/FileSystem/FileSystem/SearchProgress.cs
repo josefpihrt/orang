@@ -29,7 +29,7 @@ public readonly struct SearchProgress
     {
         get
         {
-            return (Path != null)
+            return (Path is not null)
                 ? $"{Kind}  {nameof(IsDirectory)} = {IsDirectory}  {Path}"
                 : "Uninitialized";
         }

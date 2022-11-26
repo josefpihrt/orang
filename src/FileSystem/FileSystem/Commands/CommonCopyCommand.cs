@@ -19,7 +19,6 @@ internal abstract class CommonCopyCommand : CommonFindCommand
 
     public CopyOptions CopyOptions { get; set; } = null!;
 
-    //TODO: rename
     public ConflictResolution ConflictResolution { get; set; }
 
     protected abstract void ExecuteOperation(string sourcePath, string destinationPath);

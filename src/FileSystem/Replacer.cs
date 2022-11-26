@@ -9,11 +9,11 @@ using Orang.Text.RegularExpressions;
 namespace Orang;
 
 [DebuggerDisplay("{DebuggerDisplay,nq}")]
-public class ReplaceOptions : IReplacer
+public class Replacer : IReplacer
 {
-    public static ReplaceOptions Empty { get; } = new("");
+    public static Replacer Empty { get; } = new("");
 
-    public ReplaceOptions(
+    public Replacer(
         string? replacement,
         ReplaceFunctions functions = ReplaceFunctions.None,
         bool cultureInvariant = false)
@@ -23,7 +23,7 @@ public class ReplaceOptions : IReplacer
         CultureInvariant = cultureInvariant;
     }
 
-    public ReplaceOptions(
+    public Replacer(
         MatchEvaluator matchEvaluator,
         ReplaceFunctions functions = ReplaceFunctions.None,
         bool cultureInvariant = false)

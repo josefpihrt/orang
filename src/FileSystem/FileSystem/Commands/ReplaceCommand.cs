@@ -12,9 +12,13 @@ internal class ReplaceCommand : CommonFindCommand
 {
     public ReplaceOptions ReplaceOptions { get; set; } = null!;
 
+    public Replacer Replacer { get; set; } = null!;
+
     protected override void ExecuteDirectory(string path)
     {
         Debug.Assert(ContentFilter?.IsNegative == false);
+
+        base.ExecuteDirectory(path);
     }
 
     protected override void ExecuteMatch(
@@ -38,7 +42,7 @@ internal class ReplaceCommand : CommonFindCommand
             {
                 textWriter = new StreamWriter(fileMatch.Path, false, fileMatch.Encoding);
 
-                WriteMatches(fileMatch.ContentText, captures, ReplaceOptions, textWriter);
+                WriteMatches(fileMatch.ContentText, captures, Replacer, textWriter);
             }
 
             int fileMatchCount = captures.Count;
@@ -68,7 +72,7 @@ internal class ReplaceCommand : CommonFindCommand
     private void WriteMatches(
         string input,
         IEnumerable<Capture> captures,
-        ReplaceOptions replaceOptions,
+        Replacer replacer,
         TextWriter textWriter)
     {
         int index = 0;
@@ -77,7 +81,7 @@ internal class ReplaceCommand : CommonFindCommand
         {
             textWriter.Write(input.AsSpan(index, capture.Index - index));
 
-            string result = replaceOptions.Replace((Match)capture);
+            string result = replacer.Replace((Match)capture);
 
             textWriter.Write(result);
 

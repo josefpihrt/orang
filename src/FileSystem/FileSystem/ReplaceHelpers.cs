@@ -13,7 +13,7 @@ internal static class ReplaceHelpers
 {
     public static List<ReplaceItem> GetReplaceItems(
         Match match,
-        ReplaceOptions replaceOptions,
+        Replacer replacer,
         CancellationToken cancellationToken = default)
     {
         List<Match> matches = GetMatches(match);
@@ -26,7 +26,7 @@ internal static class ReplaceHelpers
 
         foreach (Match match2 in matches)
         {
-            string value = replaceOptions.Replace(match2);
+            string value = replacer.Replace(match2);
 
             replaceItems.Add(new ReplaceItem(match2, value, match2.Index + offset));
 
@@ -63,7 +63,7 @@ internal static class ReplaceHelpers
 
     public static (List<ReplaceItem> replaceItems, MaxReason maxReason) GetReplaceItems(
         Match match,
-        ReplaceOptions replaceOptions,
+        Replacer replacer,
         int count = 0,
         Func<string, bool>? predicate = null,
         CancellationToken cancellationToken = default)
@@ -85,7 +85,7 @@ internal static class ReplaceHelpers
 
         foreach (Match match2 in captures)
         {
-            string value = replaceOptions.Replace(match2);
+            string value = replacer.Replace(match2);
 
             replaceItems.Add(new ReplaceItem(match2, value, match2.Index + offset));
 

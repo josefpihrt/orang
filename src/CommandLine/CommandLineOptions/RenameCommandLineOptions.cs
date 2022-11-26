@@ -148,7 +148,7 @@ internal sealed class RenameCommandLineOptions : DeleteOrRenameCommandLineOption
             OptionNames.Modify,
             replacement,
             matchEvaluator,
-            out ReplaceOptions? replaceOptions))
+            out Replacer? replacer))
         {
             return false;
         }
@@ -273,7 +273,7 @@ internal sealed class RenameCommandLineOptions : DeleteOrRenameCommandLineOption
 
         options.HighlightOptions = highlightOptions;
         options.SearchTarget = GetSearchTarget();
-        options.ReplaceOptions = replaceOptions;
+        options.Replacer = replacer;
         options.AskMode = (Ask) ? AskMode.File : AskMode.None;
         options.DryRun = DryRun;
         options.NameFilter = nameFilter;

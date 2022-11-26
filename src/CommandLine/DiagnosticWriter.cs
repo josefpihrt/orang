@@ -411,7 +411,7 @@ internal class DiagnosticWriter
         WriteFilter("directory filter", options.DirectoryFilter, options.DirectoryNamePart);
         WriteOption("dry run", options.DryRun);
         WriteOption("empty", options.EmptyOption);
-        WriteEvaluator("evaluator", options.ReplaceOptions.MatchEvaluator);
+        WriteEvaluator("evaluator", options.Replacer.MatchEvaluator);
         WriteFilter("extension filter", options.ExtensionFilter);
         WriteFilePropertyFilter(
             "file properties",
@@ -422,14 +422,14 @@ internal class DiagnosticWriter
         WriteOption("interactive", options.Interactive);
         WriteOption("line number", options.Format.Includes(LineDisplayOptions.IncludeLineNumber));
         WriteOption("max matching files", options.MaxMatchingFiles);
-        WriteReplaceModify("modify", options.ReplaceOptions);
+        WriteReplaceModify("modify", options.Replacer);
         WriteFilter("name filter", options.NameFilter, options.NamePart);
         WriteOption("path mode", options.Format.PathDisplayStyle);
         WritePaths("paths", options.Paths);
         WriteOption("progress", options.Progress);
         WriteProperties(options);
         WriteOption("recurse subdirectories", options.RecurseSubdirectories);
-        WriteOption("replacement", options.ReplaceOptions.Replacement);
+        WriteOption("replacement", options.Replacer.Replacement);
         WriteOption("search target", options.SearchTarget);
         WriteSortOptions("sort", options.SortOptions);
         WriteOption("summary", options.Format.Includes(DisplayParts.Summary));
@@ -437,7 +437,7 @@ internal class DiagnosticWriter
 
     internal void WriteReplaceCommand(ReplaceCommandOptions options)
     {
-        var replaceOptions = (ReplaceOptions)options.Replacer;
+        var replacer = (Replacer)options.Replacer;
 
         WriteOption("align columns", options.AlignColumns);
         WriteOption("ask", options.AskMode);
@@ -457,7 +457,7 @@ internal class DiagnosticWriter
         WriteFilter("directory filter", options.DirectoryFilter, options.DirectoryNamePart);
         WriteOption("dry run", options.DryRun);
         WriteOption("empty", options.EmptyOption);
-        WriteEvaluator("evaluator", replaceOptions.MatchEvaluator);
+        WriteEvaluator("evaluator", replacer.MatchEvaluator);
         WriteFilter("extension filter", options.ExtensionFilter);
         WriteFilePropertyFilter(
             "file properties",
@@ -470,14 +470,14 @@ internal class DiagnosticWriter
         WriteOption("line number", options.Format.Includes(LineDisplayOptions.IncludeLineNumber));
         WriteOption("max matching files", options.MaxMatchingFiles);
         WriteOption("max matches in file", options.MaxMatchesInFile);
-        WriteReplaceModify("modify", replaceOptions);
+        WriteReplaceModify("modify", replacer);
         WriteFilter("name filter", options.NameFilter, options.NamePart);
         WriteOption("path mode", options.Format.PathDisplayStyle);
         WritePaths("paths", options.Paths);
         WriteOption("progress", options.Progress);
         WriteProperties(options);
         WriteOption("recurse subdirectories", options.RecurseSubdirectories);
-        WriteOption("replacement", replaceOptions.Replacement);
+        WriteOption("replacement", replacer.Replacement);
         WriteOption("search target", options.SearchTarget);
         WriteSortOptions("sort", options.SortOptions);
         WriteOption("summary", options.Format.Includes(DisplayParts.Summary));
@@ -899,24 +899,24 @@ internal class DiagnosticWriter
         }
     }
 
-    private void WriteReplaceModify(string name, ReplaceOptions options)
+    private void WriteReplaceModify(string name, Replacer replacer)
     {
         WriteName(name);
 
-        if (options.Functions != ReplaceFunctions.None)
+        if (replacer.Functions != ReplaceFunctions.None)
         {
-            if (options.CultureInvariant)
+            if (replacer.CultureInvariant)
             {
-                WriteValue(nameof(options.CultureInvariant) + ", " + options.Functions.ToString());
+                WriteValue(nameof(replacer.CultureInvariant) + ", " + replacer.Functions.ToString());
             }
             else
             {
-                WriteValue(options.Functions.ToString());
+                WriteValue(replacer.Functions.ToString());
             }
         }
-        else if (options.CultureInvariant)
+        else if (replacer.CultureInvariant)
         {
-            WriteValue(nameof(options.CultureInvariant));
+            WriteValue(nameof(replacer.CultureInvariant));
         }
         else
         {

@@ -53,7 +53,7 @@ internal class RenameCommand : DeleteOrRenameCommand<RenameCommandOptions>
 
         (List<ReplaceItem> replaceItems, MaxReason maxReason) = ReplaceHelpers.GetReplaceItems(
             fileMatch.NameMatch!,
-            Options.ReplaceOptions,
+            Options.Replacer,
             count: Options.MaxMatchesInFile,
             predicate: NameFilter!.Predicate,
             cancellationToken: context.CancellationToken);

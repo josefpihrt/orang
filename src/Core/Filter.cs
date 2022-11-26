@@ -46,6 +46,7 @@ public class Filter
 
     public int GroupNumber { get; }
 
+    //TODO: JP internal?
     public Func<string, bool>? Predicate { get; }
 
     public string GroupName => Regex.GroupNameFromNumber(GroupNumber);

@@ -12,6 +12,8 @@ internal class RenameCommand : DeleteOrRenameCommand
 {
     public RenameOptions RenameOptions { get; set; } = null!;
 
+    public Replacer Replacer { get; set; } = null!;
+
     public ConflictResolution ConflictResolution { get; set; }
 
     public IDialogProvider<ConflictInfo>? DialogProvider { get; set; }
@@ -29,7 +31,7 @@ internal class RenameCommand : DeleteOrRenameCommand
     {
         (List<ReplaceItem> replaceItems, MaxReason maxReason) = ReplaceHelpers.GetReplaceItems(
             fileMatch.NameMatch!,
-            RenameOptions,
+            Replacer,
             count: 0,
             predicate: NameFilter!.Predicate,
             cancellationToken: CancellationToken);

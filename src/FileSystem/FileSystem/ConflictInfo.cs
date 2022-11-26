@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace Orang.FileSystem;
 
-//TODO: ConflictInfo
+//TODO: JP ConflictInfo
 [DebuggerDisplay("{DebuggerDisplay,nq}")]
 public readonly struct ConflictInfo
 {

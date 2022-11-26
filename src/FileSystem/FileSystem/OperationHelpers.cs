@@ -25,8 +25,7 @@ internal static class OperationHelpers
     public static void VerifyCopyMoveArguments(
         string directoryPath,
         string destinationPath,
-        CopyOptions copyOptions,
-        IDialogProvider<ConflictInfo>? dialogProvider)
+        CopyOptions copyOptions)
     {
         if (directoryPath is null)
             throw new ArgumentNullException(nameof(directoryPath));
@@ -47,6 +46,6 @@ internal static class OperationHelpers
                 nameof(directoryPath));
         }
 
-        VerifyConflictResolution(copyOptions.ConflictResolution, dialogProvider);
+        VerifyConflictResolution(copyOptions.ConflictResolution, copyOptions.DialogProvider);
     }
 }

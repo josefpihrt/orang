@@ -567,9 +567,9 @@ internal class ParseContext
         string optionName,
         string? replacement,
         MatchEvaluator? matchEvaluator,
-        [NotNullWhen(true)] out ReplaceOptions? replaceOptions)
+        [NotNullWhen(true)] out Replacer? replacer)
     {
-        replaceOptions = null;
+        replacer = null;
         var replaceFlags = ReplaceFlags.None;
 
         if (values is not null
@@ -598,14 +598,14 @@ internal class ParseContext
 
         if (matchEvaluator is not null)
         {
-            replaceOptions = new ReplaceOptions(
+            replacer = new Replacer(
                 matchEvaluator: matchEvaluator,
                 functions: functions,
                 cultureInvariant: (replaceFlags & ReplaceFlags.CultureInvariant) != 0);
         }
         else
         {
-            replaceOptions = new ReplaceOptions(
+            replacer = new Replacer(
                 replacement: replacement,
                 functions: functions,
                 cultureInvariant: (replaceFlags & ReplaceFlags.CultureInvariant) != 0);

@@ -7,37 +7,27 @@ using System.IO;
 namespace Orang.FileSystem;
 
 [DebuggerDisplay("{DebuggerDisplay,nq}")]
-public class CopyOptions
+public class CopyOptions : SearchOptions
 {
-    internal static CopyOptions Default { get; } = new();
+    public ConflictResolution ConflictResolution { get; set; } = ConflictResolution.Skip;
 
-    public CopyOptions(
-        ConflictResolution conflictResolution = ConflictResolution.Skip,
-        FileCompareOptions compareOptions = FileCompareOptions.None,
-        FileAttributes noCompareAttributes = 0,
-        TimeSpan? allowedTimeDiff = null,
-        bool flat = false)
-    {
-        ConflictResolution = conflictResolution;
-        CompareOptions = compareOptions;
-        NoCompareAttributes = noCompareAttributes;
-        AllowedTimeDiff = allowedTimeDiff;
-        Flat = flat;
-    }
+    public FileCompareOptions CompareOptions { get; set; }
 
-    public ConflictResolution ConflictResolution { get; }
+    public FileAttributes NoCompareAttributes { get; set; }
 
-    public FileCompareOptions CompareOptions { get; }
+    public TimeSpan? AllowedTimeDiff { get; set; }
 
-    public FileAttributes NoCompareAttributes { get; }
+    public bool Flat { get; set; }
 
-    public TimeSpan? AllowedTimeDiff { get; }
+    internal bool StructureOnly { get; set; }
 
-    public bool Flat { get; }
+    public bool DryRun { get; set; }
+
+    public IProgress<OperationProgress>? Progress { get; set; }
+
+    public IDialogProvider<ConflictInfo>? DialogProvider { get; set; }
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private string DebuggerDisplay
         => $"{nameof(ConflictResolution)} = {ConflictResolution}  {nameof(CompareOptions)} = {CompareOptions}";
-
-    internal bool StructureOnly { get; }
 }

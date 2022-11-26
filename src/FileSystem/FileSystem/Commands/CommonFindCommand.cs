@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace Orang.FileSystem.Commands;
 
+//TODO: JP incorporate into ReplaceCommand
 internal abstract class CommonFindCommand : Command
 {
     protected CommonFindCommand()

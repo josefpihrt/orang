@@ -22,9 +22,10 @@ internal static class FileSystemExtensions
         this IProgress<OperationProgress> progress,
         FileMatch fileMatch,
         string? newPath,
+        OperationKind kind,
         Exception? exception = null)
     {
-        progress.Report(new OperationProgress(fileMatch, newPath, exception));
+        progress.Report(new OperationProgress(fileMatch, newPath, kind, exception));
     }
 
     public static Match? Match(this Filter filter, in FileNameSpan name)

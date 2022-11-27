@@ -18,6 +18,8 @@ internal class RenameCommand : DeleteOrRenameCommand
 
     public IDialogProvider<ConflictInfo>? DialogProvider { get; set; }
 
+    public override OperationKind OperationKind => OperationKind.Rename;
+
     protected override void ExecuteDirectory(string directoryPath)
     {
         Debug.Assert(!NameFilter!.IsNegative);

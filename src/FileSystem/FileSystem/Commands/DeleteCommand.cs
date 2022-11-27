@@ -9,6 +9,8 @@ internal class DeleteCommand : DeleteOrRenameCommand
 {
     public DeleteOptions DeleteOptions { get; set; } = null!;
 
+    public override OperationKind OperationKind => OperationKind.Delete;
+
     protected override void ExecuteMatch(
         FileMatch fileMatch,
         string directoryPath)

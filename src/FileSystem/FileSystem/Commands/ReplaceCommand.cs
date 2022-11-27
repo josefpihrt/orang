@@ -14,6 +14,8 @@ internal class ReplaceCommand : CommonFindCommand
 
     public Replacer Replacer { get; set; } = null!;
 
+    public override OperationKind OperationKind => OperationKind.Replace;
+
     protected override void ExecuteDirectory(string path)
     {
         Debug.Assert(ContentFilter?.IsNegative == false);

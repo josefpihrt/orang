@@ -14,6 +14,8 @@ internal abstract class Command
         Telemetry = new SearchTelemetry();
     }
 
+    public abstract OperationKind OperationKind { get; }
+
     public FileSystemSearch Search { get; set; } = null!;
 
     public SearchTelemetry Telemetry { get; }
@@ -75,6 +77,6 @@ internal abstract class Command
 
     protected void Report(FileMatch fileMatch, string? newPath, Exception? exception = null)
     {
-        Progress?.Report(fileMatch, newPath, exception);
+        Progress?.Report(fileMatch, newPath, OperationKind, exception);
     }
 }

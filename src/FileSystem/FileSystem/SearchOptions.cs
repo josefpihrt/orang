@@ -16,7 +16,8 @@ public class SearchOptions
 
     public SearchTarget SearchTarget { get; init; }
 
-    public bool RecurseSubdirectories { get; init; }
+    //TODO: JP rename to TopDirectoryOnly
+    public bool RecurseSubdirectories { get; init; } = true;
 
     public Encoding? DefaultEncoding { get; init; }
 }

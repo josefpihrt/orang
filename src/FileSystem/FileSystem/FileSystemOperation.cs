@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using Orang.FileSystem.Commands;
 
@@ -60,8 +61,8 @@ public static class FileSystemOperation
 
     public static IOperationResult CopyMatches(
         string directoryPath,
-        FileSystemFilter filter,
         string destinationPath,
+        FileSystemFilter filter,
         CopyOptions? options = null,
         CancellationToken cancellationToken = default)
     {
@@ -118,8 +119,8 @@ public static class FileSystemOperation
 
     public static IOperationResult DeleteMatches(
         string directoryPath,
-        FileSystemFilter filter,
         string destinationPath,
+        FileSystemFilter filter,
         DeleteOptions? options = null,
         CancellationToken cancellationToken = default)
     {
@@ -162,8 +163,8 @@ public static class FileSystemOperation
 
     public static IOperationResult MoveMatches(
         string directoryPath,
-        FileSystemFilter filter,
         string destinationPath,
+        FileSystemFilter filter,
         CopyOptions? options = null,
         CancellationToken cancellationToken = default)
     {
@@ -220,6 +221,35 @@ public static class FileSystemOperation
     public static IOperationResult RenameMatches(
         string directoryPath,
         FileSystemFilter filter,
+        string replacement,
+        RenameOptions? options = null,
+        CancellationToken cancellationToken = default)
+    {
+        options ??= new RenameOptions();
+
+        var replacer = new Replacer(replacement, options?.Functions ?? ReplaceFunctions.None, options?.CultureInvariant ?? false);
+
+        return RenameMatches(directoryPath, filter, replacer, options, cancellationToken);
+    }
+
+    public static IOperationResult RenameMatches(
+        string directoryPath,
+        FileSystemFilter filter,
+        MatchEvaluator matchEvaluator,
+        RenameOptions? options = null,
+        CancellationToken cancellationToken = default)
+    {
+        options ??= new RenameOptions();
+
+        var replacer = new Replacer(matchEvaluator, options?.Functions ?? ReplaceFunctions.None, options?.CultureInvariant ?? false);
+
+        return RenameMatches(directoryPath, filter, replacer, options, cancellationToken);
+    }
+
+    private static IOperationResult RenameMatches(
+        string directoryPath,
+        FileSystemFilter filter,
+        Replacer replacer,
         RenameOptions? options = null,
         CancellationToken cancellationToken = default)
     {
@@ -258,9 +288,7 @@ public static class FileSystemOperation
         {
             Search = search,
             RenameOptions = options,
-            Replacer = (options.MatchEvaluator is not null)
-                ? new Replacer(options.MatchEvaluator, options.Functions, options.CultureInvariant)
-                : new Replacer(options.Replacement, options.Functions, options.CultureInvariant),
+            Replacer = replacer,
             Progress = options.Progress,
             DryRun = options.DryRun,
             DialogProvider = options.DialogProvider,
@@ -277,6 +305,31 @@ public static class FileSystemOperation
     public static IOperationResult ReplaceMatches(
         string directoryPath,
         FileSystemFilter filter,
+        string replacement,
+        ReplaceOptions? options = null,
+        CancellationToken cancellationToken = default)
+    {
+        var replacer = new Replacer(replacement, options?.Functions ?? ReplaceFunctions.None, options?.CultureInvariant ?? false);
+
+        return ReplaceMatches(directoryPath, filter, replacer, options, cancellationToken);
+    }
+
+    public static IOperationResult ReplaceMatches(
+        string directoryPath,
+        FileSystemFilter filter,
+        MatchEvaluator matchEvaluator,
+        ReplaceOptions? options = null,
+        CancellationToken cancellationToken = default)
+    {
+        var replacer = new Replacer(matchEvaluator, options?.Functions ?? ReplaceFunctions.None, options?.CultureInvariant ?? false);
+
+        return ReplaceMatches(directoryPath, filter, replacer, options, cancellationToken);
+    }
+
+    private static IOperationResult ReplaceMatches(
+        string directoryPath,
+        FileSystemFilter filter,
+        Replacer replacer,
         ReplaceOptions? options = null,
         CancellationToken cancellationToken = default)
     {
@@ -309,9 +362,7 @@ public static class FileSystemOperation
         {
             Search = search,
             ReplaceOptions = options,
-            Replacer = (options.MatchEvaluator is not null)
-                ? new Replacer(options.MatchEvaluator, options.Functions, options.CultureInvariant)
-                : new Replacer(options.Replacement, options.Functions, options.CultureInvariant),
+            Replacer = replacer,
             Progress = options.Progress,
             DryRun = options.DryRun,
             MaxMatchingFiles = 0,

@@ -51,7 +51,7 @@ internal class RenameCommand : DeleteOrRenameCommand
             fileMatch.NameSpan.Start,
             newName,
             0,
-            fileMatch.NameSpan.Length,
+            Math.Max(fileMatch.NameSpan.Length, newName.Length),
             StringComparison.Ordinal) != 0;
 
         bool isInvalidName = changed
@@ -119,6 +119,8 @@ internal class RenameCommand : DeleteOrRenameCommand
             {
                 Telemetry.ProcessedFileCount++;
             }
+
+            Report(fileMatch, newPath);
         }
         catch (Exception ex) when (ex is IOException
             || ex is UnauthorizedAccessException)

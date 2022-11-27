@@ -2,6 +2,8 @@
 
 namespace Orang.FileSystem;
 
+#pragma warning disable RCS1223 // Mark publicly visible type with DebuggerDisplay attribute.
+
 public class RenameOptions : ReplaceOptions
 {
     public IDialogProvider<ConflictInfo>? DialogProvider { get; set; }

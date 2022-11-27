@@ -23,7 +23,7 @@ public class NameFilter
 
     public FileNamePart Part { get; }
 
-    public bool IsNegative => Name.IsNegative;
+    internal bool IsNegative => Name.IsNegative;
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private string DebuggerDisplay => $"{Part}  {Name}";

@@ -6,41 +6,22 @@ using System.IO;
 
 namespace Orang.FileSystem;
 
+//TODO: JP rename to MatchOptions
 public class FileSystemFilter
 {
-    public FileSystemFilter(
-        Filter? name = null,
-        FileNamePart part = FileNamePart.Name,
-        Filter? extension = null,
-        Filter? content = null,
-        FilePropertyFilter? properties = null,
-        FileAttributes attributes = default,
-        FileAttributes attributesToSkip = default,
-        FileEmptyOption fileEmptyOption = FileEmptyOption.None)
-    {
-        Name = name;
-        Part = part;
-        Extension = extension;
-        Content = content;
-        Properties = properties;
-        Attributes = attributes;
-        AttributesToSkip = attributesToSkip;
-        FileEmptyOption = fileEmptyOption;
-    }
+    public Filter? Name { get; set; }
 
-    public Filter? Name { get; }
+    public FileNamePart Part { get; set; }
 
-    public FileNamePart Part { get; }
+    public Filter? Extension { get; set; }
 
-    public Filter? Extension { get; }
+    public Filter? Content { get; set; }
 
-    public Filter? Content { get; }
+    public FilePropertyFilter? Properties { get; set; }
 
-    public FilePropertyFilter? Properties { get; }
+    public FileAttributes Attributes { get; set; }
 
-    public FileAttributes Attributes { get; }
+    public FileAttributes AttributesToSkip { get; set; }
 
-    public FileAttributes AttributesToSkip { get; }
-
-    public FileEmptyOption FileEmptyOption { get; }
+    public FileEmptyOption FileEmptyOption { get; set; }
 }

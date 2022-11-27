@@ -38,18 +38,20 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
 
     private FileSystemSearch CreateSearch()
     {
-        var filter = new FileSystemFilter(
-            name: Options.NameFilter,
-            part: Options.NamePart,
-            extension: Options.ExtensionFilter,
-            content: Options.ContentFilter,
-            properties: new FilePropertyFilter(
+        var filter = new FileSystemFilter()
+        {
+            Name = Options.NameFilter,
+            Part = Options.NamePart,
+            Extension = Options.ExtensionFilter,
+            Content = Options.ContentFilter,
+            Properties = new FilePropertyFilter(
                 Options.FilePropertyOptions.CreationTimePredicate,
                 Options.FilePropertyOptions.ModifiedTimePredicate,
                 Options.FilePropertyOptions.SizePredicate),
-            attributes: Options.Attributes,
-            attributesToSkip: Options.AttributesToSkip,
-            fileEmptyOption: Options.EmptyOption);
+            Attributes = Options.Attributes,
+            AttributesToSkip = Options.AttributesToSkip,
+            FileEmptyOption = Options.EmptyOption
+        };
 
         var directoryFilters = new List<NameFilter>();
 

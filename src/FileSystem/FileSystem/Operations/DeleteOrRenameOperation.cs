@@ -4,9 +4,9 @@ using System;
 
 namespace Orang.FileSystem.Commands;
 
-internal abstract class DeleteOrRenameCommand : Command, INotifyDirectoryChanged
+internal abstract class DeleteOrRenameOperation : OperationBase, INotifyDirectoryChanged
 {
-    protected DeleteOrRenameCommand()
+    protected DeleteOrRenameOperation()
     {
     }
 

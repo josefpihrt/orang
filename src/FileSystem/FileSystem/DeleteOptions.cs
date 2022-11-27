@@ -18,7 +18,7 @@ public class DeleteOptions : SearchOptions
 
     public bool DryRun { get; set; }
 
-    public IProgress<OperationProgress>? Progress { get; set; }
+    public IProgress<OperationProgress>? OperationProgress { get; set; }
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private string DebuggerDisplay => $"{nameof(ContentOnly)} = {ContentOnly}  {nameof(IncludingBom)} = {IncludingBom}";

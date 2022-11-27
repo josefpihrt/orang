@@ -7,9 +7,9 @@ using System.Threading;
 
 namespace Orang.FileSystem.Commands;
 
-internal abstract class Command
+internal abstract class OperationBase
 {
-    protected Command()
+    protected OperationBase()
     {
         Telemetry = new SearchTelemetry();
     }
@@ -24,7 +24,7 @@ internal abstract class Command
 
     public int MaxMatchingFiles { get; set; }
 
-    public IProgress<OperationProgress>? Progress { get; set; }
+    public IProgress<OperationProgress>? OperationProgress { get; set; }
 
     public bool DryRun { get; set; }
 
@@ -77,6 +77,6 @@ internal abstract class Command
 
     protected void Report(FileMatch fileMatch, string? newPath, Exception? exception = null)
     {
-        Progress?.Report(fileMatch, newPath, OperationKind, exception);
+        OperationProgress?.Report(fileMatch, newPath, OperationKind, exception);
     }
 }

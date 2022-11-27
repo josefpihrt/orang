@@ -2,7 +2,6 @@
 
 using System;
 using System.Text.RegularExpressions;
-using System.Threading;
 using Orang;
 using Orang.FileSystem;
 
@@ -12,23 +11,46 @@ public static class Program
 {
     public static void Main(params string[] args)
     {
-        //foreach (FileMatch match in FileSystemOperation.GetMatches(
-        //    @"C:\code\datamole\ddp-kernel-device-provisioning\src",
-        //    new MatchOptions() { Extension = new Filter("csproj") }))
-        //{
-        //    Console.WriteLine(match.Path);
-        //}
-
-        //Console.WriteLine();
-
-        IOperationResult result = FileSystemOperation.RenameMatches(
+        foreach (FileMatch match in Operation.GetMatches(
             @"C:\code\datamole\ddp-kernel-device-provisioning\src",
-            new FileSystemFilter() { Name = new Filter("^csproj$"), Part = FileNamePart.Extension },
-            f => "cspro",
-            new RenameOptions() { DryRun = true, Progress = new ConsoleProgress() });
+            new FileSystemFilter() { Extension = new Filter("csproj") }))
+        {
+            Console.WriteLine(match.Path);
+        }
+
+        Console.WriteLine();
+
+        IOperationResult result = Operation.RenameMatches(
+            @"C:\code\datamole\ddp-kernel-device-provisioning\src",
+            new FileSystemFilter()
+            {
+                Name = new Filter(Pattern.FromText("csproj", PatternCreationOptions.Equals)),
+                Part = FileNamePart.Extension
+            },
+            m => m.Value + "2",
+            new RenameOptions()
+            {
+                DryRun = true,
+                OperationProgress = new ConsoleOperationProgress(),
+                //SearchProgress = new ConsoleSearchProgress()
+            });
+
+        Console.WriteLine(result.Telemetry.MatchingFileCount);
+        Console.WriteLine(result.Telemetry.ProcessedFileCount);
     }
 
-    public class ConsoleProgress : IProgress<OperationProgress>
+    public class ConsoleSearchProgress : IProgress<SearchProgress>
+    {
+        public void Report(SearchProgress value)
+        {
+            ConsoleColor tmp = Console.ForegroundColor;
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.WriteLine(value.Path);
+            Console.ForegroundColor = tmp;
+        }
+    }
+
+    public class ConsoleOperationProgress : IProgress<OperationProgress>
     {
         public void Report(OperationProgress value)
         {

@@ -7,9 +7,9 @@ using System.IO;
 
 namespace Orang.FileSystem.Commands;
 
-internal abstract class CommonCopyCommand : CommonFindCommand
+internal abstract class CommonCopyOperation : CommonFindOperation
 {
-    protected CommonCopyCommand()
+    protected CommonCopyOperation()
     {
     }
 

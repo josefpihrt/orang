@@ -23,7 +23,7 @@ public class CopyOptions : SearchOptions
 
     public bool DryRun { get; set; }
 
-    public IProgress<OperationProgress>? Progress { get; set; }
+    public IProgress<OperationProgress>? OperationProgress { get; set; }
 
     public IDialogProvider<ConflictInfo>? DialogProvider { get; set; }
 

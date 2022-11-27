@@ -5,7 +5,7 @@ using System.IO;
 
 namespace Orang.FileSystem.Commands;
 
-internal class DeleteCommand : DeleteOrRenameCommand
+internal class DeleteOperation : DeleteOrRenameOperation
 {
     public DeleteOptions DeleteOptions { get; set; } = null!;
 

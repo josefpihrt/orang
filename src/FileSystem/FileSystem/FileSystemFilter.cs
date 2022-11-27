@@ -6,7 +6,7 @@ using System.IO;
 
 namespace Orang.FileSystem;
 
-//TODO: JP rename to MatchOptions
+//TODO: JP rename to MatchOptions, FileSystemMatcher, FileMatcher
 public class FileSystemFilter
 {
     public Filter? Name { get; set; }

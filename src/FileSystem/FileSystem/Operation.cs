@@ -11,7 +11,7 @@ using Orang.FileSystem.Commands;
 
 namespace Orang.FileSystem;
 
-public static class FileSystemOperation
+public static class Operation
 {
     public static IEnumerable<FileMatch> GetMatches(
         string directoryPath,
@@ -53,7 +53,7 @@ public static class FileSystemOperation
             directoryFilters: directoryFilters,
             progress: options.SearchProgress,
             searchTarget: options.SearchTarget,
-            recurseSubdirectories: options.RecurseSubdirectories,
+            recurseSubdirectories: !options.TopDirectoryOnly,
             defaultEncoding: options.DefaultEncoding);
 
         return search.Find(directoryPath, cancellationToken);
@@ -95,12 +95,12 @@ public static class FileSystemOperation
             directoryFilters: directoryFilters,
             progress: options.SearchProgress,
             searchTarget: options.SearchTarget,
-            recurseSubdirectories: options.RecurseSubdirectories,
+            recurseSubdirectories: !options.TopDirectoryOnly,
             defaultEncoding: options.DefaultEncoding);
 
         OperationHelpers.VerifyCopyMoveArguments(directoryPath, destinationPath, options);
 
-        var command = new CopyCommand()
+        var command = new CopyOperation()
         {
             Search = search,
             DestinationPath = destinationPath,
@@ -140,17 +140,17 @@ public static class FileSystemOperation
             directoryFilters: options.DirectoryFilters.ToArray(),
             progress: options.SearchProgress,
             searchTarget: options.SearchTarget,
-            recurseSubdirectories: options.RecurseSubdirectories,
+            recurseSubdirectories: !options.TopDirectoryOnly,
             defaultEncoding: options.DefaultEncoding)
         {
             CanRecurseMatch = false,
         };
 
-        var command = new DeleteCommand()
+        var command = new DeleteOperation()
         {
             Search = search,
             DeleteOptions = options,
-            Progress = options.Progress,
+            OperationProgress = options.OperationProgress,
             DryRun = options.DryRun,
             MaxMatchingFiles = 0,
             CancellationToken = cancellationToken,
@@ -191,19 +191,19 @@ public static class FileSystemOperation
             directoryFilters: directoryFilters,
             progress: options.SearchProgress,
             searchTarget: options.SearchTarget,
-            recurseSubdirectories: options.RecurseSubdirectories,
+            recurseSubdirectories: !options.TopDirectoryOnly,
             defaultEncoding: options.DefaultEncoding);
 
         options ??= new CopyOptions();
 
         OperationHelpers.VerifyCopyMoveArguments(directoryPath, destinationPath, options);
 
-        var command = new MoveCommand()
+        var command = new MoveOperation()
         {
             Search = search,
             DestinationPath = destinationPath,
             CopyOptions = options,
-            Progress = options.Progress,
+            OperationProgress = options.OperationProgress,
             DryRun = options.DryRun,
             DialogProvider = options.DialogProvider,
             MaxMatchingFiles = 0,
@@ -227,7 +227,7 @@ public static class FileSystemOperation
     {
         options ??= new RenameOptions();
 
-        var replacer = new Replacer(replacement, options?.Functions ?? ReplaceFunctions.None, options?.CultureInvariant ?? false);
+        var replacer = new Replacer(replacement, options?.ReplaceFunctions ?? ReplaceFunctions.None, options?.CultureInvariant ?? false);
 
         return RenameMatches(directoryPath, filter, replacer, options, cancellationToken);
     }
@@ -241,7 +241,7 @@ public static class FileSystemOperation
     {
         options ??= new RenameOptions();
 
-        var replacer = new Replacer(matchEvaluator, options?.Functions ?? ReplaceFunctions.None, options?.CultureInvariant ?? false);
+        var replacer = new Replacer(matchEvaluator, options?.ReplaceFunctions ?? ReplaceFunctions.None, options?.CultureInvariant ?? false);
 
         return RenameMatches(directoryPath, filter, replacer, options, cancellationToken);
     }
@@ -277,19 +277,19 @@ public static class FileSystemOperation
             directoryFilters: options.DirectoryFilters.ToArray(),
             progress: options.SearchProgress,
             searchTarget: options.SearchTarget,
-            recurseSubdirectories: options.RecurseSubdirectories,
+            recurseSubdirectories: !options.TopDirectoryOnly,
             defaultEncoding: options.DefaultEncoding)
         {
             DisallowEnumeration = !options.DryRun,
             MatchPartOnly = true
         };
 
-        var command = new RenameCommand()
+        var command = new RenameOperation()
         {
             Search = search,
             RenameOptions = options,
             Replacer = replacer,
-            Progress = options.Progress,
+            OperationProgress = options.OperationProgress,
             DryRun = options.DryRun,
             DialogProvider = options.DialogProvider,
             MaxMatchingFiles = 0,
@@ -309,7 +309,7 @@ public static class FileSystemOperation
         ReplaceOptions? options = null,
         CancellationToken cancellationToken = default)
     {
-        var replacer = new Replacer(replacement, options?.Functions ?? ReplaceFunctions.None, options?.CultureInvariant ?? false);
+        var replacer = new Replacer(replacement, options?.ReplaceFunctions ?? ReplaceFunctions.None, options?.CultureInvariant ?? false);
 
         return ReplaceMatches(directoryPath, filter, replacer, options, cancellationToken);
     }
@@ -321,7 +321,7 @@ public static class FileSystemOperation
         ReplaceOptions? options = null,
         CancellationToken cancellationToken = default)
     {
-        var replacer = new Replacer(matchEvaluator, options?.Functions ?? ReplaceFunctions.None, options?.CultureInvariant ?? false);
+        var replacer = new Replacer(matchEvaluator, options?.ReplaceFunctions ?? ReplaceFunctions.None, options?.CultureInvariant ?? false);
 
         return ReplaceMatches(directoryPath, filter, replacer, options, cancellationToken);
     }
@@ -352,18 +352,18 @@ public static class FileSystemOperation
             directoryFilters: options.DirectoryFilters.ToArray(),
             progress: options.SearchProgress,
             searchTarget: options.SearchTarget,
-            recurseSubdirectories: options.RecurseSubdirectories,
+            recurseSubdirectories: !options.TopDirectoryOnly,
             defaultEncoding: options.DefaultEncoding)
         {
             CanRecurseMatch = false,
         };
 
-        var command = new ReplaceCommand()
+        var command = new ReplaceOperation()
         {
             Search = search,
             ReplaceOptions = options,
             Replacer = replacer,
-            Progress = options.Progress,
+            OperationProgress = options.OperationProgress,
             DryRun = options.DryRun,
             MaxMatchingFiles = 0,
             MaxMatchesInFile = 0,

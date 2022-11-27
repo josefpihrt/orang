@@ -4,7 +4,7 @@ using System.IO;
 
 namespace Orang.FileSystem.Commands;
 
-internal class MoveCommand : CommonCopyCommand
+internal class MoveOperation : CommonCopyOperation
 {
     public override OperationKind OperationKind => OperationKind.Move;
 

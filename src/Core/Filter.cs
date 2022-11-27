@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace Orang;
 
+//TODO: JP rename to Matcher
 [DebuggerDisplay("{DebuggerDisplay,nq}")]
 public class Filter
 {
@@ -14,18 +15,12 @@ public class Filter
 
     public Filter(
         string pattern,
-        bool isNegative = false) : this(pattern, RegexOptions.None, isNegative: isNegative)
-    {
-    }
-
-    public Filter(
-        string pattern,
-        RegexOptions options,
+        RegexOptions options = RegexOptions.None,
         bool isNegative = false) : this(new Regex(pattern, options), isNegative: isNegative)
     {
     }
 
-    public Filter(
+    internal Filter(
         Regex regex,
         bool isNegative = false,
         int groupNumber = -1,
@@ -44,12 +39,11 @@ public class Filter
 
     public bool IsNegative { get; }
 
-    public int GroupNumber { get; }
+    internal int GroupNumber { get; }
 
-    //TODO: JP internal?
-    public Func<string, bool>? Predicate { get; }
+    internal Func<string, bool>? Predicate { get; }
 
-    public string GroupName => Regex.GroupNameFromNumber(GroupNumber);
+    internal string GroupName => Regex.GroupNameFromNumber(GroupNumber);
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private string DebuggerDisplay => $"{nameof(IsNegative)} = {IsNegative}  {Regex}";

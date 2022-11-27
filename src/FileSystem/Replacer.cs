@@ -9,7 +9,7 @@ using Orang.Text.RegularExpressions;
 namespace Orang;
 
 [DebuggerDisplay("{DebuggerDisplay,nq}")]
-public class Replacer : IReplacer
+internal class Replacer : IReplacer
 {
     public static Replacer Empty { get; } = new("");
 

@@ -8,6 +8,7 @@ using System.Text;
 
 namespace Orang.FileSystem;
 
+//TODO: ErrorBehavior
 public class SearchOptions
 {
     public List<NameFilter> DirectoryFilters { get; } = new();
@@ -16,8 +17,7 @@ public class SearchOptions
 
     public SearchTarget SearchTarget { get; init; }
 
-    //TODO: JP rename to TopDirectoryOnly
-    public bool RecurseSubdirectories { get; init; } = true;
+    public bool TopDirectoryOnly { get; init; }
 
     public Encoding? DefaultEncoding { get; init; }
 }

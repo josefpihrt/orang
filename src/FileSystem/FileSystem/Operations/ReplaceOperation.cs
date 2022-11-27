@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace Orang.FileSystem.Commands;
 
-internal class ReplaceCommand : CommonFindCommand
+internal class ReplaceOperation : CommonFindOperation
 {
     public ReplaceOptions ReplaceOptions { get; set; } = null!;
 

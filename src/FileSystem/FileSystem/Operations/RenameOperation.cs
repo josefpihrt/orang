@@ -8,7 +8,7 @@ using Orang.Text.RegularExpressions;
 
 namespace Orang.FileSystem.Commands;
 
-internal class RenameCommand : DeleteOrRenameCommand
+internal class RenameOperation : DeleteOrRenameOperation
 {
     public RenameOptions RenameOptions { get; set; } = null!;
 

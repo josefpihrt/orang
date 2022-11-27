@@ -8,11 +8,11 @@ namespace Orang.FileSystem;
 
 public class ReplaceOptions : SearchOptions
 {
-    public ReplaceFunctions Functions { get; set; }
+    public ReplaceFunctions ReplaceFunctions { get; set; }
 
     public bool CultureInvariant { get; set; }
 
     public bool DryRun { get; set; }
 
-    public IProgress<OperationProgress>? Progress { get; set; }
+    public IProgress<OperationProgress>? OperationProgress { get; set; }
 }

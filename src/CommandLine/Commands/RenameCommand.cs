@@ -73,7 +73,7 @@ internal class RenameCommand : DeleteOrRenameCommand<RenameCommandOptions>
             fileMatch.NameSpan.Start,
             newName,
             0,
-            fileMatch.NameSpan.Length,
+            Math.Max(fileMatch.NameSpan.Length, newName.Length),
             StringComparison.Ordinal) != 0;
 
         bool isInvalidName = changed

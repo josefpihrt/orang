@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Check correctly if name changed during renaming ([#54](https://github.com/josefpihrt/roslynator/pull/54)).
+
 ## [0.3.2] - 2022-06-26
 
 ### Added

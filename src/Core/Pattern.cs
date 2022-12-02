@@ -9,7 +9,7 @@ namespace Orang;
 
 public static class Pattern
 {
-    public static string FromText(
+    public static string FromValue(
         string text,
         PatternCreationOptions options)
     {
@@ -22,7 +22,7 @@ public static class Pattern
         return Create(text, options);
     }
 
-    public static string FromList(
+    public static string FromValues(
         IEnumerable<string> values,
         PatternCreationOptions options = PatternCreationOptions.None)
     {

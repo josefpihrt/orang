@@ -7,18 +7,17 @@ using System.Text;
 
 namespace Orang.FileSystem;
 
-//TODO: ErrorBehavior
 public class SearchOptions
 {
     public Func<string, bool>? IncludeDirectory { get; set; }
 
     public Func<string, bool>? ExcludeDirectory { get; set; }
 
-    public IProgress<SearchProgress>? SearchProgress { get; init; }
+    public IProgress<SearchProgress>? SearchProgress { get; set; }
 
-    public SearchTarget SearchTarget { get; init; }
+    public SearchTarget SearchTarget { get; set; }
 
-    public bool TopDirectoryOnly { get; init; }
+    public bool TopDirectoryOnly { get; set; }
 
-    public Encoding? DefaultEncoding { get; init; }
+    public Encoding? DefaultEncoding { get; set; }
 }

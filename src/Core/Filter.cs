@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 
 namespace Orang;
 
-//TODO: JP rename to Matcher
+//TODO: rename to Matcher
 [DebuggerDisplay("{DebuggerDisplay,nq}")]
 public class Filter
 {

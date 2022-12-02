@@ -27,7 +27,7 @@ public static class Program
             @"C:\code\datamole\ddp-kernel-device-provisioning\src",
             new FileSystemFilter()
             {
-                Name = new Filter(Pattern.FromText("csproj", PatternCreationOptions.Equals), RegexOptions.IgnoreCase),
+                Name = new Filter(Pattern.FromValue("csproj", PatternCreationOptions.Equals), RegexOptions.IgnoreCase),
                 Part = FileNamePart.Extension,
             },
             m => m.Value + "2",

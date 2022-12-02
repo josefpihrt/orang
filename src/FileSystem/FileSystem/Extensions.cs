@@ -19,7 +19,7 @@ public static class Extensions
     private static FileSystemFilter SetExtensions(this FileSystemFilter filter, bool isNegative, params string[] extensions)
     {
         filter.Extension = new Filter(
-            Pattern.FromList(
+            Pattern.FromValues(
                 extensions,
                 PatternCreationOptions.Equals | PatternCreationOptions.Literal),
             (FileSystemHelpers.IsCaseSensitive) ? RegexOptions.None : RegexOptions.IgnoreCase,

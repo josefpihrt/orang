@@ -1362,7 +1362,7 @@ internal class ParseContext
         IEnumerable<string> values,
         string optionName,
         OptionValueProvider provider,
-        out Filter? filter,
+        out Matcher? matcher,
         bool allowNull = false,
         bool allowEmptyPattern = false,
         OptionValueProvider? namePartProvider = null,
@@ -1373,7 +1373,7 @@ internal class ParseContext
             values: values,
             optionName: optionName,
             provider: provider,
-            filter: out filter,
+            matcher: out matcher,
             namePart: out _,
             allowNull: allowNull,
             allowEmptyPattern: allowEmptyPattern,
@@ -1386,7 +1386,7 @@ internal class ParseContext
         IEnumerable<string> values,
         string optionName,
         OptionValueProvider provider,
-        out Filter? filter,
+        out Matcher? matcher,
         out FileNamePart namePart,
         bool allowNull = false,
         bool allowEmptyPattern = false,
@@ -1394,7 +1394,7 @@ internal class ParseContext
         FileNamePart defaultNamePart = FileNamePart.Name,
         PatternOptions includedPatternOptions = PatternOptions.None)
     {
-        filter = null;
+        matcher = null;
         namePart = defaultNamePart;
 
         string? pattern = values.FirstOrDefault();
@@ -1505,7 +1505,7 @@ internal class ParseContext
         if (pattern.Length == 0
             && allowEmptyPattern)
         {
-            filter = new Filter(new Regex(".+", RegexOptions.Singleline), predicate: predicate);
+            matcher = new Matcher(new Regex(".+", RegexOptions.Singleline), predicate: predicate);
             return true;
         }
 
@@ -1598,7 +1598,7 @@ internal class ParseContext
             }
         }
 
-        filter = new Filter(
+        matcher = new Matcher(
             regex,
             isNegative: (patternOptions & PatternOptions.Negative) != 0,
             groupNumber: groupIndex,
@@ -1818,7 +1818,7 @@ internal class ParseContext
             name,
             OptionNames.Name,
             OptionValueProviders.PatternOptionsProvider,
-            out Filter? nameFilter,
+            out Matcher? nameFilter,
             out FileNamePart namePart,
             allowNull: true,
             allowEmptyPattern: allowEmptyPattern))

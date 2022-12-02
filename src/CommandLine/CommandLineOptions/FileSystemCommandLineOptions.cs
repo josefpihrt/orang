@@ -218,7 +218,7 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
             IncludeDirectory,
             OptionNames.IncludeDirectory,
             OptionValueProviders.PatternOptionsProvider,
-            out Filter? directoryFilter,
+            out Matcher? directoryFilter,
             out FileNamePart directoryNamePart,
             allowNull: true,
             namePartProvider: OptionValueProviders.NamePartKindProvider_WithoutExtension))
@@ -230,7 +230,7 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
             Extension,
             OptionNames.Extension,
             OptionValueProviders.ExtensionOptionsProvider,
-            out Filter? extensionFilter,
+            out Matcher? extensionFilter,
             allowNull: true,
             defaultNamePart: FileNamePart.Extension,
             includedPatternOptions: PatternOptions.List | PatternOptions.Equals | PatternOptions.IgnoreCase))

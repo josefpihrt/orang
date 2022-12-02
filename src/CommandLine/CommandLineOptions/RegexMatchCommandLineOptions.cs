@@ -42,7 +42,7 @@ internal sealed class RegexMatchCommandLineOptions : RegexCommandLineOptions
             Content,
             OptionNames.Content,
             OptionValueProviders.PatternOptions_Match_Provider,
-            out Filter? filter))
+            out Matcher? matcher))
         {
             return false;
         }
@@ -56,7 +56,7 @@ internal sealed class RegexMatchCommandLineOptions : RegexCommandLineOptions
             return false;
         }
 
-        options.Filter = filter!;
+        options.Matcher = matcher!;
         options.HighlightOptions = highlightOptions;
         options.MaxCount = MaxCount;
 

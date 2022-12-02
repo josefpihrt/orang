@@ -6,16 +6,15 @@ using System.IO;
 
 namespace Orang.FileSystem;
 
-//TODO: rename to FileMatcher
-public class FileSystemFilter
+public class FileMatcher
 {
-    public Filter? Name { get; set; }
+    public Matcher? Name { get; set; }
 
     public FileNamePart Part { get; set; }
 
-    public Filter? Extension { get; set; }
+    public Matcher? Extension { get; set; }
 
-    public Filter? Content { get; set; }
+    public Matcher? Content { get; set; }
 
     public FilePropertyFilter? Properties { get; set; }
 

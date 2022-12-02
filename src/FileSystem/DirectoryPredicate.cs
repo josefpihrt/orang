@@ -10,24 +10,24 @@ namespace Orang;
 
 internal static class DirectoryPredicate
 {
-    public static Func<string, bool> Create(Filter filter, FileNamePart part = FileNamePart.FullName)
+    public static Func<string, bool> Create(Matcher matcher, FileNamePart part = FileNamePart.FullName)
     {
         return path =>
         {
-            return (filter.IsNegative) ? !IsMatch(filter, part, path) : IsMatch(filter, part, path);
+            return (matcher.IsNegative) ? !IsMatch(matcher, part, path) : IsMatch(matcher, part, path);
         };
     }
 
     public static Func<string, bool> Create(string path, FileNamePart part = FileNamePart.FullName)
     {
-        Filter filter = CreateFilter(path);
+        Matcher matcher = CreateFilter(path);
 
-        return path => IsMatch(filter, part, path);
+        return path => IsMatch(matcher, part, path);
     }
 
     public static Func<string, bool> Create(Func<string, bool>? predicate, string path)
     {
-        Filter directoryFilter = CreateFilter(path);
+        Matcher directoryFilter = CreateFilter(path);
 
         if (predicate is not null)
         {
@@ -43,7 +43,7 @@ internal static class DirectoryPredicate
         }
     }
 
-    private static Filter CreateFilter(string path)
+    private static Matcher CreateFilter(string path)
     {
         string pattern = RegexEscape.Escape(path);
 
@@ -68,11 +68,11 @@ internal static class DirectoryPredicate
         if (!FileSystemHelpers.IsCaseSensitive)
             options |= RegexOptions.IgnoreCase;
 
-        return new Filter(pattern, options);
+        return new Matcher(pattern, options);
     }
 
-    private static bool IsMatch(Filter filter, FileNamePart part, string path)
+    private static bool IsMatch(Matcher matcher, FileNamePart part, string path)
     {
-        return filter.IsMatch(FileNameSpan.FromDirectory(path, part));
+        return matcher.IsMatch(FileNameSpan.FromDirectory(path, part));
     }
 }

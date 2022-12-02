@@ -24,7 +24,7 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
 
     private ProgressReporter? ProgressReporter => _progressReporter ??= CreateProgressReporter();
 
-    public Filter? NameFilter => Options.NameFilter;
+    public Matcher? NameFilter => Options.NameFilter;
 
     protected virtual bool CanDisplaySummary => true;
 
@@ -38,7 +38,7 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
 
     private FileSystemSearch CreateSearch()
     {
-        var filter = new FileSystemFilter()
+        var matcher = new FileMatcher()
         {
             Name = Options.NameFilter,
             Part = Options.NamePart,
@@ -56,7 +56,7 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
         Func<string, bool>? includeDirectory = null;
         Func<string, bool>? excludeDirectory = null;
 
-        Filter? directoryFilter = Options.DirectoryFilter;
+        Matcher? directoryFilter = Options.DirectoryFilter;
 
         if (directoryFilter is not null)
         {
@@ -74,7 +74,7 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
         excludeDirectory = CombinePredicates(excludeDirectory, CreateExcludeDirectoryPredicate());
 
         var search = new FileSystemSearch(
-            filter: filter,
+            matcher: matcher,
             includeDirectory: includeDirectory,
             excludeDirectory: excludeDirectory,
             progress: ProgressReporter,

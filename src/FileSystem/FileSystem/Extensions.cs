@@ -6,25 +6,25 @@ namespace Orang.FileSystem;
 
 public static class Extensions
 {
-    public static FileSystemFilter IncludeExtensions(this FileSystemFilter filter, params string[] extensions)
+    public static FileMatcher IncludeExtensions(this FileMatcher matcher, params string[] extensions)
     {
-        return SetExtensions(filter, isNegative: false, extensions);
+        return SetExtensions(matcher, isNegative: false, extensions);
     }
 
-    public static FileSystemFilter ExcludeExtensions(this FileSystemFilter filter, params string[] extensions)
+    public static FileMatcher ExcludeExtensions(this FileMatcher matcher, params string[] extensions)
     {
-        return SetExtensions(filter, isNegative: true, extensions);
+        return SetExtensions(matcher, isNegative: true, extensions);
     }
 
-    private static FileSystemFilter SetExtensions(this FileSystemFilter filter, bool isNegative, params string[] extensions)
+    private static FileMatcher SetExtensions(this FileMatcher matcher, bool isNegative, params string[] extensions)
     {
-        filter.Extension = new Filter(
+        matcher.Extension = new Matcher(
             Pattern.FromValues(
                 extensions,
                 PatternCreationOptions.Equals | PatternCreationOptions.Literal),
             (FileSystemHelpers.IsCaseSensitive) ? RegexOptions.None : RegexOptions.IgnoreCase,
             isNegative: isNegative);
 
-        return filter;
+        return matcher;
     }
 }

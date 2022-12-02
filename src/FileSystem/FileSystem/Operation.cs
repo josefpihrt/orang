@@ -14,7 +14,7 @@ public static class Operation
 {
     public static IEnumerable<FileMatch> GetMatches(
         string directoryPath,
-        FileSystemFilter filter,
+        FileMatcher matcher,
         SearchOptions? options = null,
         CancellationToken cancellationToken = default)
     {
@@ -23,15 +23,15 @@ public static class Operation
             throw new ArgumentNullException(nameof(directoryPath));
         }
 
-        if (filter is null)
+        if (matcher is null)
         {
-            throw new ArgumentNullException(nameof(filter));
+            throw new ArgumentNullException(nameof(matcher));
         }
 
         options ??= new SearchOptions();
 
         var search = new FileSystemSearch(
-            filter: filter,
+            matcher: matcher,
             includeDirectory: options.IncludeDirectory,
             excludeDirectory: options.ExcludeDirectory,
             progress: options.SearchProgress,
@@ -45,7 +45,7 @@ public static class Operation
     public static IOperationResult CopyMatches(
         string directoryPath,
         string destinationPath,
-        FileSystemFilter filter,
+        FileMatcher matcher,
         CopyOptions? options = null,
         CancellationToken cancellationToken = default)
     {
@@ -54,9 +54,9 @@ public static class Operation
             throw new ArgumentNullException(nameof(directoryPath));
         }
 
-        if (filter is null)
+        if (matcher is null)
         {
-            throw new ArgumentNullException(nameof(filter));
+            throw new ArgumentNullException(nameof(matcher));
         }
 
         if (destinationPath is null)
@@ -72,7 +72,7 @@ public static class Operation
         Func<string, bool> excludeDirectory = DirectoryPredicate.Create(options.ExcludeDirectory, destinationPath);
 
         var search = new FileSystemSearch(
-            filter,
+            matcher,
             includeDirectory: options.IncludeDirectory,
             excludeDirectory: excludeDirectory,
             progress: options.SearchProgress,
@@ -102,15 +102,15 @@ public static class Operation
     public static IOperationResult DeleteMatches(
         string directoryPath,
         string destinationPath,
-        FileSystemFilter filter,
+        FileMatcher matcher,
         DeleteOptions? options = null,
         CancellationToken cancellationToken = default)
     {
         if (directoryPath is null)
             throw new ArgumentNullException(nameof(directoryPath));
 
-        if (filter is null)
-            throw new ArgumentNullException(nameof(filter));
+        if (matcher is null)
+            throw new ArgumentNullException(nameof(matcher));
 
         if (destinationPath is null)
             throw new ArgumentNullException(nameof(destinationPath));
@@ -118,7 +118,7 @@ public static class Operation
         options ??= new DeleteOptions();
 
         var search = new FileSystemSearch(
-            filter,
+            matcher,
             includeDirectory: options.IncludeDirectory,
             excludeDirectory: options.ExcludeDirectory,
             progress: options.SearchProgress,
@@ -147,15 +147,15 @@ public static class Operation
     public static IOperationResult MoveMatches(
         string directoryPath,
         string destinationPath,
-        FileSystemFilter filter,
+        FileMatcher matcher,
         CopyOptions? options = null,
         CancellationToken cancellationToken = default)
     {
         if (directoryPath is null)
             throw new ArgumentNullException(nameof(directoryPath));
 
-        if (filter is null)
-            throw new ArgumentNullException(nameof(filter));
+        if (matcher is null)
+            throw new ArgumentNullException(nameof(matcher));
 
         if (destinationPath is null)
             throw new ArgumentNullException(nameof(destinationPath));
@@ -168,7 +168,7 @@ public static class Operation
         Func<string, bool> excludeDirectory = DirectoryPredicate.Create(options.ExcludeDirectory, destinationPath);
 
         var search = new FileSystemSearch(
-            filter,
+            matcher,
             includeDirectory: options.IncludeDirectory,
             excludeDirectory: excludeDirectory,
             progress: options.SearchProgress,
@@ -202,7 +202,7 @@ public static class Operation
 
     public static IOperationResult RenameMatches(
         string directoryPath,
-        FileSystemFilter filter,
+        FileMatcher matcher,
         string replacement,
         RenameOptions? options = null,
         CancellationToken cancellationToken = default)
@@ -211,12 +211,12 @@ public static class Operation
 
         var replacer = new Replacer(replacement, options?.ReplaceFunctions ?? ReplaceFunctions.None, options?.CultureInvariant ?? false);
 
-        return RenameMatches(directoryPath, filter, replacer, options, cancellationToken);
+        return RenameMatches(directoryPath, matcher, replacer, options, cancellationToken);
     }
 
     public static IOperationResult RenameMatches(
         string directoryPath,
-        FileSystemFilter filter,
+        FileMatcher matcher,
         MatchEvaluator matchEvaluator,
         RenameOptions? options = null,
         CancellationToken cancellationToken = default)
@@ -225,12 +225,12 @@ public static class Operation
 
         var replacer = new Replacer(matchEvaluator, options?.ReplaceFunctions ?? ReplaceFunctions.None, options?.CultureInvariant ?? false);
 
-        return RenameMatches(directoryPath, filter, replacer, options, cancellationToken);
+        return RenameMatches(directoryPath, matcher, replacer, options, cancellationToken);
     }
 
     private static IOperationResult RenameMatches(
         string directoryPath,
-        FileSystemFilter filter,
+        FileMatcher matcher,
         Replacer replacer,
         RenameOptions? options = null,
         CancellationToken cancellationToken = default)
@@ -238,24 +238,24 @@ public static class Operation
         if (directoryPath is null)
             throw new ArgumentNullException(nameof(directoryPath));
 
-        if (filter is null)
-            throw new ArgumentNullException(nameof(filter));
+        if (matcher is null)
+            throw new ArgumentNullException(nameof(matcher));
 
         options ??= new RenameOptions();
 
-        if (filter.Part == FileNamePart.FullName)
+        if (matcher.Part == FileNamePart.FullName)
             throw new InvalidOperationException($"Invalid file name part '{nameof(FileNamePart.FullName)}'.");
 
-        if (filter.Name is null)
+        if (matcher.Name is null)
             throw new InvalidOperationException("Name filter is not defined.");
 
-        if (filter.Name.IsNegative)
+        if (matcher.Name.IsNegative)
             throw new InvalidOperationException("Name filter cannot be negative.");
 
         OperationHelpers.VerifyConflictResolution(options.ConflictResolution, options.DialogProvider);
 
         var search = new FileSystemSearch(
-            filter,
+            matcher,
             includeDirectory: options.IncludeDirectory,
             excludeDirectory: options.ExcludeDirectory,
             progress: options.SearchProgress,
@@ -287,31 +287,31 @@ public static class Operation
 
     public static IOperationResult ReplaceMatches(
         string directoryPath,
-        FileSystemFilter filter,
+        FileMatcher matcher,
         string replacement,
         ReplaceOptions? options = null,
         CancellationToken cancellationToken = default)
     {
         var replacer = new Replacer(replacement, options?.ReplaceFunctions ?? ReplaceFunctions.None, options?.CultureInvariant ?? false);
 
-        return ReplaceMatches(directoryPath, filter, replacer, options, cancellationToken);
+        return ReplaceMatches(directoryPath, matcher, replacer, options, cancellationToken);
     }
 
     public static IOperationResult ReplaceMatches(
         string directoryPath,
-        FileSystemFilter filter,
+        FileMatcher matcher,
         MatchEvaluator matchEvaluator,
         ReplaceOptions? options = null,
         CancellationToken cancellationToken = default)
     {
         var replacer = new Replacer(matchEvaluator, options?.ReplaceFunctions ?? ReplaceFunctions.None, options?.CultureInvariant ?? false);
 
-        return ReplaceMatches(directoryPath, filter, replacer, options, cancellationToken);
+        return ReplaceMatches(directoryPath, matcher, replacer, options, cancellationToken);
     }
 
     private static IOperationResult ReplaceMatches(
         string directoryPath,
-        FileSystemFilter filter,
+        FileMatcher matcher,
         Replacer replacer,
         ReplaceOptions? options = null,
         CancellationToken cancellationToken = default)
@@ -319,19 +319,19 @@ public static class Operation
         if (directoryPath is null)
             throw new ArgumentNullException(nameof(directoryPath));
 
-        if (filter is null)
-            throw new ArgumentNullException(nameof(filter));
+        if (matcher is null)
+            throw new ArgumentNullException(nameof(matcher));
 
-        if (filter.Content is null)
+        if (matcher.Content is null)
             throw new InvalidOperationException("Content filter is not defined.");
 
-        if (filter.Content.IsNegative)
+        if (matcher.Content.IsNegative)
             throw new InvalidOperationException("Content filter cannot be negative.");
 
         options ??= new ReplaceOptions();
 
         var search = new FileSystemSearch(
-            filter,
+            matcher,
             includeDirectory: options.IncludeDirectory,
             excludeDirectory: options.ExcludeDirectory,
             progress: options.SearchProgress,

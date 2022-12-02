@@ -43,7 +43,7 @@ internal sealed class HelpCommandLineOptions : AbstractCommandLineOptions
             Filter,
             OptionNames.Filter,
             OptionValueProviders.PatternOptions_List_Provider,
-            out Filter? filter,
+            out Matcher? matcher,
             includedPatternOptions: PatternOptions.IgnoreCase,
             allowNull: true))
         {
@@ -51,7 +51,7 @@ internal sealed class HelpCommandLineOptions : AbstractCommandLineOptions
         }
 
         options.Command = Command.ToArray();
-        options.Filter = filter;
+        options.Matcher = matcher;
         options.Manual = Manual;
         options.Online = Online;
 

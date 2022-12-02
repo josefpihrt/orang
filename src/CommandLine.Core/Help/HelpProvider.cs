@@ -12,7 +12,7 @@ internal static class HelpProvider
 {
     public const int SeparatorWidth = 2;
 
-    public static ImmutableArray<CommandItem> GetCommandItems(IEnumerable<Command> commands, Filter? filter = null)
+    public static ImmutableArray<CommandItem> GetCommandItems(IEnumerable<Command> commands, Matcher? matcher = null)
     {
         if (!commands.Any())
             return ImmutableArray<CommandItem>.Empty;
@@ -33,7 +33,7 @@ internal static class HelpProvider
 
             var commandItem = new CommandItem(command, syntax, description);
 
-            if (filter?.IsMatch(commandItem.Text) != false)
+            if (matcher?.IsMatch(commandItem.Text) != false)
                 builder.Add(commandItem);
         }
 
@@ -42,7 +42,7 @@ internal static class HelpProvider
 
     public static ImmutableArray<ArgumentItem> GetArgumentItems(
         IEnumerable<CommandArgument> arguments,
-        Filter? filter = null)
+        Matcher? matcher = null)
     {
         int width = CalculateArgumentsWidths(arguments);
 
@@ -66,7 +66,7 @@ internal static class HelpProvider
 
             var argumentItem = new ArgumentItem(argument, syntax, description);
 
-            if (filter?.IsMatch(argumentItem.Text) != false)
+            if (matcher?.IsMatch(argumentItem.Text) != false)
             {
                 builder.Add(argumentItem);
             }
@@ -75,7 +75,7 @@ internal static class HelpProvider
         return builder.ToImmutableArray();
     }
 
-    public static ImmutableArray<OptionItem> GetOptionItems(IEnumerable<CommandOption> options, Filter? filter = null)
+    public static ImmutableArray<OptionItem> GetOptionItems(IEnumerable<CommandOption> options, Matcher? matcher = null)
     {
         int width = CalculateOptionsWidths(options);
 
@@ -119,7 +119,7 @@ internal static class HelpProvider
 
             var optionItem = new OptionItem(option, syntax: syntax, description);
 
-            if (filter?.IsMatch(optionItem.Text) != false)
+            if (matcher?.IsMatch(optionItem.Text) != false)
                 builder.Add(optionItem);
         }
 
@@ -129,7 +129,7 @@ internal static class HelpProvider
     public static ImmutableArray<OptionValueItemList> GetOptionValues(
         IEnumerable<CommandOption> options,
         IEnumerable<OptionValueProvider> providers,
-        Filter? filter = null)
+        Matcher? matcher = null)
     {
         providers = OptionValueProvider.GetProviders(options, providers).ToImmutableArray();
 
@@ -147,8 +147,8 @@ internal static class HelpProvider
             builder.Add(new OptionValueItemList(provider.Name, valueItems));
         }
 
-        return (filter is not null)
-            ? FilterOptionValues(builder, filter)
+        return (matcher is not null)
+            ? FilterOptionValues(builder, matcher)
             : builder.ToImmutableArray();
     }
 
@@ -192,20 +192,20 @@ internal static class HelpProvider
 
     private static ImmutableArray<OptionValueItemList> FilterOptionValues(
         IEnumerable<OptionValueItemList> values,
-        Filter filter)
+        Matcher matcher)
     {
         ImmutableArray<OptionValueItemList>.Builder builder = ImmutableArray.CreateBuilder<OptionValueItemList>();
 
         foreach (OptionValueItemList valueList in values)
         {
-            if (filter.IsMatch(valueList.MetaValue))
+            if (matcher.IsMatch(valueList.MetaValue))
             {
                 builder.Add(valueList);
             }
             else
             {
                 ImmutableArray<OptionValueItem> valueItems = valueList.Values
-                    .Where(f => filter.IsMatch(f.Text))
+                    .Where(f => matcher.IsMatch(f.Text))
                     .ToImmutableArray();
 
                 if (valueItems.Any())

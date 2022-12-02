@@ -18,7 +18,7 @@ namespace Orang.FileSystem;
 internal class FileSystemSearch
 {
     public FileSystemSearch(
-        FileSystemFilter filter,
+        FileMatcher matcher,
         Func<string, bool>? includeDirectory = null,
         Func<string, bool>? excludeDirectory = null,
         IProgress<SearchProgress>? progress = null,
@@ -27,7 +27,7 @@ internal class FileSystemSearch
         bool ignoreInaccessible = true,
         Encoding? defaultEncoding = null)
     {
-        Filter = filter ?? throw new ArgumentNullException(nameof(filter));
+        Matcher = matcher ?? throw new ArgumentNullException(nameof(matcher));
 
         IncludeDirectory = includeDirectory;
         ExcludeDirectory = excludeDirectory;
@@ -38,7 +38,7 @@ internal class FileSystemSearch
         DefaultEncoding = defaultEncoding ?? EncodingHelpers.UTF8NoBom;
     }
 
-    public FileSystemFilter Filter { get; }
+    public FileMatcher Matcher { get; }
 
     public Func<string, bool>? IncludeDirectory { get; }
 
@@ -52,21 +52,21 @@ internal class FileSystemSearch
 
     internal bool CanRecurseMatch { get; set; } = true;
 
-    private FileNamePart Part => Filter.Part;
+    private FileNamePart Part => Matcher.Part;
 
-    private Filter? Name => Filter.Name;
+    private Matcher? Name => Matcher.Name;
 
-    private Filter? Extension => Filter.Extension;
+    private Matcher? Extension => Matcher.Extension;
 
-    private Filter? Content => Filter.Content;
+    private Matcher? Content => Matcher.Content;
 
-    private FilePropertyFilter? Properties => Filter.Properties;
+    private FilePropertyFilter? Properties => Matcher.Properties;
 
-    private FileAttributes Attributes => Filter.Attributes;
+    private FileAttributes Attributes => Matcher.Attributes;
 
-    private FileAttributes AttributesToSkip => Filter.AttributesToSkip;
+    private FileAttributes AttributesToSkip => Matcher.AttributesToSkip;
 
-    private FileEmptyOption EmptyOption => Filter.FileEmptyOption;
+    private FileEmptyOption EmptyOption => Matcher.FileEmptyOption;
 
     private SearchTarget SearchTarget { get; }
 

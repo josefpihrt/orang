@@ -28,20 +28,20 @@ internal static class FileSystemExtensions
         progress.Report(new OperationProgress(fileMatch, newPath, kind, exception));
     }
 
-    public static Match? Match(this Filter filter, in FileNameSpan name)
+    public static Match? Match(this Matcher matcher, FileNameSpan name)
     {
-        return filter.Match(filter.Regex.Match(name.Path, name.Start, name.Length));
+        return matcher.Match(matcher.Regex.Match(name.Path, name.Start, name.Length));
     }
 
-    public static Match? Match(this Filter filter, in FileNameSpan name, bool matchPartOnly)
+    public static Match? Match(this Matcher matcher, FileNameSpan name, bool matchPartOnly)
     {
         return (matchPartOnly)
-            ? filter.Match(name.ToString())
-            : filter.Match(name);
+            ? matcher.Match(name.ToString())
+            : matcher.Match(name);
     }
 
-    public static bool IsMatch(this Filter filter, in FileNameSpan name)
+    public static bool IsMatch(this Matcher matcher, FileNameSpan name)
     {
-        return Match(filter, name) is not null;
+        return Match(matcher, name) is not null;
     }
 }

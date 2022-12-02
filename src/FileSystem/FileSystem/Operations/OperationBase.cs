@@ -30,9 +30,9 @@ internal abstract class OperationBase
 
     public CancellationToken CancellationToken { get; set; }
 
-    protected Filter? ContentFilter => Search.Filter.Content;
+    protected Matcher? ContentFilter => Search.Matcher.Content;
 
-    protected Filter? NameFilter => Search.Filter.Name;
+    protected Matcher? NameFilter => Search.Matcher.Name;
 
     protected abstract void ExecuteMatch(FileMatch fileMatch, string directoryPath);
 

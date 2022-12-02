@@ -16,7 +16,7 @@ public static class Program
     {
         foreach (FileMatch match in Operation.GetMatches(
             @"C:\code\datamole\ddp-kernel-device-provisioning\src",
-            new FileSystemFilter() { Extension = new Filter("csproj") }))
+            new FileMatcher() { Extension = new Matcher("csproj") }))
         {
             Console.WriteLine(match.Path);
         }
@@ -25,9 +25,9 @@ public static class Program
 
         IOperationResult result = Operation.RenameMatches(
             @"C:\code\datamole\ddp-kernel-device-provisioning\src",
-            new FileSystemFilter()
+            new FileMatcher()
             {
-                Name = new Filter(Pattern.FromValue("csproj", PatternCreationOptions.Equals), RegexOptions.IgnoreCase),
+                Name = new Matcher(Pattern.FromValue("csproj", PatternCreationOptions.Equals), RegexOptions.IgnoreCase),
                 Part = FileNamePart.Extension,
             },
             m => m.Value + "2",

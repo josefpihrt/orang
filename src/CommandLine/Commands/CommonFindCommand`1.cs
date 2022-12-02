@@ -28,7 +28,7 @@ internal abstract class CommonFindCommand<TOptions> :
         }
     }
 
-    public Filter? ContentFilter => Options.ContentFilter;
+    public Matcher? ContentFilter => Options.ContentFilter;
 
     private OutputSymbols Symbols => _symbols ??= OutputSymbols.Create(Options.HighlightOptions);
 
@@ -99,7 +99,7 @@ internal abstract class CommonFindCommand<TOptions> :
 
         HighlightOptions highlightOptions = Options.HighlightOptions;
 
-        if (ReferenceEquals(ContentFilter, Filter.EntireInput))
+        if (ReferenceEquals(ContentFilter, Matcher.EntireInput))
             highlightOptions &= ~HighlightOptions.DefaultOrMatch;
 
         return new ContentWriterOptions(

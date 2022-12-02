@@ -21,18 +21,18 @@ internal class ConsoleHelpWriter : HelpWriter
 
     public ContentTextWriter ContentWriter { get; }
 
-    public Filter? Filter => Options.Filter;
+    public Matcher? Matcher => Options.Matcher;
 
     internal ContentWriterOptions? ContentWriterOptions
     {
         get
         {
             if (_contentWriterOptions is null
-                && Filter is not null)
+                && Matcher is not null)
             {
                 _contentWriterOptions = new ContentWriterOptions(
                     format: new OutputDisplayFormat(ContentDisplayStyle.AllLines),
-                    (Filter.GroupNumber >= 0) ? new GroupDefinition(Filter.GroupNumber, Filter.GroupName) : default,
+                    (Matcher.GroupNumber >= 0) ? new GroupDefinition(Matcher.GroupNumber, Matcher.GroupName) : default,
                     indent: "");
             }
 
@@ -81,7 +81,7 @@ internal class ConsoleHelpWriter : HelpWriter
 
             WriteEndCommands(commands);
         }
-        else if (Options.Filter is not null)
+        else if (Options.Matcher is not null)
         {
             WriteLine("No command found");
         }
@@ -137,15 +137,15 @@ internal class ConsoleHelpWriter : HelpWriter
     {
         string value = helpItem.Text;
 
-        if (Filter is not null)
+        if (Matcher is not null)
         {
-            Match? match = Filter.Match(value);
+            Match? match = Matcher.Match(value);
 
             if (match is not null)
             {
                 List<Capture> captures = ListCache<Capture>.GetInstance();
 
-                CaptureFactory.GetCaptures(ref captures, match, Filter.GroupNumber);
+                CaptureFactory.GetCaptures(ref captures, match, Matcher.GroupNumber);
 
                 var writer = new AllLinesContentWriter(value, ContentWriter, ContentWriterOptions!);
 

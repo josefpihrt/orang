@@ -287,7 +287,7 @@ internal class DiagnosticWriter
     {
         WriteOption("command", string.Join(' ', options.Command));
         WriteOption("manual", options.Manual);
-        WriteFilter("filter", options.Filter);
+        WriteFilter("filter", options.Matcher);
     }
 
     internal void WriteMoveCommand(MoveCommandOptions options)
@@ -357,7 +357,7 @@ internal class DiagnosticWriter
 #if DEBUG
         WriteOption("content separator", options.Format.Separator);
 #endif
-        WriteFilter("filter", options.Filter);
+        WriteFilter("filter", options.Matcher);
         WriteOption("highlight options", options.HighlightOptions);
         WriteInput(options.Input);
         WriteOption("max count", options.MaxCount);
@@ -368,7 +368,7 @@ internal class DiagnosticWriter
     {
         WriteOption("char", options.Value);
         WriteOption("char group", options.InCharGroup);
-        WriteFilter("filter", options.Filter);
+        WriteFilter("filter", options.Matcher);
         WriteOption("regex options", options.RegexOptions);
         WriteOption("sections", options.Sections);
     }
@@ -382,7 +382,7 @@ internal class DiagnosticWriter
 #if DEBUG
         WriteOption("content separator", options.Format.Separator);
 #endif
-        WriteFilter("filter", options.Filter);
+        WriteFilter("filter", options.Matcher);
         WriteOption("highlight options", options.HighlightOptions);
         WriteInput(options.Input);
         WriteOption("max count", options.MaxCount);
@@ -683,27 +683,27 @@ internal class DiagnosticWriter
         WriteLine();
     }
 
-    private void WriteFilter(string name, Filter? filter, FileNamePart? part = null)
+    private void WriteFilter(string name, Matcher? matcher, FileNamePart? part = null)
     {
         WriteName(name);
 
-        if (filter is null)
+        if (matcher is null)
         {
             WriteNullValue();
             WriteLine();
             return;
         }
 
-        WriteRegex(filter.Regex);
+        WriteRegex(matcher.Regex);
 
         WriteIndent();
         WriteName("negative");
         WriteIndent();
-        WriteLine(filter.IsNegative.ToString().ToLowerInvariant());
+        WriteLine(matcher.IsNegative.ToString().ToLowerInvariant());
         WriteIndent();
         WriteName("group");
 
-        if (string.IsNullOrEmpty(filter.GroupName))
+        if (string.IsNullOrEmpty(matcher.GroupName))
         {
             WriteNullValue();
             WriteLine();
@@ -711,7 +711,7 @@ internal class DiagnosticWriter
         else
         {
             WriteIndent();
-            WriteLine(filter.GroupName);
+            WriteLine(matcher.GroupName);
         }
 
         if (part is not null)

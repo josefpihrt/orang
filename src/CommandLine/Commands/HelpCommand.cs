@@ -28,7 +28,7 @@ internal class HelpCommand : AbstractCommand<HelpCommandOptions>
                 online: Options.Online,
                 manual: Options.Manual,
                 verbose: _logger.ConsoleOut.Verbosity > Verbosity.Normal,
-                filter: Options.Filter);
+                matcher: Options.Matcher);
         }
         catch (ArgumentException ex)
         {
@@ -44,7 +44,7 @@ internal class HelpCommand : AbstractCommand<HelpCommandOptions>
         bool online,
         bool manual,
         bool verbose,
-        Filter? filter = null)
+        Matcher? matcher = null)
     {
         var isCompoundCommand = false;
         string? commandName2 = commandName.FirstOrDefault();
@@ -71,15 +71,15 @@ internal class HelpCommand : AbstractCommand<HelpCommandOptions>
             if (command is null)
                 throw new InvalidOperationException($"Command '{string.Join(' ', commandName)}' does not exist.");
 
-            WriteCommandHelp(command, _logger, verbose: verbose, filter: filter);
+            WriteCommandHelp(command, _logger, verbose: verbose, matcher: matcher);
         }
         else if (manual)
         {
-            WriteManual(_logger, verbose: verbose, filter: filter);
+            WriteManual(_logger, verbose: verbose, matcher: matcher);
         }
         else
         {
-            WriteCommandsHelp(_logger, verbose: verbose, filter: filter);
+            WriteCommandsHelp(_logger, verbose: verbose, matcher: matcher);
         }
     }
 
@@ -126,9 +126,9 @@ internal class HelpCommand : AbstractCommand<HelpCommandOptions>
         }
     }
 
-    public static void WriteCommandHelp(Command command, Logger logger, bool verbose = false, Filter? filter = null)
+    public static void WriteCommandHelp(Command command, Logger logger, bool verbose = false, Matcher? matcher = null)
     {
-        var writer = new ConsoleHelpWriter(logger, new HelpWriterOptions(filter: filter));
+        var writer = new ConsoleHelpWriter(logger, new HelpWriterOptions(matcher: matcher));
 
         IEnumerable<CommandOption> options = command.Options;
 
@@ -143,7 +143,7 @@ internal class HelpCommand : AbstractCommand<HelpCommandOptions>
 
         command = command.WithOptions(options);
 
-        CommandHelp commandHelp = CommandHelp.Create(command, OptionValueProviders.Providers, filter: filter);
+        CommandHelp commandHelp = CommandHelp.Create(command, OptionValueProviders.Providers, matcher: matcher);
 
         writer.WriteCommand(commandHelp);
 
@@ -168,13 +168,13 @@ internal class HelpCommand : AbstractCommand<HelpCommandOptions>
         }
     }
 
-    public static void WriteCommandsHelp(Logger logger, bool verbose = false, Filter? filter = null)
+    public static void WriteCommandsHelp(Logger logger, bool verbose = false, Matcher? matcher = null)
     {
         IEnumerable<Command> commands = LoadCommands().Where(f => f.Name != "help");
 
-        CommandsHelp commandsHelp = CommandsHelp.Create(commands, OptionValueProviders.Providers, filter: filter);
+        CommandsHelp commandsHelp = CommandsHelp.Create(commands, OptionValueProviders.Providers, matcher: matcher);
 
-        var writer = new ConsoleHelpWriter(logger, new HelpWriterOptions(filter: filter));
+        var writer = new ConsoleHelpWriter(logger, new HelpWriterOptions(matcher: matcher));
 
         writer.WriteCommands(commandsHelp);
 
@@ -185,13 +185,13 @@ internal class HelpCommand : AbstractCommand<HelpCommandOptions>
         logger.WriteLine(GetFooterText());
     }
 
-    private static void WriteManual(Logger logger, bool verbose = false, Filter? filter = null)
+    private static void WriteManual(Logger logger, bool verbose = false, Matcher? matcher = null)
     {
         IEnumerable<Command> commands = LoadCommands();
 
-        var writer = new ConsoleHelpWriter(logger, new HelpWriterOptions(filter: filter));
+        var writer = new ConsoleHelpWriter(logger, new HelpWriterOptions(matcher: matcher));
 
-        IEnumerable<CommandHelp> commandHelps = commands.Select(f => CommandHelp.Create(f, filter: filter))
+        IEnumerable<CommandHelp> commandHelps = commands.Select(f => CommandHelp.Create(f, matcher: matcher))
             .Where(f => f.Arguments.Any() || f.Options.Any())
             .ToImmutableArray();
 
@@ -204,7 +204,7 @@ internal class HelpCommand : AbstractCommand<HelpCommandOptions>
             values = HelpProvider.GetOptionValues(
                 commandHelps.SelectMany(f => f.Command.Options),
                 OptionValueProviders.Providers,
-                filter);
+                matcher);
 
             var commandsHelp = new CommandsHelp(commandItems, values);
 
@@ -241,7 +241,7 @@ internal class HelpCommand : AbstractCommand<HelpCommandOptions>
                 values = HelpProvider.GetOptionValues(
                     commands.Select(f => CommandHelp.Create(f)).SelectMany(f => f.Command.Options),
                     OptionValueProviders.Providers,
-                    filter);
+                    matcher);
             }
         }
 

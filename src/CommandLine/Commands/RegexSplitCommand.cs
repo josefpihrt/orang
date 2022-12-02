@@ -14,7 +14,7 @@ internal class RegexSplitCommand : RegexCommand<RegexSplitCommandOptions>
     protected override CommandResult ExecuteCore(CancellationToken cancellationToken = default)
     {
         SplitData splitData = SplitData.Create(
-            Options.Filter.Regex,
+            Options.Matcher.Regex,
             Options.Input,
             Options.MaxCount,
             omitGroups: Options.OmitGroups,

@@ -51,7 +51,7 @@ internal class CommonReplaceCommand<TOptions> : CommonFindCommand<TOptions> wher
     {
         int count = 0;
         var maxReason = MaxReason.None;
-        Filter contentFilter = ContentFilter!;
+        Matcher contentFilter = ContentFilter!;
         Match? match = contentFilter.Match(input);
 
         if (match is not null)

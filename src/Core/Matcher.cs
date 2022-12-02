@@ -7,20 +7,19 @@ using System.Text.RegularExpressions;
 
 namespace Orang;
 
-//TODO: rename to Matcher
 [DebuggerDisplay("{DebuggerDisplay,nq}")]
-public class Filter
+public class Matcher
 {
-    internal static Filter EntireInput { get; } = new(@"\A.+\z", RegexOptions.Singleline);
+    internal static Matcher EntireInput { get; } = new(@"\A.+\z", RegexOptions.Singleline);
 
-    public Filter(
+    public Matcher(
         string pattern,
         RegexOptions options = RegexOptions.None,
         bool isNegative = false) : this(new Regex(pattern, options), isNegative: isNegative)
     {
     }
 
-    internal Filter(
+    internal Matcher(
         Regex regex,
         bool isNegative = false,
         int groupNumber = -1,

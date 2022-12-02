@@ -75,9 +75,9 @@ internal sealed class SpellcheckCommand : CommonReplaceCommand<SpellcheckCommand
 
         foreach (Capture group in groups)
         {
-            foreach (Filter filter in SpellcheckState.Filters)
+            foreach (Matcher matcher in SpellcheckState.Matchers)
             {
-                Match? match = filter.Match(group.Value);
+                Match? match = matcher.Match(group.Value);
 
                 if (match is not null)
                 {
@@ -86,9 +86,9 @@ internal sealed class SpellcheckCommand : CommonReplaceCommand<SpellcheckCommand
                     MaxReason _ = CaptureFactory.GetCaptures(
                         ref captures,
                         match,
-                        filter.GroupNumber,
+                        matcher.GroupNumber,
                         count: 0,
-                        filter.Predicate,
+                        matcher.Predicate,
                         cancellationToken);
 
                     if (allSpans is null)

@@ -1,7 +1,10 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
+using System.Threading;
 using Orang;
 using Orang.FileSystem;
 
@@ -24,8 +27,8 @@ public static class Program
             @"C:\code\datamole\ddp-kernel-device-provisioning\src",
             new FileSystemFilter()
             {
-                Name = new Filter(Pattern.FromText("csproj", PatternCreationOptions.Equals)),
-                Part = FileNamePart.Extension
+                Name = new Filter(Pattern.FromText("csproj", PatternCreationOptions.Equals), RegexOptions.IgnoreCase),
+                Part = FileNamePart.Extension,
             },
             m => m.Value + "2",
             new RenameOptions()

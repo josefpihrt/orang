@@ -11,99 +11,98 @@ public static class Pattern
 {
     public static string FromText(
         string text,
-        PatternCreationOptions patternOptions,
-        string separator = ",")
+        PatternCreationOptions options)
     {
         if (text is null)
-        {
             throw new ArgumentNullException(nameof(text));
-        }
 
-        if (separator is null)
-        {
-            throw new ArgumentNullException(nameof(separator));
-        }
-
-        bool literal = (patternOptions & PatternCreationOptions.Literal) != 0;
-
-        if ((patternOptions & PatternCreationOptions.List) != 0)
-        {
-            IEnumerable<string> values = text.Split(separator ?? ",", StringSplitOptions.RemoveEmptyEntries);
-
-            text = JoinValues(values, literal);
-        }
-        else if (literal)
-        {
+        if ((options & PatternCreationOptions.Literal) != 0)
             text = RegexEscape.Escape(text);
+
+        return Create(text, options);
+    }
+
+    public static string FromList(
+        IEnumerable<string> values,
+        PatternCreationOptions options = PatternCreationOptions.None)
+    {
+        if (values is null)
+            throw new ArgumentNullException(nameof(values));
+
+        string text = JoinValues(values, (options & PatternCreationOptions.Literal) != 0);
+
+        return Create(text, options);
+
+        static string JoinValues(IEnumerable<string> values, bool literal)
+        {
+            using (IEnumerator<string> en = values.GetEnumerator())
+            {
+                if (en.MoveNext())
+                {
+                    string value = en.Current;
+
+                    if (en.MoveNext())
+                    {
+                        StringBuilder sb = StringBuilderCache.GetInstance();
+
+                        AppendValue(value, literal, sb);
+
+                        do
+                        {
+                            sb.Append("|");
+                            AppendValue(en.Current, literal, sb);
+                        }
+                        while (en.MoveNext());
+
+                        return StringBuilderCache.GetStringAndFree(sb);
+                    }
+
+                    return (literal) ? RegexEscape.Escape(value) : value;
+                }
+
+                return "";
+            }
         }
 
-        else if ((patternOptions & PatternCreationOptions.WholeLine) != 0)
+        static void AppendValue(string value, bool literal, StringBuilder sb)
+        {
+            if (literal)
+            {
+                sb.Append(RegexEscape.Escape(value));
+            }
+            else
+            {
+                sb.Append("(?:");
+                sb.Append(value);
+                sb.Append(")");
+            }
+        }
+    }
+
+    private static string Create(string text, PatternCreationOptions options)
+    {
+        if ((options & PatternCreationOptions.WholeLine) != 0)
         {
             text = @"(?:\A|(?<=\n))(?:" + text + @")(?:\z|(?=\r?\n))";
         }
-        else if ((patternOptions & PatternCreationOptions.WholeWord) != 0)
+        else if ((options & PatternCreationOptions.WholeWord) != 0)
         {
             text = @"\b(?:" + text + @")\b";
         }
 
-        if ((patternOptions & PatternCreationOptions.Equals) == PatternCreationOptions.Equals)
+        if ((options & PatternCreationOptions.Equals) == PatternCreationOptions.Equals)
         {
             return @"\A(?:" + text + @")\z";
         }
-        else if ((patternOptions & PatternCreationOptions.StartsWith) != 0)
+        else if ((options & PatternCreationOptions.StartsWith) != 0)
         {
             return @"\A(?:" + text + ")";
         }
-        else if ((patternOptions & PatternCreationOptions.EndsWith) != 0)
+        else if ((options & PatternCreationOptions.EndsWith) != 0)
         {
             return "(?:" + text + @")\z";
         }
 
         return text;
-    }
-
-    private static string JoinValues(IEnumerable<string> values, bool literal)
-    {
-        using (IEnumerator<string> en = values.GetEnumerator())
-        {
-            if (en.MoveNext())
-            {
-                string value = en.Current;
-
-                if (en.MoveNext())
-                {
-                    StringBuilder sb = StringBuilderCache.GetInstance();
-
-                    AppendValue(value, literal, sb);
-
-                    do
-                    {
-                        sb.Append("|");
-                        AppendValue(en.Current, literal, sb);
-                    }
-                    while (en.MoveNext());
-
-                    return StringBuilderCache.GetStringAndFree(sb);
-                }
-
-                return (literal) ? RegexEscape.Escape(value) : value;
-            }
-
-            return "";
-        }
-    }
-
-    private static void AppendValue(string value, bool literal, StringBuilder sb)
-    {
-        if (literal)
-        {
-            sb.Append(RegexEscape.Escape(value));
-        }
-        else
-        {
-            sb.Append("(?:");
-            sb.Append(value);
-            sb.Append(")");
-        }
     }
 }

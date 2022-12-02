@@ -9,10 +9,9 @@ public enum PatternCreationOptions
 {
     None = 0,
     EndsWith = 1,
-    List = 1 << 1,
-    Literal = 1 << 2,
-    StartsWith = 1 << 3,
-    WholeLine = 1 << 4,
-    WholeWord = 1 << 5,
+    Literal = 1 << 1,
+    StartsWith = 1 << 2,
+    WholeLine = 1 << 3,
+    WholeWord = 1 << 4,
     Equals = StartsWith | EndsWith,
 }

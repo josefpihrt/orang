@@ -2,7 +2,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Orang.FileSystem.Commands;
@@ -31,26 +30,10 @@ public static class Operation
 
         options ??= new SearchOptions();
 
-        var directoryFilters = new List<NameFilter>();
-
-        foreach (NameFilter directoryFilter in options.DirectoryFilters)
-        {
-            if (directoryFilter is null)
-                throw new ArgumentException("", nameof(directoryFilter));
-
-            if (directoryFilter?.Part == FileNamePart.Extension)
-            {
-                throw new ArgumentException(
-                    $"Directory filter has invalid part '{FileNamePart.Extension}'.",
-                    nameof(directoryFilter));
-            }
-
-            directoryFilters.Add(directoryFilter!);
-        }
-
         var search = new FileSystemSearch(
             filter: filter,
-            directoryFilters: directoryFilters,
+            includeDirectory: options.IncludeDirectory,
+            excludeDirectory: options.ExcludeDirectory,
             progress: options.SearchProgress,
             searchTarget: options.SearchTarget,
             recurseSubdirectories: !options.TopDirectoryOnly,
@@ -86,13 +69,12 @@ public static class Operation
         if (options.SearchTarget == SearchTarget.All)
             throw new InvalidOperationException($"Search target cannot be '{nameof(SearchTarget.All)}'.");
 
-        IEnumerable<NameFilter> directoryFilters = options.DirectoryFilters
-            .ToArray()
-            .Append(NameFilter.CreateFromDirectoryPath(destinationPath, isNegative: true));
+        Func<string, bool> excludeDirectory = DirectoryPredicate.Create(options.ExcludeDirectory, destinationPath);
 
         var search = new FileSystemSearch(
             filter,
-            directoryFilters: directoryFilters,
+            includeDirectory: options.IncludeDirectory,
+            excludeDirectory: excludeDirectory,
             progress: options.SearchProgress,
             searchTarget: options.SearchTarget,
             recurseSubdirectories: !options.TopDirectoryOnly,
@@ -137,7 +119,8 @@ public static class Operation
 
         var search = new FileSystemSearch(
             filter,
-            directoryFilters: options.DirectoryFilters.ToArray(),
+            includeDirectory: options.IncludeDirectory,
+            excludeDirectory: options.ExcludeDirectory,
             progress: options.SearchProgress,
             searchTarget: options.SearchTarget,
             recurseSubdirectories: !options.TopDirectoryOnly,
@@ -182,13 +165,12 @@ public static class Operation
         if (options.SearchTarget == SearchTarget.All)
             throw new InvalidOperationException($"Search target cannot be '{nameof(SearchTarget.All)}'.");
 
-        IEnumerable<NameFilter> directoryFilters = options.DirectoryFilters
-            .ToArray()
-            .Append(NameFilter.CreateFromDirectoryPath(destinationPath, isNegative: true));
+        Func<string, bool> excludeDirectory = DirectoryPredicate.Create(options.ExcludeDirectory, destinationPath);
 
         var search = new FileSystemSearch(
             filter,
-            directoryFilters: directoryFilters,
+            includeDirectory: options.IncludeDirectory,
+            excludeDirectory: excludeDirectory,
             progress: options.SearchProgress,
             searchTarget: options.SearchTarget,
             recurseSubdirectories: !options.TopDirectoryOnly,
@@ -274,7 +256,8 @@ public static class Operation
 
         var search = new FileSystemSearch(
             filter,
-            directoryFilters: options.DirectoryFilters.ToArray(),
+            includeDirectory: options.IncludeDirectory,
+            excludeDirectory: options.ExcludeDirectory,
             progress: options.SearchProgress,
             searchTarget: options.SearchTarget,
             recurseSubdirectories: !options.TopDirectoryOnly,
@@ -349,7 +332,8 @@ public static class Operation
 
         var search = new FileSystemSearch(
             filter,
-            directoryFilters: options.DirectoryFilters.ToArray(),
+            includeDirectory: options.IncludeDirectory,
+            excludeDirectory: options.ExcludeDirectory,
             progress: options.SearchProgress,
             searchTarget: options.SearchTarget,
             recurseSubdirectories: !options.TopDirectoryOnly,

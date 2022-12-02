@@ -53,38 +53,63 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
             FileEmptyOption = Options.EmptyOption
         };
 
-        var directoryFilters = new List<NameFilter>();
+        Func<string, bool>? includeDirectory = null;
+        Func<string, bool>? excludeDirectory = null;
 
-        if (Options.DirectoryFilter is not null)
+        Filter? directoryFilter = Options.DirectoryFilter;
+
+        if (directoryFilter is not null)
         {
-            var directoryFilter = new NameFilter(
-                name: Options.DirectoryFilter,
-                part: Options.DirectoryNamePart);
-
-            directoryFilters.Add(directoryFilter);
+            if (directoryFilter.IsNegative)
+            {
+                excludeDirectory = DirectoryPredicate.Create(directoryFilter, Options.DirectoryNamePart);
+            }
+            else
+            {
+                includeDirectory = DirectoryPredicate.Create(directoryFilter, Options.DirectoryNamePart);
+            }
         }
 
-        NameFilter? additionalDirectoryFilter = CreateAdditionalDirectoryFilter();
-
-        if (additionalDirectoryFilter is not null)
-            directoryFilters.Add(additionalDirectoryFilter);
+        includeDirectory = CombinePredicates(includeDirectory, CreateIncludeDirectoryPredicate());
+        excludeDirectory = CombinePredicates(excludeDirectory, CreateExcludeDirectoryPredicate());
 
         var search = new FileSystemSearch(
             filter: filter,
-            directoryFilters: directoryFilters,
-                progress: ProgressReporter,
-                searchTarget: Options.SearchTarget,
-                recurseSubdirectories: Options.RecurseSubdirectories,
-                defaultEncoding: Options.DefaultEncoding);
+            includeDirectory: includeDirectory,
+            excludeDirectory: excludeDirectory,
+            progress: ProgressReporter,
+            searchTarget: Options.SearchTarget,
+            recurseSubdirectories: Options.RecurseSubdirectories,
+            defaultEncoding: Options.DefaultEncoding);
 
         OnSearchCreating(search);
 
         return search;
+
+        static Func<string, bool>? CombinePredicates(Func<string, bool>? predicate, Func<string, bool>? predicate2)
+        {
+            if (predicate is not null)
+            {
+                if (predicate2 is not null)
+                {
+                    return path => predicate(path) && predicate2(path);
+                }
+
+                return predicate;
+            }
+
+            return predicate2;
+        }
     }
 
-    protected virtual NameFilter? CreateAdditionalDirectoryFilter()
+    protected virtual Func<string, bool>? CreateIncludeDirectoryPredicate(Func<string, bool>? predicate = null)
     {
-        return null;
+        return predicate;
+    }
+
+    protected virtual Func<string, bool>? CreateExcludeDirectoryPredicate(Func<string, bool>? predicate = null)
+    {
+        return predicate;
     }
 
     protected abstract void ExecuteDirectory(string directoryPath, SearchContext context);

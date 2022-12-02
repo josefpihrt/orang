@@ -43,9 +43,9 @@ internal abstract class CommonCopyCommand<TOptions> :
         }
     }
 
-    protected override NameFilter? CreateAdditionalDirectoryFilter()
+    protected override Func<string, bool>? CreateExcludeDirectoryPredicate(Func<string, bool>? predicate = null)
     {
-        return FileSystem.NameFilter.CreateFromDirectoryPath(Target, isNegative: true);
+        return DirectoryPredicate.Create(Target);
     }
 
     protected abstract string GetQuestionText(bool isDirectory);

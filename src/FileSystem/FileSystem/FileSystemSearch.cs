@@ -2,10 +2,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Security;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -19,48 +17,32 @@ namespace Orang.FileSystem;
 
 internal class FileSystemSearch
 {
-    private readonly bool _allDirectoryFiltersArePositive;
-
     public FileSystemSearch(
         FileSystemFilter filter,
-        IEnumerable<NameFilter> directoryFilters,
+        Func<string, bool>? includeDirectory = null,
+        Func<string, bool>? excludeDirectory = null,
         IProgress<SearchProgress>? progress = null,
         SearchTarget searchTarget = SearchTarget.All,
         bool recurseSubdirectories = true,
         bool ignoreInaccessible = true,
         Encoding? defaultEncoding = null)
     {
-        if (directoryFilters is null)
-            throw new ArgumentNullException(nameof(directoryFilters));
-
-        foreach (NameFilter directoryFilter in directoryFilters)
-        {
-            if (directoryFilter is null)
-                throw new ArgumentException("", nameof(directoryFilter));
-
-            if (directoryFilter?.Part == FileNamePart.Extension)
-            {
-                throw new ArgumentException(
-                    $"Directory filter has invalid part '{FileNamePart.Extension}'.",
-                    nameof(directoryFilter));
-            }
-        }
-
         Filter = filter ?? throw new ArgumentNullException(nameof(filter));
-        DirectoryFilters = directoryFilters.ToImmutableArray();
-        Progress = progress;
 
+        IncludeDirectory = includeDirectory;
+        ExcludeDirectory = excludeDirectory;
+        Progress = progress;
         SearchTarget = searchTarget;
         RecurseSubdirectories = recurseSubdirectories;
         IgnoreInaccessible = ignoreInaccessible;
         DefaultEncoding = defaultEncoding ?? EncodingHelpers.UTF8NoBom;
-
-        _allDirectoryFiltersArePositive = DirectoryFilters.All(f => !f.IsNegative);
     }
 
     public FileSystemFilter Filter { get; }
 
-    public ImmutableArray<NameFilter> DirectoryFilters { get; }
+    public Func<string, bool>? IncludeDirectory { get; }
+
+    public Func<string, bool>? ExcludeDirectory { get; }
 
     public IProgress<SearchProgress>? Progress { get; }
 
@@ -127,19 +109,13 @@ internal class FileSystemSearch
                 += (object sender, DirectoryChangedEventArgs e) => currentDirectory = e.NewName;
         }
 
-        MatchStatus matchStatus = (DirectoryFilters.Any()) ? MatchStatus.Unknown : MatchStatus.Success;
+        MatchStatus matchStatus = (IncludeDirectory is not null || ExcludeDirectory is not null)
+            ? MatchStatus.Unknown
+            : MatchStatus.Success;
 
-        foreach (NameFilter directoryFilter in DirectoryFilters.Where(f => !f.IsNegative))
+        if (IncludeDirectory is not null)
         {
-            if (IsMatch(directoryPath, directoryFilter))
-            {
-                matchStatus = MatchStatus.Success;
-            }
-            else
-            {
-                matchStatus = MatchStatus.FailFromPositive;
-                break;
-            }
+            matchStatus = (IncludeDirectory(directoryPath)) ? MatchStatus.Success : MatchStatus.FailFromPositive;
         }
 
         var directory = new Directory(directoryPath, matchStatus);
@@ -204,7 +180,7 @@ internal class FileSystemSearch
                     {
                         currentDirectory = di.Current;
 
-                        matchStatus = (_allDirectoryFiltersArePositive && directory.IsSuccess)
+                        matchStatus = (ExcludeDirectory is null && directory.IsSuccess)
                             ? MatchStatus.Success
                             : MatchStatus.Unknown;
 
@@ -213,9 +189,9 @@ internal class FileSystemSearch
                             && Part != FileNamePart.Extension)
                         {
                             if (matchStatus == MatchStatus.Unknown
-                                && DirectoryFilters.Any())
+                                && (IncludeDirectory is not null || ExcludeDirectory is not null))
                             {
-                                matchStatus = IncludeDirectory(currentDirectory);
+                                matchStatus = IncludeOrExcludeDirectory(currentDirectory);
                             }
 
                             if (matchStatus == MatchStatus.Success
@@ -237,9 +213,9 @@ internal class FileSystemSearch
                             && RecurseSubdirectories)
                         {
                             if (matchStatus == MatchStatus.Unknown
-                                && DirectoryFilters.Any())
+                                && (IncludeDirectory is not null || ExcludeDirectory is not null))
                             {
-                                matchStatus = IncludeDirectory(currentDirectory);
+                                matchStatus = IncludeOrExcludeDirectory(currentDirectory);
                             }
 
                             if (matchStatus != MatchStatus.FailFromNegative)
@@ -484,22 +460,17 @@ internal class FileSystemSearch
         return (new FileMatch(span, match, directoryInfo, isDirectory: true), null);
     }
 
-    private MatchStatus IncludeDirectory(string path)
+    private MatchStatus IncludeOrExcludeDirectory(string path)
     {
-        Debug.Assert(DirectoryFilters.Any());
+        Debug.Assert(IncludeDirectory is not null || ExcludeDirectory is not null);
 
-        foreach (NameFilter filter in DirectoryFilters)
-        {
-            if (!IsMatch(path, filter))
-                return (filter.IsNegative) ? MatchStatus.FailFromNegative : MatchStatus.FailFromPositive;
-        }
+        if (ExcludeDirectory?.Invoke(path) == true)
+            return MatchStatus.FailFromNegative;
+
+        if (IncludeDirectory?.Invoke(path) == false)
+            return MatchStatus.FailFromPositive;
 
         return MatchStatus.Success;
-    }
-
-    private static bool IsMatch(string directoryPath, NameFilter filter)
-    {
-        return filter.Name.IsMatch(FileNameSpan.FromDirectory(directoryPath, filter.Part));
     }
 
     private void Report(string path, SearchProgressKind kind, bool isDirectory = false, Exception? exception = null)

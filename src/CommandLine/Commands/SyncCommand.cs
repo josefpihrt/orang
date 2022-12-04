@@ -45,7 +45,7 @@ internal sealed class SyncCommand :
         return (isDirectory) ? "Sync directory?" : "Sync file?";
     }
 
-    protected override void OnSearchCreating(FileSystemSearch search)
+    protected override void OnSearchCreating(SearchState search)
     {
         search.CanRecurseMatch = true;
     }

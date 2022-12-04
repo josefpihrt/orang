@@ -15,42 +15,37 @@ using static Orang.FileSystem.FileSystemHelpers;
 
 namespace Orang.FileSystem;
 
-internal class FileSystemSearch
+internal class SearchState
 {
-    public FileSystemSearch(
-        FileMatcher matcher,
-        Func<string, bool>? includeDirectory = null,
-        Func<string, bool>? excludeDirectory = null,
-        IProgress<SearchProgress>? progress = null,
-        SearchTarget searchTarget = SearchTarget.All,
-        bool recurseSubdirectories = true,
-        bool ignoreInaccessible = true,
-        Encoding? defaultEncoding = null)
+    private bool? _shouldAnalyzeFileProperties;
+    private bool? _shouldAnalyzeDirectoryProperties;
+
+    public SearchState(FileMatcher matcher)
     {
         Matcher = matcher ?? throw new ArgumentNullException(nameof(matcher));
-
-        IncludeDirectory = includeDirectory;
-        ExcludeDirectory = excludeDirectory;
-        Progress = progress;
-        SearchTarget = searchTarget;
-        RecurseSubdirectories = recurseSubdirectories;
-        IgnoreInaccessible = ignoreInaccessible;
-        DefaultEncoding = defaultEncoding ?? EncodingHelpers.UTF8NoBom;
     }
 
     public FileMatcher Matcher { get; }
 
-    public Func<string, bool>? IncludeDirectory { get; }
+    public Func<string, bool>? IncludeDirectory { get; set; }
 
-    public Func<string, bool>? ExcludeDirectory { get; }
+    public Func<string, bool>? ExcludeDirectory { get; set; }
 
-    public IProgress<SearchProgress>? Progress { get; }
+    public IProgress<SearchProgress>? Progress { get; set; }
 
-    internal bool DisallowEnumeration { get; set; }
+    public bool DisallowEnumeration { get; set; }
 
-    internal bool MatchPartOnly { get; set; }
+    public bool MatchPartOnly { get; set; }
 
-    internal bool CanRecurseMatch { get; set; } = true;
+    public bool CanRecurseMatch { get; set; } = true;
+
+    public SearchTarget SearchTarget { get; set; } = SearchTarget.All;
+
+    public bool RecurseSubdirectories { get; set; } = true;
+
+    public bool IgnoreInaccessible { get; set; } = true;
+
+    public Encoding? DefaultEncoding { get; set; }
 
     private FileNamePart Part => Matcher.Part;
 
@@ -60,21 +55,30 @@ internal class FileSystemSearch
 
     private Matcher? Content => Matcher.Content;
 
-    private FilePropertyFilter? Properties => Matcher.Properties;
+    private bool ShouldAnalyzeFileProperties
+    {
+        get
+        {
+            return _shouldAnalyzeFileProperties ??= Matcher.CreationTimePredicate is not null
+                || Matcher.ModifiedTimePredicate is not null
+                || Matcher.SizePredicate is not null;
+        }
+    }
+
+    private bool ShouldAnalyzeDirectoryProperties
+    {
+        get
+        {
+            return _shouldAnalyzeDirectoryProperties ??= Matcher.ModifiedTimePredicate is not null
+                || Matcher.SizePredicate is not null;
+        }
+    }
 
     private FileAttributes Attributes => Matcher.Attributes;
 
     private FileAttributes AttributesToSkip => Matcher.AttributesToSkip;
 
     private FileEmptyOption EmptyOption => Matcher.FileEmptyOption;
-
-    private SearchTarget SearchTarget { get; }
-
-    private bool RecurseSubdirectories { get; }
-
-    private bool IgnoreInaccessible { get; }
-
-    private Encoding DefaultEncoding { get; }
 
     public IEnumerable<FileMatch> Find(
         string directoryPath,
@@ -275,7 +279,7 @@ internal class FileSystemSearch
 
         if (Attributes != 0
             || emptyOption != FileEmptyOption.None
-            || Properties is not null)
+            || ShouldAnalyzeFileProperties)
         {
             try
             {
@@ -287,16 +291,10 @@ internal class FileSystemSearch
                     return default;
                 }
 
-                if (Properties is not null)
+                if (ShouldAnalyzeFileProperties
+                    && !Matcher.IsMatch(fileInfo))
                 {
-                    if (Properties.SizePredicate?.Invoke(fileInfo.Length) == false)
-                        return default;
-
-                    if (Properties.CreationTimePredicate?.Invoke(fileInfo.CreationTime) == false)
-                        return default;
-
-                    if (Properties.ModifiedTimePredicate?.Invoke(fileInfo.LastWriteTime) == false)
-                        return default;
+                    return default;
                 }
 
                 if (emptyOption != FileEmptyOption.None)
@@ -331,7 +329,7 @@ internal class FileSystemSearch
 
             if (isEmpty)
             {
-                fileContent = new FileContent("", DefaultEncoding, hasBom: false);
+                fileContent = new FileContent("", DefaultEncoding ?? EncodingHelpers.UTF8NoBom, hasBom: false);
             }
             else
             {
@@ -358,7 +356,7 @@ internal class FileSystemSearch
                         {
                             using (var reader = new StreamReader(
                                 stream: stream,
-                                encoding: bomEncoding ?? DefaultEncoding,
+                                encoding: bomEncoding ?? DefaultEncoding ?? EncodingHelpers.UTF8NoBom,
                                 detectEncodingFromByteOrderMarks: bomEncoding is null))
                             {
                                 string content = reader.ReadToEnd();
@@ -418,7 +416,7 @@ internal class FileSystemSearch
 
         if (Attributes != 0
             || EmptyOption != FileEmptyOption.None
-            || Properties is not null)
+            || ShouldAnalyzeDirectoryProperties)
         {
             try
             {
@@ -430,13 +428,10 @@ internal class FileSystemSearch
                     return default;
                 }
 
-                if (Properties is not null)
+                if (ShouldAnalyzeDirectoryProperties
+                    && !Matcher.IsMatch(directoryInfo))
                 {
-                    if (Properties.CreationTimePredicate?.Invoke(directoryInfo.CreationTime) == false)
-                        return default;
-
-                    if (Properties.ModifiedTimePredicate?.Invoke(directoryInfo.LastWriteTime) == false)
-                        return default;
+                    return default;
                 }
 
                 if (EmptyOption == FileEmptyOption.Empty)

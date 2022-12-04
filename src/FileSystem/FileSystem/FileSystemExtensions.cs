@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace Orang.FileSystem;
 
-public static class Extensions
+internal static class FileSystemExtensions
 {
     public static FileMatcher IncludeExtensions(this FileMatcher matcher, params string[] extensions)
     {
@@ -16,7 +16,7 @@ public static class Extensions
         return SetExtensions(matcher, isNegative: true, extensions);
     }
 
-    private static FileMatcher SetExtensions(this FileMatcher matcher, bool isNegative, params string[] extensions)
+    private static FileMatcher SetExtensions(FileMatcher matcher, bool isNegative, params string[] extensions)
     {
         matcher.Extension = new Matcher(
             Pattern.FromValues(

@@ -1,11 +1,10 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 
-namespace Orang.FileSystem.Commands;
+namespace Orang.FileSystem.Operations;
 
 internal abstract class OperationBase
 {
@@ -16,7 +15,7 @@ internal abstract class OperationBase
 
     public abstract OperationKind OperationKind { get; }
 
-    public FileSystemSearch Search { get; set; } = null!;
+    public SearchState Search { get; set; } = null!;
 
     public SearchTelemetry Telemetry { get; }
 
@@ -30,25 +29,32 @@ internal abstract class OperationBase
 
     public CancellationToken CancellationToken { get; set; }
 
-    protected Matcher? ContentFilter => Search.Matcher.Content;
-
-    protected Matcher? NameFilter => Search.Matcher.Name;
-
     protected abstract void ExecuteMatch(FileMatch fileMatch, string directoryPath);
 
-    public void Execute(string directoryPath)
+    protected virtual void OnSearchStateCreating(SearchState search)
+    {
+    }
+
+    public void Execute(string directoryPath, Search search, CancellationToken cancellationToken)
     {
         directoryPath = FileSystemHelpers.EnsureFullPath(directoryPath);
 
-        if (!Directory.Exists(directoryPath))
+        if (!System.IO.Directory.Exists(directoryPath))
             throw new DirectoryNotFoundException($"Directory not found: {directoryPath}");
 
-        ExecuteDirectory(directoryPath);
-    }
+        var state = new SearchState(search.Matcher)
+        {
+            IncludeDirectory = search.Options.IncludeDirectory,
+            ExcludeDirectory = search.Options.ExcludeDirectory,
+            Progress = search.Options.SearchProgress,
+            SearchTarget = search.Options.SearchTarget,
+            RecurseSubdirectories = !search.Options.TopDirectoryOnly,
+            DefaultEncoding = search.Options.DefaultEncoding,
+        };
 
-    protected virtual void ExecuteDirectory(string directoryPath)
-    {
-        foreach (FileMatch fileMatch in GetMatches(directoryPath))
+        OnSearchStateCreating(state);
+
+        foreach (FileMatch fileMatch in state.Find(directoryPath, this as INotifyDirectoryChanged, cancellationToken))
         {
             Telemetry.IncrementMatchingCount(fileMatch.IsDirectory);
 
@@ -60,14 +66,6 @@ internal abstract class OperationBase
                 break;
             }
         }
-    }
-
-    protected IEnumerable<FileMatch> GetMatches(string directoryPath)
-    {
-        return Search.Find(
-            directoryPath: directoryPath,
-            notifyDirectoryChanged: this as INotifyDirectoryChanged,
-            cancellationToken: CancellationToken);
     }
 
     protected void Report(FileMatch fileMatch, Exception? exception = null)

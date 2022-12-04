@@ -3,13 +3,18 @@
 using System;
 using System.IO;
 
-namespace Orang.FileSystem.Commands;
+namespace Orang.FileSystem.Operations;
 
 internal class DeleteOperation : DeleteOrRenameOperation
 {
     public DeleteOptions DeleteOptions { get; set; } = null!;
 
     public override OperationKind OperationKind => OperationKind.Delete;
+
+    protected override void OnSearchStateCreating(SearchState search)
+    {
+        search.CanRecurseMatch = false;
+    }
 
     protected override void ExecuteMatch(
         FileMatch fileMatch,

@@ -6,7 +6,7 @@ using Orang.FileSystem;
 
 namespace Orang;
 
-internal static class FileSystemExtensions
+internal static class Extensions
 {
     public static void Report(
         this IProgress<SearchProgress> progress,

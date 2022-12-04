@@ -6,7 +6,7 @@ using System.Diagnostics;
 namespace Orang.FileSystem;
 
 [DebuggerDisplay("{DebuggerDisplay,nq}")]
-public class DeleteOptions : SearchOptions
+public class DeleteOptions
 {
     public bool ContentOnly { get; set; }
 

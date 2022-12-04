@@ -2,7 +2,7 @@
 
 using System;
 
-namespace Orang.FileSystem.Commands;
+namespace Orang.FileSystem.Operations;
 
 internal abstract class DeleteOrRenameOperation : OperationBase, INotifyDirectoryChanged
 {

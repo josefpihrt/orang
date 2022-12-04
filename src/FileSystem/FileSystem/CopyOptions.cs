@@ -7,7 +7,7 @@ using System.IO;
 
 namespace Orang.FileSystem;
 
-public class CopyOptions : SearchOptions
+public class CopyOptions
 {
     public ConflictResolution ConflictResolution { get; set; } = ConflictResolution.Skip;
 

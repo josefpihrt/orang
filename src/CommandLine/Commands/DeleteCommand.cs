@@ -12,7 +12,7 @@ internal class DeleteCommand : DeleteOrRenameCommand<DeleteCommandOptions>
     {
     }
 
-    protected override void OnSearchCreating(FileSystemSearch search)
+    protected override void OnSearchCreating(SearchState search)
     {
         search.CanRecurseMatch = false;
     }

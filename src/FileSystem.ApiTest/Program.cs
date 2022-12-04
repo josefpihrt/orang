@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.IO;
-using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Orang;
@@ -14,29 +12,24 @@ public static class Program
 {
     public static void Main(params string[] args)
     {
-        foreach (FileMatch match in Operation.GetMatches(
-            @"C:\code\datamole\ddp-kernel-device-provisioning\src",
-            new FileMatcher() { Extension = new Matcher("csproj") }))
+        var fileMatcher = new FileMatcher()
         {
-            Console.WriteLine(match.Path);
-        }
+            Extension = new Matcher(Pattern.FromValue("csproj", PatternCreationOptions.Equals), RegexOptions.IgnoreCase),
+        };
 
-        Console.WriteLine();
+        var search = new Search(
+            fileMatcher,
+            new SearchOptions() { TopDirectoryOnly = false });
 
-        IOperationResult result = Operation.RenameMatches(
+        IOperationResult result = search.Rename(
             @"C:\code\datamole\ddp-kernel-device-provisioning\src",
-            new FileMatcher()
-            {
-                Name = new Matcher(Pattern.FromValue("csproj", PatternCreationOptions.Equals), RegexOptions.IgnoreCase),
-                Part = FileNamePart.Extension,
-            },
             m => m.Value + "2",
             new RenameOptions()
             {
                 DryRun = true,
                 OperationProgress = new ConsoleOperationProgress(),
-                //SearchProgress = new ConsoleSearchProgress()
-            });
+            },
+            CancellationToken.None);
 
         Console.WriteLine(result.Telemetry.MatchingFileCount);
         Console.WriteLine(result.Telemetry.ProcessedFileCount);

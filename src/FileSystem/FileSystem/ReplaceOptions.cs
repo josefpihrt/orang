@@ -6,7 +6,7 @@ using System;
 
 namespace Orang.FileSystem;
 
-public class ReplaceOptions : SearchOptions
+public class ReplaceOptions
 {
     public ReplaceFunctions ReplaceFunctions { get; set; }
 

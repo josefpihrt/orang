@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
-namespace Orang.FileSystem.Commands;
+namespace Orang.FileSystem.Operations;
 
 internal abstract class CommonCopyOperation : CommonFindOperation
 {
@@ -20,6 +20,11 @@ internal abstract class CommonCopyOperation : CommonFindOperation
     public CopyOptions CopyOptions { get; set; } = null!;
 
     public ConflictResolution ConflictResolution { get; set; }
+
+    protected override void OnSearchStateCreating(SearchState search)
+    {
+        search.ExcludeDirectory = DirectoryPredicate.Create(search.ExcludeDirectory, DestinationPath);
+    }
 
     protected abstract void ExecuteOperation(string sourcePath, string destinationPath);
 

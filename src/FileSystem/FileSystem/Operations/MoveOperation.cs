@@ -2,7 +2,7 @@
 
 using System.IO;
 
-namespace Orang.FileSystem.Commands;
+namespace Orang.FileSystem.Operations;
 
 internal class MoveOperation : CommonCopyOperation
 {

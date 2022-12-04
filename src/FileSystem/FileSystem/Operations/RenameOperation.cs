@@ -2,11 +2,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using Orang.Text.RegularExpressions;
 
-namespace Orang.FileSystem.Commands;
+namespace Orang.FileSystem.Operations;
 
 internal class RenameOperation : DeleteOrRenameOperation
 {
@@ -18,13 +17,14 @@ internal class RenameOperation : DeleteOrRenameOperation
 
     public IDialogProvider<ConflictInfo>? DialogProvider { get; set; }
 
+    public Matcher NameFilter { get; set; } = null!;
+
     public override OperationKind OperationKind => OperationKind.Rename;
 
-    protected override void ExecuteDirectory(string directoryPath)
+    protected override void OnSearchStateCreating(SearchState search)
     {
-        Debug.Assert(!NameFilter!.IsNegative);
-
-        base.ExecuteDirectory(directoryPath);
+        search.DisallowEnumeration = !DryRun;
+        search.MatchPartOnly = true;
     }
 
     protected override void ExecuteMatch(

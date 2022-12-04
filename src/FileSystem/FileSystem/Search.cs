@@ -1,90 +1,75 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using Orang.FileSystem.Operations;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading;
-using Orang.FileSystem.Commands;
 
 #pragma warning disable RCS1223 // Mark publicly visible type with DebuggerDisplay attribute.
 
 namespace Orang.FileSystem;
 
-public static class Operation
+public class Search
 {
-    public static IEnumerable<FileMatch> GetMatches(
-        string directoryPath,
+    public Search(
         FileMatcher matcher,
-        SearchOptions? options = null,
-        CancellationToken cancellationToken = default)
+        SearchOptions? options = null)
     {
-        if (directoryPath is null)
-        {
-            throw new ArgumentNullException(nameof(directoryPath));
-        }
-
         if (matcher is null)
         {
             throw new ArgumentNullException(nameof(matcher));
         }
 
-        options ??= new SearchOptions();
-
-        var search = new FileSystemSearch(
-            matcher: matcher,
-            includeDirectory: options.IncludeDirectory,
-            excludeDirectory: options.ExcludeDirectory,
-            progress: options.SearchProgress,
-            searchTarget: options.SearchTarget,
-            recurseSubdirectories: !options.TopDirectoryOnly,
-            defaultEncoding: options.DefaultEncoding);
-
-        return search.Find(directoryPath, cancellationToken);
+        Matcher = matcher;
+        Options = options ?? new SearchOptions();
     }
 
-    public static IOperationResult CopyMatches(
+    public FileMatcher Matcher { get; }
+
+    public SearchOptions Options { get; }
+
+    public IEnumerable<FileMatch> Matches(
+        string directoryPath,
+        CancellationToken cancellationToken = default)
+    {
+        if (directoryPath is null)
+            throw new ArgumentNullException(nameof(directoryPath));
+
+        var state = new SearchState(Matcher)
+        {
+            IncludeDirectory = Options.IncludeDirectory,
+            ExcludeDirectory = Options.ExcludeDirectory,
+            Progress = Options.SearchProgress,
+            SearchTarget = Options.SearchTarget,
+            RecurseSubdirectories = !Options.TopDirectoryOnly,
+            DefaultEncoding = Options.DefaultEncoding,
+        };
+
+        return state.Find(directoryPath, cancellationToken);
+    }
+
+    public IOperationResult Copy(
         string directoryPath,
         string destinationPath,
-        FileMatcher matcher,
         CopyOptions? options = null,
         CancellationToken cancellationToken = default)
     {
         if (directoryPath is null)
-        {
             throw new ArgumentNullException(nameof(directoryPath));
-        }
-
-        if (matcher is null)
-        {
-            throw new ArgumentNullException(nameof(matcher));
-        }
 
         if (destinationPath is null)
-        {
             throw new ArgumentNullException(nameof(destinationPath));
-        }
 
-        options ??= new CopyOptions();
-
-        if (options.SearchTarget == SearchTarget.All)
+        if (Options.SearchTarget == SearchTarget.All)
             throw new InvalidOperationException($"Search target cannot be '{nameof(SearchTarget.All)}'.");
 
-        Func<string, bool> excludeDirectory = DirectoryPredicate.Create(options.ExcludeDirectory, destinationPath);
-
-        var search = new FileSystemSearch(
-            matcher,
-            includeDirectory: options.IncludeDirectory,
-            excludeDirectory: excludeDirectory,
-            progress: options.SearchProgress,
-            searchTarget: options.SearchTarget,
-            recurseSubdirectories: !options.TopDirectoryOnly,
-            defaultEncoding: options.DefaultEncoding);
+        options ??= new CopyOptions();
 
         OperationHelpers.VerifyCopyMoveArguments(directoryPath, destinationPath, options);
 
         var command = new CopyOperation()
         {
-            Search = search,
             DestinationPath = destinationPath,
             CopyOptions = options,
             MaxMatchingFiles = 0,
@@ -94,44 +79,27 @@ public static class Operation
             CancellationToken = cancellationToken,
         };
 
-        command.Execute(directoryPath);
+        command.Execute(directoryPath, this, cancellationToken);
 
         return new OperationResult(command.Telemetry);
     }
 
-    public static IOperationResult DeleteMatches(
+    public IOperationResult Delete(
         string directoryPath,
         string destinationPath,
-        FileMatcher matcher,
         DeleteOptions? options = null,
         CancellationToken cancellationToken = default)
     {
         if (directoryPath is null)
             throw new ArgumentNullException(nameof(directoryPath));
 
-        if (matcher is null)
-            throw new ArgumentNullException(nameof(matcher));
-
         if (destinationPath is null)
             throw new ArgumentNullException(nameof(destinationPath));
 
         options ??= new DeleteOptions();
 
-        var search = new FileSystemSearch(
-            matcher,
-            includeDirectory: options.IncludeDirectory,
-            excludeDirectory: options.ExcludeDirectory,
-            progress: options.SearchProgress,
-            searchTarget: options.SearchTarget,
-            recurseSubdirectories: !options.TopDirectoryOnly,
-            defaultEncoding: options.DefaultEncoding)
-        {
-            CanRecurseMatch = false,
-        };
-
         var command = new DeleteOperation()
         {
-            Search = search,
             DeleteOptions = options,
             OperationProgress = options.OperationProgress,
             DryRun = options.DryRun,
@@ -139,42 +107,25 @@ public static class Operation
             CancellationToken = cancellationToken,
         };
 
-        command.Execute(directoryPath);
+        command.Execute(directoryPath, this, cancellationToken);
 
         return new OperationResult(command.Telemetry);
     }
 
-    public static IOperationResult MoveMatches(
+    public IOperationResult Move(
         string directoryPath,
         string destinationPath,
-        FileMatcher matcher,
         CopyOptions? options = null,
         CancellationToken cancellationToken = default)
     {
         if (directoryPath is null)
             throw new ArgumentNullException(nameof(directoryPath));
 
-        if (matcher is null)
-            throw new ArgumentNullException(nameof(matcher));
-
         if (destinationPath is null)
             throw new ArgumentNullException(nameof(destinationPath));
 
-        options ??= new CopyOptions();
-
-        if (options.SearchTarget == SearchTarget.All)
+        if (Options.SearchTarget == SearchTarget.All)
             throw new InvalidOperationException($"Search target cannot be '{nameof(SearchTarget.All)}'.");
-
-        Func<string, bool> excludeDirectory = DirectoryPredicate.Create(options.ExcludeDirectory, destinationPath);
-
-        var search = new FileSystemSearch(
-            matcher,
-            includeDirectory: options.IncludeDirectory,
-            excludeDirectory: excludeDirectory,
-            progress: options.SearchProgress,
-            searchTarget: options.SearchTarget,
-            recurseSubdirectories: !options.TopDirectoryOnly,
-            defaultEncoding: options.DefaultEncoding);
 
         options ??= new CopyOptions();
 
@@ -182,7 +133,6 @@ public static class Operation
 
         var command = new MoveOperation()
         {
-            Search = search,
             DestinationPath = destinationPath,
             CopyOptions = options,
             OperationProgress = options.OperationProgress,
@@ -195,14 +145,13 @@ public static class Operation
             CancellationToken = cancellationToken,
         };
 
-        command.Execute(directoryPath);
+        command.Execute(directoryPath, this, cancellationToken);
 
         return new OperationResult(command.Telemetry);
     }
 
-    public static IOperationResult RenameMatches(
+    public IOperationResult Rename(
         string directoryPath,
-        FileMatcher matcher,
         string replacement,
         RenameOptions? options = null,
         CancellationToken cancellationToken = default)
@@ -211,12 +160,11 @@ public static class Operation
 
         var replacer = new Replacer(replacement, options?.ReplaceFunctions ?? ReplaceFunctions.None, options?.CultureInvariant ?? false);
 
-        return RenameMatches(directoryPath, matcher, replacer, options, cancellationToken);
+        return Rename(directoryPath, replacer, options, cancellationToken);
     }
 
-    public static IOperationResult RenameMatches(
+    public IOperationResult Rename(
         string directoryPath,
-        FileMatcher matcher,
         MatchEvaluator matchEvaluator,
         RenameOptions? options = null,
         CancellationToken cancellationToken = default)
@@ -225,12 +173,11 @@ public static class Operation
 
         var replacer = new Replacer(matchEvaluator, options?.ReplaceFunctions ?? ReplaceFunctions.None, options?.CultureInvariant ?? false);
 
-        return RenameMatches(directoryPath, matcher, replacer, options, cancellationToken);
+        return Rename(directoryPath, replacer, options, cancellationToken);
     }
 
-    private static IOperationResult RenameMatches(
+    private IOperationResult Rename(
         string directoryPath,
-        FileMatcher matcher,
         Replacer replacer,
         RenameOptions? options = null,
         CancellationToken cancellationToken = default)
@@ -238,8 +185,7 @@ public static class Operation
         if (directoryPath is null)
             throw new ArgumentNullException(nameof(directoryPath));
 
-        if (matcher is null)
-            throw new ArgumentNullException(nameof(matcher));
+        FileMatcher matcher = Matcher;
 
         options ??= new RenameOptions();
 
@@ -254,22 +200,9 @@ public static class Operation
 
         OperationHelpers.VerifyConflictResolution(options.ConflictResolution, options.DialogProvider);
 
-        var search = new FileSystemSearch(
-            matcher,
-            includeDirectory: options.IncludeDirectory,
-            excludeDirectory: options.ExcludeDirectory,
-            progress: options.SearchProgress,
-            searchTarget: options.SearchTarget,
-            recurseSubdirectories: !options.TopDirectoryOnly,
-            defaultEncoding: options.DefaultEncoding)
-        {
-            DisallowEnumeration = !options.DryRun,
-            MatchPartOnly = true
-        };
-
         var command = new RenameOperation()
         {
-            Search = search,
+            NameFilter = matcher.Name,
             RenameOptions = options,
             Replacer = replacer,
             OperationProgress = options.OperationProgress,
@@ -280,38 +213,35 @@ public static class Operation
             CancellationToken = cancellationToken,
         };
 
-        command.Execute(directoryPath);
+        command.Execute(directoryPath, this, cancellationToken);
 
         return new OperationResult(command.Telemetry);
     }
 
-    public static IOperationResult ReplaceMatches(
+    public IOperationResult Replace(
         string directoryPath,
-        FileMatcher matcher,
         string replacement,
         ReplaceOptions? options = null,
         CancellationToken cancellationToken = default)
     {
         var replacer = new Replacer(replacement, options?.ReplaceFunctions ?? ReplaceFunctions.None, options?.CultureInvariant ?? false);
 
-        return ReplaceMatches(directoryPath, matcher, replacer, options, cancellationToken);
+        return Replace(directoryPath, replacer, options, cancellationToken);
     }
 
-    public static IOperationResult ReplaceMatches(
+    public IOperationResult Replace(
         string directoryPath,
-        FileMatcher matcher,
         MatchEvaluator matchEvaluator,
         ReplaceOptions? options = null,
         CancellationToken cancellationToken = default)
     {
         var replacer = new Replacer(matchEvaluator, options?.ReplaceFunctions ?? ReplaceFunctions.None, options?.CultureInvariant ?? false);
 
-        return ReplaceMatches(directoryPath, matcher, replacer, options, cancellationToken);
+        return Replace(directoryPath, replacer, options, cancellationToken);
     }
 
-    private static IOperationResult ReplaceMatches(
+    private IOperationResult Replace(
         string directoryPath,
-        FileMatcher matcher,
         Replacer replacer,
         ReplaceOptions? options = null,
         CancellationToken cancellationToken = default)
@@ -319,8 +249,7 @@ public static class Operation
         if (directoryPath is null)
             throw new ArgumentNullException(nameof(directoryPath));
 
-        if (matcher is null)
-            throw new ArgumentNullException(nameof(matcher));
+        FileMatcher matcher = Matcher;
 
         if (matcher.Content is null)
             throw new InvalidOperationException("Content filter is not defined.");
@@ -330,21 +259,9 @@ public static class Operation
 
         options ??= new ReplaceOptions();
 
-        var search = new FileSystemSearch(
-            matcher,
-            includeDirectory: options.IncludeDirectory,
-            excludeDirectory: options.ExcludeDirectory,
-            progress: options.SearchProgress,
-            searchTarget: options.SearchTarget,
-            recurseSubdirectories: !options.TopDirectoryOnly,
-            defaultEncoding: options.DefaultEncoding)
-        {
-            CanRecurseMatch = false,
-        };
-
         var command = new ReplaceOperation()
         {
-            Search = search,
+            ContentFilter = matcher.Content,
             ReplaceOptions = options,
             Replacer = replacer,
             OperationProgress = options.OperationProgress,
@@ -355,7 +272,7 @@ public static class Operation
             CancellationToken = cancellationToken,
         };
 
-        command.Execute(directoryPath);
+        command.Execute(directoryPath, this, cancellationToken);
 
         return new OperationResult(command.Telemetry);
     }

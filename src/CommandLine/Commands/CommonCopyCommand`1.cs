@@ -34,7 +34,7 @@ internal abstract class CommonCopyCommand<TOptions> :
 
     private PathWriter? PathWriter { get; }
 
-    protected override void OnSearchCreating(FileSystemSearch search)
+    protected override void OnSearchCreating(SearchState search)
     {
         if (Options.SearchTarget != SearchTarget.Files
             && !Options.StructureOnly)

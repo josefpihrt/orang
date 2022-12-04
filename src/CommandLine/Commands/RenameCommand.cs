@@ -35,7 +35,7 @@ internal class RenameCommand : DeleteOrRenameCommand<RenameCommandOptions>
 
     private PathWriter? PathWriter { get; }
 
-    protected override void OnSearchCreating(FileSystemSearch search)
+    protected override void OnSearchCreating(SearchState search)
     {
         search.DisallowEnumeration = !Options.DryRun;
         search.MatchPartOnly = true;

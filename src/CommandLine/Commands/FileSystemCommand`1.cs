@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using Orang.FileSystem;
+using Orang.Text;
 
 namespace Orang.CommandLine;
 
@@ -17,10 +18,10 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
     {
     }
 
-    private FileSystemSearch? _search;
+    private SearchState? _search;
     private ProgressReporter? _progressReporter;
 
-    protected FileSystemSearch Search => _search ??= CreateSearch();
+    protected SearchState Search => _search ??= CreateSearch();
 
     private ProgressReporter? ProgressReporter => _progressReporter ??= CreateProgressReporter();
 
@@ -32,11 +33,11 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
 
     public virtual bool CanUseResults => true;
 
-    protected virtual void OnSearchCreating(FileSystemSearch search)
+    protected virtual void OnSearchCreating(SearchState search)
     {
     }
 
-    private FileSystemSearch CreateSearch()
+    private SearchState CreateSearch()
     {
         var matcher = new FileMatcher()
         {
@@ -44,10 +45,9 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
             Part = Options.NamePart,
             Extension = Options.ExtensionFilter,
             Content = Options.ContentFilter,
-            Properties = new FilePropertyFilter(
-                Options.FilePropertyOptions.CreationTimePredicate,
-                Options.FilePropertyOptions.ModifiedTimePredicate,
-                Options.FilePropertyOptions.SizePredicate),
+            CreationTimePredicate = Options.FilePropertyOptions.CreationTimePredicate,
+            ModifiedTimePredicate = Options.FilePropertyOptions.ModifiedTimePredicate,
+            SizePredicate = Options.FilePropertyOptions.SizePredicate,
             Attributes = Options.Attributes,
             AttributesToSkip = Options.AttributesToSkip,
             FileEmptyOption = Options.EmptyOption
@@ -73,14 +73,15 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
         includeDirectory = CombinePredicates(includeDirectory, CreateIncludeDirectoryPredicate());
         excludeDirectory = CombinePredicates(excludeDirectory, CreateExcludeDirectoryPredicate());
 
-        var search = new FileSystemSearch(
-            matcher: matcher,
-            includeDirectory: includeDirectory,
-            excludeDirectory: excludeDirectory,
-            progress: ProgressReporter,
-            searchTarget: Options.SearchTarget,
-            recurseSubdirectories: Options.RecurseSubdirectories,
-            defaultEncoding: Options.DefaultEncoding);
+        var search = new SearchState(matcher)
+        {
+            IncludeDirectory = includeDirectory,
+            ExcludeDirectory = excludeDirectory,
+            Progress = ProgressReporter,
+            SearchTarget = Options.SearchTarget,
+            RecurseSubdirectories = Options.RecurseSubdirectories,
+            DefaultEncoding = Options.DefaultEncoding,
+        };
 
         OnSearchCreating(search);
 

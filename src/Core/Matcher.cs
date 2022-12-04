@@ -36,6 +36,7 @@ public class Matcher
 
     public Regex Regex { get; }
 
+    //TODO: rename IsNegative
     public bool IsNegative { get; }
 
     internal int GroupNumber { get; }
@@ -105,10 +106,5 @@ public class Matcher
     internal bool IsMatch(string input)
     {
         return Match(input) is not null;
-    }
-
-    internal bool IsMatch(Match match)
-    {
-        return Match(match) is not null;
     }
 }

@@ -2,11 +2,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace Orang.FileSystem.Commands;
+namespace Orang.FileSystem.Operations;
 
 internal class ReplaceOperation : CommonFindOperation
 {
@@ -14,13 +13,13 @@ internal class ReplaceOperation : CommonFindOperation
 
     public Replacer Replacer { get; set; } = null!;
 
+    public Matcher ContentFilter { get; set; } = null!;
+
     public override OperationKind OperationKind => OperationKind.Replace;
 
-    protected override void ExecuteDirectory(string path)
+    protected override void OnSearchStateCreating(SearchState search)
     {
-        Debug.Assert(ContentFilter?.IsNegative == false);
-
-        base.ExecuteDirectory(path);
+        search.CanRecurseMatch = false;
     }
 
     protected override void ExecuteMatch(

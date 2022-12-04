@@ -1,10 +1,11 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Orang.FileSystem.Operations;
 using System.Collections.Generic;
+using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
+using Orang.FileSystem.Operations;
 
 #pragma warning disable RCS1223 // Mark publicly visible type with DebuggerDisplay attribute.
 
@@ -17,9 +18,7 @@ public class Search
         SearchOptions? options = null)
     {
         if (matcher is null)
-        {
             throw new ArgumentNullException(nameof(matcher));
-        }
 
         Matcher = matcher;
         Options = options ?? new SearchOptions();
@@ -66,7 +65,7 @@ public class Search
 
         options ??= new CopyOptions();
 
-        OperationHelpers.VerifyCopyMoveArguments(directoryPath, destinationPath, options);
+        VerifyCopyMoveArguments(directoryPath, destinationPath, options);
 
         var command = new CopyOperation()
         {
@@ -129,7 +128,7 @@ public class Search
 
         options ??= new CopyOptions();
 
-        OperationHelpers.VerifyCopyMoveArguments(directoryPath, destinationPath, options);
+        VerifyCopyMoveArguments(directoryPath, destinationPath, options);
 
         var command = new MoveOperation()
         {
@@ -198,7 +197,7 @@ public class Search
         if (matcher.Name.IsNegative)
             throw new InvalidOperationException("Name filter cannot be negative.");
 
-        OperationHelpers.VerifyConflictResolution(options.ConflictResolution, options.DialogProvider);
+        VerifyConflictResolution(options.ConflictResolution, options.DialogProvider);
 
         var command = new RenameOperation()
         {
@@ -275,5 +274,46 @@ public class Search
         command.Execute(directoryPath, this, cancellationToken);
 
         return new OperationResult(command.Telemetry);
+    }
+
+    private static void VerifyConflictResolution(
+        ConflictResolution conflictResolution,
+        IDialogProvider<ConflictInfo>? dialogProvider)
+    {
+        if (conflictResolution == ConflictResolution.Ask
+            && dialogProvider is null)
+        {
+            throw new ArgumentNullException(
+                nameof(dialogProvider),
+                $"'{nameof(dialogProvider)}' cannot be null when {nameof(ConflictResolution)} "
+                    + $"is set to {nameof(ConflictResolution.Ask)}.");
+        }
+    }
+
+    private static void VerifyCopyMoveArguments(
+        string directoryPath,
+        string destinationPath,
+        CopyOptions copyOptions)
+    {
+        if (directoryPath is null)
+            throw new ArgumentNullException(nameof(directoryPath));
+
+        if (destinationPath is null)
+            throw new ArgumentNullException(nameof(destinationPath));
+
+        if (!Directory.Exists(directoryPath))
+            throw new DirectoryNotFoundException($"Directory not found: {directoryPath}");
+
+        if (!Directory.Exists(destinationPath))
+            throw new DirectoryNotFoundException($"Directory not found: {destinationPath}");
+
+        if (FileSystemHelpers.IsSubdirectory(destinationPath, directoryPath))
+        {
+            throw new ArgumentException(
+                "Source directory cannot be subdirectory of a destination directory.",
+                nameof(directoryPath));
+        }
+
+        VerifyConflictResolution(copyOptions.ConflictResolution, copyOptions.DialogProvider);
     }
 }

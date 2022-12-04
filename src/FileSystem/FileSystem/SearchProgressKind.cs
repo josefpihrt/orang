@@ -4,6 +4,7 @@ namespace Orang.FileSystem;
 
 public enum SearchProgressKind : byte
 {
+    //TODO: rename to SearchedDirectory
     SearchDirectory = 0,
     Directory = 1,
     File = 2,

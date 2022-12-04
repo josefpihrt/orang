@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using Orang.FileSystem;
@@ -51,22 +50,21 @@ internal class RenameCommand : DeleteOrRenameCommand<RenameCommandOptions>
     {
         string indent = GetPathIndent(baseDirectoryPath);
 
-        (List<ReplaceItem> replaceItems, MaxReason maxReason) = ReplaceHelpers.GetReplaceItems(
-            fileMatch.NameMatch!,
+        ReplaceResult result = fileMatch.GetResult(
             Options.Replacer,
             count: Options.MaxMatchesInFile,
             predicate: NameFilter!.Predicate,
             cancellationToken: context.CancellationToken);
 
-        string path = fileMatch.Path;
-
-        string newName = ReplaceHelpers.GetNewName(fileMatch, replaceItems);
+        string newName = result.NewName;
 
         if (string.IsNullOrWhiteSpace(newName))
         {
             _logger.WriteLine($"{indent}New file name cannot be empty or contains only white-space.", Colors.Message_Warning);
             return;
         }
+
+        string path = fileMatch.Path;
 
         bool changed = string.Compare(
             path,
@@ -91,16 +89,16 @@ internal class RenameCommand : DeleteOrRenameCommand<RenameCommandOptions>
 
             PathWriter?.WritePath(
                 fileMatch,
-                replaceItems,
+                result.Items,
                 replaceColors,
                 baseDirectoryPath,
                 indent);
 
             WriteProperties(context, fileMatch, columnWidths);
-            _logger.WriteFilePathEnd(replaceItems.Count, maxReason, Options.IncludeCount);
+            _logger.WriteFilePathEnd(result.Count, result.MaxReason, Options.IncludeCount);
         }
 
-        ListCache<ReplaceItem>.Free(replaceItems);
+        ListCache<ReplaceItem>.Free(result.Items);
 
         if (Options.Interactive)
         {

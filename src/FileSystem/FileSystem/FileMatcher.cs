@@ -11,6 +11,7 @@ public class FileMatcher
 {
     public Matcher? Name { get; set; }
 
+    //TODO: rename to NamePart
     public FileNamePart Part { get; set; }
 
     public Matcher? Extension { get; set; }

@@ -439,9 +439,7 @@ internal static class FileSystemHelpers
         long size = 0;
 
         foreach (string filePath in EnumerateFiles(directoryPath, _enumerationOptionsRecurse))
-        {
             size += new FileInfo(filePath).Length;
-        }
 
         return size;
     }

@@ -119,7 +119,9 @@ internal class SearchState
 
         if (IncludeDirectory is not null)
         {
-            matchStatus = (IncludeDirectory(directoryPath)) ? MatchStatus.Success : MatchStatus.FailFromPositive;
+            matchStatus = (IncludeDirectory(directoryPath))
+                ? MatchStatus.Success
+                : MatchStatus.FailFromPositive;
         }
 
         var directory = new Directory(directoryPath, matchStatus);

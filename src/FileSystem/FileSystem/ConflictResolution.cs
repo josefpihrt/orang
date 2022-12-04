@@ -2,11 +2,10 @@
 
 namespace Orang.FileSystem;
 
-// Stop, Throw
 public enum ConflictResolution
 {
-    Overwrite = 0,
-    Skip = 1,
-    Ask = 2,
-    Suffix = 3,
+    Overwrite,
+    Skip,
+    Ask,
+    Suffix,
 }

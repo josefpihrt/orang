@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.IO;
 using Orang.Text.RegularExpressions;
 
@@ -31,22 +30,21 @@ internal class RenameOperation : DeleteOrRenameOperation
         FileMatch fileMatch,
         string directoryPath)
     {
-        (List<ReplaceItem> replaceItems, MaxReason maxReason) = ReplaceHelpers.GetReplaceItems(
-            fileMatch.NameMatch!,
+        ReplaceResult result = fileMatch.GetResult(
             Replacer,
             count: 0,
             predicate: NameFilter!.Predicate,
             cancellationToken: CancellationToken);
 
-        string path = fileMatch.Path;
-
-        string newName = ReplaceHelpers.GetNewName(fileMatch, replaceItems);
+        string newName = result.NewName;
 
         if (string.IsNullOrWhiteSpace(newName))
         {
             Report(fileMatch, null, new IOException("New file name cannot be empty or contains only white-space."));
             return;
         }
+
+        string path = fileMatch.Path;
 
         bool changed = string.Compare(
             path,
@@ -61,7 +59,7 @@ internal class RenameOperation : DeleteOrRenameOperation
 
         string newPath = path.Substring(0, fileMatch.NameSpan.Start) + newName;
 
-        ListCache<ReplaceItem>.Free(replaceItems);
+        ListCache<ReplaceItem>.Free(result.Items);
 
         if (!changed)
             return;

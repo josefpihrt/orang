@@ -8,10 +8,10 @@ namespace Orang;
 public enum PatternCreationOptions
 {
     None = 0,
-    EndsWith = 1,
-    Literal = 1 << 1,
-    StartsWith = 1 << 2,
-    WholeLine = 1 << 3,
-    WholeWord = 1 << 4,
+    Literal = 1,
+    StartsWith = 1 << 1,
+    EndsWith = 1 << 2,
+    WholeWord = 1 << 3,
+    WholeLine = 1 << 4,
     Equals = StartsWith | EndsWith,
 }

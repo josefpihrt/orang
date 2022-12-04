@@ -15,8 +15,6 @@ internal abstract class OperationBase
 
     public abstract OperationKind OperationKind { get; }
 
-    public SearchState Search { get; set; } = null!;
-
     public SearchTelemetry Telemetry { get; }
 
     public TerminationReason TerminationReason { get; set; }

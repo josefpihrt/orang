@@ -15,7 +15,9 @@ public class Matcher
     public Matcher(
         string pattern,
         RegexOptions options = RegexOptions.None,
-        bool isNegative = false) : this(new Regex(pattern, options), isNegative: isNegative)
+        bool isNegative = false,
+        int groupNumber = -1,
+        Func<string, bool>? predicate = null) : this(new Regex(pattern, options), isNegative, groupNumber, predicate)
     {
     }
 

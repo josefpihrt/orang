@@ -4,5 +4,6 @@ namespace Orang.FileSystem;
 
 public interface IOperationResult
 {
+    //TODO: move telemetry to ...Options
     SearchTelemetry Telemetry { get; }
 }

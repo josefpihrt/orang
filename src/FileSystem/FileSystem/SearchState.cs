@@ -17,9 +17,6 @@ namespace Orang.FileSystem;
 
 internal class SearchState
 {
-    private bool? _shouldAnalyzeFileProperties;
-    private bool? _shouldAnalyzeDirectoryProperties;
-
     public SearchState(FileMatcher matcher)
     {
         Matcher = matcher ?? throw new ArgumentNullException(nameof(matcher));
@@ -47,32 +44,13 @@ internal class SearchState
 
     public Encoding? DefaultEncoding { get; set; }
 
-    private FileNamePart Part => Matcher.Part;
+    private FileNamePart Part => Matcher.NamePart;
 
     private Matcher? Name => Matcher.Name;
 
     private Matcher? Extension => Matcher.Extension;
 
     private Matcher? Content => Matcher.Content;
-
-    private bool ShouldAnalyzeFileProperties
-    {
-        get
-        {
-            return _shouldAnalyzeFileProperties ??= Matcher.CreationTimePredicate is not null
-                || Matcher.ModifiedTimePredicate is not null
-                || Matcher.SizePredicate is not null;
-        }
-    }
-
-    private bool ShouldAnalyzeDirectoryProperties
-    {
-        get
-        {
-            return _shouldAnalyzeDirectoryProperties ??= Matcher.ModifiedTimePredicate is not null
-                || Matcher.SizePredicate is not null;
-        }
-    }
 
     private FileAttributes Attributes => Matcher.Attributes;
 
@@ -281,7 +259,7 @@ internal class SearchState
 
         if (Attributes != 0
             || emptyOption != FileEmptyOption.None
-            || ShouldAnalyzeFileProperties)
+            || Matcher.FilePredicate is not null)
         {
             try
             {
@@ -293,11 +271,8 @@ internal class SearchState
                     return default;
                 }
 
-                if (ShouldAnalyzeFileProperties
-                    && !Matcher.IsMatch(fileInfo))
-                {
+                if (Matcher.FilePredicate?.Invoke(fileInfo) == false)
                     return default;
-                }
 
                 if (emptyOption != FileEmptyOption.None)
                 {
@@ -418,7 +393,7 @@ internal class SearchState
 
         if (Attributes != 0
             || EmptyOption != FileEmptyOption.None
-            || ShouldAnalyzeDirectoryProperties)
+            || Matcher.DirectoryPredicate is not null)
         {
             try
             {
@@ -430,11 +405,8 @@ internal class SearchState
                     return default;
                 }
 
-                if (ShouldAnalyzeDirectoryProperties
-                    && !Matcher.IsMatch(directoryInfo))
-                {
+                if (Matcher.DirectoryPredicate?.Invoke(directoryInfo) == false)
                     return default;
-                }
 
                 if (EmptyOption == FileEmptyOption.Empty)
                 {

@@ -188,7 +188,7 @@ public class Search
 
         options ??= new RenameOptions();
 
-        if (matcher.Part == FileNamePart.FullName)
+        if (matcher.NamePart == FileNamePart.FullName)
             throw new InvalidOperationException($"Invalid file name part '{nameof(FileNamePart.FullName)}'.");
 
         if (matcher.Name is null)

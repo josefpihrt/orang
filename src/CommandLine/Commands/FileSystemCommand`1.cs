@@ -39,15 +39,86 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
 
     private SearchState CreateSearch()
     {
+        FilePropertyOptions properties = Options.FilePropertyOptions;
+        Func<FileInfo, bool>? filePredicate = null;
+        Func<DirectoryInfo, bool>? directoryPredicate = null;
+
+        if (Options.SearchTarget == SearchTarget.Directories)
+        {
+            if (properties.CreationTimePredicate is not null)
+            {
+                if (properties.ModifiedTimePredicate is not null)
+                {
+                    directoryPredicate = di => properties.CreationTimePredicate(di.CreationTime)
+                        && properties.ModifiedTimePredicate(di.LastWriteTime);
+                }
+                else
+                {
+                    directoryPredicate = di => properties.CreationTimePredicate(di.CreationTime);
+                }
+            }
+            else if (properties.ModifiedTimePredicate is not null)
+            {
+                directoryPredicate = di => properties.ModifiedTimePredicate(di.LastWriteTime);
+            }
+        }
+        else
+        {
+            if (properties.CreationTimePredicate is not null)
+            {
+                if (properties.ModifiedTimePredicate is not null)
+                {
+                    if (properties.SizePredicate is not null)
+                    {
+                        filePredicate = fi => properties.CreationTimePredicate(fi.CreationTime)
+                            && properties.ModifiedTimePredicate(fi.LastWriteTime)
+                            && properties.SizePredicate(fi.Length);
+                    }
+                    else
+                    {
+                        filePredicate = fi => properties.CreationTimePredicate(fi.CreationTime)
+                            && properties.ModifiedTimePredicate(fi.LastWriteTime);
+                    }
+                }
+                else
+                {
+                    if (properties.SizePredicate is not null)
+                    {
+                        filePredicate = fi => properties.CreationTimePredicate(fi.CreationTime)
+                            && properties.SizePredicate(fi.Length);
+                    }
+                    else
+                    {
+                        filePredicate = fi => properties.CreationTimePredicate(fi.CreationTime);
+                    }
+                }
+            }
+            else if (properties.ModifiedTimePredicate is not null)
+            {
+                if (properties.SizePredicate is not null)
+                {
+                    filePredicate = fi => properties.ModifiedTimePredicate(fi.LastWriteTime)
+                        && properties.SizePredicate(fi.Length);
+                }
+                else
+                {
+                    filePredicate = fi => properties.ModifiedTimePredicate(fi.LastWriteTime);
+                }
+            }
+            else if (properties.SizePredicate is not null)
+            {
+                filePredicate = fi => properties.SizePredicate(fi.Length);
+            }
+        }
+
         var matcher = new FileMatcher()
         {
             Name = Options.NameFilter,
-            Part = Options.NamePart,
+            NamePart = Options.NamePart,
             Extension = Options.ExtensionFilter,
             Content = Options.ContentFilter,
-            CreationTimePredicate = Options.FilePropertyOptions.CreationTimePredicate,
-            ModifiedTimePredicate = Options.FilePropertyOptions.ModifiedTimePredicate,
-            SizePredicate = Options.FilePropertyOptions.SizePredicate,
+            FilePredicate = filePredicate,
+            DirectoryPredicate = directoryPredicate,
             Attributes = Options.Attributes,
             AttributesToSkip = Options.AttributesToSkip,
             FileEmptyOption = Options.EmptyOption

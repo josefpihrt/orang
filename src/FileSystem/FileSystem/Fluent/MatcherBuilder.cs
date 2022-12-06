@@ -19,12 +19,12 @@ public class MatcherBuilder
     {
     }
 
-    public MatcherBuilder WithPattern(string value, PatternCreationOptions options = PatternCreationOptions.None)
+    public MatcherBuilder WithPattern(string value, PatternOptions options = PatternOptions.None)
     {
         return WithPattern(options, value);
     }
 
-    public MatcherBuilder WithPattern(string value1, string value2, PatternCreationOptions options = PatternCreationOptions.None)
+    public MatcherBuilder WithPattern(string value1, string value2, PatternOptions options = PatternOptions.None)
     {
         return WithPattern(options, value1, value2);
     }
@@ -33,12 +33,12 @@ public class MatcherBuilder
         string value1,
         string value2,
         string value3,
-        PatternCreationOptions options = PatternCreationOptions.None)
+        PatternOptions options = PatternOptions.None)
     {
         return WithPattern(options, value1, value2, value3);
     }
 
-    private MatcherBuilder WithPattern(PatternCreationOptions options, params string[] values)
+    private MatcherBuilder WithPattern(PatternOptions options, params string[] values)
     {
         _pattern = Pattern.FromValues(values, options);
 
@@ -73,7 +73,7 @@ public class MatcherBuilder
         return this;
     }
 
-    internal Matcher? Build()
+    internal Matcher Build()
     {
         //TODO: ?
         if (_pattern is null)

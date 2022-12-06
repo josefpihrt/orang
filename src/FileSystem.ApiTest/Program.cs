@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Text.RegularExpressions;
 using System.Threading;
 using Orang;
 using Orang.FileSystem;
@@ -13,36 +12,42 @@ public static class Program
 {
     public static void Main(params string[] args)
     {
-        SearchBuilder.Create()
-            .IncludeDirectoriesOnly()
-            .MatchName(m => m.WithPattern("bin", "obj", PatternCreationOptions.Equals))
-            .Delete("c:/code/datamole/ddp-kernel-device-provisioning")
+        IOperationResult result = SearchBuilder.Create()
+            .DirectoriesOnly()
+            .WithName(m => m.WithPattern("bin", "obj", PatternOptions.Equals))
+            .SkipDirectory(m => m.WithPattern(".git", ".vs", PatternOptions.Equals))
+            .DeleteMatches("c:/code/datamole/ddp-kernel-device-provisioning")
             .ContentOnly()
             .DryRun()
             .LogOperation(o => Console.WriteLine(o.Path))
             .Execute(CancellationToken.None);
 
-        var fileMatcher = new FileMatcher()
-        {
-            Extension = new Matcher(Pattern.FromValue("csproj", PatternCreationOptions.Equals), RegexOptions.IgnoreCase),
-        };
+        Console.WriteLine(result.Telemetry.DirectoryCount);
+        Console.WriteLine(result.Telemetry.MatchingDirectoryCount);
 
         var search = new Search(
-            fileMatcher,
-            new SearchOptions() { TopDirectoryOnly = false });
-
-        IOperationResult result = search.Rename(
-            @"C:\code\datamole\ddp-kernel-device-provisioning\src",
-            m => m.Value + "2",
-            new RenameOptions()
+            new FileMatcher()
             {
+                Name = new Matcher(Pattern.FromValues(new[] { "bin", "obj" }, PatternOptions.Equals)),
+            },
+            new SearchOptions()
+            {
+                SearchTarget = SearchTarget.Directories,
+                SearchDirectory = new Matcher(Pattern.FromValues(new[] { ".git", ".vs" }, PatternOptions.Equals), isNegative: true)
+            });
+
+        result = search.Delete(
+            @"C:\code\datamole\ddp-kernel-device-provisioning",
+            new DeleteOptions()
+            {
+                ContentOnly = true,
                 DryRun = true,
                 LogOperation = o => Console.WriteLine(o.Path),
             },
             CancellationToken.None);
 
-        Console.WriteLine(result.Telemetry.MatchingFileCount);
-        Console.WriteLine(result.Telemetry.ProcessedFileCount);
+        Console.WriteLine(result.Telemetry.DirectoryCount);
+        Console.WriteLine(result.Telemetry.MatchingDirectoryCount);
     }
 
     public class ConsoleSearchProgress : IProgress<SearchProgress>

@@ -37,8 +37,8 @@ public class Search
 
         var state = new SearchState(Matcher)
         {
-            IncludeDirectory = Options.IncludeDirectory,
-            ExcludeDirectory = Options.ExcludeDirectory,
+            IncludeDirectory = Options.IncludeDirectoryPredicate,
+            ExcludeDirectory = Options.ExcludeDirectoryPredicate,
             LogProgress = Options.LogProgress,
             SearchTarget = Options.SearchTarget,
             RecurseSubdirectories = !Options.TopDirectoryOnly,

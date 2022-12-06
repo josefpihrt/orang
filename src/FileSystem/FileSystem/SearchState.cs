@@ -58,6 +58,12 @@ internal class SearchState
 
     private FileEmptyOption EmptyOption => Matcher.FileEmptyOption;
 
+    public int FileCount { get; private set; }
+
+    public int DirectoryCount { get; private set; }
+
+    public int SearchedDirectoryCount { get; private set; }
+
     public IEnumerable<FileMatch> Find(
         string directoryPath,
         CancellationToken cancellationToken = default)
@@ -445,6 +451,29 @@ internal class SearchState
     private void Report(string path, SearchProgressKind kind, bool isDirectory = false, Exception? exception = null)
     {
         LogProgress?.Invoke(new SearchProgress(path, kind, isDirectory: isDirectory, exception));
+
+        switch (kind)
+        {
+            case SearchProgressKind.SearchDirectory:
+                {
+                    SearchedDirectoryCount++;
+                    break;
+                }
+            case SearchProgressKind.Directory:
+                {
+                    DirectoryCount++;
+                    break;
+                }
+            case SearchProgressKind.File:
+                {
+                    FileCount++;
+                    break;
+                }
+            default:
+                {
+                    throw new InvalidOperationException($"Unknown enum value '{kind}'.");
+                }
+        }
     }
 
     private static bool IsWellKnownException(Exception ex)

@@ -11,12 +11,12 @@ public static class Pattern
 {
     public static string FromValue(
         string text,
-        PatternCreationOptions options)
+        PatternOptions options)
     {
         if (text is null)
             throw new ArgumentNullException(nameof(text));
 
-        if ((options & PatternCreationOptions.Literal) != 0)
+        if ((options & PatternOptions.Literal) != 0)
             text = RegexEscape.Escape(text);
 
         return Create(text, options);
@@ -24,12 +24,12 @@ public static class Pattern
 
     public static string FromValues(
         IEnumerable<string> values,
-        PatternCreationOptions options = PatternCreationOptions.None)
+        PatternOptions options = PatternOptions.None)
     {
         if (values is null)
             throw new ArgumentNullException(nameof(values));
 
-        string text = JoinValues(values, (options & PatternCreationOptions.Literal) != 0);
+        string text = JoinValues(values, (options & PatternOptions.Literal) != 0);
 
         return Create(text, options);
 
@@ -79,26 +79,26 @@ public static class Pattern
         }
     }
 
-    private static string Create(string text, PatternCreationOptions options)
+    private static string Create(string text, PatternOptions options)
     {
-        if ((options & PatternCreationOptions.WholeLine) != 0)
+        if ((options & PatternOptions.WholeLine) != 0)
         {
             text = @"(?:\A|(?<=\n))(?:" + text + @")(?:\z|(?=\r?\n))";
         }
-        else if ((options & PatternCreationOptions.WholeWord) != 0)
+        else if ((options & PatternOptions.WholeWord) != 0)
         {
             text = @"\b(?:" + text + @")\b";
         }
 
-        if ((options & PatternCreationOptions.Equals) == PatternCreationOptions.Equals)
+        if ((options & PatternOptions.Equals) == PatternOptions.Equals)
         {
             return @"\A(?:" + text + @")\z";
         }
-        else if ((options & PatternCreationOptions.StartsWith) != 0)
+        else if ((options & PatternOptions.StartsWith) != 0)
         {
             return @"\A(?:" + text + ")";
         }
-        else if ((options & PatternCreationOptions.EndsWith) != 0)
+        else if ((options & PatternOptions.EndsWith) != 0)
         {
             return "(?:" + text + @")\z";
         }

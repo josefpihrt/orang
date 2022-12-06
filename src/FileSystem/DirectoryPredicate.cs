@@ -12,10 +12,7 @@ internal static class DirectoryPredicate
 {
     public static Func<string, bool> Create(Matcher matcher, FileNamePart part = FileNamePart.FullName)
     {
-        return path =>
-        {
-            return (matcher.IsNegative) ? !IsMatch(matcher, part, path) : IsMatch(matcher, part, path);
-        };
+        return path => (matcher.IsNegative) ? !IsMatch(matcher, part, path) : IsMatch(matcher, part, path);
     }
 
     public static Func<string, bool> Create(string path, FileNamePart part = FileNamePart.FullName)
@@ -73,6 +70,6 @@ internal static class DirectoryPredicate
 
     private static bool IsMatch(Matcher matcher, FileNamePart part, string path)
     {
-        return matcher.IsMatch(FileNameSpan.FromDirectory(path, part));
+        return matcher.IsDirectoryMatch(path, part);
     }
 }

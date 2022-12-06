@@ -11,6 +11,12 @@ public class SearchTelemetry
     {
     }
 
+    public int SearchedDirectoryCount { get; internal set; }
+
+    public int FileCount { get; internal set; }
+
+    public int DirectoryCount { get; internal set; }
+
     public int MatchingFileCount { get; internal set; }
 
     public int MatchingDirectoryCount { get; internal set; }

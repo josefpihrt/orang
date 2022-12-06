@@ -3,6 +3,8 @@
 using System;
 using System.Threading;
 
+#pragma warning disable RCS1223 // Mark publicly visible type with DebuggerDisplay attribute.
+
 namespace Orang.FileSystem.Fluent;
 
 public class DeleteOperation
@@ -64,7 +66,6 @@ public class DeleteOperation
         return this;
     }
 
-    //TODO: rename Execute to Run
     public IOperationResult Execute(CancellationToken cancellationToken = default)
     {
         var options = new DeleteOptions()

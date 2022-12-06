@@ -42,8 +42,8 @@ internal abstract class Command
 
         var state = new SearchState(search.Matcher)
         {
-            IncludeDirectory = search.Options.IncludeDirectory,
-            ExcludeDirectory = search.Options.ExcludeDirectory,
+            IncludeDirectory = search.Options.IncludeDirectoryPredicate,
+            ExcludeDirectory = search.Options.ExcludeDirectoryPredicate,
             LogProgress = search.Options.LogProgress,
             SearchTarget = search.Options.SearchTarget,
             RecurseSubdirectories = !search.Options.TopDirectoryOnly,
@@ -64,6 +64,10 @@ internal abstract class Command
                 break;
             }
         }
+
+        Telemetry.SearchedDirectoryCount += state.SearchedDirectoryCount;
+        Telemetry.DirectoryCount += state.DirectoryCount;
+        Telemetry.FileCount += state.FileCount;
     }
 
     protected void Log(FileMatch fileMatch, Exception? exception = null)

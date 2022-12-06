@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Text.RegularExpressions;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 #pragma warning disable RCS1223 // Mark publicly visible type with DebuggerDisplay attribute.
 
@@ -12,6 +12,9 @@ namespace Orang.FileSystem.Fluent;
 
 public class SearchBuilder
 {
+    private Matcher? _name;
+    private Matcher? _content;
+    private FileNamePart _namePart;
     private static Matcher? _extension;
     private FileAttributes _attributesToSkip;
     private FileAttributes _attributes;
@@ -19,13 +22,10 @@ public class SearchBuilder
     private Func<DirectoryInfo, bool>? _directoryPredicate;
     private FileEmptyOption _fileEmptyOption;
     private bool _topDirectoryOnly;
-    private Func<string, bool>? _excludeDirectory;
+    private Func<string, bool>? _skipDirectory;
     private Action<SearchProgress>? _logProgress;
     private SearchTarget _searchTarget;
     private Encoding? _defaultEncoding;
-    private Matcher? _name;
-    private Matcher? _content;
-    private FileNamePart _namePart;
 
     internal SearchBuilder()
     {
@@ -36,14 +36,40 @@ public class SearchBuilder
         return new SearchBuilder();
     }
 
-    public SearchBuilder IncludeExtensions(params string[] extensions)
+    public SearchBuilder WithExtension(
+        string pattern,
+        RegexOptions options = RegexOptions.None,
+        bool isNegative = false,
+        int groupNumber = -1,
+        Func<string, bool>? predicate = null)
+    {
+        _extension = new Matcher(pattern, options, isNegative, groupNumber, predicate);
+
+        return this;
+    }
+
+    public SearchBuilder WithExtension(Action<MatcherBuilder> configureMatcher)
+    {
+        if (configureMatcher is null)
+            throw new ArgumentNullException(nameof(configureMatcher));
+
+        var builder = new MatcherBuilder();
+
+        configureMatcher?.Invoke(builder);
+
+        _extension = builder.Build();
+
+        return this;
+    }
+
+    public SearchBuilder WithExtensions(params string[] extensions)
     {
         _extension = GetExtensionMatcher(isNegative: false, extensions);
 
         return this;
     }
 
-    public SearchBuilder ExcludeExtensions(params string[] extensions)
+    public SearchBuilder WithoutExtensions(params string[] extensions)
     {
         _extension = GetExtensionMatcher(isNegative: true, extensions);
 
@@ -61,7 +87,7 @@ public class SearchBuilder
             return new Matcher(
                 Pattern.FromValue(
                     extensions[0],
-                    PatternCreationOptions.Equals | PatternCreationOptions.Literal),
+                    PatternOptions.Equals | PatternOptions.Literal),
                 (FileSystemHelpers.IsCaseSensitive) ? RegexOptions.None : RegexOptions.IgnoreCase,
                 isNegative: isNegative);
         }
@@ -70,25 +96,13 @@ public class SearchBuilder
             return new Matcher(
                 Pattern.FromValues(
                     extensions,
-                    PatternCreationOptions.Equals | PatternCreationOptions.Literal),
+                    PatternOptions.Equals | PatternOptions.Literal),
                 (FileSystemHelpers.IsCaseSensitive) ? RegexOptions.None : RegexOptions.IgnoreCase,
                 isNegative: isNegative);
         }
     }
 
-    public SearchBuilder MatchExtension(
-        string pattern,
-        RegexOptions options = RegexOptions.None,
-        bool isNegative = false,
-        int groupNumber = -1,
-        Func<string, bool>? predicate = null)
-    {
-        _extension = new Matcher(pattern, options, isNegative, groupNumber, predicate);
-
-        return this;
-    }
-
-    public SearchBuilder MatchName(
+    public SearchBuilder WithName(
         string pattern,
         RegexOptions options = RegexOptions.None,
         bool isNegative = false,
@@ -100,28 +114,11 @@ public class SearchBuilder
         return this;
     }
 
-    public SearchBuilder IncludeNames(
-        IEnumerable<string> values,
-        PatternCreationOptions patternOptions,
-        RegexOptions regexOptions = RegexOptions.None)
+    public SearchBuilder WithName(Action<MatcherBuilder> configureMatcher)
     {
-        _name = new Matcher(Pattern.FromValues(values, patternOptions), regexOptions);
+        if (configureMatcher is null)
+            throw new ArgumentNullException(nameof(configureMatcher));
 
-        return this;
-    }
-
-    public SearchBuilder IncludeNames(
-        PatternCreationOptions patternOptions,
-        RegexOptions regexOptions = RegexOptions.None,
-        params string[] values)
-    {
-        _name = new Matcher(Pattern.FromValues(values, patternOptions), regexOptions);
-
-        return this;
-    }
-
-    public SearchBuilder MatchName(Action<MatcherBuilder> configureMatcher)
-    {
         var builder = new MatcherBuilder();
 
         configureMatcher(builder);
@@ -131,24 +128,14 @@ public class SearchBuilder
         return this;
     }
 
-    public SearchBuilder ExcludeNames(
-        IEnumerable<string> values,
-        PatternCreationOptions patternOptions,
-        RegexOptions regexOptions = RegexOptions.None)
-    {
-        _name = new Matcher(Pattern.FromValues(values, patternOptions), regexOptions, isNegative: true);
-
-        return this;
-    }
-
-    public SearchBuilder MatchNamePart(FileNamePart namePart)
+    public SearchBuilder WithNamePart(FileNamePart namePart)
     {
         _namePart = namePart;
 
         return this;
     }
 
-    public SearchBuilder MatchContent(
+    public SearchBuilder WithContent(
         string pattern,
         RegexOptions options = RegexOptions.None,
         bool isNegative = false,
@@ -158,44 +145,55 @@ public class SearchBuilder
         _content = new Matcher(pattern, options, isNegative, groupNumber, predicate);
 
         return this;
-}
+    }
 
-    public SearchBuilder IncludeAttributes(FileAttributes attributes)
+    public SearchBuilder WithContent(Action<MatcherBuilder> configureMatcher)
+    {
+        var builder = new MatcherBuilder();
+
+        configureMatcher(builder);
+
+        _content = builder.Build();
+
+        return this;
+    }
+
+    public SearchBuilder WithAttributes(FileAttributes attributes)
     {
         _attributes = attributes;
 
         return this;
     }
 
-    public SearchBuilder ExcludeAttributes(FileAttributes attributes)
+    public SearchBuilder WithoutAttributes(FileAttributes attributes)
     {
         _attributesToSkip = attributes;
 
         return this;
     }
 
-    public SearchBuilder IncludeEmptyFiles()
+    public SearchBuilder EmptyFilesOnly()
     {
         _fileEmptyOption = FileEmptyOption.Empty;
 
         return this;
     }
 
-    public SearchBuilder ExcludeEmptyFiles()
+    public SearchBuilder NonEmptyFilesOnly()
     {
         _fileEmptyOption = FileEmptyOption.NonEmpty;
 
         return this;
     }
 
-    public SearchBuilder MatchFile(Func<FileInfo, bool> predicate)
+    public SearchBuilder WithFile(Func<FileInfo, bool> predicate)
     {
         _filePredicate = predicate;
 
         return this;
     }
 
-    public SearchBuilder MatchDirectory(Func<DirectoryInfo, bool> predicate)
+    public SearchBuilder WithDirectory(Func<DirectoryInfo, bool> predicate)
     {
         _directoryPredicate = predicate;
 
@@ -209,9 +207,39 @@ public class SearchBuilder
         return this;
     }
 
-    public SearchBuilder ExcludeDirectories(Func<string, bool> predicate)
+    public SearchBuilder SkipDirectory(Func<string, bool> predicate)
     {
-        _excludeDirectory = predicate;
+        _skipDirectory = predicate;
+
+        return this;
+    }
+
+    public SearchBuilder SkipDirectory(
+        string pattern,
+        RegexOptions options = RegexOptions.None,
+        int groupNumber = -1,
+        Func<string, bool>? predicate = null)
+    {
+        var matcher = new Matcher(pattern, options, isNegative: true, groupNumber, predicate);
+
+        _skipDirectory = DirectoryPredicate.Create(matcher, FileNamePart.Name);
+
+        return this;
+    }
+
+    public SearchBuilder SkipDirectory(Action<MatcherBuilder> configureMatcher)
+    {
+        if (configureMatcher is null)
+            throw new ArgumentNullException(nameof(configureMatcher));
+
+        var builder = new MatcherBuilder();
+
+        //TODO: disable Negate
+        configureMatcher(builder);
+
+        builder.Negate();
+
+        _skipDirectory = DirectoryPredicate.Create(builder.Build(), FileNamePart.Name);
 
         return this;
     }
@@ -223,20 +251,14 @@ public class SearchBuilder
         return this;
     }
 
-    public SearchBuilder IncludeDirectoriesOnly()
+    public SearchBuilder DirectoriesOnly()
     {
         _searchTarget = SearchTarget.Directories;
 
         return this;
     }
 
-    public SearchBuilder IncludeFilesAndDirectories()
-    {
-        _searchTarget = SearchTarget.All;
-
-        return this;
-    }
-
+    //TODO: rename
     public SearchBuilder WithDefaultEncoding(Encoding encoding)
     {
         _defaultEncoding = encoding;
@@ -262,7 +284,7 @@ public class SearchBuilder
         var options = new SearchOptions()
         {
             IncludeDirectory = null,
-            ExcludeDirectory = _excludeDirectory,
+            ExcludeDirectory = _skipDirectory,
             LogProgress = _logProgress,
             SearchTarget = _searchTarget,
             TopDirectoryOnly = _topDirectoryOnly,
@@ -272,38 +294,37 @@ public class SearchBuilder
         return new Search(matcher, options);
     }
 
-    //TODO: rename to DeleteMatches
-    public DeleteOperation Delete(string directoryPath)
+    public DeleteOperation DeleteMatches(string directoryPath)
     {
         return new DeleteOperation(Build(), directoryPath);
     }
 
-    public CopyOperation Copy(string directoryPath, string destinationPath)
+    public CopyOperation CopyMatches(string directoryPath, string destinationPath)
     {
         return new CopyOperation(Build(), directoryPath, destinationPath);
     }
 
-    public MoveOperation Move(string directoryPath, string destinationPath)
+    public MoveOperation MoveMatches(string directoryPath, string destinationPath)
     {
         return new MoveOperation(Build(), directoryPath, destinationPath);
     }
 
-    public RenameOperation Rename(string directoryPath, string replacement)
+    public RenameOperation RenameMatches(string directoryPath, string replacement)
     {
         return new RenameOperation(Build(), directoryPath, replacement);
     }
 
-    public RenameOperation Rename(string directoryPath, MatchEvaluator matchEvaluator)
+    public RenameOperation RenameMatches(string directoryPath, MatchEvaluator matchEvaluator)
     {
         return new RenameOperation(Build(), directoryPath, matchEvaluator);
     }
 
-    public ReplaceOperation Replace(string directoryPath, string destinationPath)
+    public ReplaceOperation ReplaceMatches(string directoryPath, string destinationPath)
     {
         return new ReplaceOperation(Build(), directoryPath, destinationPath);
     }
 
-    public ReplaceOperation Replace(string directoryPath, MatchEvaluator matchEvaluator)
+    public ReplaceOperation ReplaceMatches(string directoryPath, MatchEvaluator matchEvaluator)
     {
         return new ReplaceOperation(Build(), directoryPath, matchEvaluator);
     }

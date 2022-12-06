@@ -2,7 +2,6 @@
 
 namespace Orang.FileSystem;
 
-//TODO: internal?
 public enum SearchTarget
 {
     Files = 0,

@@ -11,7 +11,7 @@ namespace Orang.FileSystem;
 
 internal static class FileSystemExtensions
 {
-    public static ReplaceResult GetResult(
+    internal static ReplaceResult GetResult(
         this FileMatch fileMatch,
         Replacer replacer,
         int count = 0,
@@ -73,27 +73,5 @@ internal static class FileSystemExtensions
         sb.Append(path, lastPos, path.Length - lastPos);
 
         return StringBuilderCache.GetStringAndFree(sb);
-    }
-
-    public static FileMatcher IncludeExtensions(this FileMatcher matcher, params string[] extensions)
-    {
-        return SetExtensions(matcher, isNegative: false, extensions);
-    }
-
-    public static FileMatcher ExcludeExtensions(this FileMatcher matcher, params string[] extensions)
-    {
-        return SetExtensions(matcher, isNegative: true, extensions);
-    }
-
-    private static FileMatcher SetExtensions(FileMatcher matcher, bool isNegative, params string[] extensions)
-    {
-        matcher.Extension = new Matcher(
-            Pattern.FromValues(
-                extensions,
-                PatternCreationOptions.Equals | PatternCreationOptions.Literal),
-            (FileSystemHelpers.IsCaseSensitive) ? RegexOptions.None : RegexOptions.IgnoreCase,
-            isNegative: isNegative);
-
-        return matcher;
     }
 }

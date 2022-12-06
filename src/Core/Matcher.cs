@@ -41,9 +41,9 @@ public class Matcher
     //TODO: rename IsNegative
     public bool IsNegative { get; }
 
-    internal int GroupNumber { get; }
+    public int GroupNumber { get; }
 
-    internal Func<string, bool>? Predicate { get; }
+    public Func<string, bool>? Predicate { get; }
 
     internal string GroupName => Regex.GroupNameFromNumber(GroupNumber);
 

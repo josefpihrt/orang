@@ -62,53 +62,47 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
                 directoryPredicate = di => properties.ModifiedTimePredicate(di.LastWriteTime);
             }
         }
-        else
+        else if (properties.CreationTimePredicate is not null)
         {
-            if (properties.CreationTimePredicate is not null)
-            {
-                if (properties.ModifiedTimePredicate is not null)
-                {
-                    if (properties.SizePredicate is not null)
-                    {
-                        filePredicate = fi => properties.CreationTimePredicate(fi.CreationTime)
-                            && properties.ModifiedTimePredicate(fi.LastWriteTime)
-                            && properties.SizePredicate(fi.Length);
-                    }
-                    else
-                    {
-                        filePredicate = fi => properties.CreationTimePredicate(fi.CreationTime)
-                            && properties.ModifiedTimePredicate(fi.LastWriteTime);
-                    }
-                }
-                else
-                {
-                    if (properties.SizePredicate is not null)
-                    {
-                        filePredicate = fi => properties.CreationTimePredicate(fi.CreationTime)
-                            && properties.SizePredicate(fi.Length);
-                    }
-                    else
-                    {
-                        filePredicate = fi => properties.CreationTimePredicate(fi.CreationTime);
-                    }
-                }
-            }
-            else if (properties.ModifiedTimePredicate is not null)
+            if (properties.ModifiedTimePredicate is not null)
             {
                 if (properties.SizePredicate is not null)
                 {
-                    filePredicate = fi => properties.ModifiedTimePredicate(fi.LastWriteTime)
+                    filePredicate = fi => properties.CreationTimePredicate(fi.CreationTime)
+                        && properties.ModifiedTimePredicate(fi.LastWriteTime)
                         && properties.SizePredicate(fi.Length);
                 }
                 else
                 {
-                    filePredicate = fi => properties.ModifiedTimePredicate(fi.LastWriteTime);
+                    filePredicate = fi => properties.CreationTimePredicate(fi.CreationTime)
+                        && properties.ModifiedTimePredicate(fi.LastWriteTime);
                 }
             }
             else if (properties.SizePredicate is not null)
             {
-                filePredicate = fi => properties.SizePredicate(fi.Length);
+                filePredicate = fi => properties.CreationTimePredicate(fi.CreationTime)
+                    && properties.SizePredicate(fi.Length);
             }
+            else
+            {
+                filePredicate = fi => properties.CreationTimePredicate(fi.CreationTime);
+            }
+        }
+        else if (properties.ModifiedTimePredicate is not null)
+        {
+            if (properties.SizePredicate is not null)
+            {
+                filePredicate = fi => properties.ModifiedTimePredicate(fi.LastWriteTime)
+                    && properties.SizePredicate(fi.Length);
+            }
+            else
+            {
+                filePredicate = fi => properties.ModifiedTimePredicate(fi.LastWriteTime);
+            }
+        }
+        else if (properties.SizePredicate is not null)
+        {
+            filePredicate = fi => properties.SizePredicate(fi.Length);
         }
 
         var matcher = new FileMatcher()

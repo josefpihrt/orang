@@ -11,6 +11,7 @@ public class CopyOptions
 {
     public ConflictResolution ConflictResolution { get; set; } = ConflictResolution.Skip;
 
+    //TODO: rename to FileCompareOptions
     public FileCompareOptions CompareOptions { get; set; }
 
     public FileAttributes NoCompareAttributes { get; set; }
@@ -23,7 +24,7 @@ public class CopyOptions
 
     public bool DryRun { get; set; }
 
-    public IProgress<OperationProgress>? OperationProgress { get; set; }
+    public Action<OperationProgress>? LogOperation { get; set; }
 
     public IDialogProvider<ConflictInfo>? DialogProvider { get; set; }
 }

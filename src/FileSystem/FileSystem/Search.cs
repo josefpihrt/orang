@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading;
-using Orang.FileSystem.Operations;
+using Orang.FileSystem.Commands;
 
 #pragma warning disable RCS1223 // Mark publicly visible type with DebuggerDisplay attribute.
 
@@ -39,7 +39,7 @@ public class Search
         {
             IncludeDirectory = Options.IncludeDirectory,
             ExcludeDirectory = Options.ExcludeDirectory,
-            Progress = Options.SearchProgress,
+            LogProgress = Options.LogProgress,
             SearchTarget = Options.SearchTarget,
             RecurseSubdirectories = !Options.TopDirectoryOnly,
             DefaultEncoding = Options.DefaultEncoding,
@@ -67,7 +67,7 @@ public class Search
 
         VerifyCopyMoveArguments(directoryPath, destinationPath, options);
 
-        var command = new CopyOperation()
+        var command = new CopyCommand()
         {
             DestinationPath = destinationPath,
             CopyOptions = options,
@@ -85,22 +85,18 @@ public class Search
 
     public IOperationResult Delete(
         string directoryPath,
-        string destinationPath,
         DeleteOptions? options = null,
         CancellationToken cancellationToken = default)
     {
         if (directoryPath is null)
             throw new ArgumentNullException(nameof(directoryPath));
 
-        if (destinationPath is null)
-            throw new ArgumentNullException(nameof(destinationPath));
-
         options ??= new DeleteOptions();
 
-        var command = new DeleteOperation()
+        var command = new DeleteCommand()
         {
             DeleteOptions = options,
-            OperationProgress = options.OperationProgress,
+            LogOperation = options.LogOperation,
             DryRun = options.DryRun,
             MaxMatchingFiles = 0,
             CancellationToken = cancellationToken,
@@ -130,11 +126,11 @@ public class Search
 
         VerifyCopyMoveArguments(directoryPath, destinationPath, options);
 
-        var command = new MoveOperation()
+        var command = new MoveCommand()
         {
             DestinationPath = destinationPath,
             CopyOptions = options,
-            OperationProgress = options.OperationProgress,
+            LogOperation = options.LogOperation,
             DryRun = options.DryRun,
             DialogProvider = options.DialogProvider,
             MaxMatchingFiles = 0,
@@ -199,12 +195,12 @@ public class Search
 
         VerifyConflictResolution(options.ConflictResolution, options.DialogProvider);
 
-        var command = new RenameOperation()
+        var command = new RenameCommand()
         {
             NameFilter = matcher.Name,
             RenameOptions = options,
             Replacer = replacer,
-            OperationProgress = options.OperationProgress,
+            LogOperation = options.LogOperation,
             DryRun = options.DryRun,
             DialogProvider = options.DialogProvider,
             MaxMatchingFiles = 0,
@@ -258,12 +254,12 @@ public class Search
 
         options ??= new ReplaceOptions();
 
-        var command = new ReplaceOperation()
+        var command = new ReplaceCommand()
         {
             ContentFilter = matcher.Content,
             ReplaceOptions = options,
             Replacer = replacer,
-            OperationProgress = options.OperationProgress,
+            LogOperation = options.LogOperation,
             DryRun = options.DryRun,
             MaxMatchingFiles = 0,
             MaxMatchesInFile = 0,

@@ -4,6 +4,7 @@ using System;
 using System.Text.RegularExpressions;
 using System.IO;
 using System.Text;
+using System.Collections.Generic;
 
 #pragma warning disable RCS1223 // Mark publicly visible type with DebuggerDisplay attribute.
 
@@ -19,7 +20,7 @@ public class SearchBuilder
     private FileEmptyOption _fileEmptyOption;
     private bool _topDirectoryOnly;
     private Func<string, bool>? _excludeDirectory;
-    private IProgress<SearchProgress>? _searchProgress;
+    private Action<SearchProgress>? _logProgress;
     private SearchTarget _searchTarget;
     private Encoding? _defaultEncoding;
     private Matcher? _name;
@@ -99,6 +100,47 @@ public class SearchBuilder
         return this;
     }
 
+    public SearchBuilder IncludeNames(
+        IEnumerable<string> values,
+        PatternCreationOptions patternOptions,
+        RegexOptions regexOptions = RegexOptions.None)
+    {
+        _name = new Matcher(Pattern.FromValues(values, patternOptions), regexOptions);
+
+        return this;
+    }
+
+    public SearchBuilder IncludeNames(
+        PatternCreationOptions patternOptions,
+        RegexOptions regexOptions = RegexOptions.None,
+        params string[] values)
+    {
+        _name = new Matcher(Pattern.FromValues(values, patternOptions), regexOptions);
+
+        return this;
+    }
+
+    public SearchBuilder MatchName(Action<MatcherBuilder> configureMatcher)
+    {
+        var builder = new MatcherBuilder();
+
+        configureMatcher(builder);
+
+        _name = builder.Build();
+
+        return this;
+    }
+
+    public SearchBuilder ExcludeNames(
+        IEnumerable<string> values,
+        PatternCreationOptions patternOptions,
+        RegexOptions regexOptions = RegexOptions.None)
+    {
+        _name = new Matcher(Pattern.FromValues(values, patternOptions), regexOptions, isNegative: true);
+
+        return this;
+    }
+
     public SearchBuilder MatchNamePart(FileNamePart namePart)
     {
         _namePart = namePart;
@@ -174,21 +216,21 @@ public class SearchBuilder
         return this;
     }
 
-    public SearchBuilder WithSearchProgress(IProgress<SearchProgress> progress)
+    public SearchBuilder LogProgress(Action<SearchProgress> logProgress)
     {
-        _searchProgress = progress;
+        _logProgress = logProgress;
 
         return this;
     }
 
-    public SearchBuilder TargetDirectories()
+    public SearchBuilder IncludeDirectoriesOnly()
     {
         _searchTarget = SearchTarget.Directories;
 
         return this;
     }
 
-    public SearchBuilder TargetAll()
+    public SearchBuilder IncludeFilesAndDirectories()
     {
         _searchTarget = SearchTarget.All;
 
@@ -221,7 +263,7 @@ public class SearchBuilder
         {
             IncludeDirectory = null,
             ExcludeDirectory = _excludeDirectory,
-            SearchProgress = _searchProgress,
+            LogProgress = _logProgress,
             SearchTarget = _searchTarget,
             TopDirectoryOnly = _topDirectoryOnly,
             DefaultEncoding = _defaultEncoding,
@@ -230,8 +272,39 @@ public class SearchBuilder
         return new Search(matcher, options);
     }
 
-    public RenameBuilder Rename(string directoryPath)
+    //TODO: rename to DeleteMatches
+    public DeleteOperation Delete(string directoryPath)
     {
-        return new RenameBuilder(directoryPath);
+        return new DeleteOperation(Build(), directoryPath);
+    }
+
+    public CopyOperation Copy(string directoryPath, string destinationPath)
+    {
+        return new CopyOperation(Build(), directoryPath, destinationPath);
+    }
+
+    public MoveOperation Move(string directoryPath, string destinationPath)
+    {
+        return new MoveOperation(Build(), directoryPath, destinationPath);
+    }
+
+    public RenameOperation Rename(string directoryPath, string replacement)
+    {
+        return new RenameOperation(Build(), directoryPath, replacement);
+    }
+
+    public RenameOperation Rename(string directoryPath, MatchEvaluator matchEvaluator)
+    {
+        return new RenameOperation(Build(), directoryPath, matchEvaluator);
+    }
+
+    public ReplaceOperation Replace(string directoryPath, string destinationPath)
+    {
+        return new ReplaceOperation(Build(), directoryPath, destinationPath);
+    }
+
+    public ReplaceOperation Replace(string directoryPath, MatchEvaluator matchEvaluator)
+    {
+        return new ReplaceOperation(Build(), directoryPath, matchEvaluator);
     }
 }

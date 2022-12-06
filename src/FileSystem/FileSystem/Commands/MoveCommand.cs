@@ -2,9 +2,9 @@
 
 using System.IO;
 
-namespace Orang.FileSystem.Operations;
+namespace Orang.FileSystem.Commands;
 
-internal class MoveOperation : CommonCopyOperation
+internal class MoveCommand : CommonCopyCommand
 {
     public override OperationKind OperationKind => OperationKind.Move;
 

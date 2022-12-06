@@ -4,9 +4,9 @@ using System;
 using System.IO;
 using Orang.Text.RegularExpressions;
 
-namespace Orang.FileSystem.Operations;
+namespace Orang.FileSystem.Commands;
 
-internal class RenameOperation : DeleteOrRenameOperation
+internal class RenameCommand : DeleteOrRenameCommand
 {
     public RenameOptions RenameOptions { get; set; } = null!;
 
@@ -40,7 +40,7 @@ internal class RenameOperation : DeleteOrRenameOperation
 
         if (string.IsNullOrWhiteSpace(newName))
         {
-            Report(fileMatch, null, new IOException("New file name cannot be empty or contains only white-space."));
+            Log(fileMatch, null, new IOException("New file name cannot be empty or contains only white-space."));
             return;
         }
 
@@ -66,7 +66,7 @@ internal class RenameOperation : DeleteOrRenameOperation
 
         if (isInvalidName)
         {
-            Report(fileMatch, newName, new IOException("New file name contains invalid characters."));
+            Log(fileMatch, newName, new IOException("New file name contains invalid characters."));
             return;
         }
 
@@ -120,12 +120,12 @@ internal class RenameOperation : DeleteOrRenameOperation
                 Telemetry.ProcessedFileCount++;
             }
 
-            Report(fileMatch, newPath);
+            Log(fileMatch, newPath);
         }
         catch (Exception ex) when (ex is IOException
             || ex is UnauthorizedAccessException)
         {
-            Report(fileMatch, newPath, ex);
+            Log(fileMatch, newPath, ex);
         }
 
         if (fileMatch.IsDirectory

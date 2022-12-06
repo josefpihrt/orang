@@ -23,6 +23,8 @@ public readonly struct OperationProgress
 
     public FileMatch FileMatch { get; }
 
+    public string Path => FileMatch.Path;
+
     public string? NewPath { get; }
 
     internal OperationKind Kind { get; }

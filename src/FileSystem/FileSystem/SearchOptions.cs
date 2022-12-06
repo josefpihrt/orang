@@ -13,7 +13,7 @@ public class SearchOptions
 
     public Func<string, bool>? ExcludeDirectory { get; set; }
 
-    public IProgress<SearchProgress>? SearchProgress { get; set; }
+    public Action<SearchProgress>? LogProgress { get; set; }
 
     public SearchTarget SearchTarget { get; set; }
 

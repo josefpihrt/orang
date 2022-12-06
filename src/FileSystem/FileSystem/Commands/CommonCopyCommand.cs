@@ -5,11 +5,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
-namespace Orang.FileSystem.Operations;
+namespace Orang.FileSystem.Commands;
 
-internal abstract class CommonCopyOperation : CommonFindOperation
+internal abstract class CommonCopyCommand : CommonFindCommand
 {
-    protected CommonCopyOperation()
+    protected CommonCopyCommand()
     {
     }
 
@@ -58,7 +58,7 @@ internal abstract class CommonCopyOperation : CommonFindOperation
         catch (Exception ex) when (ex is IOException
             || ex is UnauthorizedAccessException)
         {
-            Report(fileMatch, destinationPath, ex);
+            Log(fileMatch, destinationPath, ex);
         }
     }
 
@@ -155,7 +155,7 @@ internal abstract class CommonCopyOperation : CommonFindOperation
         }
 
         if (fileMatch is not null)
-            Report(fileMatch, destinationPath);
+            Log(fileMatch, destinationPath);
 
         if (isDirectory)
         {

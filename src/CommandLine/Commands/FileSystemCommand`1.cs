@@ -142,7 +142,7 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
         {
             IncludeDirectory = includeDirectory,
             ExcludeDirectory = excludeDirectory,
-            Progress = ProgressReporter,
+            LogProgress = (ProgressReporter is not null) ? p => ProgressReporter.Report(p) : null,
             SearchTarget = Options.SearchTarget,
             RecurseSubdirectories = Options.RecurseSubdirectories,
             DefaultEncoding = Options.DefaultEncoding,

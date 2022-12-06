@@ -5,11 +5,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 
-namespace Orang.FileSystem.Operations;
+namespace Orang.FileSystem.Commands;
 
-internal abstract class CommonFindOperation : OperationBase
+internal abstract class CommonFindCommand : Command
 {
-    protected CommonFindOperation()
+    protected CommonFindCommand()
     {
     }
 

@@ -13,6 +13,15 @@ public static class Program
 {
     public static void Main(params string[] args)
     {
+        SearchBuilder.Create()
+            .IncludeDirectoriesOnly()
+            .MatchName(m => m.WithPattern("bin", "obj", PatternCreationOptions.Equals))
+            .Delete("c:/code/datamole/ddp-kernel-device-provisioning")
+            .ContentOnly()
+            .DryRun()
+            .LogOperation(o => Console.WriteLine(o.Path))
+            .Execute(CancellationToken.None);
+
         var fileMatcher = new FileMatcher()
         {
             Extension = new Matcher(Pattern.FromValue("csproj", PatternCreationOptions.Equals), RegexOptions.IgnoreCase),
@@ -28,7 +37,7 @@ public static class Program
             new RenameOptions()
             {
                 DryRun = true,
-                OperationProgress = new ConsoleOperationProgress(),
+                LogOperation = o => Console.WriteLine(o.Path),
             },
             CancellationToken.None);
 
@@ -52,7 +61,6 @@ public static class Program
         public void Report(OperationProgress value)
         {
             Console.WriteLine(value.FileMatch.Path);
-            Console.WriteLine("  " + value.NewPath);
         }
     }
 }

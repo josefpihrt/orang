@@ -8,26 +8,6 @@ namespace Orang;
 
 internal static class Extensions
 {
-    public static void Report(
-        this IProgress<SearchProgress> progress,
-        string path,
-        SearchProgressKind kind,
-        bool isDirectory = false,
-        Exception? exception = null)
-    {
-        progress.Report(new SearchProgress(path, kind, isDirectory, exception));
-    }
-
-    public static void Report(
-        this IProgress<OperationProgress> progress,
-        FileMatch fileMatch,
-        string? newPath,
-        OperationKind kind,
-        Exception? exception = null)
-    {
-        progress.Report(new OperationProgress(fileMatch, newPath, kind, exception));
-    }
-
     public static Match? Match(this Matcher matcher, FileNameSpan name)
     {
         return matcher.Match(matcher.Regex.Match(name.Path, name.Start, name.Length));

@@ -10,6 +10,7 @@ public class DeleteOptions
 {
     public bool ContentOnly { get; set; }
 
+    //TODO: rename to IncludeBom
     public bool IncludingBom { get; set; }
 
     public bool FilesOnly { get; set; }
@@ -18,7 +19,7 @@ public class DeleteOptions
 
     public bool DryRun { get; set; }
 
-    public IProgress<OperationProgress>? OperationProgress { get; set; }
+    public Action<OperationProgress>? LogOperation { get; set; }
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private string DebuggerDisplay => $"{nameof(ContentOnly)} = {ContentOnly}  {nameof(IncludingBom)} = {IncludingBom}";

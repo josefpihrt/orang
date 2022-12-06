@@ -3,9 +3,9 @@
 using System;
 using System.IO;
 
-namespace Orang.FileSystem.Operations;
+namespace Orang.FileSystem.Commands;
 
-internal class DeleteOperation : DeleteOrRenameOperation
+internal class DeleteCommand : DeleteOrRenameCommand
 {
     public DeleteOptions DeleteOptions { get; set; } = null!;
 
@@ -32,14 +32,14 @@ internal class DeleteOperation : DeleteOrRenameOperation
                     directoriesOnly: DeleteOptions.DirectoriesOnly);
             }
 
-            Report(fileMatch);
+            Log(fileMatch);
 
             Telemetry.IncrementProcessedCount(fileMatch.IsDirectory);
         }
         catch (Exception ex) when (ex is IOException
             || ex is UnauthorizedAccessException)
         {
-            Report(fileMatch, ex);
+            Log(fileMatch, ex);
         }
     }
 }

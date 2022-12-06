@@ -4,11 +4,11 @@ using System;
 using System.IO;
 using System.Threading;
 
-namespace Orang.FileSystem.Operations;
+namespace Orang.FileSystem.Commands;
 
-internal abstract class OperationBase
+internal abstract class Command
 {
-    protected OperationBase()
+    protected Command()
     {
         Telemetry = new SearchTelemetry();
     }
@@ -21,7 +21,7 @@ internal abstract class OperationBase
 
     public int MaxMatchingFiles { get; set; }
 
-    public IProgress<OperationProgress>? OperationProgress { get; set; }
+    public Action<OperationProgress>? LogOperation { get; set; }
 
     public bool DryRun { get; set; }
 
@@ -44,7 +44,7 @@ internal abstract class OperationBase
         {
             IncludeDirectory = search.Options.IncludeDirectory,
             ExcludeDirectory = search.Options.ExcludeDirectory,
-            Progress = search.Options.SearchProgress,
+            LogProgress = search.Options.LogProgress,
             SearchTarget = search.Options.SearchTarget,
             RecurseSubdirectories = !search.Options.TopDirectoryOnly,
             DefaultEncoding = search.Options.DefaultEncoding,
@@ -66,13 +66,13 @@ internal abstract class OperationBase
         }
     }
 
-    protected void Report(FileMatch fileMatch, Exception? exception = null)
+    protected void Log(FileMatch fileMatch, Exception? exception = null)
     {
-        Report(fileMatch, newPath: null, exception);
+        Log(fileMatch, newPath: null, exception);
     }
 
-    protected void Report(FileMatch fileMatch, string? newPath, Exception? exception = null)
+    protected void Log(FileMatch fileMatch, string? newPath, Exception? exception = null)
     {
-        OperationProgress?.Report(fileMatch, newPath, OperationKind, exception);
+        LogOperation?.Invoke(new OperationProgress(fileMatch, newPath, OperationKind, exception));
     }
 }

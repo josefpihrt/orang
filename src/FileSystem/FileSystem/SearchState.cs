@@ -28,7 +28,7 @@ internal class SearchState
 
     public Func<string, bool>? ExcludeDirectory { get; set; }
 
-    public IProgress<SearchProgress>? Progress { get; set; }
+    public Action<SearchProgress>? LogProgress { get; set; }
 
     public bool DisallowEnumeration { get; set; }
 
@@ -444,7 +444,7 @@ internal class SearchState
 
     private void Report(string path, SearchProgressKind kind, bool isDirectory = false, Exception? exception = null)
     {
-        Progress?.Report(path, kind, isDirectory: isDirectory, exception);
+        LogProgress?.Invoke(new SearchProgress(path, kind, isDirectory: isDirectory, exception));
     }
 
     private static bool IsWellKnownException(Exception ex)

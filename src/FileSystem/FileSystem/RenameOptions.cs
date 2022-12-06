@@ -14,7 +14,7 @@ public class RenameOptions
 
     public bool DryRun { get; set; }
 
-    public IProgress<OperationProgress>? OperationProgress { get; set; }
+    public Action<OperationProgress>? LogOperation { get; set; }
 
     public IDialogProvider<ConflictInfo>? DialogProvider { get; set; }
 

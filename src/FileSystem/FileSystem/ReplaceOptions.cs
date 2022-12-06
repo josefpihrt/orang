@@ -14,5 +14,5 @@ public class ReplaceOptions
 
     public bool DryRun { get; set; }
 
-    public IProgress<OperationProgress>? OperationProgress { get; set; }
+    public Action<OperationProgress>? LogOperation { get; set; }
 }

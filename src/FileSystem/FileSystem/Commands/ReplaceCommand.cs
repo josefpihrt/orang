@@ -5,9 +5,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 
-namespace Orang.FileSystem.Operations;
+namespace Orang.FileSystem.Commands;
 
-internal class ReplaceOperation : CommonFindOperation
+internal class ReplaceCommand : CommonFindCommand
 {
     public ReplaceOptions ReplaceOptions { get; set; } = null!;
 
@@ -54,12 +54,12 @@ internal class ReplaceOperation : CommonFindOperation
             if (fileReplacementCount > 0)
                 Telemetry.ProcessedFileCount++;
 
-            Report(fileMatch);
+            Log(fileMatch);
         }
         catch (Exception ex) when (ex is IOException
             || ex is UnauthorizedAccessException)
         {
-            Report(fileMatch, ex);
+            Log(fileMatch, ex);
         }
         finally
         {

@@ -13,5 +13,6 @@ public enum PatternCreationOptions
     EndsWith = 1 << 2,
     WholeWord = 1 << 3,
     WholeLine = 1 << 4,
+    //TODO: rename to Exact
     Equals = StartsWith | EndsWith,
 }

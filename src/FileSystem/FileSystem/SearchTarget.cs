@@ -2,7 +2,7 @@
 
 namespace Orang.FileSystem;
 
-public enum SearchTarget
+internal enum SearchTarget
 {
     Files = 0,
     Directories = 1,

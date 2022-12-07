@@ -43,8 +43,8 @@ public class MoveOperation
         return this;
     }
 
-    //TODO: rename WithNoCompareAttributes
-    public MoveOperation WithNoCompareAttributes(FileAttributes fileAttributes)
+    //TODO: rename
+    public MoveOperation SkipCompareAttributes(FileAttributes fileAttributes)
     {
         _noCompareAttributes = fileAttributes;
 

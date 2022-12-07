@@ -23,6 +23,23 @@ public static class Pattern
     }
 
     public static string FromValues(
+        string value1,
+        string value2,
+        PatternOptions options = PatternOptions.None)
+    {
+        return FromValues(new string[] { value1, value2 }, options);
+    }
+
+    public static string FromValues(
+        string value1,
+        string value2,
+        string value3,
+        PatternOptions options = PatternOptions.None)
+    {
+        return FromValues(new string[] { value1, value2, value3 }, options);
+    }
+
+    public static string FromValues(
         IEnumerable<string> values,
         PatternOptions options = PatternOptions.None)
     {

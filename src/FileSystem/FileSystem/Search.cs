@@ -14,17 +14,34 @@ namespace Orang.FileSystem;
 public class Search
 {
     public Search(
-        FileMatcher matcher,
+        FileMatcher fileMatcher,
         SearchOptions? options = null)
     {
-        if (matcher is null)
-            throw new ArgumentNullException(nameof(matcher));
-
-        Matcher = matcher;
+        FileMatcher = fileMatcher ?? throw new ArgumentNullException(nameof(fileMatcher));
         Options = options ?? new SearchOptions();
     }
 
-    public FileMatcher Matcher { get; }
+    public Search(
+        DirectoryMatcher directoryMatcher,
+        SearchOptions? options = null)
+    {
+        DirectoryMatcher = directoryMatcher ?? throw new ArgumentNullException(nameof(directoryMatcher));
+        Options = options ?? new SearchOptions();
+    }
+
+    public Search(
+        FileMatcher fileMatcher,
+        DirectoryMatcher directoryMatcher,
+        SearchOptions? options = null)
+    {
+        FileMatcher = fileMatcher ?? throw new ArgumentNullException(nameof(fileMatcher));
+        DirectoryMatcher = directoryMatcher ?? throw new ArgumentNullException(nameof(directoryMatcher));
+        Options = options ?? new SearchOptions();
+    }
+
+    public FileMatcher? FileMatcher { get; }
+
+    public DirectoryMatcher? DirectoryMatcher { get; }
 
     public SearchOptions Options { get; }
 
@@ -35,12 +52,11 @@ public class Search
         if (directoryPath is null)
             throw new ArgumentNullException(nameof(directoryPath));
 
-        var state = new SearchState(Matcher)
+        var state = new SearchState(FileMatcher, DirectoryMatcher)
         {
             IncludeDirectory = Options.IncludeDirectoryPredicate,
             ExcludeDirectory = Options.ExcludeDirectoryPredicate,
             LogProgress = Options.LogProgress,
-            SearchTarget = Options.SearchTarget,
             RecurseSubdirectories = !Options.TopDirectoryOnly,
             DefaultEncoding = Options.DefaultEncoding,
         };
@@ -60,8 +76,11 @@ public class Search
         if (destinationPath is null)
             throw new ArgumentNullException(nameof(destinationPath));
 
-        if (Options.SearchTarget == SearchTarget.All)
-            throw new InvalidOperationException($"Search target cannot be '{nameof(SearchTarget.All)}'.");
+        if (DirectoryMatcher is not null)
+        {
+            //TODO: message
+            throw new InvalidOperationException();
+        }
 
         options ??= new CopyOptions();
 
@@ -119,8 +138,11 @@ public class Search
         if (destinationPath is null)
             throw new ArgumentNullException(nameof(destinationPath));
 
-        if (Options.SearchTarget == SearchTarget.All)
-            throw new InvalidOperationException($"Search target cannot be '{nameof(SearchTarget.All)}'.");
+        if (DirectoryMatcher is not null)
+        {
+            //TODO: message
+            throw new InvalidOperationException();
+        }
 
         options ??= new CopyOptions();
 
@@ -180,24 +202,45 @@ public class Search
         if (directoryPath is null)
             throw new ArgumentNullException(nameof(directoryPath));
 
-        FileMatcher matcher = Matcher;
-
         options ??= new RenameOptions();
 
-        if (matcher.NamePart == FileNamePart.FullName)
-            throw new InvalidOperationException($"Invalid file name part '{nameof(FileNamePart.FullName)}'.");
+        FileMatcher? fileMatcher = FileMatcher;
 
-        if (matcher.Name is null)
-            throw new InvalidOperationException("Name filter is not defined.");
+        if (fileMatcher is not null)
+        {
+            if (fileMatcher.NamePart == FileNamePart.FullName)
+                throw new InvalidOperationException($"Invalid file name part '{nameof(FileNamePart.FullName)}'.");
 
-        if (matcher.Name.IsNegative)
-            throw new InvalidOperationException("Name filter cannot be negative.");
+            if (fileMatcher.Name is null)
+                throw new InvalidOperationException("Name matcher is not defined.");
+
+            if (fileMatcher.Name.IsNegative)
+                throw new InvalidOperationException("Name matcher cannot be negative.");
+        }
+
+        DirectoryMatcher? directoryMatcher = DirectoryMatcher;
+
+        if (directoryMatcher is not null)
+        {
+            if (directoryMatcher.NamePart == FileNamePart.FullName
+                || directoryMatcher.NamePart == FileNamePart.Extension)
+            {
+                throw new InvalidOperationException($"Invalid file name part '{directoryMatcher.NamePart}'.");
+            }
+
+            if (directoryMatcher.Name is null)
+                throw new InvalidOperationException("Name matcher is not defined.");
+
+            if (directoryMatcher.Name.IsNegative)
+                throw new InvalidOperationException("Name matcher cannot be negative.");
+        }
 
         VerifyConflictResolution(options.ConflictResolution, options.DialogProvider);
 
         var command = new RenameCommand()
         {
-            NameFilter = matcher.Name,
+            FileMatcher = FileMatcher?.Name,
+            DirectoryMatcher = DirectoryMatcher?.Name,
             RenameOptions = options,
             Replacer = replacer,
             LogOperation = options.LogOperation,
@@ -244,13 +287,16 @@ public class Search
         if (directoryPath is null)
             throw new ArgumentNullException(nameof(directoryPath));
 
-        FileMatcher matcher = Matcher;
+        if (FileMatcher is null)
+            throw new InvalidOperationException($"'{nameof(FileMatcher)}' is null.");
+
+        FileMatcher matcher = FileMatcher;
 
         if (matcher.Content is null)
-            throw new InvalidOperationException("Content filter is not defined.");
+            throw new InvalidOperationException("Content matcher is not defined.");
 
         if (matcher.Content.IsNegative)
-            throw new InvalidOperationException("Content filter cannot be negative.");
+            throw new InvalidOperationException("Content matcher cannot be negative.");
 
         options ??= new ReplaceOptions();
 

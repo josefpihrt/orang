@@ -11,7 +11,6 @@ public class CopyOptions
 {
     public ConflictResolution ConflictResolution { get; set; } = ConflictResolution.Skip;
 
-    //TODO: rename to FileCompareOptions
     public FileCompareOptions CompareOptions { get; set; }
 
     public FileAttributes NoCompareAttributes { get; set; }

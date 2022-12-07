@@ -7,15 +7,11 @@ using System.IO;
 
 namespace Orang.FileSystem;
 
-public class FileMatcher
+public class DirectoryMatcher
 {
     public Matcher? Name { get; set; }
 
     public FileNamePart NamePart { get; set; }
-
-    public Matcher? Extension { get; set; }
-
-    public Matcher? Content { get; set; }
 
     public FileAttributes Attributes { get; set; }
 
@@ -23,5 +19,5 @@ public class FileMatcher
 
     public FileEmptyOption EmptyOption { get; set; }
 
-    public Func<FileInfo, bool>? Predicate { get; set; }
+    public Func<DirectoryInfo, bool>? Predicate { get; set; }
 }

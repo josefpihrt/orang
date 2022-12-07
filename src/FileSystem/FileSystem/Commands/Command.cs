@@ -40,12 +40,11 @@ internal abstract class Command
         if (!System.IO.Directory.Exists(directoryPath))
             throw new DirectoryNotFoundException($"Directory not found: {directoryPath}");
 
-        var state = new SearchState(search.Matcher)
+        var state = new SearchState(search.FileMatcher, search.DirectoryMatcher)
         {
             IncludeDirectory = search.Options.IncludeDirectoryPredicate,
             ExcludeDirectory = search.Options.ExcludeDirectoryPredicate,
             LogProgress = search.Options.LogProgress,
-            SearchTarget = search.Options.SearchTarget,
             RecurseSubdirectories = !search.Options.TopDirectoryOnly,
             DefaultEncoding = search.Options.DefaultEncoding,
         };

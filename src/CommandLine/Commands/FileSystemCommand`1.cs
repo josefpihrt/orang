@@ -8,7 +8,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using Orang.FileSystem;
-using Orang.Text;
 
 namespace Orang.CommandLine;
 
@@ -105,18 +104,36 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
             filePredicate = fi => properties.SizePredicate(fi.Length);
         }
 
-        var matcher = new FileMatcher()
+        FileMatcher? fileMatcher = null;
+        DirectoryMatcher? directoryMatcher = null;
+
+        if (Options.SearchTarget != SearchTarget.Directories)
         {
-            Name = Options.NameFilter,
-            NamePart = Options.NamePart,
-            Extension = Options.ExtensionFilter,
-            Content = Options.ContentFilter,
-            FilePredicate = filePredicate,
-            DirectoryPredicate = directoryPredicate,
-            Attributes = Options.Attributes,
-            AttributesToSkip = Options.AttributesToSkip,
-            FileEmptyOption = Options.EmptyOption
-        };
+            fileMatcher = new FileMatcher()
+            {
+                Name = Options.NameFilter,
+                NamePart = Options.NamePart,
+                Extension = Options.ExtensionFilter,
+                Content = Options.ContentFilter,
+                Predicate = filePredicate,
+                Attributes = Options.Attributes,
+                AttributesToSkip = Options.AttributesToSkip,
+                EmptyOption = Options.EmptyOption
+            };
+        }
+
+        if (Options.SearchTarget != SearchTarget.Files)
+        {
+            directoryMatcher = new DirectoryMatcher()
+            {
+                Name = Options.NameFilter,
+                NamePart = Options.NamePart,
+                Predicate = directoryPredicate,
+                Attributes = Options.Attributes,
+                AttributesToSkip = Options.AttributesToSkip,
+                EmptyOption = Options.EmptyOption
+            };
+        }
 
         Func<string, bool>? includeDirectory = null;
         Func<string, bool>? excludeDirectory = null;
@@ -138,12 +155,11 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
         includeDirectory = CombinePredicates(includeDirectory, CreateIncludeDirectoryPredicate());
         excludeDirectory = CombinePredicates(excludeDirectory, CreateExcludeDirectoryPredicate());
 
-        var search = new SearchState(matcher)
+        var search = new SearchState(fileMatcher, directoryMatcher)
         {
             IncludeDirectory = includeDirectory,
             ExcludeDirectory = excludeDirectory,
             LogProgress = (ProgressReporter is not null) ? p => ProgressReporter.Report(p) : null,
-            SearchTarget = Options.SearchTarget,
             RecurseSubdirectories = Options.RecurseSubdirectories,
             DefaultEncoding = Options.DefaultEncoding,
         };

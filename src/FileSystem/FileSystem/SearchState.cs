@@ -17,12 +17,17 @@ namespace Orang.FileSystem;
 
 internal class SearchState
 {
-    public SearchState(FileMatcher matcher)
+    public SearchState(FileMatcher? matcher, DirectoryMatcher? directoryMatcher)
     {
-        Matcher = matcher ?? throw new ArgumentNullException(nameof(matcher));
+        Debug.Assert(matcher is not null || directoryMatcher is not null);
+
+        FileMatcher = matcher;
+        DirectoryMatcher = directoryMatcher;
     }
 
-    public FileMatcher Matcher { get; }
+    public FileMatcher? FileMatcher { get; }
+
+    public DirectoryMatcher? DirectoryMatcher { get; }
 
     public Func<string, bool>? IncludeDirectory { get; set; }
 
@@ -36,27 +41,11 @@ internal class SearchState
 
     public bool CanRecurseMatch { get; set; } = true;
 
-    public SearchTarget SearchTarget { get; set; } = SearchTarget.All;
-
     public bool RecurseSubdirectories { get; set; } = true;
 
     public bool IgnoreInaccessible { get; set; } = true;
 
     public Encoding? DefaultEncoding { get; set; }
-
-    private FileNamePart Part => Matcher.NamePart;
-
-    private Matcher? Name => Matcher.Name;
-
-    private Matcher? Extension => Matcher.Extension;
-
-    private Matcher? Content => Matcher.Content;
-
-    private FileAttributes Attributes => Matcher.Attributes;
-
-    private FileAttributes AttributesToSkip => Matcher.AttributesToSkip;
-
-    private FileEmptyOption EmptyOption => Matcher.FileEmptyOption;
 
     public int FileCount { get; private set; }
 
@@ -78,7 +67,7 @@ internal class SearchState
     {
         var enumerationOptions = new EnumerationOptions()
         {
-            AttributesToSkip = AttributesToSkip,
+            AttributesToSkip = FileMatcher?.AttributesToSkip ?? 0,
             IgnoreInaccessible = IgnoreInaccessible,
             MatchCasing = MatchCasing.PlatformDefault,
             MatchType = MatchType.Simple,
@@ -114,7 +103,7 @@ internal class SearchState
         {
             Report(directory.Path, SearchProgressKind.SearchDirectory, isDirectory: true);
 
-            if (SearchTarget != SearchTarget.Directories
+            if (FileMatcher is not null
                 && !directory.IsFail)
             {
                 IEnumerator<string> fi = null!;
@@ -175,8 +164,8 @@ internal class SearchState
                             : MatchStatus.Unknown;
 
                         if (!directory.IsFail
-                            && SearchTarget != SearchTarget.Files
-                            && Part != FileNamePart.Extension)
+                            && DirectoryMatcher is not null
+                            && DirectoryMatcher?.NamePart != FileNamePart.Extension)
                         {
                             if (matchStatus == MatchStatus.Unknown
                                 && (IncludeDirectory is not null || ExcludeDirectory is not null))
@@ -236,48 +225,48 @@ internal class SearchState
 
     public FileMatch? MatchFile(string path)
     {
-        (FileMatch? fileMatch, Exception? exception) = MatchFileImpl(path);
+        (FileMatch? fileMatch, Exception? exception) = MatchFileImpl(path, FileMatcher!);
 
         Report(path, SearchProgressKind.File, exception: exception);
 
         return fileMatch;
     }
 
-    private (FileMatch? fileMatch, Exception? exception) MatchFileImpl(string path)
+    private (FileMatch? fileMatch, Exception? exception) MatchFileImpl(string path, FileMatcher matcher)
     {
-        if (Extension?.IsMatch(FileNameSpan.FromFile(path, FileNamePart.Extension)) == false)
+        if (matcher.Extension?.IsMatch(FileNameSpan.FromFile(path, FileNamePart.Extension)) == false)
             return default;
 
-        FileNameSpan span = FileNameSpan.FromFile(path, Part);
+        FileNameSpan span = FileNameSpan.FromFile(path, matcher.NamePart);
         Match? match = null;
 
-        if (Name is not null)
+        if (matcher.Name is not null)
         {
-            match = Name.Match(span, MatchPartOnly);
+            match = matcher.Name.Match(span, MatchPartOnly);
 
             if (match is null)
                 return default;
         }
 
-        FileEmptyOption emptyOption = EmptyOption;
+        FileEmptyOption emptyOption = matcher.EmptyOption;
         var isEmpty = false;
         FileInfo? fileInfo = null;
 
-        if (Attributes != 0
+        if (matcher.Attributes != 0
             || emptyOption != FileEmptyOption.None
-            || Matcher.FilePredicate is not null)
+            || matcher.Predicate is not null)
         {
             try
             {
                 fileInfo = new FileInfo(path);
 
-                if (Attributes != 0
-                    && (fileInfo.Attributes & Attributes) != Attributes)
+                if (matcher.Attributes != 0
+                    && (fileInfo.Attributes & matcher.Attributes) != matcher.Attributes)
                 {
                     return default;
                 }
 
-                if (Matcher.FilePredicate?.Invoke(fileInfo) == false)
+                if (matcher.Predicate?.Invoke(fileInfo) == false)
                     return default;
 
                 if (emptyOption != FileEmptyOption.None)
@@ -305,7 +294,7 @@ internal class SearchState
             }
         }
 
-        if (Content is not null
+        if (matcher.Content is not null
             || emptyOption != FileEmptyOption.None)
         {
             FileContent fileContent = default;
@@ -335,7 +324,7 @@ internal class SearchState
                             }
                         }
 
-                        if (Content is not null)
+                        if (matcher.Content is not null)
                         {
                             using (var reader = new StreamReader(
                                 stream: stream,
@@ -359,9 +348,9 @@ internal class SearchState
                 }
             }
 
-            if (Content is not null)
+            if (matcher.Content is not null)
             {
-                Match? contentMatch = Content.Match(fileContent.Text);
+                Match? contentMatch = matcher.Content.Match(fileContent.Text);
 
                 if (contentMatch is null)
                     return default;
@@ -375,21 +364,21 @@ internal class SearchState
 
     public FileMatch? MatchDirectory(string path)
     {
-        (FileMatch? fileMatch, Exception? exception) = MatchDirectoryImpl(path);
+        (FileMatch? fileMatch, Exception? exception) = MatchDirectoryImpl(path, DirectoryMatcher!);
 
         Report(path, SearchProgressKind.Directory, isDirectory: true, exception);
 
         return fileMatch;
     }
 
-    private (FileMatch? fileMatch, Exception? exception) MatchDirectoryImpl(string path)
+    private (FileMatch? fileMatch, Exception? exception) MatchDirectoryImpl(string path, DirectoryMatcher matcher)
     {
-        FileNameSpan span = FileNameSpan.FromDirectory(path, Part);
+        FileNameSpan span = FileNameSpan.FromDirectory(path, matcher.NamePart);
         Match? match = null;
 
-        if (Name is not null)
+        if (matcher.Name is not null)
         {
-            match = Name.Match(span, MatchPartOnly);
+            match = matcher.Name.Match(span, MatchPartOnly);
 
             if (match is null)
                 return default;
@@ -397,29 +386,29 @@ internal class SearchState
 
         DirectoryInfo? directoryInfo = null;
 
-        if (Attributes != 0
-            || EmptyOption != FileEmptyOption.None
-            || Matcher.DirectoryPredicate is not null)
+        if (matcher.Attributes != 0
+            || matcher.EmptyOption != FileEmptyOption.None
+            || matcher.Predicate is not null)
         {
             try
             {
                 directoryInfo = new DirectoryInfo(path);
 
-                if (Attributes != 0
-                    && (directoryInfo.Attributes & Attributes) != Attributes)
+                if (matcher.Attributes != 0
+                    && (directoryInfo.Attributes & matcher.Attributes) != matcher.Attributes)
                 {
                     return default;
                 }
 
-                if (Matcher.DirectoryPredicate?.Invoke(directoryInfo) == false)
+                if (matcher.Predicate?.Invoke(directoryInfo) == false)
                     return default;
 
-                if (EmptyOption == FileEmptyOption.Empty)
+                if (matcher.EmptyOption == FileEmptyOption.Empty)
                 {
                     if (!IsEmptyDirectory(path))
                         return default;
                 }
-                else if (EmptyOption == FileEmptyOption.NonEmpty)
+                else if (matcher.EmptyOption == FileEmptyOption.NonEmpty)
                 {
                     if (IsEmptyDirectory(path))
                         return default;

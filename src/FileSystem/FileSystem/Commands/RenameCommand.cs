@@ -16,7 +16,9 @@ internal class RenameCommand : DeleteOrRenameCommand
 
     public IDialogProvider<ConflictInfo>? DialogProvider { get; set; }
 
-    public Matcher NameFilter { get; set; } = null!;
+    public Matcher? FileMatcher { get; set; }
+
+    public Matcher? DirectoryMatcher { get; set; }
 
     public override OperationKind OperationKind => OperationKind.Rename;
 
@@ -33,7 +35,7 @@ internal class RenameCommand : DeleteOrRenameCommand
         ReplaceResult result = fileMatch.GetResult(
             Replacer,
             count: 0,
-            predicate: NameFilter!.Predicate,
+            predicate: (fileMatch.IsDirectory) ? DirectoryMatcher!.Predicate : FileMatcher!.Predicate,
             cancellationToken: CancellationToken);
 
         string newName = result.NewName;

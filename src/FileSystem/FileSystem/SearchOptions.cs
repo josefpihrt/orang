@@ -10,17 +10,19 @@ namespace Orang.FileSystem;
 public class SearchOptions
 {
     //TODO: rename SearchDirectory?
-    public Matcher? SearchDirectory { get; set; }
-
-    public FileNamePart SearchDirectoryPart { get; set; }
+    public DirectoryMatcher? SearchDirectory { get; set; }
 
     internal Func<string, bool>? IncludeDirectoryPredicate
     {
         get
         {
-            return (SearchDirectory?.IsNegative == false)
-                ? path => SearchDirectory.IsDirectoryMatch(path, SearchDirectoryPart)
-                : null;
+            if (SearchDirectory is not null
+                && SearchDirectory.Name?.IsNegative != true)
+            {
+                return path => SearchDirectory.IsMatch(path);
+            }
+
+            return null;
         }
     }
 
@@ -28,9 +30,13 @@ public class SearchOptions
     {
         get
         {
-            return (SearchDirectory?.IsNegative == true)
-                ? path => !SearchDirectory.IsDirectoryMatch(path, SearchDirectoryPart)
-                : null;
+            if (SearchDirectory is not null
+                && SearchDirectory.Name?.IsNegative != false)
+            {
+                return path => !SearchDirectory.IsMatch(path);
+            }
+
+            return null;
         }
     }
 

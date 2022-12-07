@@ -6,9 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Security;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading;
-using Orang.Text;
 using static Orang.FileSystem.FileSystemHelpers;
 
 #pragma warning disable RCS1223
@@ -225,203 +223,20 @@ internal class SearchState
 
     public FileMatch? MatchFile(string path)
     {
-        (FileMatch? fileMatch, Exception? exception) = MatchFileImpl(path, FileMatcher!);
+        (FileMatch? fileMatch, Exception? exception) = FileMatcher!.Match(path, MatchPartOnly, DefaultEncoding);
 
         Report(path, SearchProgressKind.File, exception: exception);
 
         return fileMatch;
     }
 
-    private (FileMatch? fileMatch, Exception? exception) MatchFileImpl(string path, FileMatcher matcher)
-    {
-        if (matcher.Extension?.IsMatch(FileNameSpan.FromFile(path, FileNamePart.Extension)) == false)
-            return default;
-
-        FileNameSpan span = FileNameSpan.FromFile(path, matcher.NamePart);
-        Match? match = null;
-
-        if (matcher.Name is not null)
-        {
-            match = matcher.Name.Match(span, MatchPartOnly);
-
-            if (match is null)
-                return default;
-        }
-
-        FileEmptyOption emptyOption = matcher.EmptyOption;
-        var isEmpty = false;
-        FileInfo? fileInfo = null;
-
-        if (matcher.Attributes != 0
-            || emptyOption != FileEmptyOption.None
-            || matcher.Predicate is not null)
-        {
-            try
-            {
-                fileInfo = new FileInfo(path);
-
-                if (matcher.Attributes != 0
-                    && (fileInfo.Attributes & matcher.Attributes) != matcher.Attributes)
-                {
-                    return default;
-                }
-
-                if (matcher.Predicate?.Invoke(fileInfo) == false)
-                    return default;
-
-                if (emptyOption != FileEmptyOption.None)
-                {
-                    if (fileInfo.Length == 0)
-                    {
-                        if (emptyOption == FileEmptyOption.NonEmpty)
-                            return default;
-
-                        isEmpty = true;
-                    }
-                    else if (fileInfo.Length > 4)
-                    {
-                        if (emptyOption == FileEmptyOption.Empty)
-                            return default;
-
-                        emptyOption = FileEmptyOption.None;
-                    }
-                }
-            }
-            catch (Exception ex) when (ex is IOException
-                || ex is UnauthorizedAccessException)
-            {
-                return (null, ex);
-            }
-        }
-
-        if (matcher.Content is not null
-            || emptyOption != FileEmptyOption.None)
-        {
-            FileContent fileContent = default;
-
-            if (isEmpty)
-            {
-                fileContent = new FileContent("", DefaultEncoding ?? EncodingHelpers.UTF8NoBom, hasBom: false);
-            }
-            else
-            {
-                try
-                {
-                    using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
-                    {
-                        Encoding? bomEncoding = DetectEncoding(stream);
-
-                        if (emptyOption != FileEmptyOption.None)
-                        {
-                            if (bomEncoding?.Preamble.Length == stream.Length)
-                            {
-                                if (emptyOption == FileEmptyOption.NonEmpty)
-                                    return default;
-                            }
-                            else if (emptyOption == FileEmptyOption.Empty)
-                            {
-                                return default;
-                            }
-                        }
-
-                        if (matcher.Content is not null)
-                        {
-                            using (var reader = new StreamReader(
-                                stream: stream,
-                                encoding: bomEncoding ?? DefaultEncoding ?? EncodingHelpers.UTF8NoBom,
-                                detectEncodingFromByteOrderMarks: bomEncoding is null))
-                            {
-                                string content = reader.ReadToEnd();
-
-                                fileContent = new FileContent(
-                                    content,
-                                    reader.CurrentEncoding,
-                                    hasBom: bomEncoding is not null);
-                            }
-                        }
-                    }
-                }
-                catch (Exception ex) when (ex is IOException
-                    || ex is UnauthorizedAccessException)
-                {
-                    return (null, ex);
-                }
-            }
-
-            if (matcher.Content is not null)
-            {
-                Match? contentMatch = matcher.Content.Match(fileContent.Text);
-
-                if (contentMatch is null)
-                    return default;
-
-                return (new FileMatch(span, match, fileContent, contentMatch, fileInfo), null);
-            }
-        }
-
-        return (new FileMatch(span, match, fileInfo), null);
-    }
-
     public FileMatch? MatchDirectory(string path)
     {
-        (FileMatch? fileMatch, Exception? exception) = MatchDirectoryImpl(path, DirectoryMatcher!);
+        (FileMatch? fileMatch, Exception? exception) = DirectoryMatcher!.Match(path, MatchPartOnly!);
 
         Report(path, SearchProgressKind.Directory, isDirectory: true, exception);
 
         return fileMatch;
-    }
-
-    private (FileMatch? fileMatch, Exception? exception) MatchDirectoryImpl(string path, DirectoryMatcher matcher)
-    {
-        FileNameSpan span = FileNameSpan.FromDirectory(path, matcher.NamePart);
-        Match? match = null;
-
-        if (matcher.Name is not null)
-        {
-            match = matcher.Name.Match(span, MatchPartOnly);
-
-            if (match is null)
-                return default;
-        }
-
-        DirectoryInfo? directoryInfo = null;
-
-        if (matcher.Attributes != 0
-            || matcher.EmptyOption != FileEmptyOption.None
-            || matcher.Predicate is not null)
-        {
-            try
-            {
-                directoryInfo = new DirectoryInfo(path);
-
-                if (matcher.Attributes != 0
-                    && (directoryInfo.Attributes & matcher.Attributes) != matcher.Attributes)
-                {
-                    return default;
-                }
-
-                if (matcher.Predicate?.Invoke(directoryInfo) == false)
-                    return default;
-
-                if (matcher.EmptyOption == FileEmptyOption.Empty)
-                {
-                    if (!IsEmptyDirectory(path))
-                        return default;
-                }
-                else if (matcher.EmptyOption == FileEmptyOption.NonEmpty)
-                {
-                    if (IsEmptyDirectory(path))
-                        return default;
-                }
-            }
-            catch (Exception ex) when (ex is IOException
-                || ex is UnauthorizedAccessException)
-            {
-                return (null, ex);
-            }
-        }
-
-        return (new FileMatch(span, match, directoryInfo, isDirectory: true), null);
     }
 
     private MatchStatus IncludeOrExcludeDirectory(string path)

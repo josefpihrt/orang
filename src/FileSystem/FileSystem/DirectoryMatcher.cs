@@ -2,6 +2,8 @@
 
 using System;
 using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 #pragma warning disable RCS1223
 
@@ -20,4 +22,67 @@ public class DirectoryMatcher
     public FileEmptyOption EmptyOption { get; set; }
 
     public Func<DirectoryInfo, bool>? Predicate { get; set; }
+
+    internal bool IsMatch(string path, bool matchPartOnly = false)
+    {
+        return Match(path, matchPartOnly).FileMatch is not null;
+    }
+
+    internal (FileMatch? FileMatch, Exception? Exception) Match(string path, bool matchPartOnly = false)
+    {
+        FileNameSpan span = FileNameSpan.FromDirectory(path, NamePart);
+        Match? match = null;
+
+        if (Name is not null)
+        {
+            match = Name.Match(span, matchPartOnly);
+
+            if (match is null)
+                return default;
+        }
+
+        DirectoryInfo? directoryInfo = null;
+
+        if (Attributes != 0
+            || EmptyOption != FileEmptyOption.None
+            || Predicate is not null)
+        {
+            try
+            {
+                directoryInfo = new DirectoryInfo(path);
+
+                if (Attributes != 0
+                    && (directoryInfo.Attributes & Attributes) != Attributes)
+                {
+                    return default;
+                }
+
+                if (Predicate?.Invoke(directoryInfo) == false)
+                    return default;
+
+                if (EmptyOption == FileEmptyOption.Empty)
+                {
+                    if (!IsEmptyDirectory(path))
+                        return default;
+                }
+                else if (EmptyOption == FileEmptyOption.NonEmpty)
+                {
+                    if (IsEmptyDirectory(path))
+                        return default;
+                }
+            }
+            catch (Exception ex) when (ex is IOException
+                || ex is UnauthorizedAccessException)
+            {
+                return (null, ex);
+            }
+        }
+
+        return (new FileMatch(span, match, directoryInfo, isDirectory: true), null);
+
+        static bool IsEmptyDirectory(string path)
+        {
+            return !Directory.EnumerateFileSystemEntries(path).Any();
+        }
+    }
 }

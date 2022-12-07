@@ -28,7 +28,7 @@ public class SearchBuilder
     private Func<DirectoryInfo, bool>? _directoryPredicate;
 
     private bool _topDirectoryOnly;
-    private Matcher? _skipDirectory;
+    private DirectoryMatcher? _searchDirectory;
     private Action<SearchProgress>? _logProgress;
     private Encoding? _defaultEncoding;
 
@@ -124,14 +124,14 @@ public class SearchBuilder
         return this;
     }
 
-    public SearchBuilder WithAttributes(FileAttributes attributes)
+    public SearchBuilder WithFileAttributes(FileAttributes attributes)
     {
         _fileAttributes = attributes;
 
         return this;
     }
 
-    public SearchBuilder WithoutAttributes(FileAttributes attributes)
+    public SearchBuilder WithoutFileAttributes(FileAttributes attributes)
     {
         _fileAttributesToSkip = attributes;
 
@@ -226,7 +226,21 @@ public class SearchBuilder
         int groupNumber = -1,
         Func<string, bool>? predicate = null)
     {
-        _skipDirectory = new Matcher(pattern, options, isNegative: true, groupNumber, predicate);
+        _searchDirectory = new DirectoryMatcher()
+        {
+            Name = new Matcher(pattern, options, isNegative: true, groupNumber, predicate)
+        };
+
+        return this;
+    }
+
+    public SearchBuilder SearchDirectory(Action<DirectoryMatcherBuilder> configureMatcher)
+    {
+        var builder = new DirectoryMatcherBuilder();
+
+        configureMatcher(builder);
+
+        _searchDirectory = builder.Build();
 
         return this;
     }
@@ -296,7 +310,7 @@ public class SearchBuilder
 
         var options = new SearchOptions()
         {
-            SearchDirectory = _skipDirectory,
+            SearchDirectory = _searchDirectory,
             LogProgress = _logProgress,
             TopDirectoryOnly = _topDirectoryOnly,
             DefaultEncoding = _defaultEncoding,

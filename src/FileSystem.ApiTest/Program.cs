@@ -31,7 +31,10 @@ public static class Program
             },
             new SearchOptions()
             {
-                SearchDirectory = new Matcher(Pattern.FromValues(new[] { ".git", ".vs" }, PatternOptions.Equals), isNegative: true)
+                SearchDirectory = new DirectoryMatcher()
+                {
+                    Name = new Matcher(Pattern.FromValues(new[] { ".git", ".vs" }, PatternOptions.Equals), isNegative: true)
+                }
             });
 
         result = search.Delete(

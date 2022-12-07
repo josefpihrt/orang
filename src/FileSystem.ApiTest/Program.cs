@@ -13,9 +13,9 @@ public static class Program
     public static void Main(params string[] args)
     {
         IOperationResult result = SearchBuilder.Create()
-            .MatchDirectoryName(Pattern.FromValues("bin", "obj", PatternOptions.Equals))
-            .SkipDirectory(Pattern.FromValues(".git", ".vs", PatternOptions.Equals))
-            .DeleteMatches("c:/code/datamole/ddp-kernel-device-provisioning")
+            .DirectoryName(Pattern.From("bin", "obj", PatternOptions.Equals))
+            .SkipDirectory(Pattern.From(".git", ".vs", PatternOptions.Equals))
+            .Delete("c:/code/datamole/ddp-kernel-device-provisioning")
             .ContentOnly()
             .DryRun()
             .LogOperation(o => Console.WriteLine(o.Path))
@@ -27,13 +27,13 @@ public static class Program
         var search = new Search(
             new DirectoryMatcher()
             {
-                Name = new Matcher(Pattern.FromValues(new[] { "bin", "obj" }, PatternOptions.Equals)),
+                Name = new Matcher(Pattern.From(new[] { "bin", "obj" }, PatternOptions.Equals)),
             },
             new SearchOptions()
             {
                 SearchDirectory = new DirectoryMatcher()
                 {
-                    Name = new Matcher(Pattern.FromValues(new[] { ".git", ".vs" }, PatternOptions.Equals), isNegative: true)
+                    Name = new Matcher(Pattern.From(new[] { ".git", ".vs" }, PatternOptions.Equals), isNegative: true)
                 }
             });
 

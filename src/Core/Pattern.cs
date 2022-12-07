@@ -9,37 +9,37 @@ namespace Orang;
 
 public static class Pattern
 {
-    public static string FromValue(
-        string text,
+    public static string From(
+        string value,
         PatternOptions options)
     {
-        if (text is null)
-            throw new ArgumentNullException(nameof(text));
+        if (value is null)
+            throw new ArgumentNullException(nameof(value));
 
         if ((options & PatternOptions.Literal) != 0)
-            text = RegexEscape.Escape(text);
+            value = RegexEscape.Escape(value);
 
-        return Create(text, options);
+        return Create(value, options);
     }
 
-    public static string FromValues(
+    public static string From(
         string value1,
         string value2,
         PatternOptions options = PatternOptions.None)
     {
-        return FromValues(new string[] { value1, value2 }, options);
+        return From(new string[] { value1, value2 }, options);
     }
 
-    public static string FromValues(
+    public static string From(
         string value1,
         string value2,
         string value3,
         PatternOptions options = PatternOptions.None)
     {
-        return FromValues(new string[] { value1, value2, value3 }, options);
+        return From(new string[] { value1, value2, value3 }, options);
     }
 
-    public static string FromValues(
+    public static string From(
         IEnumerable<string> values,
         PatternOptions options = PatternOptions.None)
     {

@@ -21,7 +21,7 @@ public class DirectoryMatcherBuilder
     {
     }
 
-    public DirectoryMatcherBuilder MatchName(
+    public DirectoryMatcherBuilder Name(
         string pattern,
         RegexOptions options = RegexOptions.None,
         bool isNegative = false,
@@ -33,7 +33,7 @@ public class DirectoryMatcherBuilder
         return this;
     }
 
-    public DirectoryMatcherBuilder MatchNamePart(FileNamePart namePart)
+    public DirectoryMatcherBuilder NamePart(FileNamePart namePart)
     {
         _namePart = namePart;
 
@@ -68,7 +68,6 @@ public class DirectoryMatcherBuilder
         return this;
     }
 
-    //TODO: rename
     public DirectoryMatcherBuilder Match(Func<DirectoryInfo, bool> predicate)
     {
         _predicate = predicate;

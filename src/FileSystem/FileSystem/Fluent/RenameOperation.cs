@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Threading;
 using System;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 #pragma warning disable RCS1223 // Mark publicly visible type with DebuggerDisplay attribute.
 
@@ -23,6 +23,15 @@ public class RenameOperation
 
     internal RenameOperation(Search search, string directoryPath, string replacement)
     {
+        if (search is null)
+            throw new ArgumentNullException(nameof(search));
+
+        if (directoryPath is null)
+            throw new ArgumentNullException(nameof(directoryPath));
+
+        if (replacement is null)
+            throw new ArgumentNullException(nameof(replacement));
+
         _search = search;
         _directoryPath = directoryPath;
         _replacement = replacement;
@@ -30,6 +39,15 @@ public class RenameOperation
 
     internal RenameOperation(Search search, string directoryPath, MatchEvaluator matchEvaluator)
     {
+        if (search is null)
+            throw new ArgumentNullException(nameof(search));
+
+        if (directoryPath is null)
+            throw new ArgumentNullException(nameof(directoryPath));
+
+        if (matchEvaluator is null)
+            throw new ArgumentNullException(nameof(matchEvaluator));
+
         _search = search;
         _directoryPath = directoryPath;
         _matchEvaluator = matchEvaluator;

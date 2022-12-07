@@ -20,6 +20,12 @@ public class DeleteOperation
 
     internal DeleteOperation(Search search, string directoryPath)
     {
+        if (search is null)
+            throw new ArgumentNullException(nameof(search));
+
+        if (directoryPath is null)
+            throw new ArgumentNullException(nameof(directoryPath));
+
         _search = search;
         _directoryPath = directoryPath;
     }

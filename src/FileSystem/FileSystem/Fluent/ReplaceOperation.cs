@@ -21,6 +21,15 @@ public class ReplaceOperation
 
     internal ReplaceOperation(Search search, string directoryPath, string replacement)
     {
+        if (search is null)
+            throw new ArgumentNullException(nameof(search));
+
+        if (directoryPath is null)
+            throw new ArgumentNullException(nameof(directoryPath));
+
+        if (replacement is null)
+            throw new ArgumentNullException(nameof(replacement));
+
         _search = search;
         _directoryPath = directoryPath;
         _replacement = replacement;
@@ -28,6 +37,15 @@ public class ReplaceOperation
 
     internal ReplaceOperation(Search search, string directoryPath, MatchEvaluator matchEvaluator)
     {
+        if (search is null)
+            throw new ArgumentNullException(nameof(search));
+
+        if (directoryPath is null)
+            throw new ArgumentNullException(nameof(directoryPath));
+
+        if (matchEvaluator is null)
+            throw new ArgumentNullException(nameof(matchEvaluator));
+
         _search = search;
         _directoryPath = directoryPath;
         _matchEvaluator = matchEvaluator;

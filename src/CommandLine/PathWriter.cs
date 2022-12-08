@@ -129,14 +129,14 @@ internal class PathWriter
         {
             Match match = item.Match;
 
-            _logger.Write(path, startIndex, fileMatch.NameSpan.Start + match.Index - startIndex, Verbosity);
+            _logger.Write(path, startIndex, match.Index - startIndex, Verbosity);
 
             if (!MatchColors.IsDefault)
                 _logger.Write(match.Value, MatchColors, Verbosity);
 
             _logger.Write(item.Value, replacementColors, Verbosity);
 
-            startIndex = fileMatch.NameSpan.Start + match.Index + match.Length;
+            startIndex = match.Index + match.Length;
         }
 
         _logger.Write(path, startIndex, path.Length - startIndex, Verbosity);

@@ -28,7 +28,12 @@ public class FileMatcher
 
     public Func<FileInfo, bool>? Predicate { get; set; }
 
-    internal (FileMatch? fileMatch, Exception? exception) Match(string path, bool matchPartOnly, Encoding? defaultEncoding = null)
+    internal bool IsMatch(string path)
+    {
+        return Match(path).FileMatch is not null;
+    }
+
+    internal (FileMatch? FileMatch, Exception? Exception) Match(string path, Encoding? defaultEncoding = null)
     {
         if (Extension?.IsMatch(FileNameSpan.FromFile(path, FileNamePart.Extension)) == false)
             return default;
@@ -38,7 +43,7 @@ public class FileMatcher
 
         if (Name is not null)
         {
-            match = Name.Match(span, matchPartOnly);
+            match = Name.Match(span);
 
             if (match is null)
                 return default;

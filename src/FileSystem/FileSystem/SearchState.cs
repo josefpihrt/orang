@@ -33,9 +33,7 @@ internal class SearchState
 
     public Action<SearchProgress>? LogProgress { get; set; }
 
-    public bool DisallowEnumeration { get; set; }
-
-    public bool MatchPartOnly { get; set; }
+    public bool SupportsEnumeration { get; set; } = true;
 
     public bool CanRecurseMatch { get; set; } = true;
 
@@ -45,11 +43,7 @@ internal class SearchState
 
     public Encoding? DefaultEncoding { get; set; }
 
-    public int FileCount { get; private set; }
-
-    public int DirectoryCount { get; private set; }
-
-    public int SearchedDirectoryCount { get; private set; }
+    public SearchTelemetry? Telemetry { get; set; }
 
     public IEnumerable<FileMatch> Find(
         string directoryPath,
@@ -108,9 +102,9 @@ internal class SearchState
 
                 try
                 {
-                    fi = (DisallowEnumeration)
-                        ? ((IEnumerable<string>)GetFiles(directory.Path, enumerationOptions)).GetEnumerator()
-                        : EnumerateFiles(directory.Path, enumerationOptions).GetEnumerator();
+                    fi = (SupportsEnumeration)
+                        ? EnumerateFiles(directory.Path, enumerationOptions).GetEnumerator()
+                        : ((IEnumerable<string>)GetFiles(directory.Path, enumerationOptions)).GetEnumerator();
                 }
                 catch (Exception ex) when (IsWellKnownException(ex))
                 {
@@ -139,9 +133,9 @@ internal class SearchState
 
             try
             {
-                di = (DisallowEnumeration)
-                    ? ((IEnumerable<string>)GetDirectories(directory.Path, enumerationOptions)).GetEnumerator()
-                    : EnumerateDirectories(directory.Path, enumerationOptions).GetEnumerator();
+                di = (SupportsEnumeration)
+                    ? EnumerateDirectories(directory.Path, enumerationOptions).GetEnumerator()
+                    : ((IEnumerable<string>)GetDirectories(directory.Path, enumerationOptions)).GetEnumerator();
             }
             catch (Exception ex) when (IsWellKnownException(ex))
             {
@@ -223,7 +217,7 @@ internal class SearchState
 
     public FileMatch? MatchFile(string path)
     {
-        (FileMatch? fileMatch, Exception? exception) = FileMatcher!.Match(path, MatchPartOnly, DefaultEncoding);
+        (FileMatch? fileMatch, Exception? exception) = FileMatcher!.Match(path, DefaultEncoding);
 
         Report(path, SearchProgressKind.File, exception: exception);
 
@@ -232,7 +226,7 @@ internal class SearchState
 
     public FileMatch? MatchDirectory(string path)
     {
-        (FileMatch? fileMatch, Exception? exception) = DirectoryMatcher!.Match(path, MatchPartOnly!);
+        (FileMatch? fileMatch, Exception? exception) = DirectoryMatcher!.Match(path);
 
         Report(path, SearchProgressKind.Directory, isDirectory: true, exception);
 
@@ -256,27 +250,30 @@ internal class SearchState
     {
         LogProgress?.Invoke(new SearchProgress(path, kind, isDirectory: isDirectory, exception));
 
-        switch (kind)
+        if (Telemetry is not null)
         {
-            case SearchProgressKind.SearchDirectory:
-                {
-                    SearchedDirectoryCount++;
-                    break;
-                }
-            case SearchProgressKind.Directory:
-                {
-                    DirectoryCount++;
-                    break;
-                }
-            case SearchProgressKind.File:
-                {
-                    FileCount++;
-                    break;
-                }
-            default:
-                {
-                    throw new InvalidOperationException($"Unknown enum value '{kind}'.");
-                }
+            switch (kind)
+            {
+                case SearchProgressKind.SearchDirectory:
+                    {
+                        Telemetry.SearchedDirectoryCount++;
+                        break;
+                    }
+                case SearchProgressKind.Directory:
+                    {
+                        Telemetry.DirectoryCount++;
+                        break;
+                    }
+                case SearchProgressKind.File:
+                    {
+                        Telemetry.FileCount++;
+                        break;
+                    }
+                default:
+                    {
+                        throw new InvalidOperationException($"Unknown enum value '{kind}'.");
+                    }
+            }
         }
     }
 

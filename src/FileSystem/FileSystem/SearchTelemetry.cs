@@ -2,9 +2,11 @@
 
 #pragma warning disable RCS1223 // Mark publicly visible type with DebuggerDisplay attribute.
 
+using System;
+
 namespace Orang.FileSystem;
 
-public class SearchTelemetry
+public sealed class SearchTelemetry
 {
     internal SearchTelemetry()
     {
@@ -53,4 +55,18 @@ public class SearchTelemetry
             ProcessedFileCount++;
         }
     }
+
+    internal int MatchingLineCount { get; set; }
+
+    internal TimeSpan Elapsed { get; set; }
+
+    internal long FilesTotalSize { get; set; }
+
+    internal int UpdatedCount { get; set; }
+
+    internal int AddedCount { get; set; }
+
+    internal int RenamedCount { get; set; }
+
+    internal int DeletedCount { get; set; }
 }

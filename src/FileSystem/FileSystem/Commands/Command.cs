@@ -47,6 +47,7 @@ internal abstract class Command
             LogProgress = search.Options.LogProgress,
             RecurseSubdirectories = !search.Options.TopDirectoryOnly,
             DefaultEncoding = search.Options.DefaultEncoding,
+            Telemetry = Telemetry,
         };
 
         OnSearchStateCreating(state);
@@ -63,10 +64,6 @@ internal abstract class Command
                 break;
             }
         }
-
-        Telemetry.SearchedDirectoryCount += state.SearchedDirectoryCount;
-        Telemetry.DirectoryCount += state.DirectoryCount;
-        Telemetry.FileCount += state.FileCount;
     }
 
     protected void Log(FileMatch fileMatch, Exception? exception = null)

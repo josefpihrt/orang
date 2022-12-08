@@ -84,7 +84,7 @@ internal static class CommandLineExtensions
 
     public static void WriteSearchedFilesAndDirectories(
         this Logger logger,
-        CommandLine.SearchTelemetry telemetry,
+        SearchTelemetry telemetry,
         SearchTarget searchTarget,
         Verbosity verbosity = Verbosity.Detailed)
     {
@@ -134,7 +134,7 @@ internal static class CommandLineExtensions
 
     public static void WriteProcessedFilesAndDirectories(
         this Logger logger,
-        CommandLine.SearchTelemetry telemetry,
+        SearchTelemetry telemetry,
         SearchTarget searchTarget,
         string processedFilesTitle,
         string processedDirectoriesTitle,

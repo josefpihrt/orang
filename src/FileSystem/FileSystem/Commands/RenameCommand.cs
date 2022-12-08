@@ -2,7 +2,6 @@
 
 using System;
 using System.IO;
-using Orang.Text.RegularExpressions;
 
 namespace Orang.FileSystem.Commands;
 
@@ -24,23 +23,20 @@ internal class RenameCommand : DeleteOrRenameCommand
 
     protected override void OnSearchStateCreating(SearchState search)
     {
-        search.DisallowEnumeration = !DryRun;
-        search.MatchPartOnly = true;
+        search.SupportsEnumeration = DryRun;
     }
 
     protected override void ExecuteMatch(
         FileMatch fileMatch,
         string directoryPath)
     {
-        ReplaceResult result = fileMatch.GetResult(
+        string newValue = fileMatch.GetReplacement(
             Replacer,
             count: 0,
             predicate: (fileMatch.IsDirectory) ? DirectoryMatcher!.Predicate : FileMatcher!.Predicate,
             cancellationToken: CancellationToken);
 
-        string newName = result.NewName;
-
-        if (string.IsNullOrWhiteSpace(newName))
+        if (string.IsNullOrWhiteSpace(newValue))
         {
             Log(fileMatch, null, new IOException("New file name cannot be empty or contains only white-space."));
             return;
@@ -51,24 +47,24 @@ internal class RenameCommand : DeleteOrRenameCommand
         bool changed = string.Compare(
             path,
             fileMatch.NameSpan.Start,
-            newName,
+            newValue,
             0,
-            Math.Max(fileMatch.NameSpan.Length, newName.Length),
+            Math.Max(fileMatch.NameSpan.Length, newValue.Length),
             StringComparison.Ordinal) != 0;
 
         bool isInvalidName = changed
-            && FileSystemHelpers.ContainsInvalidFileNameChars(newName);
+            && FileSystemHelpers.ContainsInvalidFileNameChars(newValue);
 
-        string newPath = path.Substring(0, fileMatch.NameSpan.Start) + newName;
-
-        ListCache<ReplaceItem>.Free(result.Items);
+        string newPath = path.Substring(0, fileMatch.NameSpan.Start)
+            + newValue
+            + path.Substring(fileMatch.NameSpan.Start + fileMatch.NameSpan.Length);
 
         if (!changed)
             return;
 
         if (isInvalidName)
         {
-            Log(fileMatch, newName, new IOException("New file name contains invalid characters."));
+            Log(fileMatch, newValue, new IOException("New file name contains invalid characters."));
             return;
         }
 

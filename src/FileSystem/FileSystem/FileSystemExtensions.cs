@@ -11,7 +11,21 @@ namespace Orang.FileSystem;
 
 internal static class FileSystemExtensions
 {
-    internal static ReplaceResult GetResult(
+    internal static string GetReplacement(
+        this FileMatch fileMatch,
+        Replacer replacer,
+        int count = 0,
+        Func<string, bool>? predicate = null,
+        CancellationToken cancellationToken = default)
+    {
+        ReplaceResult result = GetReplaceResult(fileMatch, replacer, count, predicate, cancellationToken);
+
+        ListCache<ReplaceItem>.Free(result.Items);
+
+        return result.NewName;
+    }
+
+    internal static ReplaceResult GetReplaceResult(
         this FileMatch fileMatch,
         Replacer replacer,
         int count = 0,
@@ -46,12 +60,12 @@ internal static class FileSystemExtensions
 
         ListCache<Capture>.Free(captures);
 
-        string newName = GetNewName(fileMatch, replaceItems);
+        string newName = GetNewValue(fileMatch, replaceItems);
 
         return new ReplaceResult(replaceItems, maxReason, newName);
     }
 
-    private static string GetNewName(FileMatch fileMatch, List<ReplaceItem> replaceItems)
+    private static string GetNewValue(FileMatch fileMatch, List<ReplaceItem> replaceItems)
     {
         StringBuilder sb = StringBuilderCache.GetInstance();
 
@@ -64,13 +78,13 @@ internal static class FileSystemExtensions
         {
             Match match = item.Match;
 
-            sb.Append(path, lastPos, span.Start + match.Index - lastPos);
+            sb.Append(path, lastPos, match.Index - lastPos);
             sb.Append(item.Value);
 
-            lastPos = span.Start + match.Index + match.Length;
+            lastPos = match.Index + match.Length;
         }
 
-        sb.Append(path, lastPos, path.Length - lastPos);
+        sb.Append(path, lastPos, span.Start + span.Length - lastPos);
 
         return StringBuilderCache.GetStringAndFree(sb);
     }

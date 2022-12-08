@@ -134,6 +134,7 @@ public class FileMatcherBuilder
         return this;
     }
 
+    //TODO: rename
     public FileMatcherBuilder Match(Func<FileInfo, bool> predicate)
     {
         _predicate = predicate;

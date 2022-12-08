@@ -60,7 +60,7 @@ public class SearchBuilder
         return this;
     }
 
-    internal SearchBuilder SkipDirectory(
+    public SearchBuilder SkipDirectory(
         string pattern,
         RegexOptions options = RegexOptions.None,
         int groupNumber = -1,

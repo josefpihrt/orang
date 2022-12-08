@@ -36,8 +36,7 @@ internal class RenameCommand : DeleteOrRenameCommand<RenameCommandOptions>
 
     protected override void OnSearchCreating(SearchState search)
     {
-        search.DisallowEnumeration = !Options.DryRun;
-        search.MatchPartOnly = true;
+        search.SupportsEnumeration = Options.DryRun;
 
         base.OnSearchCreating(search);
     }
@@ -50,15 +49,15 @@ internal class RenameCommand : DeleteOrRenameCommand<RenameCommandOptions>
     {
         string indent = GetPathIndent(baseDirectoryPath);
 
-        ReplaceResult result = fileMatch.GetResult(
+        ReplaceResult result = fileMatch.GetReplaceResult(
             Options.Replacer,
             count: Options.MaxMatchesInFile,
             predicate: NameFilter!.Predicate,
             cancellationToken: context.CancellationToken);
 
-        string newName = result.NewName;
+        string newValue = result.NewName;
 
-        if (string.IsNullOrWhiteSpace(newName))
+        if (string.IsNullOrWhiteSpace(newValue))
         {
             _logger.WriteLine($"{indent}New file name cannot be empty or contains only white-space.", Colors.Message_Warning);
             return;
@@ -69,15 +68,17 @@ internal class RenameCommand : DeleteOrRenameCommand<RenameCommandOptions>
         bool changed = string.Compare(
             path,
             fileMatch.NameSpan.Start,
-            newName,
+            newValue,
             0,
-            Math.Max(fileMatch.NameSpan.Length, newName.Length),
+            Math.Max(fileMatch.NameSpan.Length, newValue.Length),
             StringComparison.Ordinal) != 0;
 
         bool isInvalidName = changed
-            && FileSystemHelpers.ContainsInvalidFileNameChars(newName);
+            && FileSystemHelpers.ContainsInvalidFileNameChars(newValue);
 
-        string newPath = path.Substring(0, fileMatch.NameSpan.Start) + newName;
+        string newPath = path.Substring(0, fileMatch.NameSpan.Start)
+            + newValue
+            + path.Substring(fileMatch.NameSpan.Start + fileMatch.NameSpan.Length);
 
         if (Options.Interactive
             || (!Options.OmitPath && changed))
@@ -102,9 +103,9 @@ internal class RenameCommand : DeleteOrRenameCommand<RenameCommandOptions>
 
         if (Options.Interactive)
         {
-            string newName2 = ConsoleHelpers.ReadUserInput(newName, indent + "New name: ");
+            string newName2 = ConsoleHelpers.ReadUserInput(newValue, indent + "New name: ");
 
-            newPath = newPath.Substring(0, newPath.Length - newName.Length) + newName2;
+            newPath = newPath.Substring(0, newPath.Length - newValue.Length) + newName2;
 
             changed = !string.Equals(path, newPath, StringComparison.Ordinal);
 

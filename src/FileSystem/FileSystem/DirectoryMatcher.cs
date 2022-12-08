@@ -23,19 +23,19 @@ public class DirectoryMatcher
 
     public Func<DirectoryInfo, bool>? Predicate { get; set; }
 
-    internal bool IsMatch(string path, bool matchPartOnly = false)
+    internal bool IsMatch(string path)
     {
-        return Match(path, matchPartOnly).FileMatch is not null;
+        return Match(path).FileMatch is not null;
     }
 
-    internal (FileMatch? FileMatch, Exception? Exception) Match(string path, bool matchPartOnly = false)
+    internal (FileMatch? FileMatch, Exception? Exception) Match(string path)
     {
         FileNameSpan span = FileNameSpan.FromDirectory(path, NamePart);
         Match? match = null;
 
         if (Name is not null)
         {
-            match = Name.Match(span, matchPartOnly);
+            match = Name.Match(span);
 
             if (match is null)
                 return default;

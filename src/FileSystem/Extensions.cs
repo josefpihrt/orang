@@ -12,13 +12,6 @@ internal static class Extensions
         return matcher.Match(matcher.Regex.Match(name.Path, name.Start, name.Length));
     }
 
-    public static Match? Match(this Matcher matcher, FileNameSpan name, bool matchPartOnly)
-    {
-        return (matchPartOnly)
-            ? matcher.Match(name.ToString())
-            : matcher.Match(name);
-    }
-
     public static bool IsMatch(this Matcher matcher, FileNameSpan name)
     {
         return Match(matcher, name) is not null;

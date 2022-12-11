@@ -534,7 +534,7 @@ internal class ParseContext
         }
 
         if ((options & ModifierOptions.FromFile) != 0
-            && !FileSystemHelpers.TryReadAllText(value, out value!, ex => Logger.WriteError(ex)))
+            && !FileSystemUtilities.TryReadAllText(value, out value!, ex => Logger.WriteError(ex)))
         {
             return false;
         }
@@ -872,7 +872,7 @@ internal class ParseContext
         }
 
         if ((options & ReplacementOptions.FromFile) != 0
-            && !FileSystemHelpers.TryReadAllText(value, out value!, ex => Logger.WriteError(ex)))
+            && !FileSystemUtilities.TryReadAllText(value, out value!, ex => Logger.WriteError(ex)))
         {
             return false;
         }
@@ -1314,7 +1314,7 @@ internal class ParseContext
     {
         try
         {
-            fullPath = FileSystemHelpers.EnsureFullPath(path);
+            fullPath = FileSystemUtilities.EnsureFullPath(path);
             return true;
         }
         catch (ArgumentException ex)
@@ -1544,7 +1544,7 @@ internal class ParseContext
 
         if ((patternOptions & PatternOptions.FromFile) != 0)
         {
-            if (!FileSystemHelpers.TryReadAllText(pattern, out pattern, ex => Logger.WriteError(ex)))
+            if (!FileSystemUtilities.TryReadAllText(pattern, out pattern, ex => Logger.WriteError(ex)))
                 return false;
 
             if (pattern.Length == 0
@@ -1600,8 +1600,8 @@ internal class ParseContext
 
         matcher = new Matcher(
             regex,
-            isNegative: (patternOptions & PatternOptions.Negative) != 0,
-            groupNumber: groupIndex,
+            invert: (patternOptions & PatternOptions.Negative) != 0,
+            group: groupIndex,
             predicate: predicate);
 
         return true;

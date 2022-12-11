@@ -22,24 +22,24 @@ public static class Pattern
         return Create(value, options);
     }
 
-    public static string From(
+    public static string Any(
         string value1,
         string value2,
         PatternOptions options = PatternOptions.None)
     {
-        return From(new string[] { value1, value2 }, options);
+        return Any(new string[] { value1, value2 }, options);
     }
 
-    public static string From(
+    public static string Any(
         string value1,
         string value2,
         string value3,
         PatternOptions options = PatternOptions.None)
     {
-        return From(new string[] { value1, value2, value3 }, options);
+        return Any(new string[] { value1, value2, value3 }, options);
     }
 
-    public static string From(
+    public static string Any(
         IEnumerable<string> values,
         PatternOptions options = PatternOptions.None)
     {

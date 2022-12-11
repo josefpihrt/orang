@@ -5,7 +5,7 @@ using System;
 namespace Orang.FileSystem;
 
 [Flags]
-public enum FileCompareOptions
+public enum FileCompareProperties
 {
     None = 0,
     Size = 1,

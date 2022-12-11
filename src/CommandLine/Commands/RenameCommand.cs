@@ -12,7 +12,7 @@ internal class RenameCommand : DeleteOrRenameCommand<RenameCommandOptions>
 {
     public RenameCommand(RenameCommandOptions options, Logger logger) : base(options, logger)
     {
-        Debug.Assert(options.NameFilter?.IsNegative == false);
+        Debug.Assert(options.NameFilter?.InvertMatch == false);
 
         if (_logger.ShouldWrite(Verbosity.Minimal))
         {
@@ -74,7 +74,7 @@ internal class RenameCommand : DeleteOrRenameCommand<RenameCommandOptions>
             StringComparison.Ordinal) != 0;
 
         bool isInvalidName = changed
-            && FileSystemHelpers.ContainsInvalidFileNameChars(newValue);
+            && FileSystemUtilities.ContainsInvalidFileNameChars(newValue);
 
         string newPath = path.Substring(0, fileMatch.NameSpan.Start)
             + newValue
@@ -111,7 +111,7 @@ internal class RenameCommand : DeleteOrRenameCommand<RenameCommandOptions>
 
             if (changed)
             {
-                isInvalidName = FileSystemHelpers.ContainsInvalidFileNameChars(newName2);
+                isInvalidName = FileSystemUtilities.ContainsInvalidFileNameChars(newName2);
 
                 if (isInvalidName)
                 {

@@ -142,7 +142,7 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
 
         if (directoryFilter is not null)
         {
-            if (directoryFilter.IsNegative)
+            if (directoryFilter.InvertMatch)
             {
                 excludeDirectory = DirectoryPredicate.Create(directoryFilter, Options.DirectoryNamePart);
             }
@@ -579,7 +579,7 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
             && Options.FilePropertyOptions.IncludeSize)
         {
             size = (fileMatch.IsDirectory)
-                ? (context.DirectorySizeMap?[fileMatch.Path] ?? FileSystemHelpers.GetDirectorySize(fileMatch.Path))
+                ? (context.DirectorySizeMap?[fileMatch.Path] ?? FileSystemUtilities.GetDirectorySize(fileMatch.Path))
                 : new FileInfo(fileMatch.Path).Length;
 
             context.Telemetry.FilesTotalSize += size;
@@ -603,7 +603,7 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
             if (size == -1)
             {
                 size = (fileMatch.IsDirectory)
-                    ? (context.DirectorySizeMap?[fileMatch.Path] ?? FileSystemHelpers.GetDirectorySize(fileMatch.Path))
+                    ? (context.DirectorySizeMap?[fileMatch.Path] ?? FileSystemUtilities.GetDirectorySize(fileMatch.Path))
                     : new FileInfo(fileMatch.Path).Length;
             }
 

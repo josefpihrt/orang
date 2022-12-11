@@ -24,7 +24,7 @@ internal class DeleteCommand : DeleteOrRenameCommand
         {
             if (!DryRun)
             {
-                FileSystemHelpers.Delete(
+                FileSystemUtilities.Delete(
                     fileMatch,
                     contentOnly: DeleteOptions.ContentOnly,
                     includingBom: DeleteOptions.IncludingBom,

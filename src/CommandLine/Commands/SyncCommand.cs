@@ -55,7 +55,7 @@ internal sealed class SyncCommand :
         bool secondExists = Directory.Exists(Options.Target);
 
         if (secondExists)
-            _destinationPaths = new HashSet<string>(FileSystemHelpers.Comparer);
+            _destinationPaths = new HashSet<string>(FileSystemUtilities.Comparer);
 
         try
         {
@@ -123,7 +123,7 @@ internal sealed class SyncCommand :
             bool fileExists = File.Exists(destinationPath);
             bool directoryExists = !fileExists && Directory.Exists(destinationPath);
             bool? preferLeft = null;
-            FileCompareOptions? diffProperty = null;
+            FileCompareProperties? diffProperty = null;
 
             if (isDirectory)
             {
@@ -134,7 +134,7 @@ internal sealed class SyncCommand :
                     if (_isSecondToFirst)
                         return;
 
-                    if (FileSystemHelpers.AttributeEquals(sourcePath, destinationPath, Options.NoCompareAttributes))
+                    if (FileSystemUtilities.AttributeEquals(sourcePath, destinationPath, Options.CompareAttributes))
                         return;
                 }
             }
@@ -143,9 +143,9 @@ internal sealed class SyncCommand :
                 if (_isSecondToFirst)
                     return;
 
-                if ((Options.CompareOptions & FileCompareOptions.ModifiedTime) != 0)
+                if ((Options.CompareProperties & FileCompareProperties.ModifiedTime) != 0)
                 {
-                    int diff = FileSystemHelpers.CompareLastWriteTimeUtc(
+                    int diff = FileSystemUtilities.CompareLastWriteTimeUtc(
                         sourcePath,
                         destinationPath,
                         Options.AllowedTimeDiff);
@@ -168,28 +168,28 @@ internal sealed class SyncCommand :
                 {
                     if (fileExists)
                     {
-                        if (Options.CompareOptions != FileCompareOptions.None)
+                        if (Options.CompareProperties != FileCompareProperties.None)
                         {
-                            diffProperty = FileSystemHelpers.CompareFiles(
+                            diffProperty = FileSystemUtilities.CompareFiles(
                                 sourcePath,
                                 destinationPath,
-                                Options.CompareOptions,
-                                Options.NoCompareAttributes,
+                                Options.CompareProperties,
+                                Options.CompareAttributes,
                                 Options.AllowedTimeDiff);
 
-                            if (diffProperty == FileCompareOptions.None)
+                            if (diffProperty == FileCompareProperties.None)
                                 return;
                         }
                     }
                     else if (Options.DetectRename
-                        && (Options.CompareOptions & FileCompareOptions.Content) != 0)
+                        && (Options.CompareProperties & FileCompareProperties.Content) != 0)
                     {
                         if (_directoryData is null)
                         {
                             _directoryData = new DirectoryData();
                             _directoryData.Load(Path.GetDirectoryName(destinationPath)!);
                         }
-                        else if (!FileSystemHelpers.IsParentDirectory(_directoryData.Path!, destinationPath))
+                        else if (!FileSystemUtilities.IsParentDirectory(_directoryData.Path!, destinationPath))
                         {
                             _directoryData.Load(Path.GetDirectoryName(destinationPath)!);
                         }
@@ -404,7 +404,7 @@ internal sealed class SyncCommand :
         bool fileExists,
         bool directoryExists,
         bool preferLeft,
-        FileCompareOptions? diffProperty,
+        FileCompareProperties? diffProperty,
         string indent)
     {
         if (preferLeft)
@@ -413,7 +413,7 @@ internal sealed class SyncCommand :
             {
                 WritePath(context, destinationPath, OperationKind.Update, indent);
 
-                if (diffProperty == FileCompareOptions.Attributes)
+                if (diffProperty == FileCompareProperties.Attributes)
                 {
                     // update attributes
                     File.SetAttributes(destinationPath, File.GetAttributes(sourcePath));
@@ -440,7 +440,7 @@ internal sealed class SyncCommand :
                 WritePath(context, destinationPath, OperationKind.Add, indent);
 
             if (!fileExists
-                || diffProperty != FileCompareOptions.Attributes)
+                || diffProperty != FileCompareProperties.Attributes)
             {
                 CopyFile(sourcePath, destinationPath);
             }
@@ -459,7 +459,7 @@ internal sealed class SyncCommand :
             WritePath(context, sourcePath, (fileExists) ? OperationKind.Update : OperationKind.Delete, indent);
 
             if (!fileExists
-                || diffProperty != FileCompareOptions.Attributes)
+                || diffProperty != FileCompareProperties.Attributes)
             {
                 DeleteFile(sourcePath);
 
@@ -469,7 +469,7 @@ internal sealed class SyncCommand :
 
             if (fileExists)
             {
-                if (diffProperty == FileCompareOptions.Attributes)
+                if (diffProperty == FileCompareProperties.Attributes)
                 {
                     // update attributes
                     File.SetAttributes(sourcePath, File.GetAttributes(destinationPath));
@@ -541,7 +541,7 @@ internal sealed class SyncCommand :
     private void UpdateAttributes(string sourcePath, string destinationPath)
     {
         if (!DryRun)
-            FileSystemHelpers.UpdateAttributes(sourcePath, destinationPath);
+            FileSystemUtilities.UpdateAttributes(sourcePath, destinationPath);
     }
 
     protected override void ExecuteOperation(string sourcePath, string destinationPath)

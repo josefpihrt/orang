@@ -53,7 +53,7 @@ internal class RenameCommand : DeleteOrRenameCommand
             StringComparison.Ordinal) != 0;
 
         bool isInvalidName = changed
-            && FileSystemHelpers.ContainsInvalidFileNameChars(newValue);
+            && FileSystemUtilities.ContainsInvalidFileNameChars(newValue);
 
         string newPath = path.Substring(0, fileMatch.NameSpan.Start)
             + newValue

@@ -49,7 +49,7 @@ internal class PathWriter
         string path = fileMatch.Path;
 
         if (RelativePath
-            && string.Equals(path, basePath, FileSystemHelpers.Comparison))
+            && string.Equals(path, basePath, FileSystemUtilities.Comparison))
         {
             _logger.Write(".", PathColors, Verbosity);
             return;
@@ -95,7 +95,7 @@ internal class PathWriter
         _logger.Write(indent ?? Indent, Verbosity);
 
         if (RelativePath
-            && string.Equals(path, basePath, FileSystemHelpers.Comparison))
+            && string.Equals(path, basePath, FileSystemUtilities.Comparison))
         {
             _logger.Write(".", PathColors, Verbosity);
         }
@@ -146,11 +146,11 @@ internal class PathWriter
     {
         if (basePath is not null
             && path.Length > basePath.Length
-            && path.StartsWith(basePath, FileSystemHelpers.Comparison))
+            && path.StartsWith(basePath, FileSystemUtilities.Comparison))
         {
             int length = basePath.Length;
 
-            if (FileSystemHelpers.IsDirectorySeparator(path[length]))
+            if (FileSystemUtilities.IsDirectorySeparator(path[length]))
                 length++;
 
             return length;

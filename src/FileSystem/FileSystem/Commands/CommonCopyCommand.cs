@@ -38,7 +38,7 @@ internal abstract class CommonCopyCommand : CommonFindCommand
         if (fileMatch.IsDirectory
             || (directoryPath is not null && !CopyOptions.Flat))
         {
-            Debug.Assert(sourcePath.StartsWith(directoryPath, FileSystemHelpers.Comparison));
+            Debug.Assert(sourcePath.StartsWith(directoryPath, FileSystemUtilities.Comparison));
 
             string relativePath = sourcePath.Substring(directoryPath.Length + 1);
 
@@ -81,20 +81,26 @@ internal abstract class CommonCopyCommand : CommonFindCommand
                 {
                     return null;
                 }
+
+                if (CopyOptions.CompareDirectory?.Invoke(sourcePath, destinationPath) != false)
+                    return null;
             }
         }
         else if (fileExists)
         {
-            if (CopyOptions.CompareOptions != FileCompareOptions.None
-                && FileSystemHelpers.FileEquals(
+            if (CopyOptions.CompareProperties != FileCompareProperties.None
+                && FileSystemUtilities.FileEquals(
                     sourcePath,
                     destinationPath,
-                    CopyOptions.CompareOptions,
-                    CopyOptions.NoCompareAttributes,
+                    CopyOptions.CompareProperties,
+                    CopyOptions.CompareAttributes,
                     CopyOptions.AllowedTimeDiff))
             {
                 return null;
             }
+
+            if (CopyOptions.CompareFile?.Invoke(sourcePath, destinationPath) != false)
+                return null;
 
             ask = true;
         }
@@ -113,7 +119,7 @@ internal abstract class CommonCopyCommand : CommonFindCommand
             && ((isDirectory && directoryExists)
                 || (!isDirectory && fileExists)))
         {
-            destinationPath = FileSystemHelpers.CreateNewFilePath(destinationPath);
+            destinationPath = FileSystemUtilities.CreateNewFilePath(destinationPath);
         }
 
         if (ask
@@ -165,7 +171,7 @@ internal abstract class CommonCopyCommand : CommonFindCommand
                 {
                     if (CopyOptions.StructureOnly)
                     {
-                        FileSystemHelpers.UpdateAttributes(sourcePath, destinationPath);
+                        FileSystemUtilities.UpdateAttributes(sourcePath, destinationPath);
                     }
                     else
                     {

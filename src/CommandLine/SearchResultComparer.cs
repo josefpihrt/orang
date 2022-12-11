@@ -52,8 +52,8 @@ internal abstract class SearchResultComparer : Comparer<SearchResult>
 
             while (true)
             {
-                int l1 = FileSystemHelpers.IndexOfDirectorySeparator(path1, ++i1) - i1;
-                int l2 = FileSystemHelpers.IndexOfDirectorySeparator(path2, ++i2) - i2;
+                int l1 = FileSystemUtilities.IndexOfDirectorySeparator(path1, ++i1) - i1;
+                int l2 = FileSystemUtilities.IndexOfDirectorySeparator(path2, ++i2) - i2;
 
                 bool isLast1 = i1 + l1 == path1.Length;
                 bool isLast2 = i2 + l2 == path2.Length;

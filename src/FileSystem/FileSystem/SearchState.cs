@@ -7,7 +7,7 @@ using System.IO;
 using System.Security;
 using System.Text;
 using System.Threading;
-using static Orang.FileSystem.FileSystemHelpers;
+using static Orang.FileSystem.FileSystemUtilities;
 
 #pragma warning disable RCS1223
 

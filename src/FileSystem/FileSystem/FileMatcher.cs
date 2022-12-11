@@ -110,7 +110,7 @@ public class FileMatcher
                 {
                     using (var stream = new FileStream(path, FileMode.Open, FileAccess.Read))
                     {
-                        Encoding? bomEncoding = FileSystemHelpers.DetectEncoding(stream);
+                        Encoding? bomEncoding = FileSystemUtilities.DetectEncoding(stream);
 
                         if (emptyOption != FileEmptyOption.None)
                         {

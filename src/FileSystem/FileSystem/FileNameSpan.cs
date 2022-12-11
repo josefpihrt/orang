@@ -2,7 +2,7 @@
 
 using System;
 using System.Diagnostics;
-using static Orang.FileSystem.FileSystemHelpers;
+using static Orang.FileSystem.FileSystemUtilities;
 
 namespace Orang.FileSystem;
 

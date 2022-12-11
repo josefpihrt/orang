@@ -324,7 +324,7 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
 
         if (PathsFrom is not null)
         {
-            if (!FileSystemHelpers.TryReadAllText(PathsFrom, out string? content, ex => context.WriteError(ex)))
+            if (!FileSystemUtilities.TryReadAllText(PathsFrom, out string? content, ex => context.WriteError(ex)))
                 return false;
 
             IEnumerable<string> lines = TextHelpers.ReadLines(content).Where(f => !string.IsNullOrWhiteSpace(f));

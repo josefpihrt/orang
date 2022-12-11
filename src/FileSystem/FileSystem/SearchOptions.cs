@@ -9,7 +9,6 @@ namespace Orang.FileSystem;
 
 public class SearchOptions
 {
-    //TODO: rename SearchDirectory?
     public DirectoryMatcher? SearchDirectory { get; set; }
 
     internal Func<string, bool>? IncludeDirectoryPredicate
@@ -17,7 +16,7 @@ public class SearchOptions
         get
         {
             if (SearchDirectory is not null
-                && SearchDirectory.Name?.IsNegative != true)
+                && SearchDirectory.Name?.InvertMatch != true)
             {
                 return path => SearchDirectory.IsMatch(path);
             }
@@ -31,7 +30,7 @@ public class SearchOptions
         get
         {
             if (SearchDirectory is not null
-                && SearchDirectory.Name?.IsNegative != false)
+                && SearchDirectory.Name?.InvertMatch != false)
             {
                 return path => !SearchDirectory.IsMatch(path);
             }
@@ -42,7 +41,9 @@ public class SearchOptions
 
     public Action<SearchProgress>? LogProgress { get; set; }
 
+    public Encoding? DefaultEncoding { get; set; }
+
     public bool TopDirectoryOnly { get; set; }
 
-    public Encoding? DefaultEncoding { get; set; }
+    public bool IgnoreInaccessible { get; set; } = true;
 }

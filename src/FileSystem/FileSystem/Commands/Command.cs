@@ -35,7 +35,7 @@ internal abstract class Command
 
     public void Execute(string directoryPath, Search search, CancellationToken cancellationToken)
     {
-        directoryPath = FileSystemHelpers.EnsureFullPath(directoryPath);
+        directoryPath = FileSystemUtilities.EnsureFullPath(directoryPath);
 
         if (!System.IO.Directory.Exists(directoryPath))
             throw new DirectoryNotFoundException($"Directory not found: {directoryPath}");
@@ -47,6 +47,7 @@ internal abstract class Command
             LogProgress = search.Options.LogProgress,
             RecurseSubdirectories = !search.Options.TopDirectoryOnly,
             DefaultEncoding = search.Options.DefaultEncoding,
+            IgnoreInaccessible = search.Options.IgnoreInaccessible,
             Telemetry = Telemetry,
         };
 

@@ -17,10 +17,12 @@ public class MoveOperation
     private bool _dryRun;
     private bool _flat;
     private Action<OperationProgress>? _logOperation;
-    private FileCompareOptions _fileCompareOptions;
-    private FileAttributes _noCompareAttributes;
+    private FileCompareProperties _compareProperties;
+    private FileAttributes? _compareAttributes;
     private TimeSpan? _allowedTimeDiff;
     private IDialogProvider<ConflictInfo>? _dialogProvider;
+    private Func<string, string, bool>? _compareFile;
+    private Func<string, string, bool>? _compareDirectory;
 
     internal MoveOperation(Search search, string directoryPath, string destinationPath)
     {
@@ -45,24 +47,46 @@ public class MoveOperation
         return this;
     }
 
-    public MoveOperation WithFileCompareOptions(FileCompareOptions options)
+    public MoveOperation CompareSize()
     {
-        _fileCompareOptions = options;
+        _compareProperties |= FileCompareProperties.Size;
 
         return this;
     }
 
-    //TODO: rename
-    public MoveOperation SkipCompareAttributes(FileAttributes fileAttributes)
+    public MoveOperation CompareModifiedTime(TimeSpan? allowedTimeDiff = null)
     {
-        _noCompareAttributes = fileAttributes;
+        _compareProperties |= FileCompareProperties.ModifiedTime;
+        _allowedTimeDiff = allowedTimeDiff;
 
         return this;
     }
 
-    public MoveOperation WithAllowedTimeDiff(TimeSpan diff)
+    public MoveOperation CompareAttributes(FileAttributes? attributes = null)
     {
-        _allowedTimeDiff = diff;
+        _compareProperties |= FileCompareProperties.Attributes;
+        _compareAttributes = attributes;
+
+        return this;
+    }
+
+    public MoveOperation CompareContent()
+    {
+        _compareProperties |= FileCompareProperties.Content;
+
+        return this;
+    }
+
+    public MoveOperation CompareFile(Func<string, string, bool> comparer)
+    {
+        _compareFile = comparer;
+
+        return this;
+    }
+
+    public MoveOperation CompareDirectory(Func<string, string, bool> comparer)
+    {
+        _compareDirectory = comparer;
 
         return this;
     }
@@ -100,13 +124,15 @@ public class MoveOperation
         var options = new CopyOptions()
         {
             ConflictResolution = _conflictResolution,
-            CompareOptions = _fileCompareOptions,
-            NoCompareAttributes = _noCompareAttributes,
+            CompareProperties = _compareProperties,
+            CompareAttributes = _compareAttributes,
             AllowedTimeDiff = _allowedTimeDiff,
             Flat = _flat,
             DryRun = _dryRun,
             LogOperation = _logOperation,
             DialogProvider = _dialogProvider,
+            CompareFile = _compareFile,
+            CompareDirectory = _compareDirectory,
         };
 
         return _search.Move(_directoryPath, _destinationPath, options, cancellationToken);

@@ -199,7 +199,7 @@ internal abstract class CommonFindCommand<TOptions> :
         ColumnWidths? columnWidths = null)
     {
         if (!fileMatch.IsDirectory
-            && ContentFilter?.IsNegative == false
+            && ContentFilter?.InvertMatch == false
             && !Options.OmitContent
             && _logger.ShouldWrite(Verbosity.Normal))
         {
@@ -210,7 +210,7 @@ internal abstract class CommonFindCommand<TOptions> :
             if (isPathDisplayed)
                 WritePath(context, fileMatch, baseDirectoryPath, indent, columnWidths, includeNewline: false);
 
-            if (ContentFilter!.IsNegative
+            if (ContentFilter!.InvertMatch
                 || fileMatch.IsDirectory)
             {
                 _logger.WriteLineIf(isPathDisplayed, Verbosity.Minimal);

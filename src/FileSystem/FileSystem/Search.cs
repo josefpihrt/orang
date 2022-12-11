@@ -59,6 +59,7 @@ public class Search
             LogProgress = Options.LogProgress,
             RecurseSubdirectories = !Options.TopDirectoryOnly,
             DefaultEncoding = Options.DefaultEncoding,
+            IgnoreInaccessible = Options.IgnoreInaccessible,
         };
 
         return state.Find(directoryPath, cancellationToken);
@@ -77,10 +78,7 @@ public class Search
             throw new ArgumentNullException(nameof(destinationPath));
 
         if (DirectoryMatcher is not null)
-        {
-            //TODO: message
-            throw new InvalidOperationException();
-        }
+            throw new InvalidOperationException("Directory matcher cannot be specified when executing 'copy' operation.");
 
         options ??= new CopyOptions();
 
@@ -139,10 +137,7 @@ public class Search
             throw new ArgumentNullException(nameof(destinationPath));
 
         if (DirectoryMatcher is not null)
-        {
-            //TODO: message
-            throw new InvalidOperationException();
-        }
+            throw new InvalidOperationException("Directory matcher cannot be specified when executing 'move' operation.");
 
         options ??= new CopyOptions();
 
@@ -214,7 +209,7 @@ public class Search
             if (fileMatcher.Name is null)
                 throw new InvalidOperationException("Name matcher is not defined.");
 
-            if (fileMatcher.Name.IsNegative)
+            if (fileMatcher.Name.InvertMatch)
                 throw new InvalidOperationException("Name matcher cannot be negative.");
         }
 
@@ -231,7 +226,7 @@ public class Search
             if (directoryMatcher.Name is null)
                 throw new InvalidOperationException("Name matcher is not defined.");
 
-            if (directoryMatcher.Name.IsNegative)
+            if (directoryMatcher.Name.InvertMatch)
                 throw new InvalidOperationException("Name matcher cannot be negative.");
         }
 
@@ -295,7 +290,7 @@ public class Search
         if (matcher.Content is null)
             throw new InvalidOperationException("Content matcher is not defined.");
 
-        if (matcher.Content.IsNegative)
+        if (matcher.Content.InvertMatch)
             throw new InvalidOperationException("Content matcher cannot be negative.");
 
         options ??= new ReplaceOptions();
@@ -349,7 +344,7 @@ public class Search
         if (!Directory.Exists(destinationPath))
             throw new DirectoryNotFoundException($"Directory not found: {destinationPath}");
 
-        if (FileSystemHelpers.IsSubdirectory(destinationPath, directoryPath))
+        if (FileSystemUtilities.IsSubdirectory(destinationPath, directoryPath))
         {
             throw new ArgumentException(
                 "Source directory cannot be subdirectory of a destination directory.",

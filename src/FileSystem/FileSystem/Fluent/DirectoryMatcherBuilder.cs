@@ -24,11 +24,11 @@ public class DirectoryMatcherBuilder
     public DirectoryMatcherBuilder Name(
         string pattern,
         RegexOptions options = RegexOptions.None,
-        bool isNegative = false,
-        int groupNumber = -1,
+        bool invert = false,
+        object? group = null,
         Func<string, bool>? predicate = null)
     {
-        _name = new Matcher(pattern, options, isNegative, groupNumber, predicate);
+        _name = new Matcher(pattern, options, invert, group, predicate);
 
         return this;
     }

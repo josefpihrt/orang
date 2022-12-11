@@ -154,7 +154,7 @@ internal class DiagnosticWriter
         WriteOption("ask", options.AskMode);
         WriteOption("attributes", options.Attributes);
         WriteOption("attributes to skip", options.AttributesToSkip);
-        WriteOption("compare", options.CompareOptions);
+        WriteOption("compare", options.CompareProperties);
         WriteOption("conflict resolution", options.ConflictResolution);
         WriteFilter("content filter", options.ContentFilter);
 #if DEBUG
@@ -299,7 +299,7 @@ internal class DiagnosticWriter
         WriteOption("ask", options.AskMode);
         WriteOption("attributes", options.Attributes);
         WriteOption("attributes to skip", options.AttributesToSkip);
-        WriteOption("compare", options.CompareOptions);
+        WriteOption("compare", options.CompareProperties);
         WriteOption("conflict resolution", options.ConflictResolution);
         WriteFilter("content filter", options.ContentFilter);
 #if DEBUG
@@ -545,7 +545,7 @@ internal class DiagnosticWriter
         WriteOption("ask", options.AskMode);
         WriteOption("attributes", options.Attributes);
         WriteOption("attributes to skip", options.AttributesToSkip);
-        WriteOption("compare", options.CompareOptions);
+        WriteOption("compare", options.CompareProperties);
         WriteOption("conflict resolution", options.ConflictResolution);
         WriteFilter("content filter", options.ContentFilter);
 #if DEBUG
@@ -653,6 +653,13 @@ internal class DiagnosticWriter
         WriteLine();
     }
 
+    private void WriteOption(string name, object? value)
+    {
+        WriteName(name);
+        WriteValue(value?.ToString());
+        WriteLine();
+    }
+
     private void WriteOption<TEnum>(string name, ImmutableArray<TEnum> values) where TEnum : Enum
     {
         WriteName(name);
@@ -699,7 +706,7 @@ internal class DiagnosticWriter
         WriteIndent();
         WriteName("negative");
         WriteIndent();
-        WriteLine(matcher.IsNegative.ToString().ToLowerInvariant());
+        WriteLine(matcher.InvertMatch.ToString().ToLowerInvariant());
         WriteIndent();
         WriteName("group");
 

@@ -12,7 +12,7 @@ internal static class DirectoryPredicate
 {
     public static Func<string, bool> Create(Matcher matcher, FileNamePart part = FileNamePart.FullName)
     {
-        return path => (matcher.IsNegative) ? !IsMatch(matcher, part, path) : IsMatch(matcher, part, path);
+        return path => (matcher.InvertMatch) ? !IsMatch(matcher, part, path) : IsMatch(matcher, part, path);
     }
 
     public static Func<string, bool> Create(string path, FileNamePart part = FileNamePart.FullName)
@@ -62,7 +62,7 @@ internal static class DirectoryPredicate
 
         pattern += @"|\z)";
 
-        if (!FileSystemHelpers.IsCaseSensitive)
+        if (!FileSystemUtilities.IsCaseSensitive)
             options |= RegexOptions.IgnoreCase;
 
         return new Matcher(pattern, options);

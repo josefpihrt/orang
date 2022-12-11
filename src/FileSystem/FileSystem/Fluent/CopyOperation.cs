@@ -1,8 +1,8 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Threading;
 using System;
 using System.IO;
+using System.Threading;
 
 #pragma warning disable RCS1223 // Mark publicly visible type with DebuggerDisplay attribute.
 
@@ -16,11 +16,13 @@ public class CopyOperation
     private ConflictResolution _conflictResolution = ConflictResolution.Skip;
     private bool _dryRun;
     private Action<OperationProgress>? _logOperation;
-    private FileCompareOptions _fileCompareOptions;
-    private FileAttributes _noCompareAttributes;
+    private FileCompareProperties _compareProperties;
+    private FileAttributes? _compareAttributes;
     private TimeSpan? _allowedTimeDiff;
     private bool _flat;
     private IDialogProvider<ConflictInfo>? _dialogProvider;
+    private Func<string, string, bool>? _compareFile;
+    private Func<string, string, bool>? _compareDirectory;
 
     internal CopyOperation(Search search, string directoryPath, string destinationPath)
     {
@@ -45,23 +47,46 @@ public class CopyOperation
         return this;
     }
 
-    public CopyOperation WithFileCompareOptions(FileCompareOptions options)
+    public CopyOperation CompareSize()
     {
-        _fileCompareOptions = options;
+        _compareProperties |= FileCompareProperties.Size;
 
         return this;
     }
 
-    public CopyOperation WithNoCompareAttributes(FileAttributes fileAttributes)
+    public CopyOperation CompareModifiedTime(TimeSpan? allowedTimeDiff = null)
     {
-        _noCompareAttributes = fileAttributes;
+        _compareProperties |= FileCompareProperties.ModifiedTime;
+        _allowedTimeDiff = allowedTimeDiff;
 
         return this;
     }
 
-    public CopyOperation WithAllowedTimeDiff(TimeSpan diff)
+    public CopyOperation CompareAttributes(FileAttributes? attributes = null)
     {
-        _allowedTimeDiff = diff;
+        _compareProperties |= FileCompareProperties.Attributes;
+        _compareAttributes = attributes;
+
+        return this;
+    }
+
+    public CopyOperation CompareContent()
+    {
+        _compareProperties |= FileCompareProperties.Content;
+
+        return this;
+    }
+
+    public CopyOperation CompareFile(Func<string, string, bool> comparer)
+    {
+        _compareFile = comparer;
+
+        return this;
+    }
+
+    public CopyOperation CompareDirectory(Func<string, string, bool> comparer)
+    {
+        _compareDirectory = comparer;
 
         return this;
     }
@@ -99,13 +124,15 @@ public class CopyOperation
         var options = new CopyOptions()
         {
             ConflictResolution = _conflictResolution,
-            CompareOptions = _fileCompareOptions,
-            NoCompareAttributes = _noCompareAttributes,
+            CompareProperties = _compareProperties,
+            CompareAttributes = _compareAttributes,
             AllowedTimeDiff = _allowedTimeDiff,
             Flat = _flat,
             DryRun = _dryRun,
             LogOperation = _logOperation,
             DialogProvider = _dialogProvider,
+            CompareFile = _compareFile,
+            CompareDirectory = _compareDirectory,
         };
 
         return _search.Copy(_directoryPath, _destinationPath, options, cancellationToken);

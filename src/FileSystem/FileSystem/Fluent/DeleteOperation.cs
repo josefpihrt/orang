@@ -14,7 +14,7 @@ public class DeleteOperation
     private bool _contentOnly;
     private bool _directoriesOnly;
     private bool _filesOnly;
-    private bool _includeBom;
+    private bool _includingBom;
     private bool _dryRun;
     private Action<OperationProgress>? _logOperation;
 
@@ -37,14 +37,14 @@ public class DeleteOperation
         return this;
     }
 
-    public DeleteOperation IncludeBom()
+    public DeleteOperation IncludingBom()
     {
-        _includeBom = true;
+        _includingBom = true;
 
         return this;
     }
 
-    public DeleteOperation FileOnly()
+    public DeleteOperation FilesOnly()
     {
         _filesOnly = true;
 
@@ -77,7 +77,7 @@ public class DeleteOperation
         var options = new DeleteOptions()
         {
             ContentOnly = _contentOnly,
-            IncludingBom = _includeBom,
+            IncludingBom = _includingBom,
             FilesOnly = _filesOnly,
             DirectoriesOnly = _directoriesOnly,
             DryRun = _dryRun,

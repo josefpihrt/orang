@@ -63,12 +63,12 @@ public class SearchBuilder
     public SearchBuilder SkipDirectory(
         string pattern,
         RegexOptions options = RegexOptions.None,
-        int groupNumber = -1,
+        object? group = null,
         Func<string, bool>? predicate = null)
     {
         _searchDirectory = new DirectoryMatcher()
         {
-            Name = new Matcher(pattern, options, isNegative: true, groupNumber, predicate)
+            Name = new Matcher(pattern, options, invert: true, group, predicate)
         };
 
         return this;
@@ -77,14 +77,14 @@ public class SearchBuilder
     public SearchBuilder FileExtension(
         string pattern,
         RegexOptions options = RegexOptions.None,
-        bool isNegative = false,
-        int groupNumber = -1,
+        bool invert = false,
+        object? group = null,
         Func<string, bool>? predicate = null)
     {
         if (_file is null)
             _file = new FileMatcher();
 
-        _file.Extension = new Matcher(pattern, options, isNegative, groupNumber, predicate);
+        _file.Extension = new Matcher(pattern, options, invert, group, predicate);
 
         return this;
     }
@@ -92,14 +92,14 @@ public class SearchBuilder
     public SearchBuilder FileName(
         string pattern,
         RegexOptions options = RegexOptions.None,
-        bool isNegative = false,
-        int groupNumber = -1,
+        bool invert = false,
+        object? group = null,
         Func<string, bool>? predicate = null)
     {
         if (_file is null)
             _file = new FileMatcher();
 
-        _file.Name = new Matcher(pattern, options, isNegative, groupNumber, predicate);
+        _file.Name = new Matcher(pattern, options, invert, group, predicate);
 
         return this;
     }
@@ -107,14 +107,14 @@ public class SearchBuilder
     public SearchBuilder FileContent(
         string pattern,
         RegexOptions options = RegexOptions.None,
-        bool isNegative = false,
-        int groupNumber = -1,
+        bool invert = false,
+        object? group = null,
         Func<string, bool>? predicate = null)
     {
         if (_file is null)
             _file = new FileMatcher();
 
-        _file.Name = new Matcher(pattern, options, isNegative, groupNumber, predicate);
+        _file.Name = new Matcher(pattern, options, invert, group, predicate);
 
         return this;
     }
@@ -122,14 +122,14 @@ public class SearchBuilder
     public SearchBuilder DirectoryName(
         string pattern,
         RegexOptions options = RegexOptions.None,
-        bool isNegative = false,
-        int groupNumber = -1,
+        bool invert = false,
+        object? group = null,
         Func<string, bool>? predicate = null)
     {
         if (_directory is null)
             _directory = new DirectoryMatcher();
 
-        _directory.Name = new Matcher(pattern, options, isNegative, groupNumber, predicate);
+        _directory.Name = new Matcher(pattern, options, invert, group, predicate);
 
         return this;
     }
@@ -148,7 +148,6 @@ public class SearchBuilder
         return this;
     }
 
-    //TODO: rename
     public SearchBuilder WithDefaultEncoding(Encoding encoding)
     {
         _defaultEncoding = encoding;
@@ -181,8 +180,7 @@ public class SearchBuilder
         }
         else
         {
-            //TODO: message
-            throw new InvalidOperationException();
+            throw new InvalidOperationException("File matcher or directory matcher must be specified.");
         }
     }
 

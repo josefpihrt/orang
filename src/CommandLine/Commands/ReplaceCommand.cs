@@ -8,6 +8,6 @@ internal class ReplaceCommand : CommonReplaceCommand<ReplaceCommandOptions>
 {
     public ReplaceCommand(ReplaceCommandOptions options, Logger logger) : base(options, logger)
     {
-        Debug.Assert(!options.ContentFilter!.IsNegative);
+        Debug.Assert(!options.ContentFilter!.InvertMatch);
     }
 }

@@ -2,7 +2,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Orang;
@@ -15,40 +14,60 @@ public class Matcher
     public Matcher(
         string pattern,
         RegexOptions options = RegexOptions.None,
-        bool isNegative = false,
-        int groupNumber = -1,
-        Func<string, bool>? predicate = null) : this(new Regex(pattern, options), isNegative, groupNumber, predicate)
+        bool invert = false,
+        object? group = null,
+        Func<string, bool>? predicate = null) : this(new Regex(pattern, options), invert, group, predicate)
     {
     }
 
     internal Matcher(
         Regex regex,
-        bool isNegative = false,
-        int groupNumber = -1,
+        bool invert = false,
+        object? group = null,
         Func<string, bool>? predicate = null)
     {
         Regex = regex ?? throw new ArgumentNullException(nameof(regex));
 
-        Debug.Assert(groupNumber < 0 || regex.GetGroupNumbers().Contains(groupNumber), groupNumber.ToString());
+        if (group is string groupName)
+        {
+            GroupNumber = regex.GroupNumberFromName(groupName);
 
-        GroupNumber = groupNumber;
-        IsNegative = isNegative;
+            if (GroupNumber == -1)
+                throw new ArgumentException($"Group name '{groupName}' was not found.", nameof(groupName));
+        }
+        else
+        {
+            GroupNumber = -1;
+        }
+
+        if (group is int groupNumber)
+        {
+            GroupName = regex.GroupNameFromNumber(groupNumber);
+
+            if (GroupName.Length == 0)
+                throw new ArgumentException($"Group number '{groupNumber}' was not found.", nameof(groupNumber));
+        }
+        else
+        {
+            GroupName = "";
+        }
+
+        InvertMatch = invert;
         Predicate = predicate;
     }
 
     public Regex Regex { get; }
 
-    //TODO: rename IsNegative
-    public bool IsNegative { get; }
+    public bool InvertMatch { get; }
 
     public int GroupNumber { get; }
 
+    internal string GroupName { get; }
+
     public Func<string, bool>? Predicate { get; }
 
-    internal string GroupName => Regex.GroupNameFromNumber(GroupNumber);
-
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    private string DebuggerDisplay => $"{nameof(IsNegative)} = {IsNegative}  {Regex}";
+    private string DebuggerDisplay => Regex.ToString();
 
     public Match? Match(string input)
     {
@@ -66,7 +85,7 @@ public class Matcher
                 while (match.Success)
                 {
                     if (Predicate.Invoke(match.Value))
-                        return (IsNegative) ? null : match;
+                        return (InvertMatch) ? null : match;
 
                     match = match.NextMatch();
                 }
@@ -80,7 +99,7 @@ public class Matcher
                     if (group.Success
                         && Predicate.Invoke(group.Value))
                     {
-                        return (IsNegative) ? null : match;
+                        return (InvertMatch) ? null : match;
                     }
 
                     match = match.NextMatch();
@@ -90,17 +109,17 @@ public class Matcher
         else if (GroupNumber < 1)
         {
             if (match.Success)
-                return (IsNegative) ? null : match;
+                return (InvertMatch) ? null : match;
         }
         else
         {
             Group group = match.Groups[GroupNumber];
 
             if (group.Success)
-                return (IsNegative) ? null : match;
+                return (InvertMatch) ? null : match;
         }
 
-        return (IsNegative)
+        return (InvertMatch)
             ? System.Text.RegularExpressions.Match.Empty
             : null;
     }

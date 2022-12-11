@@ -18,7 +18,7 @@ internal class CommonReplaceCommand<TOptions> : CommonFindCommand<TOptions> wher
 
     public CommonReplaceCommand(TOptions options, Logger logger) : base(options, logger)
     {
-        Debug.Assert(!options.ContentFilter!.IsNegative);
+        Debug.Assert(!options.ContentFilter!.InvertMatch);
     }
 
     protected override bool CanDisplaySummary => Options.Input is null;

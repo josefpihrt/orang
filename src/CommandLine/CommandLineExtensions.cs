@@ -72,7 +72,7 @@ internal static class CommandLineExtensions
 
         if (!string.IsNullOrEmpty(path)
             && !string.IsNullOrEmpty(message)
-            && !message.Contains(path, FileSystemHelpers.Comparison))
+            && !message.Contains(path, FileSystemUtilities.Comparison))
         {
             logger.WriteLine($"{indent}PATH: {path}", Colors.Message_Warning, verbosity);
         }

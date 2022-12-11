@@ -13,8 +13,10 @@ using System.Threading;
 
 namespace Orang.FileSystem;
 
-internal static class FileSystemHelpers
+internal static class FileSystemUtilities
 {
+    internal static FileAttributes AllFileAttributes { get; } = GetAllFileAttributes();
+
     private static ImmutableHashSet<char>? _invalidFileNameChars;
 
     private static readonly EnumerationOptions _enumerationOptionsNoRecurse = new()
@@ -94,34 +96,34 @@ internal static class FileSystemHelpers
     internal static bool FileEquals(
         string path1,
         string path2,
-        FileCompareOptions options,
-        FileAttributes ignoredAttributes = 0,
+        FileCompareProperties properties,
+        FileAttributes? compareAttributes = null,
         TimeSpan? allowedTimeDiff = null)
     {
-        if ((options & FileCompareOptions.ModifiedTime) != 0
+        if ((properties & FileCompareProperties.ModifiedTime) != 0
             && !LastWriteTimeUtcEquals(path1, path2, allowedTimeDiff))
         {
             return false;
         }
 
-        if ((options & FileCompareOptions.Attributes) != 0
-            && !AttributeEquals(path1, path2, ignoredAttributes))
+        if ((properties & FileCompareProperties.Attributes) != 0
+            && !AttributeEquals(path1, path2, compareAttributes))
         {
             return false;
         }
 
-        if ((options & (FileCompareOptions.Size | FileCompareOptions.Content)) != 0)
+        if ((properties & (FileCompareProperties.Size | FileCompareProperties.Content)) != 0)
         {
             using (var fs1 = new FileStream(path1, FileMode.Open, FileAccess.Read))
             using (var fs2 = new FileStream(path2, FileMode.Open, FileAccess.Read))
             {
-                if ((options & FileCompareOptions.Size) != 0
+                if ((properties & FileCompareProperties.Size) != 0
                     && fs1.Length != fs2.Length)
                 {
                     return false;
                 }
 
-                if ((options & FileCompareOptions.Content) != 0
+                if ((properties & FileCompareProperties.Content) != 0
                     && !StreamComparer.Default.ByteEquals(fs1, fs2))
                 {
                     return false;
@@ -132,73 +134,73 @@ internal static class FileSystemHelpers
         return true;
     }
 
-    internal static FileCompareOptions CompareFiles(
+    internal static FileCompareProperties CompareFiles(
         string path1,
         string path2,
-        FileCompareOptions options,
-        FileAttributes ignoredAttributes = 0,
+        FileCompareProperties properties,
+        FileAttributes? attributes = null,
         TimeSpan? allowedTimeDiff = null)
     {
-        if ((options & FileCompareOptions.ModifiedTime) != 0
+        if ((properties & FileCompareProperties.ModifiedTime) != 0
             && !LastWriteTimeUtcEquals(path1, path2, allowedTimeDiff))
         {
-            return FileCompareOptions.ModifiedTime;
+            return FileCompareProperties.ModifiedTime;
         }
 
-        if ((options & FileCompareOptions.Attributes) != 0
-            && !AttributeEquals(path1, path2, ignoredAttributes))
+        if ((properties & FileCompareProperties.Attributes) != 0
+            && !AttributeEquals(path1, path2, attributes))
         {
-            if ((options & (FileCompareOptions.Size | FileCompareOptions.Content)) != 0)
+            if ((properties & (FileCompareProperties.Size | FileCompareProperties.Content)) != 0)
             {
                 using (var fs1 = new FileStream(path1, FileMode.Open, FileAccess.Read))
                 using (var fs2 = new FileStream(path2, FileMode.Open, FileAccess.Read))
                 {
-                    if ((options & FileCompareOptions.Size) != 0
+                    if ((properties & FileCompareProperties.Size) != 0
                         && fs1.Length != fs2.Length)
                     {
-                        return FileCompareOptions.Size;
+                        return FileCompareProperties.Size;
                     }
 
-                    if ((options & FileCompareOptions.Content) != 0
+                    if ((properties & FileCompareProperties.Content) != 0
                         && !StreamComparer.Default.ByteEquals(fs1, fs2))
                     {
-                        return FileCompareOptions.Content;
+                        return FileCompareProperties.Content;
                     }
                 }
             }
 
-            return FileCompareOptions.Attributes;
+            return FileCompareProperties.Attributes;
         }
 
-        if ((options & (FileCompareOptions.Size | FileCompareOptions.Content)) != 0)
+        if ((properties & (FileCompareProperties.Size | FileCompareProperties.Content)) != 0)
         {
             using (var fs1 = new FileStream(path1, FileMode.Open, FileAccess.Read))
             using (var fs2 = new FileStream(path2, FileMode.Open, FileAccess.Read))
             {
-                if ((options & FileCompareOptions.Size) != 0
+                if ((properties & FileCompareProperties.Size) != 0
                     && fs1.Length != fs2.Length)
                 {
-                    return FileCompareOptions.Size;
+                    return FileCompareProperties.Size;
                 }
 
-                if ((options & FileCompareOptions.Content) != 0
+                if ((properties & FileCompareProperties.Content) != 0
                     && !StreamComparer.Default.ByteEquals(fs1, fs2))
                 {
-                    return FileCompareOptions.Content;
+                    return FileCompareProperties.Content;
                 }
             }
         }
 
-        return FileCompareOptions.None;
+        return FileCompareProperties.None;
     }
 
     internal static bool AttributeEquals(
         string path1,
         string path2,
-        FileAttributes ignoredAttributes = 0)
+        FileAttributes? attributes = null)
     {
-        FileAttributes attr1 = File.GetAttributes(path1) & ~ignoredAttributes;
-        FileAttributes attr2 = File.GetAttributes(path2) & ~ignoredAttributes;
+        FileAttributes attr1 = File.GetAttributes(path1) & (attributes ?? AllFileAttributes);
+        FileAttributes attr2 = File.GetAttributes(path2) & (attributes ?? AllFileAttributes);
 
         return attr1 == attr2;
     }
@@ -331,13 +333,14 @@ internal static class FileSystemHelpers
     {
         if (contentOnly)
         {
-            FileAccess fileAccess = (includingBom) ? FileAccess.Write : FileAccess.ReadWrite;
-
-            using (var stream = new FileStream(filePath, FileMode.Open, fileAccess))
+            using (var stream = new FileStream(
+                filePath,
+                FileMode.Open,
+                (includingBom) ? FileAccess.Write : FileAccess.ReadWrite))
             {
                 int length = 0;
 
-                if (includingBom)
+                if (!includingBom)
                 {
                     Encoding? encoding = DetectEncoding(stream);
 
@@ -580,5 +583,17 @@ internal static class FileSystemHelpers
     public static string EnsureFullPath(string path)
     {
         return (Path.IsPathRooted(path)) ? path : Path.GetFullPath(path);
+    }
+
+    private static FileAttributes GetAllFileAttributes()
+    {
+        var attributes = (FileAttributes)0;
+
+        foreach (FileAttributes value in Enum.GetValues(typeof(FileAttributes)).Cast<FileAttributes>())
+        {
+            attributes |= value;
+        }
+
+        return attributes;
     }
 }

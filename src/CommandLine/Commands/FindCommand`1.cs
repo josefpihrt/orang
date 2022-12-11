@@ -109,7 +109,7 @@ internal sealed class FindCommand<TOptions> : CommonFindCommand<TOptions> where 
         if (isPathDisplayed)
             WritePath(context, fileMatch, baseDirectoryPath, indent, columnWidths, includeNewline: false);
 
-        if (ContentFilter!.IsNegative
+        if (ContentFilter!.InvertMatch
             || fileMatch.IsDirectory)
         {
             _logger.WriteLineIf(isPathDisplayed, Verbosity.Minimal);

@@ -26,30 +26,30 @@ public class FileMatcherBuilder
     public FileMatcherBuilder Extension(
         string pattern,
         RegexOptions options = RegexOptions.None,
-        bool isNegative = false,
-        int groupNumber = -1,
+        bool invert = false,
+        object? group = null,
         Func<string, bool>? predicate = null)
     {
-        _extension = new Matcher(pattern, options, isNegative, groupNumber, predicate);
+        _extension = new Matcher(pattern, options, invert, group, predicate);
 
         return this;
     }
 
     public FileMatcherBuilder WithExtensions(params string[] extensions)
     {
-        _extension = GetExtensionMatcher(extensions, isNegative: false);
+        _extension = GetExtensionMatcher(extensions, invert: false);
 
         return this;
     }
 
     public FileMatcherBuilder WithoutExtensions(params string[] extensions)
     {
-        _extension = GetExtensionMatcher(extensions, isNegative: true);
+        _extension = GetExtensionMatcher(extensions, invert: true);
 
         return this;
     }
 
-    private static Matcher? GetExtensionMatcher(string[] extensions, bool isNegative)
+    private static Matcher? GetExtensionMatcher(string[] extensions, bool invert)
     {
         if (extensions.Length == 0)
         {
@@ -61,28 +61,28 @@ public class FileMatcherBuilder
                 Pattern.From(
                     extensions[0],
                     PatternOptions.Equals | PatternOptions.Literal),
-                (FileSystemHelpers.IsCaseSensitive) ? RegexOptions.None : RegexOptions.IgnoreCase,
-                isNegative: isNegative);
+                (FileSystemUtilities.IsCaseSensitive) ? RegexOptions.None : RegexOptions.IgnoreCase,
+                invert: invert);
         }
         else
         {
             return new Matcher(
-                Pattern.From(
+                Pattern.Any(
                     extensions,
                     PatternOptions.Equals | PatternOptions.Literal),
-                (FileSystemHelpers.IsCaseSensitive) ? RegexOptions.None : RegexOptions.IgnoreCase,
-                isNegative: isNegative);
+                (FileSystemUtilities.IsCaseSensitive) ? RegexOptions.None : RegexOptions.IgnoreCase,
+                invert: invert);
         }
     }
 
     public FileMatcherBuilder Name(
         string pattern,
         RegexOptions options = RegexOptions.None,
-        bool isNegative = false,
-        int groupNumber = -1,
+        bool invert = false,
+        object? group = null,
         Func<string, bool>? predicate = null)
     {
-        _name = new Matcher(pattern, options, isNegative, groupNumber, predicate);
+        _name = new Matcher(pattern, options, invert, group, predicate);
 
         return this;
     }
@@ -97,11 +97,11 @@ public class FileMatcherBuilder
     public FileMatcherBuilder Content(
         string pattern,
         RegexOptions options = RegexOptions.None,
-        bool isNegative = false,
-        int groupNumber = -1,
+        bool invert = false,
+        object? group = null,
         Func<string, bool>? predicate = null)
     {
-        _content = new Matcher(pattern, options, isNegative, groupNumber, predicate);
+        _content = new Matcher(pattern, options, invert, group, predicate);
 
         return this;
     }
@@ -134,7 +134,6 @@ public class FileMatcherBuilder
         return this;
     }
 
-    //TODO: rename
     public FileMatcherBuilder Match(Func<FileInfo, bool> predicate)
     {
         _predicate = predicate;

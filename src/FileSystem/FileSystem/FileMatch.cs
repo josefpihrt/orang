@@ -13,7 +13,7 @@ public class FileMatch
     private FileSystemInfo? _fileSystemInfo;
 
     internal FileMatch(
-        in FileNameSpan nameSpan,
+        FileNameSpan nameSpan,
         Match? nameMatch,
         FileSystemInfo? fileSystemInfo = null,
         bool isDirectory = false)
@@ -22,9 +22,9 @@ public class FileMatch
     }
 
     internal FileMatch(
-        in FileNameSpan nameSpan,
+        FileNameSpan nameSpan,
         Match? nameMatch,
-        in FileContent content,
+        FileContent content,
         Match? contentMatch,
         FileSystemInfo? fileSystemInfo = null,
         bool isDirectory = false)
@@ -39,10 +39,12 @@ public class FileMatch
 
     public FileNameSpan NameSpan { get; }
 
+    //TODO: Name
     public Match? NameMatch { get; }
 
-    public FileContent Content { get; }
+    internal FileContent Content { get; set; }
 
+    //TODO: Content
     public Match? ContentMatch { get; }
 
     public bool IsDirectory { get; }

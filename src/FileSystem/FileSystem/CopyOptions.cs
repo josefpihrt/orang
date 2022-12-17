@@ -11,12 +11,14 @@ public class CopyOptions
 {
     public ConflictResolution ConflictResolution { get; set; } = ConflictResolution.Skip;
 
+    //TODO: PropertiesToCompare
     public FileCompareProperties CompareProperties { get; set; }
 
     public Func<string, string, bool>? CompareFile { get; set; }
 
     public Func<string, string, bool>? CompareDirectory { get; set; }
 
+    //TODO: AttributesToCompare
     public FileAttributes? CompareAttributes { get; set; }
 
     public TimeSpan? AllowedTimeDiff { get; set; }

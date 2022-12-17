@@ -12,9 +12,9 @@ public class DeleteOptions
 
     public bool IncludingBom { get; set; }
 
-    public bool FilesOnly { get; set; }
+    internal bool FilesOnly { get; set; }
 
-    public bool DirectoriesOnly { get; set; }
+    internal bool DirectoriesOnly { get; set; }
 
     public bool DryRun { get; set; }
 

@@ -41,9 +41,7 @@ internal class DeleteCommand : DeleteOrRenameCommand<DeleteCommandOptions>
                 FileSystemUtilities.Delete(
                     fileMatch,
                     contentOnly: Options.ContentOnly,
-                    includingBom: Options.IncludingBom,
-                    filesOnly: Options.FilesOnly,
-                    directoriesOnly: Options.DirectoriesOnly);
+                    includingBom: Options.IncludingBom);
             }
 
             if (fileMatch.IsDirectory)

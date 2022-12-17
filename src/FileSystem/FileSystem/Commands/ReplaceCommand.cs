@@ -46,6 +46,8 @@ internal class ReplaceCommand : CommonFindCommand
                 WriteMatches(fileMatch.ContentText, captures, Replacer, textWriter);
             }
 
+            fileMatch.Content = default;
+
             int fileMatchCount = captures.Count;
             int fileReplacementCount = fileMatchCount;
             Telemetry.MatchCount += fileMatchCount;

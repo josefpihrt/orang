@@ -7,7 +7,7 @@ using System.Text;
 namespace Orang.FileSystem;
 
 [DebuggerDisplay("{DebuggerDisplay,nq}")]
-public readonly struct FileContent
+internal readonly struct FileContent
 {
     internal FileContent(string text, Encoding encoding, bool hasBom)
     {

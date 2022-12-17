@@ -12,8 +12,6 @@ public class DeleteOperation
     private readonly Search _search;
     private readonly string _directoryPath;
     private bool _contentOnly;
-    private bool _directoriesOnly;
-    private bool _filesOnly;
     private bool _includingBom;
     private bool _dryRun;
     private Action<OperationProgress>? _logOperation;
@@ -44,20 +42,6 @@ public class DeleteOperation
         return this;
     }
 
-    public DeleteOperation FilesOnly()
-    {
-        _filesOnly = true;
-
-        return this;
-    }
-
-    public DeleteOperation DirectoriesOnly()
-    {
-        _directoriesOnly = true;
-
-        return this;
-    }
-
     public DeleteOperation DryRun()
     {
         _dryRun = true;
@@ -78,8 +62,6 @@ public class DeleteOperation
         {
             ContentOnly = _contentOnly,
             IncludingBom = _includingBom,
-            FilesOnly = _filesOnly,
-            DirectoriesOnly = _directoriesOnly,
             DryRun = _dryRun,
             LogOperation = _logOperation
         };

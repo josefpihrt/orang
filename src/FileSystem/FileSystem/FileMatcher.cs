@@ -20,12 +20,15 @@ public class FileMatcher
 
     public Matcher? Content { get; set; }
 
+    //TODO: WithAttributes
     public FileAttributes Attributes { get; set; }
 
+    //TODO: WithoutAttributes
     public FileAttributes AttributesToSkip { get; set; }
 
     public FileEmptyOption EmptyOption { get; set; }
 
+    //TODO: MatchFile
     public Func<FileInfo, bool>? Predicate { get; set; }
 
     internal bool IsMatch(string path)

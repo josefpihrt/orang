@@ -214,7 +214,6 @@ internal class DiagnosticWriter
         WriteContext("context", options.Format.LineContext);
         WriteOption("count", options.Format.Includes(DisplayParts.Count));
         WriteEncoding("default encoding", options.DefaultEncoding);
-        WriteOption("directories only", options.DirectoriesOnly);
         WriteFilter("directory filter", options.DirectoryFilter, options.DirectoryNamePart);
         WriteOption("dry run", options.DryRun);
         WriteOption("empty", options.EmptyOption);
@@ -224,7 +223,6 @@ internal class DiagnosticWriter
             options.SizePredicate,
             options.CreationTimePredicate,
             options.ModifiedTimePredicate);
-        WriteOption("files only", options.FilesOnly);
         WriteOption("highlight options", options.HighlightOptions);
         WriteOption("including bom", options.IncludingBom);
         WriteOption("line number", options.Format.Includes(LineDisplayOptions.IncludeLineNumber));

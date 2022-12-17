@@ -21,6 +21,7 @@ public readonly struct OperationProgress
         Exception = exception;
     }
 
+    //TODO: Match
     public FileMatch FileMatch { get; }
 
     public string Path => FileMatch.Path;

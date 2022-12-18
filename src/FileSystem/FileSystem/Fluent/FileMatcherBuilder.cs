@@ -14,8 +14,8 @@ public class FileMatcherBuilder
     private FileNamePart? _namePart;
     private Matcher? _content;
     private static Matcher? _extension;
-    private FileAttributes? _attributes;
-    private FileAttributes? _attributesToSkip;
+    private FileAttributes? _withAttributes;
+    private FileAttributes? _withoutAttributes;
     private FileEmptyOption? _emptyOption;
     private Func<FileInfo, bool>? _predicate;
 
@@ -108,14 +108,14 @@ public class FileMatcherBuilder
 
     public FileMatcherBuilder WithAttributes(FileAttributes attributes)
     {
-        _attributes = attributes;
+        _withAttributes = attributes;
 
         return this;
     }
 
     public FileMatcherBuilder WithoutAttributes(FileAttributes attributes)
     {
-        _attributesToSkip = attributes;
+        _withoutAttributes = attributes;
 
         return this;
     }
@@ -149,8 +149,8 @@ public class FileMatcherBuilder
             NamePart = _namePart ?? FileNamePart.Name,
             Extension = _extension,
             Content = _content,
-            Attributes = _attributes ?? 0,
-            AttributesToSkip = _attributesToSkip ?? 0,
+            WithAttributes = _withAttributes ?? 0,
+            WithoutAttributes = _withoutAttributes ?? 0,
             EmptyOption = _emptyOption ?? FileEmptyOption.None,
             Predicate = _predicate,
         };

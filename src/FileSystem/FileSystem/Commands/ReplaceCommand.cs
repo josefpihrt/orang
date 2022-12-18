@@ -34,7 +34,7 @@ internal class ReplaceCommand : CommonFindCommand
             captures = ListCache<Capture>.GetInstance();
 
             GetCaptures(
-                fileMatch.ContentMatch!,
+                fileMatch.Content!,
                 ContentFilter!.GroupNumber,
                 predicate: ContentFilter.Predicate,
                 captures: captures);
@@ -46,7 +46,7 @@ internal class ReplaceCommand : CommonFindCommand
                 WriteMatches(fileMatch.ContentText, captures, Replacer, textWriter);
             }
 
-            fileMatch.Content = default;
+            fileMatch.FileContent = default;
 
             int fileMatchCount = captures.Count;
             int fileReplacementCount = fileMatchCount;

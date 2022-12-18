@@ -356,13 +356,13 @@ internal abstract class CommonFindCommand<TOptions> :
         ColumnWidths? columnWidths)
     {
         if (Options.PathDisplayStyle == PathDisplayStyle.Match
-            && fileMatch.NameMatch is not null
-            && !object.ReferenceEquals(fileMatch.NameMatch, Match.Empty))
+            && fileMatch.Name is not null
+            && !object.ReferenceEquals(fileMatch.Name, Match.Empty))
         {
             if (_logger.ShouldWrite(Verbosity.Minimal))
             {
                 _logger.Write(indent, Verbosity.Minimal);
-                _logger.Write(fileMatch.NameMatch.Value, (Options.HighlightMatch) ? Colors.Match_Path : default, Verbosity.Minimal);
+                _logger.Write(fileMatch.Name.Value, (Options.HighlightMatch) ? Colors.Match_Path : default, Verbosity.Minimal);
             }
         }
         else
@@ -383,7 +383,7 @@ internal abstract class CommonFindCommand<TOptions> :
 
         try
         {
-            Match match = fileMatch.ContentMatch!;
+            Match match = fileMatch.Content!;
 
             contentWriter = CommandLine.ContentWriter.CreateFind(
                 contentDisplayStyle: Options.ContentDisplayStyle,

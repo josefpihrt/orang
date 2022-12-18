@@ -16,8 +16,8 @@ public class CopyOperation
     private ConflictResolution _conflictResolution = ConflictResolution.Skip;
     private bool _dryRun;
     private Action<OperationProgress>? _logOperation;
-    private FileCompareProperties _compareProperties;
-    private FileAttributes? _compareAttributes;
+    private FileCompareProperties _comparedProperties;
+    private FileAttributes? _comparedAttributes;
     private TimeSpan? _allowedTimeDiff;
     private bool _flat;
     private IDialogProvider<ConflictInfo>? _dialogProvider;
@@ -49,14 +49,14 @@ public class CopyOperation
 
     public CopyOperation CompareSize()
     {
-        _compareProperties |= FileCompareProperties.Size;
+        _comparedProperties |= FileCompareProperties.Size;
 
         return this;
     }
 
     public CopyOperation CompareModifiedTime(TimeSpan? allowedTimeDiff = null)
     {
-        _compareProperties |= FileCompareProperties.ModifiedTime;
+        _comparedProperties |= FileCompareProperties.ModifiedTime;
         _allowedTimeDiff = allowedTimeDiff;
 
         return this;
@@ -64,15 +64,15 @@ public class CopyOperation
 
     public CopyOperation CompareAttributes(FileAttributes? attributes = null)
     {
-        _compareProperties |= FileCompareProperties.Attributes;
-        _compareAttributes = attributes;
+        _comparedProperties |= FileCompareProperties.Attributes;
+        _comparedAttributes = attributes;
 
         return this;
     }
 
     public CopyOperation CompareContent()
     {
-        _compareProperties |= FileCompareProperties.Content;
+        _comparedProperties |= FileCompareProperties.Content;
 
         return this;
     }
@@ -124,8 +124,8 @@ public class CopyOperation
         var options = new CopyOptions()
         {
             ConflictResolution = _conflictResolution,
-            CompareProperties = _compareProperties,
-            CompareAttributes = _compareAttributes,
+            ComparedProperties = _comparedProperties,
+            ComparedAttributes = _comparedAttributes,
             AllowedTimeDiff = _allowedTimeDiff,
             Flat = _flat,
             DryRun = _dryRun,

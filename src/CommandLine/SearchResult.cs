@@ -32,7 +32,7 @@ internal class SearchResult
 
     public bool IsDirectory => FileMatch.IsDirectory;
 
-    public Match? ContentMatch => FileMatch.ContentMatch;
+    public Match? ContentMatch => FileMatch.Content;
 
     public string ContentText => FileMatch.ContentText;
 

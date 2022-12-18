@@ -59,7 +59,7 @@ internal class SearchState
     {
         var enumerationOptions = new EnumerationOptions()
         {
-            AttributesToSkip = FileMatcher?.AttributesToSkip ?? 0,
+            AttributesToSkip = FileMatcher?.WithoutAttributes ?? 0,
             IgnoreInaccessible = IgnoreInaccessible,
             MatchCasing = MatchCasing.PlatformDefault,
             MatchType = MatchType.Simple,

@@ -185,8 +185,8 @@ internal abstract class SearchResultComparer : Comparer<SearchResult>
                 return 1;
 
             return string.Compare(
-                x.FileMatch.NameMatch!.Value,
-                y.FileMatch.NameMatch!.Value,
+                x.FileMatch.Name!.Value,
+                y.FileMatch.Name!.Value,
                 StringComparison);
         }
     }

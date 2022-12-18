@@ -144,7 +144,7 @@ internal class CommonReplaceCommand<TOptions> : CommonFindCommand<TOptions> wher
             groups = ListCache<Capture>.GetInstance();
 
             MaxReason maxReason = GetCaptures(
-                fileMatch.ContentMatch!,
+                fileMatch.Content!,
                 writerOptions.GroupNumber,
                 context,
                 isPathDisplayed: false,
@@ -232,7 +232,7 @@ internal class CommonReplaceCommand<TOptions> : CommonFindCommand<TOptions> wher
             {
                 MatchOutputInfo? outputInfo = Options.CreateOutputInfo(
                     fileMatch.ContentText,
-                    fileMatch.ContentMatch!,
+                    fileMatch.Content!,
                     ContentFilter!);
 
                 if (Options.AskMode == AskMode.Value

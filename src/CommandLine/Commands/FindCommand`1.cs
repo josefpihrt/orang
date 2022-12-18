@@ -118,7 +118,7 @@ internal sealed class FindCommand<TOptions> : CommonFindCommand<TOptions> where 
         {
             WriteContent(
                 context,
-                fileMatch.ContentMatch!,
+                fileMatch.Content!,
                 fileMatch.ContentText,
                 writerOptions,
                 fileMatch,
@@ -150,10 +150,10 @@ internal sealed class FindCommand<TOptions> : CommonFindCommand<TOptions> where 
         }
 
         if (_aggregate?.Storage is not null
-            && fileMatch.NameMatch is not null
-            && !object.ReferenceEquals(fileMatch.NameMatch, Match.Empty))
+            && fileMatch.Name is not null
+            && !object.ReferenceEquals(fileMatch.Name, Match.Empty))
         {
-            _aggregate.Storage.Add(fileMatch.NameMatch.Value);
+            _aggregate.Storage.Add(fileMatch.Name.Value);
             _aggregate.Sections?.Add(new StorageSection(fileMatch, baseDirectoryPath, 0));
         }
 

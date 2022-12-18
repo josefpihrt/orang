@@ -58,11 +58,12 @@ public class Matcher
 
     public Regex Regex { get; }
 
+    //TODO: Invert, Negative
     public bool InvertMatch { get; }
 
     public int GroupNumber { get; }
 
-    internal string GroupName { get; }
+    public string GroupName { get; }
 
     public Func<string, bool>? Predicate { get; }
 

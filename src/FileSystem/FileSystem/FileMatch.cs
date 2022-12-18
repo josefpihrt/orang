@@ -14,38 +14,36 @@ public class FileMatch
 
     internal FileMatch(
         FileNameSpan nameSpan,
-        Match? nameMatch,
+        Match? name,
         FileSystemInfo? fileSystemInfo = null,
         bool isDirectory = false)
-        : this(nameSpan, nameMatch, default(FileContent), default(Match), fileSystemInfo, isDirectory)
+        : this(name, nameSpan, default(Match), default(FileContent), fileSystemInfo, isDirectory)
     {
     }
 
     internal FileMatch(
+        Match? name,
         FileNameSpan nameSpan,
-        Match? nameMatch,
-        FileContent content,
-        Match? contentMatch,
+        Match? content,
+        FileContent fileContent,
         FileSystemInfo? fileSystemInfo = null,
         bool isDirectory = false)
     {
-        NameMatch = nameMatch;
+        Name = name;
         NameSpan = nameSpan;
+        FileContent = fileContent;
         Content = content;
-        ContentMatch = contentMatch;
         IsDirectory = isDirectory;
         _fileSystemInfo = fileSystemInfo;
     }
 
     public FileNameSpan NameSpan { get; }
 
-    //TODO: Name
-    public Match? NameMatch { get; }
+    public Match? Name { get; }
 
-    internal FileContent Content { get; set; }
+    internal FileContent FileContent { get; set; }
 
-    //TODO: Content
-    public Match? ContentMatch { get; }
+    public Match? Content { get; }
 
     public bool IsDirectory { get; }
 
@@ -71,13 +69,13 @@ public class FileMatch
 
     public string Path => NameSpan.Path;
 
-    internal int Index => (NameMatch?.Success == true) ? NameMatch.Index : -1;
+    internal int Index => (Name?.Success == true) ? Name.Index : -1;
 
-    internal int Length => (NameMatch?.Success == true) ? NameMatch.Length : -1;
+    internal int Length => (Name?.Success == true) ? Name.Length : -1;
 
-    internal string ContentText => Content.Text;
+    internal string ContentText => FileContent.Text;
 
-    internal Encoding Encoding => Content.Encoding;
+    internal Encoding Encoding => FileContent.Encoding;
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private string DebuggerDisplay => $"{Path}";

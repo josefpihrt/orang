@@ -116,8 +116,8 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
                 Extension = Options.ExtensionFilter,
                 Content = Options.ContentFilter,
                 Predicate = filePredicate,
-                Attributes = Options.Attributes,
-                AttributesToSkip = Options.AttributesToSkip,
+                WithAttributes = Options.Attributes,
+                WithoutAttributes = Options.AttributesToSkip,
                 EmptyOption = Options.EmptyOption
             };
         }

@@ -88,12 +88,12 @@ internal abstract class CommonCopyCommand : CommonFindCommand
         }
         else if (fileExists)
         {
-            if (CopyOptions.CompareProperties != FileCompareProperties.None
+            if (CopyOptions.ComparedProperties != FileCompareProperties.None
                 && FileSystemUtilities.FileEquals(
                     sourcePath,
                     destinationPath,
-                    CopyOptions.CompareProperties,
-                    CopyOptions.CompareAttributes,
+                    CopyOptions.ComparedProperties,
+                    CopyOptions.ComparedAttributes,
                     CopyOptions.AllowedTimeDiff))
             {
                 return null;

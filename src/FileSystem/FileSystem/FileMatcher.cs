@@ -20,15 +20,12 @@ public class FileMatcher
 
     public Matcher? Content { get; set; }
 
-    //TODO: WithAttributes
-    public FileAttributes Attributes { get; set; }
+    public FileAttributes WithAttributes { get; set; }
 
-    //TODO: WithoutAttributes
-    public FileAttributes AttributesToSkip { get; set; }
+    public FileAttributes WithoutAttributes { get; set; }
 
     public FileEmptyOption EmptyOption { get; set; }
 
-    //TODO: MatchFile
     public Func<FileInfo, bool>? Predicate { get; set; }
 
     internal bool IsMatch(string path)
@@ -56,7 +53,7 @@ public class FileMatcher
         var isEmpty = false;
         FileInfo? fileInfo = null;
 
-        if (Attributes != 0
+        if (WithAttributes != 0
             || emptyOption != FileEmptyOption.None
             || Predicate is not null)
         {
@@ -64,8 +61,8 @@ public class FileMatcher
             {
                 fileInfo = new FileInfo(path);
 
-                if (Attributes != 0
-                    && (fileInfo.Attributes & Attributes) != Attributes)
+                if (WithAttributes != 0
+                    && (fileInfo.Attributes & WithAttributes) != WithAttributes)
                 {
                     return default;
                 }
@@ -159,7 +156,7 @@ public class FileMatcher
                 if (contentMatch is null)
                     return default;
 
-                return (new FileMatch(span, match, fileContent, contentMatch, fileInfo), null);
+                return (new FileMatch(match, span, contentMatch, fileContent, fileInfo), null);
             }
         }
 

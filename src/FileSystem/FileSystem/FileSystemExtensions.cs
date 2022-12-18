@@ -36,7 +36,7 @@ internal static class FileSystemExtensions
 
         MaxReason maxReason = CaptureFactory.GetCaptures(
             ref captures,
-            fileMatch.NameMatch!,
+            fileMatch.Name!,
             count: count,
             predicate: predicate,
             cancellationToken: cancellationToken);

@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 #pragma warning disable RCS1223 // Mark publicly visible type with DebuggerDisplay attribute.
 
-namespace Orang.FileSystem.Fluent;
+namespace Orang.FileSystem;
 
 public class FileMatcherBuilder
 {
@@ -17,7 +17,7 @@ public class FileMatcherBuilder
     private FileAttributes? _withAttributes;
     private FileAttributes? _withoutAttributes;
     private FileEmptyOption? _emptyOption;
-    private Func<FileInfo, bool>? _predicate;
+    private Func<FileInfo, bool>? _matchFileInfo;
 
     internal FileMatcherBuilder()
     {
@@ -61,7 +61,7 @@ public class FileMatcherBuilder
                 Pattern.From(
                     extensions[0],
                     PatternOptions.Equals | PatternOptions.Literal),
-                (FileSystemUtilities.IsCaseSensitive) ? RegexOptions.None : RegexOptions.IgnoreCase,
+                FileSystemUtilities.IsCaseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase,
                 invert: invert);
         }
         else
@@ -70,7 +70,7 @@ public class FileMatcherBuilder
                 Pattern.Any(
                     extensions,
                     PatternOptions.Equals | PatternOptions.Literal),
-                (FileSystemUtilities.IsCaseSensitive) ? RegexOptions.None : RegexOptions.IgnoreCase,
+                FileSystemUtilities.IsCaseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase,
                 invert: invert);
         }
     }
@@ -136,7 +136,7 @@ public class FileMatcherBuilder
 
     public FileMatcherBuilder Match(Func<FileInfo, bool> predicate)
     {
-        _predicate = predicate;
+        _matchFileInfo = predicate;
 
         return this;
     }
@@ -152,7 +152,7 @@ public class FileMatcherBuilder
             WithAttributes = _withAttributes ?? 0,
             WithoutAttributes = _withoutAttributes ?? 0,
             EmptyOption = _emptyOption ?? FileEmptyOption.None,
-            Predicate = _predicate,
+            MatchFileInfo = _matchFileInfo,
         };
     }
 }

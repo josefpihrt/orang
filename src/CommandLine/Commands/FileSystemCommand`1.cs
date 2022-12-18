@@ -115,7 +115,7 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
                 NamePart = Options.NamePart,
                 Extension = Options.ExtensionFilter,
                 Content = Options.ContentFilter,
-                Predicate = filePredicate,
+                MatchFileInfo = filePredicate,
                 WithAttributes = Options.Attributes,
                 WithoutAttributes = Options.AttributesToSkip,
                 EmptyOption = Options.EmptyOption
@@ -128,9 +128,9 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
             {
                 Name = Options.NameFilter,
                 NamePart = Options.NamePart,
-                Predicate = directoryPredicate,
-                Attributes = Options.Attributes,
-                AttributesToSkip = Options.AttributesToSkip,
+                MatchDirectoryInfo = directoryPredicate,
+                WithAttributes = Options.Attributes,
+                WithoutAttributes = Options.AttributesToSkip,
                 EmptyOption = Options.EmptyOption
             };
         }
@@ -142,7 +142,7 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
 
         if (directoryFilter is not null)
         {
-            if (directoryFilter.InvertMatch)
+            if (directoryFilter.Invert)
             {
                 excludeDirectory = DirectoryPredicate.Create(directoryFilter, Options.DirectoryNamePart);
             }

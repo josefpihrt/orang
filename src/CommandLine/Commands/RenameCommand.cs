@@ -12,7 +12,7 @@ internal class RenameCommand : DeleteOrRenameCommand<RenameCommandOptions>
 {
     public RenameCommand(RenameCommandOptions options, Logger logger) : base(options, logger)
     {
-        Debug.Assert(options.NameFilter?.InvertMatch == false);
+        Debug.Assert(options.NameFilter?.Invert == false);
 
         if (_logger.ShouldWrite(Verbosity.Minimal))
         {

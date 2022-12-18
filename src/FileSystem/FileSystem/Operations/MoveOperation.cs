@@ -6,25 +6,25 @@ using System.Threading;
 
 #pragma warning disable RCS1223 // Mark publicly visible type with DebuggerDisplay attribute.
 
-namespace Orang.FileSystem.Fluent;
+namespace Orang.FileSystem.FileSystem.Operations;
 
-public class CopyOperation
+public class MoveOperation
 {
     private readonly Search _search;
     private readonly string _directoryPath;
     private readonly string _destinationPath;
     private ConflictResolution _conflictResolution = ConflictResolution.Skip;
     private bool _dryRun;
+    private bool _flat;
     private Action<OperationProgress>? _logOperation;
     private FileCompareProperties _comparedProperties;
     private FileAttributes? _comparedAttributes;
     private TimeSpan? _allowedTimeDiff;
-    private bool _flat;
     private IDialogProvider<ConflictInfo>? _dialogProvider;
     private Func<string, string, bool>? _compareFile;
     private Func<string, string, bool>? _compareDirectory;
 
-    internal CopyOperation(Search search, string directoryPath, string destinationPath)
+    internal MoveOperation(Search search, string directoryPath, string destinationPath)
     {
         if (search is null)
             throw new ArgumentNullException(nameof(search));
@@ -40,21 +40,21 @@ public class CopyOperation
         _destinationPath = destinationPath;
     }
 
-    public CopyOperation WithConflictResolution(ConflictResolution conflictResolution)
+    public MoveOperation WithConflictResolution(ConflictResolution conflictResolution)
     {
         _conflictResolution = conflictResolution;
 
         return this;
     }
 
-    public CopyOperation CompareSize()
+    public MoveOperation CompareSize()
     {
         _comparedProperties |= FileCompareProperties.Size;
 
         return this;
     }
 
-    public CopyOperation CompareModifiedTime(TimeSpan? allowedTimeDiff = null)
+    public MoveOperation CompareModifiedTime(TimeSpan? allowedTimeDiff = null)
     {
         _comparedProperties |= FileCompareProperties.ModifiedTime;
         _allowedTimeDiff = allowedTimeDiff;
@@ -62,7 +62,7 @@ public class CopyOperation
         return this;
     }
 
-    public CopyOperation CompareAttributes(FileAttributes? attributes = null)
+    public MoveOperation CompareAttributes(FileAttributes? attributes = null)
     {
         _comparedProperties |= FileCompareProperties.Attributes;
         _comparedAttributes = attributes;
@@ -70,49 +70,49 @@ public class CopyOperation
         return this;
     }
 
-    public CopyOperation CompareContent()
+    public MoveOperation CompareContent()
     {
         _comparedProperties |= FileCompareProperties.Content;
 
         return this;
     }
 
-    public CopyOperation CompareFile(Func<string, string, bool> comparer)
+    public MoveOperation CompareFile(Func<string, string, bool> comparer)
     {
         _compareFile = comparer;
 
         return this;
     }
 
-    public CopyOperation CompareDirectory(Func<string, string, bool> comparer)
+    public MoveOperation CompareDirectory(Func<string, string, bool> comparer)
     {
         _compareDirectory = comparer;
 
         return this;
     }
 
-    public CopyOperation Flat()
+    public MoveOperation Flat()
     {
         _flat = true;
 
         return this;
     }
 
-    public CopyOperation DryRun()
+    public MoveOperation DryRun()
     {
         _dryRun = true;
 
         return this;
     }
 
-    public CopyOperation LogOperation(Action<OperationProgress> logOperation)
+    public MoveOperation LogOperation(Action<OperationProgress> logOperation)
     {
         _logOperation = logOperation;
 
         return this;
     }
 
-    public CopyOperation WithDialogProvider(IDialogProvider<ConflictInfo> dialogProvider)
+    public MoveOperation WithDialogProvider(IDialogProvider<ConflictInfo> dialogProvider)
     {
         _dialogProvider = dialogProvider;
 
@@ -135,6 +135,6 @@ public class CopyOperation
             CompareDirectory = _compareDirectory,
         };
 
-        return _search.Copy(_directoryPath, _destinationPath, options, cancellationToken);
+        return _search.Move(_directoryPath, _destinationPath, options, cancellationToken);
     }
 }

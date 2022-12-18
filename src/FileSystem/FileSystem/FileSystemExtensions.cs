@@ -11,6 +11,11 @@ namespace Orang.FileSystem;
 
 internal static class FileSystemExtensions
 {
+    internal static bool IsMatch(this DirectoryMatcher matcher, string path)
+    {
+        return matcher.Match(path).FileMatch is not null;
+    }
+
     internal static string GetReplacement(
         this FileMatch fileMatch,
         Replacer replacer,

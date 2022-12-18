@@ -52,14 +52,13 @@ public class Matcher
             GroupName = "";
         }
 
-        InvertMatch = invert;
+        Invert = invert;
         Predicate = predicate;
     }
 
     public Regex Regex { get; }
 
-    //TODO: Invert, Negative
-    public bool InvertMatch { get; }
+    public bool Invert { get; }
 
     public int GroupNumber { get; }
 
@@ -86,7 +85,7 @@ public class Matcher
                 while (match.Success)
                 {
                     if (Predicate.Invoke(match.Value))
-                        return (InvertMatch) ? null : match;
+                        return (Invert) ? null : match;
 
                     match = match.NextMatch();
                 }
@@ -100,7 +99,7 @@ public class Matcher
                     if (group.Success
                         && Predicate.Invoke(group.Value))
                     {
-                        return (InvertMatch) ? null : match;
+                        return (Invert) ? null : match;
                     }
 
                     match = match.NextMatch();
@@ -110,17 +109,17 @@ public class Matcher
         else if (GroupNumber < 1)
         {
             if (match.Success)
-                return (InvertMatch) ? null : match;
+                return (Invert) ? null : match;
         }
         else
         {
             Group group = match.Groups[GroupNumber];
 
             if (group.Success)
-                return (InvertMatch) ? null : match;
+                return (Invert) ? null : match;
         }
 
-        return (InvertMatch)
+        return (Invert)
             ? System.Text.RegularExpressions.Match.Empty
             : null;
     }

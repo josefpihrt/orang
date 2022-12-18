@@ -5,7 +5,7 @@ using System.Threading;
 
 #pragma warning disable RCS1223 // Mark publicly visible type with DebuggerDisplay attribute.
 
-namespace Orang.FileSystem.Fluent;
+namespace Orang.FileSystem.FileSystem.Operations;
 
 public class DeleteOperation
 {

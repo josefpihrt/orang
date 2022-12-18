@@ -16,7 +16,7 @@ public class SearchOptions
         get
         {
             if (SearchDirectory is not null
-                && SearchDirectory.Name?.InvertMatch != true)
+                && SearchDirectory.Name?.Invert != true)
             {
                 return path => SearchDirectory.IsMatch(path);
             }
@@ -30,7 +30,7 @@ public class SearchOptions
         get
         {
             if (SearchDirectory is not null
-                && SearchDirectory.Name?.InvertMatch != false)
+                && SearchDirectory.Name?.Invert != false)
             {
                 return path => !SearchDirectory.IsMatch(path);
             }
@@ -45,5 +45,5 @@ public class SearchOptions
 
     public bool TopDirectoryOnly { get; set; }
 
-    public bool IgnoreInaccessible { get; set; } = true;
+    internal bool IgnoreInaccessible { get; set; } = true;
 }

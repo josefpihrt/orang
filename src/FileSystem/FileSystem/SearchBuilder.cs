@@ -3,10 +3,11 @@
 using System;
 using System.Text;
 using System.Text.RegularExpressions;
+using Orang.FileSystem.FileSystem.Operations;
 
 #pragma warning disable RCS1223 // Mark publicly visible type with DebuggerDisplay attribute.
 
-namespace Orang.FileSystem.Fluent;
+namespace Orang.FileSystem;
 
 public class SearchBuilder
 {
@@ -170,7 +171,7 @@ public class SearchBuilder
 
         if (fileMatcher is not null)
         {
-            return (directoryMatcher is not null)
+            return directoryMatcher is not null
                 ? new Search(fileMatcher, directoryMatcher, options)
                 : new Search(fileMatcher, options);
         }

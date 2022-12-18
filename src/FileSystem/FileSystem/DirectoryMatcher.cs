@@ -15,18 +15,13 @@ public class DirectoryMatcher
 
     public FileNamePart NamePart { get; set; }
 
-    public FileAttributes Attributes { get; set; }
+    public FileAttributes WithAttributes { get; set; }
 
-    public FileAttributes AttributesToSkip { get; set; }
+    public FileAttributes WithoutAttributes { get; set; }
 
     public FileEmptyOption EmptyOption { get; set; }
 
-    public Func<DirectoryInfo, bool>? Predicate { get; set; }
-
-    internal bool IsMatch(string path)
-    {
-        return Match(path).FileMatch is not null;
-    }
+    public Func<DirectoryInfo, bool>? MatchDirectoryInfo { get; set; }
 
     internal (FileMatch? FileMatch, Exception? Exception) Match(string path)
     {
@@ -43,21 +38,21 @@ public class DirectoryMatcher
 
         DirectoryInfo? directoryInfo = null;
 
-        if (Attributes != 0
+        if (WithAttributes != 0
             || EmptyOption != FileEmptyOption.None
-            || Predicate is not null)
+            || MatchDirectoryInfo is not null)
         {
             try
             {
                 directoryInfo = new DirectoryInfo(path);
 
-                if (Attributes != 0
-                    && (directoryInfo.Attributes & Attributes) != Attributes)
+                if (WithAttributes != 0
+                    && (directoryInfo.Attributes & WithAttributes) != WithAttributes)
                 {
                     return default;
                 }
 
-                if (Predicate?.Invoke(directoryInfo) == false)
+                if (MatchDirectoryInfo?.Invoke(directoryInfo) == false)
                     return default;
 
                 if (EmptyOption == FileEmptyOption.Empty)

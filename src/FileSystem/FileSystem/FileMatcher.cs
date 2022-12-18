@@ -26,12 +26,7 @@ public class FileMatcher
 
     public FileEmptyOption EmptyOption { get; set; }
 
-    public Func<FileInfo, bool>? Predicate { get; set; }
-
-    internal bool IsMatch(string path)
-    {
-        return Match(path).FileMatch is not null;
-    }
+    public Func<FileInfo, bool>? MatchFileInfo { get; set; }
 
     internal (FileMatch? FileMatch, Exception? Exception) Match(string path, Encoding? defaultEncoding = null)
     {
@@ -55,7 +50,7 @@ public class FileMatcher
 
         if (WithAttributes != 0
             || emptyOption != FileEmptyOption.None
-            || Predicate is not null)
+            || MatchFileInfo is not null)
         {
             try
             {
@@ -67,7 +62,7 @@ public class FileMatcher
                     return default;
                 }
 
-                if (Predicate?.Invoke(fileInfo) == false)
+                if (MatchFileInfo?.Invoke(fileInfo) == false)
                     return default;
 
                 if (emptyOption != FileEmptyOption.None)

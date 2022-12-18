@@ -704,7 +704,7 @@ internal class DiagnosticWriter
         WriteIndent();
         WriteName("negative");
         WriteIndent();
-        WriteLine(matcher.InvertMatch.ToString().ToLowerInvariant());
+        WriteLine(matcher.Invert.ToString().ToLowerInvariant());
         WriteIndent();
         WriteName("group");
 

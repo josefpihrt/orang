@@ -209,7 +209,7 @@ public class Search
             if (fileMatcher.Name is null)
                 throw new InvalidOperationException("Name matcher is not defined.");
 
-            if (fileMatcher.Name.InvertMatch)
+            if (fileMatcher.Name.Invert)
                 throw new InvalidOperationException("Name matcher cannot be negative.");
         }
 
@@ -226,7 +226,7 @@ public class Search
             if (directoryMatcher.Name is null)
                 throw new InvalidOperationException("Name matcher is not defined.");
 
-            if (directoryMatcher.Name.InvertMatch)
+            if (directoryMatcher.Name.Invert)
                 throw new InvalidOperationException("Name matcher cannot be negative.");
         }
 
@@ -290,7 +290,7 @@ public class Search
         if (matcher.Content is null)
             throw new InvalidOperationException("Content matcher is not defined.");
 
-        if (matcher.Content.InvertMatch)
+        if (matcher.Content.Invert)
             throw new InvalidOperationException("Content matcher cannot be negative.");
 
         options ??= new ReplaceOptions();

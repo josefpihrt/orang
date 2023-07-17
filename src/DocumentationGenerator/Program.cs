@@ -76,7 +76,7 @@ internal static class Program
             foreach (Command command in commands)
             {
                 mw.WriteStartBulletItem();
-                mw.WriteLink(command.DisplayName, $"commands/{command.Name}.md");
+                mw.WriteLink(command.DisplayName, $"commands/{command.Name}/index.md");
                 mw.WriteEndBulletItem();
             }
 
@@ -150,7 +150,7 @@ internal static class Program
 
             Table(
                 TableRow("Command", "Description"),
-                commands.Select(f => TableRow(Link(f.DisplayName, $"commands/{f.Name}.md"), f.Description)))
+                commands.Select(f => TableRow(Link(f.DisplayName, $"{f.Name}/index.md"), f.Description)))
                 .WriteTo(mw);
 
             WriteFootNote(mw);
@@ -245,14 +245,14 @@ internal static class Program
         mw.WriteLine();
         mw.WriteStartItalic();
         mw.WriteString("(Generated with ");
-        mw.WriteLink("DotMarkdown", "http://github.com/JosefPihrt/DotMarkdown");
+        mw.WriteLink("DotMarkdown", "https://github.com/JosefPihrt/DotMarkdown");
         mw.WriteString(")");
         mw.WriteEndItalic();
     }
 
     private static void AddFootnote(MDocument document)
     {
-        document.Add(Italic("(Generated with ", Link("DotMarkdown", "http://github.com/JosefPihrt/DotMarkdown"), ")"));
+        document.Add(Italic("(Generated with ", Link("DotMarkdown", "https://github.com/JosefPihrt/DotMarkdown"), ")"));
     }
 
     private static void WriteFrontMatter(MarkdownWriter mw, int? position = null, string? label = null)

@@ -9,19 +9,19 @@ Search, replace, rename and delete files and its content using the power of \.NE
 
 ## Commands
 
-- [copy](commands/copy.md)
-- [delete](commands/delete.md)
-- [find](commands/find.md)
-- [help](commands/help.md)
-- [move](commands/move.md)
-- [regex escape](commands/regex-escape.md)
-- [regex list](commands/regex-list.md)
-- [regex match](commands/regex-match.md)
-- [regex split](commands/regex-split.md)
-- [rename](commands/rename.md)
-- [replace](commands/replace.md)
-- [spellcheck](commands/spellcheck.md)
-- [sync](commands/sync.md)
+- [copy](commands/copy/index.md)
+- [delete](commands/delete/index.md)
+- [find](commands/find/index.md)
+- [help](commands/help/index.md)
+- [move](commands/move/index.md)
+- [regex escape](commands/regex-escape/index.md)
+- [regex list](commands/regex-list/index.md)
+- [regex match](commands/regex-match/index.md)
+- [regex split](commands/regex-split/index.md)
+- [rename](commands/rename/index.md)
+- [replace](commands/replace/index.md)
+- [spellcheck](commands/spellcheck/index.md)
+- [sync](commands/sync/index.md)
 
 ## Exit Code
 
@@ -37,16 +37,16 @@ Redirected/piped input will be used either as a raw text or as a list of paths s
 
 Command | Piped Input
 --- | ---
-[copy](Commands/copy.md) | list of paths
-[delete](Commands/delete.md) | list of paths
-[find](Commands/find.md) | text (default) or list of paths when `--pipe p[aths]` is specified
-[move](Commands/move.md) | list of paths
-[regex escape](Commands/regex-escape.md) | text
-[regex match](Commands/regex-match.md) | text
-[regex split](Commands/regex-split.md) | text
-[rename](Commands/rename.md) | list of paths
-[replace](Commands/replace.md) | text (default) or list of paths when `--pipe p[aths]` is specified
-[sync](Commands/sync.md) | list of paths
+[copy](commands/copy/index.md) | list of paths
+[delete](commands/delete/index.md) | list of paths
+[find](commands/find/index.md) | text (default) or list of paths when `--pipe p[aths]` is specified
+[move](commands/move/index.md) | list of paths
+[regex escape](commands/regex-escape/index.md) | text
+[regex match](commands/regex-match/index.md) | text
+[regex split](commands/regex-split/index.md) | text
+[rename](commands/rename/index.md) | list of paths
+[replace](commands/replace/index.md) | text (default) or list of paths when `--pipe p[aths]` is specified
+[sync](commands/sync/index.md) | list of paths
 
 ## Multi-value Parameters
 

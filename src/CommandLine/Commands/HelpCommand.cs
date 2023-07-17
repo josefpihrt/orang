@@ -86,12 +86,10 @@ internal class HelpCommand : AbstractCommand<HelpCommandOptions>
     // https://github.com/dotnet/corefx/issues/10361
     private void OpenHelpInBrowser(string? commandName)
     {
-        var url = "http://pihrt.net/redirect?id=orang-cli";
+        var url = "https://josefpihrt.github.io/docs/orang/cli";
 
         if (commandName is not null)
-            url += "-" + commandName;
-
-        url += $"&version={PackageInfo.Version}";
+            url += $"/commands/{commandName}";
 #if DEBUG
         _logger.WriteLine(url, Verbosity.Normal);
 #endif

@@ -1,5 +1,6 @@
 ﻿---
 sidebar_position: 2
+sidebar_label: How to's
 ---
 
 # How to

@@ -150,7 +150,7 @@ internal static class Program
 
             Table(
                 TableRow("Command", "Description"),
-                commands.Select(f => TableRow(Link(f.DisplayName, $"Commands/{f.Name}.md"), f.Description)))
+                commands.Select(f => TableRow(Link(f.DisplayName, $"commands/{f.Name}.md"), f.Description)))
                 .WriteTo(mw);
 
             WriteFootNote(mw);

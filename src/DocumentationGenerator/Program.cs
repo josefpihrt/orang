@@ -92,11 +92,11 @@ internal static class Program
             Console.WriteLine(readmeFilePath);
         }
 
+        Directory.CreateDirectory(Path.Combine(destinationDirectoryPath, "commands"));
+
         GenerateCommands(commands, destinationDirectoryPath, settings);
 
         GenerateOptionValues(commands, destinationDirectoryPath, settings);
-
-        Directory.CreateDirectory(Path.Combine(destinationDirectoryPath, "commands"));
 
         foreach (Command command in application.Commands)
         {

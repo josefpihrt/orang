@@ -106,7 +106,6 @@ internal class DocumentationWriter : MarkdownDocumentationWriter
                 return OptionValueProviders.ProvidersByName.TryGetValue(match.Value, out provider);
         }
 
-
         provider = null;
         return false;
     }

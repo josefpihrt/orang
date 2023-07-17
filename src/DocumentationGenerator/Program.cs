@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -50,6 +49,14 @@ internal static class Program
         string? dataDirectoryPath = args[1];
 
         Directory.CreateDirectory(destinationDirectoryPath);
+
+        foreach (string filePath in Directory.EnumerateFiles(Path.Combine(dataDirectoryPath, "files")))
+        {
+            string destinationFilePath = Path.Combine(destinationDirectoryPath, Path.GetFileName(filePath));
+
+            Console.WriteLine($"Copying '{filePath}' to '{destinationFilePath}'");
+            File.Copy(filePath, destinationFilePath, overwrite: true);
+        }
 
         string readmeFilePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "index.md"));
 

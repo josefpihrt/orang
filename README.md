@@ -52,7 +52,7 @@ orang [command] [parameters]
 * [delete](https://josefpihrt.github.io/docs/orang/cli/commands/delete)
 * [spellcheck](https://josefpihrt.github.io/docs/orang/cli/commands/spellcheck)
 
-For a list of all commands please see [documentation](https://josefpihrt.github.io/docs/orang/cli/commands).
+For a list of all commands please see [documentation](https://josefpihrt.github.io/docs/orang/cli).
 
 ## How to Learn
 

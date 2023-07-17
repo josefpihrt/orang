@@ -2,27 +2,26 @@
 
 using System.Collections.Generic;
 
-namespace Orang.Text.RegularExpressions
+namespace Orang.Text.RegularExpressions;
+
+internal abstract class GroupDefinitionEqualityComparer : EqualityComparer<GroupDefinition>
 {
-    internal abstract class GroupDefinitionEqualityComparer : EqualityComparer<GroupDefinition>
+    public static GroupDefinitionEqualityComparer ByNumber { get; } = new GroupDefinitionNumberEqualityComparer();
+
+    public override abstract bool Equals(GroupDefinition x, GroupDefinition y);
+
+    public override abstract int GetHashCode(GroupDefinition obj);
+
+    private class GroupDefinitionNumberEqualityComparer : GroupDefinitionEqualityComparer
     {
-        public static GroupDefinitionEqualityComparer ByNumber { get; } = new GroupDefinitionNumberEqualityComparer();
-
-        public override abstract bool Equals(GroupDefinition x, GroupDefinition y);
-
-        public override abstract int GetHashCode(GroupDefinition obj);
-
-        private class GroupDefinitionNumberEqualityComparer : GroupDefinitionEqualityComparer
+        public override bool Equals(GroupDefinition x, GroupDefinition y)
         {
-            public override bool Equals(GroupDefinition x, GroupDefinition y)
-            {
-                return x.Number == y.Number;
-            }
+            return x.Number == y.Number;
+        }
 
-            public override int GetHashCode(GroupDefinition obj)
-            {
-                return obj.Number.GetHashCode();
-            }
+        public override int GetHashCode(GroupDefinition obj)
+        {
+            return obj.Number.GetHashCode();
         }
     }
 }

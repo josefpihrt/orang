@@ -2,17 +2,16 @@
 
 using System;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+[Flags]
+internal enum ReplaceFlags
 {
-    [Flags]
-    internal enum ReplaceFlags
-    {
-        None = 0,
-        TrimStart = 1,
-        TrimEnd = 1 << 1,
-        Trim = TrimStart | TrimEnd,
-        ToUpper = 1 << 2,
-        ToLower = 1 << 3,
-        CultureInvariant = 1 << 4,
-    }
+    None = 0,
+    TrimStart = 1,
+    TrimEnd = 1 << 1,
+    Trim = TrimStart | TrimEnd,
+    ToUpper = 1 << 2,
+    ToLower = 1 << 3,
+    CultureInvariant = 1 << 4,
 }

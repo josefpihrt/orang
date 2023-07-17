@@ -2,13 +2,12 @@
 
 using System;
 
-namespace Orang
+namespace Orang;
+
+[Flags]
+internal enum ModifierOptions
 {
-    [Flags]
-    internal enum ModifierOptions
-    {
-        None = 0,
-        FromFile = 1,
-        FromDll = 1 << 1,
-    }
+    None = 0,
+    FromFile = 1,
+    FromDll = 1 << 1,
 }

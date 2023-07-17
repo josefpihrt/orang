@@ -16,43 +16,43 @@ using Orang.CommandLine.Annotations;
 using Orang.CommandLine.Help;
 using static DotMarkdown.Linq.MFactory;
 
-namespace Orang.Documentation
+namespace Orang.Documentation;
+
+internal static class Program
 {
-    internal static class Program
+    private static readonly Regex _removeNewlineRegex = new(@"\ *\r?\n\ *");
+
+    private static void Main(params string[] args)
     {
-        private static readonly Regex _removeNewlineRegex = new(@"\ *\r?\n\ *");
+        IEnumerable<Command> commands = CommandLoader.LoadCommands(typeof(AbstractCommandLineOptions).Assembly)
+            .Select(c =>
+            {
+                IEnumerable<CommandOption> options = c.Options
+                    .Where(f => f.PropertyInfo.GetCustomAttribute<HideFromHelpAttribute>() is null)
+                    .OrderBy(f => f, CommandOptionComparer.Name);
 
-        private static void Main(params string[] args)
+                return c.WithOptions(options);
+            })
+            .OrderBy(c => c.Name, StringComparer.InvariantCulture);
+
+        var application = new CommandLineApplication(
+            "orang",
+            "Search, replace, rename and delete files and its content using the power of .NET regular expressions.",
+            commands.OrderBy(f => f.Name, StringComparer.InvariantCulture));
+
+        string? destinationDirectoryPath = null;
+        string? dataDirectoryPath = null;
+
+        if (Debugger.IsAttached)
         {
-            IEnumerable<Command> commands = CommandLoader.LoadCommands(typeof(AbstractCommandLineOptions).Assembly)
-                .Select(c =>
-                {
-                    IEnumerable<CommandOption> options = c.Options
-                        .Where(f => f.PropertyInfo.GetCustomAttribute<HideFromHelpAttribute>() == null)
-                        .OrderBy(f => f, CommandOptionComparer.Name);
-
-                    return c.WithOptions(options);
-                })
-                .OrderBy(c => c.Name, StringComparer.InvariantCulture);
-
-            var application = new CommandLineApplication(
-                "orang",
-                "Search, replace, rename and delete files and its content using the power of .NET regular expressions.",
-                commands.OrderBy(f => f.Name, StringComparer.InvariantCulture));
-
-            string? destinationDirectoryPath = null;
-            string? dataDirectoryPath = null;
-
-            if (Debugger.IsAttached)
-            {
-                destinationDirectoryPath = (args.Length > 0) ? args[0] : @"..\..\..\..\..\docs\cli";
-                dataDirectoryPath = @"..\..\..\data";
-            }
-            else
-            {
-                destinationDirectoryPath = args[0];
-                dataDirectoryPath = @"..\src\DocumentationGenerator\data";
-            }
+            destinationDirectoryPath = (args.Length > 0) ? args[0] : @"..\..\..\..\..\docs\cli";
+            dataDirectoryPath = @"..\..\..\data";
+        }
+        else
+        {
+            destinationDirectoryPath = args[0];
+            dataDirectoryPath = @"..\src\DocumentationGenerator\data";
+        }
 
             string readmeFilePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "index.md"));
 
@@ -60,12 +60,12 @@ namespace Orang.Documentation
                 tableOptions: MarkdownFormat.Default.TableOptions | TableOptions.FormatHeaderAndContent,
                 angleBracketEscapeStyle: AngleBracketEscapeStyle.EntityRef);
 
-            var settings = new MarkdownWriterSettings(
+        var settings = new MarkdownWriterSettings(
                 markdownFormat);
 
-            using (var sw = new StreamWriter(readmeFilePath, append: false, Encoding.UTF8))
-            using (MarkdownWriter mw = MarkdownWriter.Create(sw, settings))
-            {
+        using (var sw = new StreamWriter(readmeFilePath, append: false, Encoding.UTF8))
+        using (MarkdownWriter mw = MarkdownWriter.Create(sw, settings))
+        {
                 mw.WriteRaw("---");
                 mw.WriteLine();
                 mw.WriteRaw("sidebar_position: 0");
@@ -75,75 +75,75 @@ namespace Orang.Documentation
                 mw.WriteRaw("---");
                 mw.WriteLine();
 
-                mw.WriteStartHeading(1);
-                mw.WriteString("Orang Command Line Tool");
-                mw.WriteEndHeading();
-                mw.WriteString(application.Description);
-                mw.WriteLine();
+            mw.WriteStartHeading(1);
+            mw.WriteString("Orang Command Line Tool");
+            mw.WriteEndHeading();
+            mw.WriteString(application.Description);
+            mw.WriteLine();
 
-                mw.WriteHeading2("Commands");
+            mw.WriteHeading2("Commands");
 
-                Table(
-                    TableRow("Command", "Description"),
-                    application
-                        .Commands
-                        .Select(f => TableRow(Link(f.DisplayName, $"Commands/{f.Name}.md"), f.Description)))
-                    .WriteTo(mw);
+            Table(
+                TableRow("Command", "Description"),
+                application
+                    .Commands
+                    .Select(f => TableRow(Link(f.DisplayName, $"Commands/{f.Name}.md"), f.Description)))
+                .WriteTo(mw);
 
-                mw.WriteLine();
+            mw.WriteLine();
 
-                string readmeLinksFilePath = Path.Combine(dataDirectoryPath, "readme_bottom.md");
+            string readmeLinksFilePath = Path.Combine(dataDirectoryPath, "readme_bottom.md");
 
-                if (File.Exists(readmeLinksFilePath))
-                    mw.WriteRaw(File.ReadAllText(readmeLinksFilePath));
+            if (File.Exists(readmeLinksFilePath))
+                mw.WriteRaw(File.ReadAllText(readmeLinksFilePath));
 
-                WriteFootNote(mw);
+            WriteFootNote(mw);
 
-                Console.WriteLine(readmeFilePath);
-            }
+            Console.WriteLine(readmeFilePath);
+        }
 
-            string valuesFilePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "OptionValues.md"));
+        string valuesFilePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "OptionValues.md"));
 
-            ImmutableArray<OptionValueProvider> providers = OptionValueProvider.GetProviders(
-                commands.SelectMany(f => f.Options),
-                OptionValueProviders.ProvidersByName.Select(f => f.Value))
-                .ToImmutableArray();
+        ImmutableArray<OptionValueProvider> providers = OptionValueProvider.GetProviders(
+            commands.SelectMany(f => f.Options),
+            OptionValueProviders.ProvidersByName.Select(f => f.Value))
+            .ToImmutableArray();
 
-            MDocument document = Document(
-                Heading1("List of Option Values"),
-                //BulletList(providers.Select(f => Link(
-                //    f.Name,
-                //    MarkdownHelpers.CreateGitHubHeadingLink(f.Name)))),
-                providers.Select(provider =>
-                {
-                    return new MObject[]
-                    {
-                        Heading2(provider.Name),
-                        Table(
-                            TableRow("Value", " ", "Description"),
-                            provider.Values.Select(f => CreateTableRow(f, providers)))
-                    };
-                }));
-
-            document.Add(
-                Heading2("Expression Syntax"),
-                Table(
-                    TableRow("Expression", "Description"),
-                    HelpProvider.GetExpressionItems(includeDate: true)
-                        .Select(f => TableRow(InlineCode(f.expression), f.description))));
-
-            AddFootnote(document);
-
-            File.WriteAllText(valuesFilePath, document.ToString(markdownFormat));
-
-            foreach (Command command in application.Commands)
+        MDocument document = Document(
+            Heading1("List of Option Values"),
+            //BulletList(providers.Select(f => Link(
+            //    f.Name,
+            //    MarkdownHelpers.CreateGitHubHeadingLink(f.Name)))),
+            providers.Select(provider =>
             {
-                readmeFilePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "Commands", $"{command.Name}.md"));
-
-                using (var sw = new StreamWriter(readmeFilePath, append: false, Encoding.UTF8))
-                using (MarkdownWriter mw = MarkdownWriter.Create(sw, settings))
+                return new MObject[]
                 {
-                    var writer = new DocumentationWriter(mw);
+                    Heading2(provider.Name),
+                    Table(
+                        TableRow("Value", " ", "Description"),
+                        provider.Values.Select(f => CreateTableRow(f, providers)))
+                };
+            }));
+
+        document.Add(
+            Heading2("Expression Syntax"),
+            Table(
+                TableRow("Expression", "Description"),
+                HelpProvider.GetExpressionItems(includeDate: true)
+                    .Select(f => TableRow(InlineCode(f.expression), f.description))));
+
+        AddFootnote(document);
+
+        File.WriteAllText(valuesFilePath, document.ToString(markdownFormat));
+
+        foreach (Command command in application.Commands)
+        {
+            readmeFilePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "Commands", $"{command.Name}.md"));
+
+            using (var sw = new StreamWriter(readmeFilePath, append: false, Encoding.UTF8))
+            using (MarkdownWriter mw = MarkdownWriter.Create(sw, settings))
+            {
+                var writer = new DocumentationWriter(mw);
 
                     mw.WriteRaw("---");
                     mw.WriteLine();
@@ -152,97 +152,96 @@ namespace Orang.Documentation
                     mw.WriteRaw("---");
                     mw.WriteLine();
 
-                    writer.WriteCommandHeading(command, application);
-                    writer.WriteCommandDescription(command);
+                writer.WriteCommandHeading(command, application);
+                writer.WriteCommandDescription(command);
 
-                    //mw.WriteLink("Home", "index.md#readme");
+                //mw.WriteLink("Home", "index.md#readme");
 
-                    //foreach (string section in new[] { "Synopsis", "Arguments", "Options", "Samples" })
-                    //{
-                    //    mw.WriteString(" ");
-                    //    mw.WriteCharEntity((char)0x2022);
-                    //    mw.WriteString(" ");
-                    //    mw.WriteLink(section, "#" + section);
-                    //}
+                //foreach (string section in new[] { "Synopsis", "Arguments", "Options", "Samples" })
+                //{
+                //    mw.WriteString(" ");
+                //    mw.WriteCharEntity((char)0x2022);
+                //    mw.WriteString(" ");
+                //    mw.WriteLink(section, "#" + section);
+                //}
 
-                    //mw.WriteLine();
+                //mw.WriteLine();
 
-                    writer.WriteCommandSynopsis(command, application);
-                    writer.WriteArguments(command.Arguments);
-                    writer.WriteOptions(command.Options);
+                writer.WriteCommandSynopsis(command, application);
+                writer.WriteArguments(command.Arguments);
+                writer.WriteOptions(command.Options);
 
-                    string samplesFilePath = Path.Combine(dataDirectoryPath, command.Name + "_bottom.md");
+                string samplesFilePath = Path.Combine(dataDirectoryPath, command.Name + "_bottom.md");
 
-                    if (File.Exists(samplesFilePath))
-                    {
-                        string content = File.ReadAllText(samplesFilePath);
-                        mw.WriteRaw(content);
-                    }
-
-                    WriteFootNote(mw);
-
-                    Console.WriteLine(readmeFilePath);
+                if (File.Exists(samplesFilePath))
+                {
+                    string content = File.ReadAllText(samplesFilePath);
+                    mw.WriteRaw(content);
                 }
+
+                WriteFootNote(mw);
+
+                Console.WriteLine(readmeFilePath);
             }
         }
+    }
 
-        private static MTableRow CreateTableRow(
-            OptionValue optionValue,
-            ImmutableArray<OptionValueProvider> providers)
+    private static MTableRow CreateTableRow(
+        OptionValue optionValue,
+        ImmutableArray<OptionValueProvider> providers)
+    {
+        object? value = null;
+        string? shortValue = null;
+
+        switch (optionValue)
         {
-            object? value = null;
-            string? shortValue = null;
+            case SimpleOptionValue simpleOptionValue:
+                {
+                    value = simpleOptionValue.Value;
+                    shortValue = simpleOptionValue.ShortValue;
+                    break;
+                }
+            case KeyValuePairOptionValue keyValuePairOptionValue:
+                {
+                    string value2 = keyValuePairOptionValue.Value;
 
-            switch (optionValue)
-            {
-                case SimpleOptionValue simpleOptionValue:
+                    if (OptionValueProvider.MetaValueRegex.IsMatch(value2)
+                        && providers.Any(f => f.Name == value2))
                     {
-                        value = simpleOptionValue.Value;
-                        shortValue = simpleOptionValue.ShortValue;
-                        break;
+                        value = Inline(
+                            $"{keyValuePairOptionValue.Key}=",
+                            Link(value2, MarkdownHelpers.CreateGitHubHeadingLink(value2)));
                     }
-                case KeyValuePairOptionValue keyValuePairOptionValue:
+                    else
                     {
-                        string value2 = keyValuePairOptionValue.Value;
-
-                        if (OptionValueProvider.MetaValueRegex.IsMatch(value2)
-                            && providers.Any(f => f.Name == value2))
-                        {
-                            value = Inline(
-                                $"{keyValuePairOptionValue.Key}=",
-                                Link(value2, MarkdownHelpers.CreateGitHubHeadingLink(value2)));
-                        }
-                        else
-                        {
-                            value = $"{keyValuePairOptionValue.Key}={value2}";
-                        }
-
-                        shortValue = keyValuePairOptionValue.ShortKey;
-                        break;
+                        value = $"{keyValuePairOptionValue.Key}={value2}";
                     }
-            }
 
-            string description = _removeNewlineRegex.Replace(optionValue.Description ?? "", " ");
-
-            return TableRow(
-                value,
-                (string.IsNullOrEmpty(shortValue)) ? " " : shortValue,
-                (string.IsNullOrEmpty(description)) ? " " : description);
+                    shortValue = keyValuePairOptionValue.ShortKey;
+                    break;
+                }
         }
 
-        private static void WriteFootNote(MarkdownWriter mw)
-        {
-            mw.WriteLine();
-            mw.WriteStartItalic();
-            mw.WriteString("(Generated with ");
-            mw.WriteLink("DotMarkdown", "http://github.com/JosefPihrt/DotMarkdown");
-            mw.WriteString(")");
-            mw.WriteEndItalic();
-        }
+        string description = _removeNewlineRegex.Replace(optionValue.Description ?? "", " ");
 
-        private static void AddFootnote(MDocument document)
-        {
-            document.Add(Italic("(Generated with ", Link("DotMarkdown", "http://github.com/JosefPihrt/DotMarkdown"), ")"));
-        }
+        return TableRow(
+            value,
+            (string.IsNullOrEmpty(shortValue)) ? " " : shortValue,
+            (string.IsNullOrEmpty(description)) ? " " : description);
+    }
+
+    private static void WriteFootNote(MarkdownWriter mw)
+    {
+        mw.WriteLine();
+        mw.WriteStartItalic();
+        mw.WriteString("(Generated with ");
+        mw.WriteLink("DotMarkdown", "http://github.com/JosefPihrt/DotMarkdown");
+        mw.WriteString(")");
+        mw.WriteEndItalic();
+    }
+
+    private static void AddFootnote(MDocument document)
+    {
+        document.Add(Italic("(Generated with ", Link("DotMarkdown", "http://github.com/JosefPihrt/DotMarkdown"), ")"));
     }
 }

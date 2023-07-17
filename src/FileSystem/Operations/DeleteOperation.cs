@@ -4,39 +4,38 @@ using System;
 using System.IO;
 using Orang.FileSystem;
 
-namespace Orang.Operations
+namespace Orang.Operations;
+
+internal class DeleteOperation : DeleteOrRenameOperation
 {
-    internal class DeleteOperation : DeleteOrRenameOperation
+    public override OperationKind OperationKind => OperationKind.Delete;
+
+    public DeleteOptions DeleteOptions { get; set; } = null!;
+
+    protected override void ExecuteMatch(
+        FileMatch fileMatch,
+        string directoryPath)
     {
-        public override OperationKind OperationKind => OperationKind.Delete;
-
-        public DeleteOptions DeleteOptions { get; set; } = null!;
-
-        protected override void ExecuteMatch(
-            FileMatch fileMatch,
-            string directoryPath)
+        try
         {
-            try
+            if (!DryRun)
             {
-                if (!DryRun)
-                {
-                    FileSystemHelpers.Delete(
-                        fileMatch,
-                        contentOnly: DeleteOptions.ContentOnly,
-                        includingBom: DeleteOptions.IncludingBom,
-                        filesOnly: DeleteOptions.FilesOnly,
-                        directoriesOnly: DeleteOptions.DirectoriesOnly);
-                }
-
-                Report(fileMatch);
-
-                Telemetry.IncrementProcessedCount(fileMatch.IsDirectory);
+                FileSystemHelpers.Delete(
+                    fileMatch,
+                    contentOnly: DeleteOptions.ContentOnly,
+                    includingBom: DeleteOptions.IncludingBom,
+                    filesOnly: DeleteOptions.FilesOnly,
+                    directoriesOnly: DeleteOptions.DirectoriesOnly);
             }
-            catch (Exception ex) when (ex is IOException
-                || ex is UnauthorizedAccessException)
-            {
-                Report(fileMatch, ex);
-            }
+
+            Report(fileMatch);
+
+            Telemetry.IncrementProcessedCount(fileMatch.IsDirectory);
+        }
+        catch (Exception ex) when (ex is IOException
+            || ex is UnauthorizedAccessException)
+        {
+            Report(fileMatch, ex);
         }
     }
 }

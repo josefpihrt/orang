@@ -1,11 +1,10 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-namespace Orang
+namespace Orang;
+
+internal enum MaxReason
 {
-    internal enum MaxReason
-    {
-        None = 0,
-        CountEqualsMax = 1,
-        CountExceedsMax = 2,
-    }
+    None = 0,
+    CountEqualsMax = 1,
+    CountExceedsMax = 2,
 }

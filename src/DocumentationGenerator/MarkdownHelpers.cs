@@ -1,20 +1,19 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-namespace Orang
+namespace Orang;
+
+internal static class MarkdownHelpers
 {
-    internal static class MarkdownHelpers
+    public static string CreateGitHubHeadingLink(string value)
     {
-        public static string CreateGitHubHeadingLink(string value)
-        {
-            return "#"
-                + value
-                    .Replace("<", "")
-                    .Replace(">", "")
-                    .Replace("[", "")
-                    .Replace("]", "")
-                    .Replace("|", "")
-                    .Replace(" ", "-")
-                    .ToLower();
-        }
+        return "#"
+            + value
+                .Replace("<", "")
+                .Replace(">", "")
+                .Replace("[", "")
+                .Replace("]", "")
+                .Replace("|", "")
+                .Replace(" ", "-")
+                .ToLower();
     }
 }

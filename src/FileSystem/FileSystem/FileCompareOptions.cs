@@ -2,15 +2,14 @@
 
 using System;
 
-namespace Orang.FileSystem
+namespace Orang.FileSystem;
+
+[Flags]
+public enum FileCompareOptions
 {
-    [Flags]
-    public enum FileCompareOptions
-    {
-        None = 0,
-        Size = 1,
-        ModifiedTime = 1 << 1,
-        Attributes = 1 << 2,
-        Content = 1 << 3,
-    }
+    None = 0,
+    Size = 1,
+    ModifiedTime = 1 << 1,
+    Attributes = 1 << 2,
+    Content = 1 << 3,
 }

@@ -3,63 +3,62 @@
 using System;
 using System.Diagnostics;
 
-namespace Orang
+namespace Orang;
+
+[DebuggerDisplay("{DebuggerDisplay,nq}")]
+internal readonly struct ConsoleColors : IEquatable<ConsoleColors>
 {
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    internal readonly struct ConsoleColors : IEquatable<ConsoleColors>
+    public ConsoleColors(ConsoleColor? foreground)
+        : this(foreground, null)
     {
-        public ConsoleColors(ConsoleColor? foreground)
-            : this(foreground, null)
+    }
+
+    public ConsoleColors(ConsoleColor? foreground, ConsoleColor? background)
+    {
+        Foreground = foreground;
+        Background = background;
+    }
+
+    public ConsoleColor? Foreground { get; }
+
+    public ConsoleColor? Background { get; }
+
+    public bool IsDefault => Foreground is null && Background is null;
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    private string DebuggerDisplay
+    {
+        get
         {
+            return $"{((Foreground is not null) ? Foreground.ToString() : "None")}  "
+                + $"{((Background is not null) ? Background.ToString() : "None")}";
         }
+    }
 
-        public ConsoleColors(ConsoleColor? foreground, ConsoleColor? background)
-        {
-            Foreground = foreground;
-            Background = background;
-        }
+    public override bool Equals(object? obj)
+    {
+        return obj is ConsoleColors colors
+            && Equals(colors);
+    }
 
-        public ConsoleColor? Foreground { get; }
+    public bool Equals(ConsoleColors other)
+    {
+        return Foreground == other.Foreground
+            && Background == other.Background;
+    }
 
-        public ConsoleColor? Background { get; }
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Foreground, Background);
+    }
 
-        public bool IsDefault => Foreground == null && Background == null;
+    public static bool operator ==(ConsoleColors left, ConsoleColors right)
+    {
+        return left.Equals(right);
+    }
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private string DebuggerDisplay
-        {
-            get
-            {
-                return $"{((Foreground != null) ? Foreground.ToString() : "None")}  "
-                    + $"{((Background != null) ? Background.ToString() : "None")}";
-            }
-        }
-
-        public override bool Equals(object? obj)
-        {
-            return obj is ConsoleColors colors
-                && Equals(colors);
-        }
-
-        public bool Equals(ConsoleColors other)
-        {
-            return Foreground == other.Foreground
-                && Background == other.Background;
-        }
-
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(Foreground, Background);
-        }
-
-        public static bool operator ==(ConsoleColors left, ConsoleColors right)
-        {
-            return left.Equals(right);
-        }
-
-        public static bool operator !=(ConsoleColors left, ConsoleColors right)
-        {
-            return !(left == right);
-        }
+    public static bool operator !=(ConsoleColors left, ConsoleColors right)
+    {
+        return !(left == right);
     }
 }

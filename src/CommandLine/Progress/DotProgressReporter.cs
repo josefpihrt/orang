@@ -3,52 +3,51 @@
 using System;
 using Orang.CommandLine;
 
-namespace Orang.FileSystem
+namespace Orang.FileSystem;
+
+internal class DotProgressReporter : ProgressReporter
 {
-    internal class DotProgressReporter : ProgressReporter
+    public DotProgressReporter(string indent, Logger logger) : base(indent, logger)
     {
-        public DotProgressReporter(string indent, Logger logger) : base(indent, logger)
+    }
+
+    public override void Report(SearchProgress value)
+    {
+        if (value.Exception is not null)
+            return;
+
+        switch (value.Kind)
         {
+            case SearchProgressKind.SearchDirectory:
+                {
+                    SearchedDirectoryCount++;
+                    break;
+                }
+            case SearchProgressKind.Directory:
+                {
+                    DirectoryCount++;
+                    WriteProgress();
+                    break;
+                }
+            case SearchProgressKind.File:
+                {
+                    FileCount++;
+                    WriteProgress();
+                    break;
+                }
+            default:
+                {
+                    throw new InvalidOperationException($"Unknown enum value '{value.Kind}'.");
+                }
         }
+    }
 
-        public override void Report(SearchProgress value)
+    protected void WriteProgress()
+    {
+        if ((FileCount + DirectoryCount) % ApplicationOptions.Default.ProgressCount == 0)
         {
-            if (value.Exception != null)
-                return;
-
-            switch (value.Kind)
-            {
-                case SearchProgressKind.SearchDirectory:
-                    {
-                        SearchedDirectoryCount++;
-                        break;
-                    }
-                case SearchProgressKind.Directory:
-                    {
-                        DirectoryCount++;
-                        WriteProgress();
-                        break;
-                    }
-                case SearchProgressKind.File:
-                    {
-                        FileCount++;
-                        WriteProgress();
-                        break;
-                    }
-                default:
-                    {
-                        throw new InvalidOperationException($"Unknown enum value '{value.Kind}'.");
-                    }
-            }
-        }
-
-        protected void WriteProgress()
-        {
-            if ((FileCount + DirectoryCount) % ApplicationOptions.Default.ProgressCount == 0)
-            {
-                _logger.ConsoleOut.Write(".", Colors.Path_Progress);
-                ProgressReported = true;
-            }
+            _logger.ConsoleOut.Write(".", Colors.Path_Progress);
+            ProgressReported = true;
         }
     }
 }

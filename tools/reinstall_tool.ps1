@@ -8,7 +8,7 @@ dotnet pack -c Release --no-build -v normal "../src/CommandLine/CommandLine.cspr
 
 dotnet tool uninstall orang.dotnet.cli -g
 
-dotnet tool install orang.dotnet.cli --version 0.3.1 -g --add-source "../src/CommandLine/bin/Release"
+dotnet tool install orang.dotnet.cli --version 1.0.0 -g --add-source "../src/CommandLine/bin/Release"
 
 Write-Host "DONE"
 Read-Host

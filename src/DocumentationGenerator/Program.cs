@@ -102,7 +102,7 @@ internal static class Program
         {
             readmeFilePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "commands", $"{command.Name}/index.md"));
 
-            Directory.CreateDirectory(Path.GetDirectoryName(readmeFilePath));
+            Directory.CreateDirectory(Path.GetDirectoryName(readmeFilePath)!);
 
             using (var sw = new StreamWriter(readmeFilePath, append: false, Encoding.UTF8))
             using (MarkdownWriter mw = MarkdownWriter.Create(sw, settings))

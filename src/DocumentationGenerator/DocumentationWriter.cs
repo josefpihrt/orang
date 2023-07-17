@@ -95,16 +95,17 @@ internal class DocumentationWriter : MarkdownDocumentationWriter
         if (option.ValueProviderName is not null)
             return OptionValueProviders.ProvidersByName.TryGetValue(option.ValueProviderName, out provider);
 
-        if (option.MetaValue is not null
-            && OptionValueProviders.ProvidersByName.TryGetValue(option.MetaValue, out provider))
+        if (option.MetaValue is not null)
         {
-            return true;
+            if (OptionValueProviders.ProvidersByName.TryGetValue(option.MetaValue, out provider))
+                return true;
+
+            Match match = OptionValueProvider.MetaValueRegex.Match(option.MetaValue);
+
+            if (match.Success)
+                return OptionValueProviders.ProvidersByName.TryGetValue(match.Value, out provider);
         }
 
-        Match match = OptionValueProvider.MetaValueRegex.Match(option.MetaValue);
-
-        if (match.Success)
-            return OptionValueProviders.ProvidersByName.TryGetValue(match.Value, out provider);
 
         provider = null;
         return false;

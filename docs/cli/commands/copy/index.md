@@ -73,13 +73,13 @@ Ask for a permission to copy file or directory\.
 
 File attributes that are required\.
 
-[&lt;ATTRIBUTES&gt;](../OptionValues.md#attributes): `archive`, `compressed`, `d[irectory]`, `e[mpty]`, `encrypted`, `f[ile]`, `h[idden]`, `normal`, `offline`, `r[ead-only]`, `r[eparse-]p[oint]`, `s[ystem]`, `temporary`\.
+[&lt;ATTRIBUTES&gt;](../../OptionValues.md#attributes): `archive`, `compressed`, `d[irectory]`, `e[mpty]`, `encrypted`, `f[ile]`, `h[idden]`, `normal`, `offline`, `r[ead-only]`, `r[eparse-]p[oint]`, `s[ystem]`, `temporary`\.
 
 ##### `-A, --attributes-to-skip <ATTRIBUTES>`
 
 File attributes that should be skipped\.
 
-[&lt;ATTRIBUTES&gt;](../OptionValues.md#attributes): `archive`, `compressed`, `e[mpty]`, `encrypted`, `h[idden]`, `normal`, `offline`, `r[ead-only]`, `r[eparse-]p[oint]`, `s[ystem]`, `temporary`\.
+[&lt;ATTRIBUTES&gt;](../../OptionValues.md#attributes): `archive`, `compressed`, `e[mpty]`, `encrypted`, `h[idden]`, `normal`, `offline`, `r[ead-only]`, `r[eparse-]p[oint]`, `s[ystem]`, `temporary`\.
 
 ##### `--before-context <NUM>`
 
@@ -89,25 +89,25 @@ Number of lines to show before matching line\.
 
 File properties to be compared\.
 
-[&lt;COMPARE_OPTIONS&gt;](../OptionValues.md#compare_options): `n[one]`, `a[ttributes]`, `c[ontent]`, `m[odified-]t[ime]`, `s[ize]`\.
+[&lt;COMPARE_OPTIONS&gt;](../../OptionValues.md#compare_options): `n[one]`, `a[ttributes]`, `c[ontent]`, `m[odified-]t[ime]`, `s[ize]`\.
 
 ##### `--conflict <CONFLICT_RESOLUTION>`
 
 Defines how to resolve conflict when a file/directory already exists\.
 
-[&lt;CONFLICT_RESOLUTION&gt;](../OptionValues.md#conflict_resolution): `a[sk]`, `o[verwrite]`, `suffix`, `s[kip]`\.
+[&lt;CONFLICT_RESOLUTION&gt;](../../OptionValues.md#conflict_resolution): `a[sk]`, `o[verwrite]`, `suffix`, `s[kip]`\.
 
 ##### `-c, --content <PATTERN> [<PATTERN_OPTIONS>]`
 
 Regular expression for files' content\.
 
-[&lt;PATTERN_OPTIONS&gt;](../OptionValues.md#pattern_options): `compiled`, `c[ulture-]i[nvariant]`, `e[cma-]s[cript]`, `e[nds-]w[ith]`, `e[quals]`, `n [explicit-capture]`, `f[rom-file]`, `g[roup]=<GROUP_NAME>`, `i[gnore-case]`, `x [ignore-pattern-whitespace]`, `li[st]`, `length=<NUM>`, `l[ist-]s[eparator]`, `l[iteral]`, `m[ultiline]`, `ne[gative]`, `r[ight-to-left]`, `s[ingleline]`, `s[tarts-]w[ith]`, `timeout=<NUM>`, `w[hole-]l[ine]`, `w[hole-word]`\.
+[&lt;PATTERN_OPTIONS&gt;](../../OptionValues.md#pattern_options): `compiled`, `c[ulture-]i[nvariant]`, `e[cma-]s[cript]`, `e[nds-]w[ith]`, `e[quals]`, `n [explicit-capture]`, `f[rom-file]`, `g[roup]=<GROUP_NAME>`, `i[gnore-case]`, `x [ignore-pattern-whitespace]`, `li[st]`, `length=<NUM>`, `l[ist-]s[eparator]`, `l[iteral]`, `m[ultiline]`, `ne[gative]`, `r[ight-to-left]`, `s[ingleline]`, `s[tarts-]w[ith]`, `timeout=<NUM>`, `w[hole-]l[ine]`, `w[hole-word]`\.
 
 ##### `--content-mode <CONTENT_MODE>`
 
 Defines which parts of a content should be included in the results\.
 
-[&lt;CONTENT_MODE&gt;](../OptionValues.md#content_mode): `a[ll-lines]`, `l[ine]`, `u[nmatched-lines]`, `v[alue]`, `d [value-detail]`, `o[mit]`\.
+[&lt;CONTENT_MODE&gt;](../../OptionValues.md#content_mode): `a[ll-lines]`, `l[ine]`, `u[nmatched-lines]`, `v[alue]`, `d [value-detail]`, `o[mit]`\.
 
 ##### `--context <NUM>`
 
@@ -129,7 +129,7 @@ Encoding to use when a file does not contain BOM\. Default encoding is UTF\-8\.
 
 A filter for file extensions \(case\-insensitive by default\)\.
 
-[&lt;EXTENSION_OPTIONS&gt;](../OptionValues.md#extension_options): `c[ase-]s[ensitive]`, `c[ulture-]i[nvariant]`, `f[rom-file]`, `l[ist-]s[eparator]`, `l[iteral]`, `ne[gative]`, `timeout=<NUM>`\.
+[&lt;EXTENSION_OPTIONS&gt;](../../OptionValues.md#extension_options): `c[ase-]s[ensitive]`, `c[ulture-]i[nvariant]`, `f[rom-file]`, `l[ist-]s[eparator]`, `l[iteral]`, `ne[gative]`, `timeout=<NUM>`\.
 
 ##### `--flat`
 
@@ -143,7 +143,7 @@ Show command line help\.
 
 Parts of the output to highlight\.
 
-[&lt;HIGHLIGHT&gt;](../OptionValues.md#highlight): `n[one]`, `m[atch]`, `e[mpty-]m[atch]`, `e[mpty]`, `b[oundary]`, `t[ab]`, `c[arriage-]r[eturn]`, `l[ine]f[eed]`, `newline`, `space`\.
+[&lt;HIGHLIGHT&gt;](../../OptionValues.md#highlight): `n[one]`, `m[atch]`, `e[mpty-]m[atch]`, `e[mpty]`, `b[oundary]`, `t[ab]`, `c[arriage-]r[eturn]`, `l[ine]f[eed]`, `newline`, `space`\.
 
 ##### `-i, --include-directory <PATTERN> [<PATTERN_OPTIONS>]`
 
@@ -189,7 +189,7 @@ Path to a file that should store output\.
 
 Defines which part of a path should be included in the results\.
 
-[&lt;PATH_MODE&gt;](../OptionValues.md#path_mode): `f[ull]`, `r[elative]`, `m[atch]`, `o[mit]`\.
+[&lt;PATH_MODE&gt;](../../OptionValues.md#path_mode): `f[ull]`, `r[elative]`, `m[atch]`, `o[mit]`\.
 
 ##### `--paths <PATH>`
 
@@ -207,13 +207,13 @@ Display dot \(\.\) for every hundredth searched file or directory\.
 
 Display file's properties and optionally filter by that properties\.
 
-[&lt;FILE_PROPERTIES&gt;](../OptionValues.md#file_properties): `c[reation-]t[ime][=<DATE>]`, `m[odified-]t[ime][=<DATE>]`, `s[ize][=<NUM>]`\.
+[&lt;FILE_PROPERTIES&gt;](../../OptionValues.md#file_properties): `c[reation-]t[ime][=<DATE>]`, `m[odified-]t[ime][=<DATE>]`, `s[ize][=<NUM>]`\.
 
 ##### `-s, --sort <SORT_OPTIONS>`
 
 Sort matched files and directories\.
 
-[&lt;SORT_OPTIONS&gt;](../OptionValues.md#sort_options): `a[scending]`, `c[reation-]t[ime]`, `ci [culture-invariant]`, `d[escending]`, `m[ax-count]=<NUM>`, `m[odified-]t[ime]`, `n[ame]`, `s[ize]`\.
+[&lt;SORT_OPTIONS&gt;](../../OptionValues.md#sort_options): `a[scending]`, `c[reation-]t[ime]`, `ci [culture-invariant]`, `d[escending]`, `m[ax-count]=<NUM>`, `m[odified-]t[ime]`, `n[ame]`, `s[ize]`\.
 
 ##### `-u, --summary`
 
@@ -227,7 +227,7 @@ A directory to copy files and directories to\. It can be also specified as a las
 
 The amount of information to display in the log\.
 
-[&lt;VERBOSITY&gt;](../OptionValues.md#verbosity): `q[uiet]`, `m[inimal]`, `n[ormal]`, `d[etailed]`, `di[agnostic]`\.
+[&lt;VERBOSITY&gt;](../../OptionValues.md#verbosity): `q[uiet]`, `m[inimal]`, `n[ormal]`, `d[etailed]`, `di[agnostic]`\.
 
 ## Redirected/Piped Input
 

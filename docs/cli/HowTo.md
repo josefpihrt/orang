@@ -1,4 +1,8 @@
-﻿# How to
+﻿---
+sidebar_position: 2
+---
+
+# How to
 
 ### How to exclude directory from a search
 

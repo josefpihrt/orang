@@ -44,7 +44,7 @@ Text is a replacement string\.
 
 The amount of information to display in the log\.
 
-[&lt;VERBOSITY&gt;](../OptionValues.md#verbosity): `q[uiet]`, `m[inimal]`, `n[ormal]`, `d[etailed]`, `di[agnostic]`\.
+[&lt;VERBOSITY&gt;](../../OptionValues.md#verbosity): `q[uiet]`, `m[inimal]`, `n[ormal]`, `d[etailed]`, `di[agnostic]`\.
 
 ## Redirected/Piped Input
 

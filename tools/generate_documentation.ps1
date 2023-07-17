@@ -2,9 +2,8 @@ dotnet build "../src/DocumentationGenerator/DocumentationGenerator.csproj" -c Re
 
 if(!$?) { Read-Host; Exit }
 
-dotnet "../src/DocumentationGenerator/bin/Release/netcoreapp3.1/Orang.DocumentationGenerator.dll" "../docs/cli"
+dotnet "../src/DocumentationGenerator/bin/Release/netcoreapp3.1/Orang.DocumentationGenerator.dll" "../docs/cli" "../src/DocumentationGenerator/data"
 
 if(!$?) { Read-Host; Exit }
 
 Write-Host "DONE"
-Read-Host

@@ -29,7 +29,7 @@ Command name\.
 
 Regular expression to filter results\.
 
-[PatternOptions_List](../OptionValues.md#patternoptions_list): `c[ase-]s[ensitive]`, `compiled`, `c[ulture-]i[nvariant]`, `e[cma-]s[cript]`, `n [explicit-capture]`, `f[rom-file]`, `g[roup]=<GROUP_NAME>`, `x [ignore-pattern-whitespace]`, `li[st]`, `l[ist-]s[eparator]`, `l[iteral]`, `m[ultiline]`, `ne[gative]`, `r[ight-to-left]`, `s[ingleline]`, `timeout=<NUM>`, `w[hole-]l[ine]`\.
+[PatternOptions_List](../../OptionValues.md#patternoptions_list): `c[ase-]s[ensitive]`, `compiled`, `c[ulture-]i[nvariant]`, `e[cma-]s[cript]`, `n [explicit-capture]`, `f[rom-file]`, `g[roup]=<GROUP_NAME>`, `x [ignore-pattern-whitespace]`, `li[st]`, `l[ist-]s[eparator]`, `l[iteral]`, `m[ultiline]`, `ne[gative]`, `r[ight-to-left]`, `s[ingleline]`, `timeout=<NUM>`, `w[hole-]l[ine]`\.
 
 ##### `-h, --help`
 
@@ -47,7 +47,7 @@ Launch online help in a default browser\.
 
 The amount of information to display in the log\.
 
-[&lt;VERBOSITY&gt;](../OptionValues.md#verbosity): `q[uiet]`, `m[inimal]`, `n[ormal]`, `d[etailed]`, `di[agnostic]`\.
+[&lt;VERBOSITY&gt;](../../OptionValues.md#verbosity): `q[uiet]`, `m[inimal]`, `n[ormal]`, `d[etailed]`, `di[agnostic]`\.
 
 
 *\(Generated with [DotMarkdown](http://github.com/JosefPihrt/DotMarkdown)\)*

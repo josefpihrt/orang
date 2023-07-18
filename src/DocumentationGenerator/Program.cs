@@ -50,15 +50,15 @@ internal static class Program
 
         Directory.CreateDirectory(destinationDirectoryPath);
 
-        foreach (string filePath in Directory.EnumerateFiles(Path.Combine(dataDirectoryPath, "files")))
+        foreach (string path in Directory.EnumerateFiles(Path.Combine(dataDirectoryPath, "files")))
         {
-            string destinationFilePath = Path.Combine(destinationDirectoryPath, Path.GetFileName(filePath));
+            string destinationFilePath = Path.Combine(destinationDirectoryPath, Path.GetFileName(path));
 
-            Console.WriteLine($"Copying '{filePath}' to '{destinationFilePath}'");
-            File.Copy(filePath, destinationFilePath, overwrite: true);
+            Console.WriteLine($"Copying '{path}' to '{destinationFilePath}'");
+            File.Copy(path, destinationFilePath, overwrite: true);
         }
 
-        string readmeFilePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "index.md"));
+        string filePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "../cli.md"));
 
         var markdownFormat = new MarkdownFormat(
             bulletListStyle: BulletListStyle.Minus,
@@ -67,10 +67,10 @@ internal static class Program
 
         var settings = new MarkdownWriterSettings(markdownFormat);
 
-        using (var sw = new StreamWriter(readmeFilePath, append: false, Encoding.UTF8))
+        using (var sw = new StreamWriter(filePath, append: false, Encoding.UTF8))
         using (MarkdownWriter mw = MarkdownWriter.Create(sw, settings))
         {
-            WriteFrontMatter(mw, 0, "Orang Command Line Tool");
+            WriteFrontMatter(mw, 0, "Orang CLI");
 
             mw.WriteStartHeading(1);
             mw.WriteString("Orang Command Line Tool");
@@ -83,7 +83,7 @@ internal static class Program
             foreach (Command command in commands)
             {
                 mw.WriteStartBulletItem();
-                mw.WriteLink(command.DisplayName, $"commands/{command.Name}/index.md");
+                mw.WriteLink(command.DisplayName, $"cli/commands/{command.Name}");
                 mw.WriteEndBulletItem();
             }
 
@@ -96,7 +96,7 @@ internal static class Program
 
             WriteFootNote(mw);
 
-            Console.WriteLine(readmeFilePath);
+            Console.WriteLine(filePath);
         }
 
         Directory.CreateDirectory(Path.Combine(destinationDirectoryPath, "commands"));
@@ -107,11 +107,11 @@ internal static class Program
 
         foreach (Command command in application.Commands)
         {
-            readmeFilePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "commands", $"{command.Name}/index.md"));
+            filePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "commands", $"{command.Name}.md"));
 
-            Directory.CreateDirectory(Path.GetDirectoryName(readmeFilePath)!);
+            Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
 
-            using (var sw = new StreamWriter(readmeFilePath, append: false, Encoding.UTF8))
+            using (var sw = new StreamWriter(filePath, append: false, Encoding.UTF8))
             using (MarkdownWriter mw = MarkdownWriter.Create(sw, settings))
             {
                 var writer = new DocumentationWriter(mw);
@@ -140,14 +140,14 @@ internal static class Program
 
                 WriteFootNote(mw);
 
-                Console.WriteLine(readmeFilePath);
+                Console.WriteLine(filePath);
             }
         }
     }
 
     private static void GenerateCommands(IEnumerable<Command> commands, string destinationDirectoryPath, MarkdownWriterSettings settings)
     {
-        string filePath = Path.Combine(destinationDirectoryPath, "commands", "index.md");
+        string filePath = Path.Combine(destinationDirectoryPath, "commands.md");
         using (var sw = new StreamWriter(filePath, append: false, Encoding.UTF8))
         using (MarkdownWriter mw = MarkdownWriter.Create(sw, settings))
         {
@@ -157,7 +157,7 @@ internal static class Program
 
             Table(
                 TableRow("Command", "Description"),
-                commands.Select(f => TableRow(Link(f.DisplayName, $"{f.Name}/index.md"), f.Description)))
+                commands.Select(f => TableRow(Link(f.DisplayName, $"commands/{f.Name}"), f.Description)))
                 .WriteTo(mw);
 
             WriteFootNote(mw);
@@ -171,7 +171,7 @@ internal static class Program
         string destinationDirectoryPath,
         MarkdownWriterSettings settings)
     {
-        string valuesFilePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "OptionValues.md"));
+        string filePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "OptionValues.md"));
 
         ImmutableArray<OptionValueProvider> providers = OptionValueProvider.GetProviders(
             commands.SelectMany(f => f.Options),
@@ -200,7 +200,7 @@ internal static class Program
 
         AddFootnote(document);
 
-        File.WriteAllText(valuesFilePath, document.ToString(settings));
+        File.WriteAllText(filePath, document.ToString(settings));
     }
 
     private static MTableRow CreateTableRow(
@@ -247,20 +247,15 @@ internal static class Program
             (string.IsNullOrEmpty(description)) ? " " : description);
     }
 
+#pragma warning disable IDE0060, RCS1163
     private static void WriteFootNote(MarkdownWriter mw)
     {
-        mw.WriteLine();
-        mw.WriteStartItalic();
-        mw.WriteString("(Generated with ");
-        mw.WriteLink("DotMarkdown", "https://github.com/JosefPihrt/DotMarkdown");
-        mw.WriteString(")");
-        mw.WriteEndItalic();
     }
 
     private static void AddFootnote(MDocument document)
     {
-        document.Add(Italic("(Generated with ", Link("DotMarkdown", "https://github.com/JosefPihrt/DotMarkdown"), ")"));
     }
+#pragma warning restore IDE0060, RCS1163
 
     private static void WriteFrontMatter(MarkdownWriter mw, int? position = null, string? label = null)
     {

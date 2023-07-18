@@ -48,9 +48,9 @@ internal static class Program
         string? destinationDirectoryPath = args[0];
         string? dataDirectoryPath = args[1];
 
-        Directory.CreateDirectory(destinationDirectoryPath);
+        string filePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "cli.md"));
 
-        string filePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "../cli.md"));
+        Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
 
         var markdownFormat = new MarkdownFormat(
             bulletListStyle: BulletListStyle.Minus,
@@ -91,15 +91,13 @@ internal static class Program
             Console.WriteLine(filePath);
         }
 
-        Directory.CreateDirectory(Path.Combine(destinationDirectoryPath, "commands"));
-
         GenerateCommands(commands, destinationDirectoryPath, settings);
 
         GenerateOptionValues(commands, destinationDirectoryPath, settings);
 
         foreach (Command command in application.Commands)
         {
-            filePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "commands", $"{command.Name}.md"));
+            filePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "cli/commands", $"{command.Name}.md"));
 
             Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
 
@@ -139,7 +137,10 @@ internal static class Program
 
     private static void GenerateCommands(IEnumerable<Command> commands, string destinationDirectoryPath, MarkdownWriterSettings settings)
     {
-        string filePath = Path.Combine(destinationDirectoryPath, "commands.md");
+        string filePath = Path.Combine(destinationDirectoryPath, "cli/commands.md");
+
+        Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
+
         using (var sw = new StreamWriter(filePath, append: false, Encoding.UTF8))
         using (MarkdownWriter mw = MarkdownWriter.Create(sw, settings))
         {
@@ -163,7 +164,7 @@ internal static class Program
         string destinationDirectoryPath,
         MarkdownWriterSettings settings)
     {
-        string filePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "option-values.md"));
+        string filePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "cli/option-values.md"));
 
         ImmutableArray<OptionValueProvider> providers = OptionValueProvider.GetProviders(
             commands.SelectMany(f => f.Options),

@@ -50,14 +50,6 @@ internal static class Program
 
         Directory.CreateDirectory(destinationDirectoryPath);
 
-        foreach (string path in Directory.EnumerateFiles(Path.Combine(dataDirectoryPath, "files")))
-        {
-            string destinationFilePath = Path.Combine(destinationDirectoryPath, Path.GetFileName(path));
-
-            Console.WriteLine($"Copying '{path}' to '{destinationFilePath}'");
-            File.Copy(path, destinationFilePath, overwrite: true);
-        }
-
         string filePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "../cli.md"));
 
         var markdownFormat = new MarkdownFormat(
@@ -171,7 +163,7 @@ internal static class Program
         string destinationDirectoryPath,
         MarkdownWriterSettings settings)
     {
-        string filePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "OptionValues.md"));
+        string filePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "option-values.md"));
 
         ImmutableArray<OptionValueProvider> providers = OptionValueProvider.GetProviders(
             commands.SelectMany(f => f.Options),

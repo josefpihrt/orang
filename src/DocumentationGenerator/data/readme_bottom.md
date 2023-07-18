@@ -47,8 +47,8 @@ orang find "C:/Documents" -c "abc" i m
 
 ## Links
 
-* [List of Option Values](cli/OptionValues)
-* [How to's](cli/HowTo)
+* [List of Option Values](cli/option-values)
+* [How to's](cli/how-to)
 
 ## External Links
 

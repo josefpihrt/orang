@@ -9,4 +9,3 @@ dotnet tool uninstall orang.dotnet.cli -g
 dotnet tool install orang.dotnet.cli --version 1.0.0 -g --add-source "../src/CommandLine/bin/Debug"
 
 Write-Host "DONE"
-Read-Host

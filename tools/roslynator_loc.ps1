@@ -5,4 +5,3 @@ roslynator loc "../src/Orang.sln" `
  --verbosity d
 
 Write-Host "DONE"
-Read-Host 

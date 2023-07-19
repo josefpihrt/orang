@@ -30,4 +30,3 @@ Remove-Item "$outDir/*"
 Copy-Item -Path "../src/CommandLine/bin/Release/Orang.DotNet.Cli.*.nupkg" -Destination "$outDir"
 
 Write-Host "DONE"
-Read-Host

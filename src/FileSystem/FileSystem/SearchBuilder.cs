@@ -3,7 +3,7 @@
 using System;
 using System.Text;
 using System.Text.RegularExpressions;
-using Orang.FileSystem.FileSystem.Operations;
+using Orang.FileSystem.Operations;
 
 #pragma warning disable RCS1223 // Mark publicly visible type with DebuggerDisplay attribute.
 

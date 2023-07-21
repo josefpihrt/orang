@@ -83,8 +83,8 @@ internal sealed class RegexListCommandLineOptions : AbstractCommandLineOptions
             OptionNames.Filter,
             OptionValueProviders.PatternOptions_List_Provider,
             out Filter? filter,
-            includedPatternOptions: PatternOptions.IgnoreCase,
-            allowNull: true))
+            allowNull: true,
+            includedPatternOptions: PatternOptions.IgnoreCase))
         {
             return false;
         }

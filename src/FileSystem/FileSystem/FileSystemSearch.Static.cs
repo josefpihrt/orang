@@ -111,9 +111,6 @@ public partial class FileSystemSearch
         if (directoryPath is null)
             throw new ArgumentNullException(nameof(directoryPath));
 
-        if (renameOptions is null)
-            throw new ArgumentNullException(nameof(renameOptions));
-
         if (directoryPath is null)
             throw new ArgumentNullException(nameof(directoryPath));
 

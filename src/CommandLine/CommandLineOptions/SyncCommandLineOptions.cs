@@ -62,7 +62,10 @@ internal sealed class SyncCommandLineOptions : CommonCopyCommandLineOptions
             Compare,
             OptionNames.Compare,
             out FileCompareProperties compareProperties,
-            FileCompareProperties.Attributes | FileCompareProperties.Content | FileCompareProperties.ModifiedTime | FileCompareProperties.Size,
+            FileCompareProperties.Attributes
+                | FileCompareProperties.Content
+                | FileCompareProperties.ModifiedTime
+                | FileCompareProperties.Size,
             OptionValueProviders.FileCompareOptionsProvider))
         {
             return false;

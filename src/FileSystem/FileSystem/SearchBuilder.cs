@@ -170,7 +170,7 @@ public class SearchBuilder
 
         if (fileMatcher is not null)
         {
-            return directoryMatcher is not null
+            return (directoryMatcher is not null)
                 ? new Search(fileMatcher, directoryMatcher, options)
                 : new Search(fileMatcher, options);
         }

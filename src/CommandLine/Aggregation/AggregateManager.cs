@@ -193,8 +193,8 @@ internal sealed class AggregateManager
                         WriteGroup(sections, cancellationToken);
 
                     count++;
-
-                } while (en.MoveNext());
+                }
+                while (en.MoveNext());
 
                 WriteSummary(count, valuesMap);
             }

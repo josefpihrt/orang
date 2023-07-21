@@ -1677,8 +1677,8 @@ internal class ParseContext
                         {
                             sb.Append("|");
                             AppendValue(en.Current, sb);
-
-                        } while (en.MoveNext());
+                        }
+                        while (en.MoveNext());
 
                         return StringBuilderCache.GetStringAndFree(sb);
                     }

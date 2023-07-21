@@ -61,7 +61,7 @@ public class FileMatcherBuilder
                 Pattern.From(
                     extensions[0],
                     PatternOptions.Equals | PatternOptions.Literal),
-                FileSystemUtilities.IsCaseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase,
+                (FileSystemUtilities.IsCaseSensitive) ? RegexOptions.None : RegexOptions.IgnoreCase,
                 invert: invert);
         }
         else
@@ -70,7 +70,7 @@ public class FileMatcherBuilder
                 Pattern.Any(
                     extensions,
                     PatternOptions.Equals | PatternOptions.Literal),
-                FileSystemUtilities.IsCaseSensitive ? RegexOptions.None : RegexOptions.IgnoreCase,
+                (FileSystemUtilities.IsCaseSensitive) ? RegexOptions.None : RegexOptions.IgnoreCase,
                 invert: invert);
         }
     }

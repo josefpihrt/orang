@@ -674,12 +674,14 @@ internal class DiagnosticWriter
         WriteLine();
     }
 
+#if DEBUG
     private void WriteOption(string name, TimeSpan value)
     {
         WriteName(name);
         WriteValue(value.ToString());
         WriteLine();
     }
+#endif
 
     private void WriteEncoding(string name, Encoding encoding)
     {
@@ -728,6 +730,7 @@ internal class DiagnosticWriter
         }
     }
 
+#if DEBUG
     private void WriteRegex(string name, Regex? regex)
     {
         WriteName(name);
@@ -741,6 +744,7 @@ internal class DiagnosticWriter
 
         WriteRegex(regex);
     }
+#endif
 
     private void WriteRegex(Regex regex)
     {

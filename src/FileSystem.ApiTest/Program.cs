@@ -11,7 +11,7 @@ public static class Program
 {
     public static void Main()
     {
-        IOperationResult result = SearchBuilder.Create()
+        IOperationResult result = new SearchBuilder()
             .DirectoryName(Pattern.Any("bin", "obj", PatternOptions.Equals))
             .SkipDirectory(Pattern.Any(".git", ".vs", PatternOptions.Equals))
             .Delete("<DIRECTORY_PATH>")

@@ -18,13 +18,8 @@ public class SearchBuilder
     private Action<SearchProgress>? _logProgress;
     private Encoding? _defaultEncoding;
 
-    internal SearchBuilder()
+    public SearchBuilder()
     {
-    }
-
-    public static SearchBuilder Create()
-    {
-        return new SearchBuilder();
     }
 
     public SearchBuilder MatchFile(Action<FileMatcherBuilder> configureMatcher)

@@ -3,7 +3,6 @@
 using System;
 using System.Text;
 using System.Text.RegularExpressions;
-using Orang.FileSystem.Operations;
 
 #pragma warning disable RCS1223 // Mark publicly visible type with DebuggerDisplay attribute.
 
@@ -183,40 +182,5 @@ public class SearchBuilder
         {
             throw new InvalidOperationException("File matcher or directory matcher must be specified.");
         }
-    }
-
-    public DeleteOperation Delete(string directoryPath)
-    {
-        return new DeleteOperation(Build(), directoryPath);
-    }
-
-    public CopyOperation Copy(string directoryPath, string destinationPath)
-    {
-        return new CopyOperation(Build(), directoryPath, destinationPath);
-    }
-
-    public MoveOperation Move(string directoryPath, string destinationPath)
-    {
-        return new MoveOperation(Build(), directoryPath, destinationPath);
-    }
-
-    public RenameOperation Rename(string directoryPath, string replacement)
-    {
-        return new RenameOperation(Build(), directoryPath, replacement);
-    }
-
-    public RenameOperation Rename(string directoryPath, MatchEvaluator matchEvaluator)
-    {
-        return new RenameOperation(Build(), directoryPath, matchEvaluator);
-    }
-
-    public ReplaceOperation Replace(string directoryPath, string destinationPath)
-    {
-        return new ReplaceOperation(Build(), directoryPath, destinationPath);
-    }
-
-    public ReplaceOperation Replace(string directoryPath, MatchEvaluator matchEvaluator)
-    {
-        return new ReplaceOperation(Build(), directoryPath, matchEvaluator);
     }
 }

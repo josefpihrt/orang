@@ -15,7 +15,7 @@ public static class Program
         IOperationResult result = SearchBuilder.Create()
             .DirectoryName(Pattern.Any("bin", "obj", PatternOptions.Equals))
             .SkipDirectory(Pattern.Any(".git", ".vs", PatternOptions.Equals))
-            .Delete("c:/code/datamole/ddp-kernel-device-provisioning")
+            .Delete("<DIRECTORY_PATH>")
             .ContentOnly()
             .DryRun()
             .LogOperation(o => Console.WriteLine(o.Path))
@@ -38,7 +38,7 @@ public static class Program
             });
 
         result = search.Delete(
-            @"C:\code\datamole\ddp-kernel-device-provisioning",
+            "<DIRECTORY_PATH>",
             new DeleteOptions()
             {
                 ContentOnly = true,

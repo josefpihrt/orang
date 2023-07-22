@@ -9,7 +9,6 @@
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <PackageId>Orang.Core</PackageId>
-    <PackageReadmeFile>docs/README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>

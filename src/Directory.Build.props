@@ -17,6 +17,7 @@
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageIcon>icon.png</PackageIcon>
     <PackageTags>FileSystem;RegularExpression;Regex;RegExp</PackageTags>
+    <PackageReadmeFile>docs/README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/JosefPihrt/Orang.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>

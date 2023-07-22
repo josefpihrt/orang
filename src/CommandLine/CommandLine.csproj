@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <IsPackable>true</IsPackable>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>orang</ToolCommandName>
     <PackageId>Orang.DotNet.Cli</PackageId>

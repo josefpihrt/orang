@@ -935,7 +935,7 @@ internal class ParseContext
             }
             else
             {
-                syntaxTree = RoslynUtilites.CreateSyntaxTree(
+                syntaxTree = RoslynUtilities.CreateSyntaxTree(
                     expressionText: value,
                     returnTypeName: returnTypeName,
                     parameterType: parameterTypeName,
@@ -945,7 +945,7 @@ internal class ParseContext
                     methodName: methodName);
             }
 
-            Compilation compilation = RoslynUtilites.CreateCompilation(syntaxTree);
+            Compilation compilation = RoslynUtilities.CreateCompilation(syntaxTree);
             SourceText? sourceText = null;
             var hasDiagnostic = false;
 

@@ -13,7 +13,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Orang.CommandLine;
 
-internal static class RoslynUtilites
+internal static class RoslynUtilities
 {
     public static Compilation CreateCompilation(SyntaxTree syntaxTree)
     {

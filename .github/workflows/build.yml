@@ -18,8 +18,6 @@ jobs:
     defaults:
       run:
         working-directory: src
-    outputs:
-      version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -33,8 +31,7 @@ jobs:
           pr_version="$(jq -r '.MajorMinorPatch' version.json)-$(jq -r '.PreReleaseLabel' version.json).${{ github.run_number }}.${{ github.run_attempt }}"
           if [ "${{ github.event_name }}" = "pull_request" ]; then version=$pr_version; fi
           echo "Resolved version: $version"
-          echo "version=${version}" >> $GITHUB_OUTPUT
-          echo "{version}=${version}" >> "$GITHUB_ENV"
+          echo "Version=${version}" >> "$GITHUB_ENV"
       - run: dotnet restore --configfile nuget.config
       - run: dotnet format --no-restore --verify-no-changes --severity info --exclude-diagnostics IDE0270
       - run: dotnet build --no-restore

@@ -12,16 +12,16 @@ Redirected/piped input will be used either as a raw text or as a list of paths s
 
 Command | Piped Input
 --- | ---
-[copy](copy-command.md) | list of paths
-[delete](delete-command.md) | list of paths
-[escape](escape-command.md) | text
-[find](find-command.md) | text (default) or list of paths when `--pipe p[aths]` is specified
-[match](match-command.md) | text
-[move](move-command.md) | list of paths
-[rename](rename-command.md) | list of paths
-[replace](replace-command.md) | text (default) or list of paths when `--pipe p[aths]` is specified
-[split](split-command.md) | text
-[sync](sync-command.md) | list of paths
+[copy](cli/commands/copy) | list of paths
+[delete](cli/commands/delete) | list of paths
+[find](cli/commands/find) | text (default) or list of paths when `--pipe p[aths]` is specified
+[move](cli/commands/move) | list of paths
+[regex escape](cli/commands/regex-escape) | text
+[regex match](cli/commands/regex-match) | text
+[regex split](cli/commands/regex-split) | text
+[rename](cli/commands/rename) | list of paths
+[replace](cli/commands/replace) | text (default) or list of paths when `--pipe p[aths]` is specified
+[sync](cli/commands/sync) | list of paths
 
 ## Multi-value Parameters
 
@@ -47,8 +47,8 @@ orang find "C:/Documents" -c "abc" i m
 
 ## Links
 
-* [List of Option Values](OptionValues.md)
-* [How To](HowTo.md)
+* [List of Option Values](cli/option-values)
+* [How to's](cli/how-to)
 
 ## External Links
 

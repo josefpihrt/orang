@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Migrate documentation to [Docusaurus](https://josefpihrt.github.io/docs/orang) ([#48](https://github.com/josefpihrt/roslynator/pull/48)).
+
 ### Fixed
 
 - Check correctly if name changed during renaming ([#54](https://github.com/josefpihrt/roslynator/pull/54)).

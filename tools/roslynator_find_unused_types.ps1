@@ -12,5 +12,3 @@ roslynator find-symbols "../src/Orang.sln" `
  --file-log-verbosity diag
 
 Write-Host "DONE"
-Read-Host
- 

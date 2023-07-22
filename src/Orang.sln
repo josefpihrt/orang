@@ -20,26 +20,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommandLine.Core", "Command
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DocumentationGenerator", "DocumentationGenerator\DocumentationGenerator.csproj", "{0404415B-E221-4A83-99BC-CD211167CE6F}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{3A93F055-6756-4074-8F4C-E8858963604C}"
-	ProjectSection(SolutionItems) = preProject
-		..\docs\cli\copy-command.md = ..\docs\cli\copy-command.md
-		..\docs\cli\delete-command.md = ..\docs\cli\delete-command.md
-		..\docs\cli\escape-command.md = ..\docs\cli\escape-command.md
-		..\docs\cli\find-command.md = ..\docs\cli\find-command.md
-		..\docs\cli\help-command.md = ..\docs\cli\help-command.md
-		..\docs\cli\HowTo.md = ..\docs\cli\HowTo.md
-		..\docs\cli\list-patterns-command.md = ..\docs\cli\list-patterns-command.md
-		..\docs\cli\match-command.md = ..\docs\cli\match-command.md
-		..\docs\cli\move-command.md = ..\docs\cli\move-command.md
-		..\docs\cli\OptionValues.md = ..\docs\cli\OptionValues.md
-		..\docs\cli\README.md = ..\docs\cli\README.md
-		..\docs\cli\rename-command.md = ..\docs\cli\rename-command.md
-		..\docs\cli\replace-command.md = ..\docs\cli\replace-command.md
-		..\docs\cli\spellcheck-command.md = ..\docs\cli\spellcheck-command.md
-		..\docs\cli\split-command.md = ..\docs\cli\split-command.md
-		..\docs\cli\sync-command.md = ..\docs\cli\sync-command.md
-	EndProjectSection
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{76ED7535-91B5-429C-A0FB-FDD8079B1568}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommandLine.Tests", "Tests\CommandLine.Tests\CommandLine.Tests.csproj", "{CB518C03-1C39-41A2-B289-E655FE648D9A}"
@@ -100,7 +80,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{69050EE0-4163-404B-828B-7EF6C8E20847} = {76ED7535-91B5-429C-A0FB-FDD8079B1568}
 		{0404415B-E221-4A83-99BC-CD211167CE6F} = {76ED7535-91B5-429C-A0FB-FDD8079B1568}
-		{3A93F055-6756-4074-8F4C-E8858963604C} = {8B17331B-D942-4A0C-82AA-23515F4B46C4}
 		{CB518C03-1C39-41A2-B289-E655FE648D9A} = {858E2CFC-11AB-4A87-91A7-C2F433AB891A}
 		{CB89202C-9472-49CF-BBF6-1317028BFB08} = {76ED7535-91B5-429C-A0FB-FDD8079B1568}
 	EndGlobalSection

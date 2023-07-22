@@ -36,7 +36,7 @@ internal class DocumentationWriter : MarkdownDocumentationWriter
 
             string metaValueUrl = provider2.Name;
 
-            _writer.WriteLink(provider2.Name, "OptionValues.md" + MarkdownHelpers.CreateGitHubHeadingLink(metaValueUrl));
+            _writer.WriteLink(provider2.Name, "../option-values" + MarkdownHelpers.CreateGitHubHeadingLink(metaValueUrl));
 
             _writer.WriteString(": ");
 
@@ -60,7 +60,7 @@ internal class DocumentationWriter : MarkdownDocumentationWriter
                             _writer.WriteInlineCode(value.Remove(metaValueMatch.Index));
                             _writer.WriteLink(
                                 metaValueMatch.Value,
-                                "OptionValues.md" + MarkdownHelpers.CreateGitHubHeadingLink(metaValueMatch.Value));
+                                "../option-values" + MarkdownHelpers.CreateGitHubHeadingLink(metaValueMatch.Value));
                         }
                         else
                         {
@@ -95,16 +95,16 @@ internal class DocumentationWriter : MarkdownDocumentationWriter
         if (option.ValueProviderName is not null)
             return OptionValueProviders.ProvidersByName.TryGetValue(option.ValueProviderName, out provider);
 
-        if (option.MetaValue is not null
-            && OptionValueProviders.ProvidersByName.TryGetValue(option.MetaValue, out provider))
+        if (option.MetaValue is not null)
         {
-            return true;
+            if (OptionValueProviders.ProvidersByName.TryGetValue(option.MetaValue, out provider))
+                return true;
+
+            Match match = OptionValueProvider.MetaValueRegex.Match(option.MetaValue);
+
+            if (match.Success)
+                return OptionValueProviders.ProvidersByName.TryGetValue(match.Value, out provider);
         }
-
-        Match match = OptionValueProvider.MetaValueRegex.Match(option.MetaValue);
-
-        if (match.Success)
-            return OptionValueProviders.ProvidersByName.TryGetValue(match.Value, out provider);
 
         provider = null;
         return false;

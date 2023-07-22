@@ -37,14 +37,14 @@ public class MarkdownDocumentationWriter
         var sb = new StringBuilder();
 
         sb.Append(application.Name);
-        sb.Append(" ");
+        sb.Append(' ');
         sb.Append(command.DisplayName);
 
         using (IEnumerator<CommandArgument> en = command.Arguments.OrderBy(f => f.Index).GetEnumerator())
         {
             if (en.MoveNext())
             {
-                sb.Append(" ");
+                sb.Append(' ');
 
                 while (true)
                 {
@@ -56,9 +56,9 @@ public class MarkdownDocumentationWriter
                     }
                     else
                     {
-                        sb.Append("<");
+                        sb.Append('<');
                         sb.Append(argument.Index);
-                        sb.Append(">");
+                        sb.Append('>');
                     }
 
                     if (en.MoveNext())
@@ -82,7 +82,7 @@ public class MarkdownDocumentationWriter
         {
             if (!string.IsNullOrEmpty(option.ShortName))
             {
-                sb.Append("-");
+                sb.Append('-');
                 sb.Append(option.ShortName);
                 sb.Append(", ");
             }
@@ -122,8 +122,8 @@ public class MarkdownDocumentationWriter
                     CommandArgument argument = en.Current;
 
                     WriteArgument(argument);
-
-                } while (en.MoveNext());
+                }
+                while (en.MoveNext());
             }
         }
     }
@@ -155,8 +155,8 @@ public class MarkdownDocumentationWriter
                 do
                 {
                     WriteOption(en.Current);
-
-                } while (en.MoveNext());
+                }
+                while (en.MoveNext());
             }
         }
     }
@@ -169,7 +169,7 @@ public class MarkdownDocumentationWriter
 
         if (!string.IsNullOrEmpty(option.ShortName))
         {
-            sb.Append("-");
+            sb.Append('-');
             sb.Append(option.ShortName);
             sb.Append(", ");
         }
@@ -182,7 +182,7 @@ public class MarkdownDocumentationWriter
 
         if (!string.IsNullOrEmpty(option.MetaValue))
         {
-            sb.Append(" ");
+            sb.Append(' ');
             sb.Append(option.MetaValue);
         }
 

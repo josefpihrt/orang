@@ -341,8 +341,8 @@ internal abstract class CommonCopyCommand<TOptions> :
                         {
                             return;
                         }
-
-                    } while (en.MoveNext());
+                    }
+                    while (en.MoveNext());
                 }
             }
 
@@ -357,8 +357,8 @@ internal abstract class CommonCopyCommand<TOptions> :
                         string newDirectoryPath = Path.Combine(destinationPath, Path.GetFileName(en.Current));
 
                         directories.Push((en.Current, newDirectoryPath));
-
-                    } while (en.MoveNext());
+                    }
+                    while (en.MoveNext());
                 }
             }
 

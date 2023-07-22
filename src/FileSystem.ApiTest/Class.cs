@@ -27,7 +27,7 @@ public class C
     {
         var name = new Filter("pattern", RegexOptions.IgnoreCase);
 
-        var filter = new FileSystemFilter(name);
+        _ = new FileSystemFilter(name);
 
         //FileSystemSearch.Replace("directoryPath", filter, recurseSubdirectories: false);
     }

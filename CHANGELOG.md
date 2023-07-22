@@ -9,8 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Migrate documentation to [GitHub Pages](https://josefpihrt.github.io/docs/orang/cli) ([#48](https://github.com/josefpihrt/roslynator/pull/48)).
-
+- Migrate documentation to [Docusaurus](https://josefpihrt.github.io/docs/orang) ([#48](https://github.com/josefpihrt/roslynator/pull/48)).
 
 ### Fixed
 

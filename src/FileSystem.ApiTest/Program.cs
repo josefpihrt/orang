@@ -4,6 +4,7 @@ using System;
 using System.Threading;
 using Orang;
 using Orang.FileSystem;
+using Orang.FileSystem.Fluent;
 
 namespace N;
 
@@ -14,11 +15,11 @@ public static class Program
         IOperationResult result = new SearchBuilder()
             .DirectoryName(Pattern.Any("bin", "obj", PatternOptions.Equals))
             .SkipDirectory(Pattern.Any(".git", ".vs", PatternOptions.Equals))
-            .Delete("<DIRECTORY_PATH>")
+            .WithDelete("<DIRECTORY_PATH>")
             .ContentOnly()
             .DryRun()
             .LogOperation(o => Console.WriteLine(o.Path))
-            .Execute(CancellationToken.None);
+            .Run(CancellationToken.None);
 
         Console.WriteLine(result.Telemetry.DirectoryCount);
         Console.WriteLine(result.Telemetry.MatchingDirectoryCount);

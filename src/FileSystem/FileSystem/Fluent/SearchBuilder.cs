@@ -1,12 +1,14 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 #pragma warning disable RCS1223 // Mark publicly visible type with DebuggerDisplay attribute.
 
-namespace Orang.FileSystem;
+namespace Orang.FileSystem.Fluent;
 
 public class SearchBuilder
 {
@@ -17,10 +19,6 @@ public class SearchBuilder
     private bool _topDirectoryOnly;
     private Action<SearchProgress>? _logProgress;
     private Encoding? _defaultEncoding;
-
-    public SearchBuilder()
-    {
-    }
 
     public SearchBuilder MatchFile(Action<FileMatcherBuilder> configureMatcher)
     {
@@ -150,7 +148,14 @@ public class SearchBuilder
         return this;
     }
 
-    public Search Build()
+    public IEnumerable<FileMatch> Matches(
+        string directoryPath,
+        CancellationToken cancellationToken = default)
+    {
+        return ToSearch().Matches(directoryPath, cancellationToken);
+    }
+
+    public Search ToSearch()
     {
         var options = new SearchOptions()
         {

@@ -5,9 +5,9 @@ using System.Threading;
 
 #pragma warning disable RCS1223 // Mark publicly visible type with DebuggerDisplay attribute.
 
-namespace Orang.FileSystem.Operations;
+namespace Orang.FileSystem.Fluent;
 
-public class DeleteOperation
+public class DeleteOperationBuilder
 {
     private readonly Search _search;
     private readonly string _directoryPath;
@@ -16,7 +16,7 @@ public class DeleteOperation
     private bool _dryRun;
     private Action<OperationProgress>? _logOperation;
 
-    internal DeleteOperation(Search search, string directoryPath)
+    internal DeleteOperationBuilder(Search search, string directoryPath)
     {
         if (search is null)
             throw new ArgumentNullException(nameof(search));
@@ -28,35 +28,35 @@ public class DeleteOperation
         _directoryPath = directoryPath;
     }
 
-    public DeleteOperation ContentOnly()
+    public DeleteOperationBuilder ContentOnly()
     {
         _contentOnly = true;
 
         return this;
     }
 
-    public DeleteOperation IncludingBom()
+    public DeleteOperationBuilder IncludingBom()
     {
         _includingBom = true;
 
         return this;
     }
 
-    public DeleteOperation DryRun()
+    public DeleteOperationBuilder DryRun()
     {
         _dryRun = true;
 
         return this;
     }
 
-    public DeleteOperation LogOperation(Action<OperationProgress> logOperation)
+    public DeleteOperationBuilder LogOperation(Action<OperationProgress> logOperation)
     {
         _logOperation = logOperation;
 
         return this;
     }
 
-    public IOperationResult Execute(CancellationToken cancellationToken = default)
+    public IOperationResult Run(CancellationToken cancellationToken = default)
     {
         var options = new DeleteOptions()
         {

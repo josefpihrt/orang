@@ -6,25 +6,25 @@ using System.Threading;
 
 #pragma warning disable RCS1223 // Mark publicly visible type with DebuggerDisplay attribute.
 
-namespace Orang.FileSystem.Operations;
+namespace Orang.FileSystem.Fluent;
 
-public class MoveOperation
+public class CopyOperationBuilder
 {
     private readonly Search _search;
     private readonly string _directoryPath;
     private readonly string _destinationPath;
     private ConflictResolution _conflictResolution = ConflictResolution.Skip;
     private bool _dryRun;
-    private bool _flat;
     private Action<OperationProgress>? _logOperation;
     private FileCompareProperties _comparedProperties;
     private FileAttributes? _comparedAttributes;
     private TimeSpan? _allowedTimeDiff;
+    private bool _flat;
     private IDialogProvider<ConflictInfo>? _dialogProvider;
     private Func<string, string, bool>? _compareFile;
     private Func<string, string, bool>? _compareDirectory;
 
-    internal MoveOperation(Search search, string directoryPath, string destinationPath)
+    internal CopyOperationBuilder(Search search, string directoryPath, string destinationPath)
     {
         if (search is null)
             throw new ArgumentNullException(nameof(search));
@@ -40,21 +40,21 @@ public class MoveOperation
         _destinationPath = destinationPath;
     }
 
-    public MoveOperation WithConflictResolution(ConflictResolution conflictResolution)
+    public CopyOperationBuilder WithConflictResolution(ConflictResolution conflictResolution)
     {
         _conflictResolution = conflictResolution;
 
         return this;
     }
 
-    public MoveOperation CompareSize()
+    public CopyOperationBuilder CompareSize()
     {
         _comparedProperties |= FileCompareProperties.Size;
 
         return this;
     }
 
-    public MoveOperation CompareModifiedTime(TimeSpan? allowedTimeDiff = null)
+    public CopyOperationBuilder CompareModifiedTime(TimeSpan? allowedTimeDiff = null)
     {
         _comparedProperties |= FileCompareProperties.ModifiedTime;
         _allowedTimeDiff = allowedTimeDiff;
@@ -62,7 +62,7 @@ public class MoveOperation
         return this;
     }
 
-    public MoveOperation CompareAttributes(FileAttributes? attributes = null)
+    public CopyOperationBuilder CompareAttributes(FileAttributes? attributes = null)
     {
         _comparedProperties |= FileCompareProperties.Attributes;
         _comparedAttributes = attributes;
@@ -70,56 +70,56 @@ public class MoveOperation
         return this;
     }
 
-    public MoveOperation CompareContent()
+    public CopyOperationBuilder CompareContent()
     {
         _comparedProperties |= FileCompareProperties.Content;
 
         return this;
     }
 
-    public MoveOperation CompareFile(Func<string, string, bool> comparer)
+    public CopyOperationBuilder CompareFile(Func<string, string, bool> comparer)
     {
         _compareFile = comparer;
 
         return this;
     }
 
-    public MoveOperation CompareDirectory(Func<string, string, bool> comparer)
+    public CopyOperationBuilder CompareDirectory(Func<string, string, bool> comparer)
     {
         _compareDirectory = comparer;
 
         return this;
     }
 
-    public MoveOperation Flat()
+    public CopyOperationBuilder Flat()
     {
         _flat = true;
 
         return this;
     }
 
-    public MoveOperation DryRun()
+    public CopyOperationBuilder DryRun()
     {
         _dryRun = true;
 
         return this;
     }
 
-    public MoveOperation LogOperation(Action<OperationProgress> logOperation)
+    public CopyOperationBuilder LogOperation(Action<OperationProgress> logOperation)
     {
         _logOperation = logOperation;
 
         return this;
     }
 
-    public MoveOperation WithDialogProvider(IDialogProvider<ConflictInfo> dialogProvider)
+    public CopyOperationBuilder WithDialogProvider(IDialogProvider<ConflictInfo> dialogProvider)
     {
         _dialogProvider = dialogProvider;
 
         return this;
     }
 
-    public IOperationResult Execute(CancellationToken cancellationToken = default)
+    public IOperationResult Run(CancellationToken cancellationToken = default)
     {
         var options = new CopyOptions()
         {
@@ -135,6 +135,6 @@ public class MoveOperation
             CompareDirectory = _compareDirectory,
         };
 
-        return _search.Move(_directoryPath, _destinationPath, options, cancellationToken);
+        return _search.Copy(_directoryPath, _destinationPath, options, cancellationToken);
     }
 }

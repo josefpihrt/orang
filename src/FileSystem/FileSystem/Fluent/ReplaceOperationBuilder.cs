@@ -6,9 +6,9 @@ using System.Threading;
 
 #pragma warning disable RCS1223 // Mark publicly visible type with DebuggerDisplay attribute.
 
-namespace Orang.FileSystem.Operations;
+namespace Orang.FileSystem.Fluent;
 
-public class RenameOperation
+public class ReplaceOperationBuilder
 {
     private readonly Search _search;
     private readonly string _directoryPath;
@@ -18,10 +18,8 @@ public class RenameOperation
     private bool _cultureInvariant;
     private bool _dryRun;
     private Action<OperationProgress>? _logOperation;
-    private IDialogProvider<ConflictInfo>? _dialogProvider;
-    private ConflictResolution _conflictResolution = ConflictResolution.Skip;
 
-    internal RenameOperation(Search search, string directoryPath, string replacement)
+    internal ReplaceOperationBuilder(Search search, string directoryPath, string replacement)
     {
         if (search is null)
             throw new ArgumentNullException(nameof(search));
@@ -37,7 +35,7 @@ public class RenameOperation
         _replacement = replacement;
     }
 
-    internal RenameOperation(Search search, string directoryPath, MatchEvaluator matchEvaluator)
+    internal ReplaceOperationBuilder(Search search, string directoryPath, MatchEvaluator matchEvaluator)
     {
         if (search is null)
             throw new ArgumentNullException(nameof(search));
@@ -53,67 +51,51 @@ public class RenameOperation
         _matchEvaluator = matchEvaluator;
     }
 
-    public RenameOperation WithFunctions(ReplaceFunctions functions)
+    public ReplaceOperationBuilder WithFunctions(ReplaceFunctions functions)
     {
         _functions = functions;
 
         return this;
     }
 
-    public RenameOperation CultureInvariant()
+    public ReplaceOperationBuilder CultureInvariant()
     {
         _cultureInvariant = true;
 
         return this;
     }
 
-    public RenameOperation DryRun()
+    public ReplaceOperationBuilder DryRun()
     {
         _dryRun = true;
 
         return this;
     }
 
-    public RenameOperation LogOperation(Action<OperationProgress> logOperation)
+    public ReplaceOperationBuilder LogOperation(Action<OperationProgress> logOperation)
     {
         _logOperation = logOperation;
 
         return this;
     }
 
-    public RenameOperation WithDialogProvider(IDialogProvider<ConflictInfo> dialogProvider)
+    public IOperationResult Run(CancellationToken cancellationToken = default)
     {
-        _dialogProvider = dialogProvider;
-
-        return this;
-    }
-
-    public RenameOperation WithConflictResolution(ConflictResolution conflictResolution)
-    {
-        _conflictResolution = conflictResolution;
-
-        return this;
-    }
-
-    public IOperationResult Execute(CancellationToken cancellationToken = default)
-    {
-        var options = new RenameOptions()
+        var options = new ReplaceOptions()
         {
             ReplaceFunctions = _functions,
             CultureInvariant = _cultureInvariant,
             DryRun = _dryRun,
             LogOperation = _logOperation,
-            DialogProvider = _dialogProvider,
-            ConflictResolution = _conflictResolution,
         };
 
         if (_replacement is not null)
         {
-            return _search.Rename(_directoryPath, _replacement, options, cancellationToken);
+            return _search.Replace(_directoryPath, _replacement, options, cancellationToken);
         }
         else
         {
-            return _search.Rename(_directoryPath, _matchEvaluator!, options, cancellationToken);
+            return _search.Replace(_directoryPath, _matchEvaluator!, options, cancellationToken);
         }
     }
 }

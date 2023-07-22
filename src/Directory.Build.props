@@ -5,13 +5,13 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)Orang.snk</AssemblyOriginatorKeyFile>
     <Authors>Josef Pihrt</Authors>
-    <Copyright>Copyright (c) 2019-2022 Josef Pihrt</Copyright>
+    <Copyright>Copyright (c) 2019-2023 Josef Pihrt</Copyright>
     <Nullable>enable</Nullable>
-    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <PropertyGroup>
     <Version Condition="'$(Version)' == ''">1.0.0</Version>
+    <IsPackable>false</IsPackable>
     <Description>Search, replace, rename and delete directories, files and its content using the power of .NET regular expressions.</Description>
     <PackageProjectUrl>https://github.com/JosefPihrt/Orang</PackageProjectUrl>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>

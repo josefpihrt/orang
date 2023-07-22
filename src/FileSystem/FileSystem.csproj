@@ -11,6 +11,10 @@
     <PackageId>Orang.FileSystem</PackageId>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Include="..\..\images\icon.png" Pack="true" PackagePath="\" Visible="false" />
     <None Include="docs\NuGetReadme.md" Pack="true" PackagePath="docs\README.md" />

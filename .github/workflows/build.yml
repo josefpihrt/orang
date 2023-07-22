@@ -40,7 +40,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: nuget_packages
-          path: src/CommandLine/bin/Release/*nupkg
+          path: src/CommandLine/bin/Release/*.*nupkg
       - uses: actions/upload-artifact@v3
         with:
           name: nuget_packages
@@ -48,7 +48,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: nuget_packages
-          path: src/FileSystem/bin/Release/*nupkg
+          path: src/FileSystem/bin/Release/*.*nupkg
 
   publish:
     runs-on: ubuntu-20.04

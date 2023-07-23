@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading;
 
@@ -11,7 +12,6 @@ namespace Orang.FileSystem.Fluent;
 public class ReplaceOperationBuilder
 {
     private readonly Search _search;
-    private readonly string _directoryPath;
     private readonly string? _replacement;
     private readonly MatchEvaluator? _matchEvaluator;
     private ReplaceFunctions _functions;
@@ -19,35 +19,27 @@ public class ReplaceOperationBuilder
     private bool _dryRun;
     private Action<OperationProgress>? _logOperation;
 
-    internal ReplaceOperationBuilder(Search search, string directoryPath, string replacement)
+    internal ReplaceOperationBuilder(Search search, string replacement)
     {
         if (search is null)
             throw new ArgumentNullException(nameof(search));
-
-        if (directoryPath is null)
-            throw new ArgumentNullException(nameof(directoryPath));
 
         if (replacement is null)
             throw new ArgumentNullException(nameof(replacement));
 
         _search = search;
-        _directoryPath = directoryPath;
         _replacement = replacement;
     }
 
-    internal ReplaceOperationBuilder(Search search, string directoryPath, MatchEvaluator matchEvaluator)
+    internal ReplaceOperationBuilder(Search search, MatchEvaluator matchEvaluator)
     {
         if (search is null)
             throw new ArgumentNullException(nameof(search));
-
-        if (directoryPath is null)
-            throw new ArgumentNullException(nameof(directoryPath));
 
         if (matchEvaluator is null)
             throw new ArgumentNullException(nameof(matchEvaluator));
 
         _search = search;
-        _directoryPath = directoryPath;
         _matchEvaluator = matchEvaluator;
     }
 
@@ -79,23 +71,49 @@ public class ReplaceOperationBuilder
         return this;
     }
 
-    public IOperationResult Run(CancellationToken cancellationToken = default)
+    public IOperationResult Run(string directoryPath, CancellationToken cancellationToken = default)
     {
-        var options = new ReplaceOptions()
+        if (directoryPath is null)
+            throw new ArgumentNullException(nameof(directoryPath));
+
+        ReplaceOptions options = CreateOptions();
+
+        return Run(directoryPath, options, cancellationToken);
+    }
+
+    public IOperationResult Run(IEnumerable<string> directoryPaths, CancellationToken cancellationToken = default)
+    {
+        if (directoryPaths is null)
+            throw new ArgumentNullException(nameof(directoryPaths));
+
+        ReplaceOptions options = CreateOptions();
+
+        var telemetry = new SearchTelemetry();
+
+        foreach (string directoryPath in directoryPaths)
+        {
+            IOperationResult result = Run(directoryPath, options, cancellationToken);
+            telemetry.Add(result.Telemetry);
+        }
+
+        return new OperationResult(telemetry);
+    }
+
+    private IOperationResult Run(string directoryPath, ReplaceOptions options, CancellationToken cancellationToken)
+    {
+        return (_replacement is not null)
+            ? _search.Replace(directoryPath, _replacement, options, cancellationToken)
+            : _search.Replace(directoryPath, _matchEvaluator!, options, cancellationToken);
+    }
+
+    private ReplaceOptions CreateOptions()
+    {
+        return new ReplaceOptions()
         {
             ReplaceFunctions = _functions,
             CultureInvariant = _cultureInvariant,
             DryRun = _dryRun,
             LogOperation = _logOperation,
         };
-
-        if (_replacement is not null)
-        {
-            return _search.Replace(_directoryPath, _replacement, options, cancellationToken);
-        }
-        else
-        {
-            return _search.Replace(_directoryPath, _matchEvaluator!, options, cancellationToken);
-        }
     }
 }

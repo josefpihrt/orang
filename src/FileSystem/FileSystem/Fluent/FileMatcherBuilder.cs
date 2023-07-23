@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 #pragma warning disable RCS1223 // Mark publicly visible type with DebuggerDisplay attribute.
 
-namespace Orang.FileSystem;
+namespace Orang.FileSystem.Fluent;
 
 public class FileMatcherBuilder
 {

@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 #pragma warning disable RCS1223 // Mark publicly visible type with DebuggerDisplay attribute.
 
-namespace Orang.FileSystem;
+namespace Orang.FileSystem.Fluent;
 
 public class DirectoryMatcherBuilder
 {
@@ -54,6 +54,7 @@ public class DirectoryMatcherBuilder
         return this;
     }
 
+    //TODO: EmptyOnly > Empty
     public DirectoryMatcherBuilder EmptyOnly()
     {
         _emptyOption = FileEmptyOption.Empty;
@@ -68,6 +69,7 @@ public class DirectoryMatcherBuilder
         return this;
     }
 
+    //TODO: Match > Predicate, DirectoryInfoMatch, DirectoryInfoPredicate
     public DirectoryMatcherBuilder Match(Func<DirectoryInfo, bool> predicate)
     {
         _matchDirectoryInfo = predicate;

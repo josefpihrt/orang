@@ -18,38 +18,38 @@ public static class SearchBuilderExtensions
         return builder.ToSearch().Matches(directoryPath, cancellationToken);
     }
 
-    public static DeleteOperationBuilder Delete(this SearchBuilder builder, string directoryPath)
+    public static DeleteOperationBuilder Delete(this SearchBuilder builder)
     {
-        return new DeleteOperationBuilder(builder.ToSearch(), directoryPath);
+        return new DeleteOperationBuilder(builder.ToSearch());
     }
 
-    public static CopyOperationBuilder Copy(this SearchBuilder builder, string directoryPath, string destinationPath)
+    public static CopyOperationBuilder Copy(this SearchBuilder builder)
     {
-        return new CopyOperationBuilder(builder.ToSearch(), directoryPath, destinationPath);
+        return new CopyOperationBuilder(builder.ToSearch());
     }
 
-    public static MoveOperationBuilder Move(this SearchBuilder builder, string directoryPath, string destinationPath)
+    public static MoveOperationBuilder Move(this SearchBuilder builder)
     {
-        return new MoveOperationBuilder(builder.ToSearch(), directoryPath, destinationPath);
+        return new MoveOperationBuilder(builder.ToSearch());
     }
 
-    public static RenameOperationBuilder Rename(this SearchBuilder builder, string directoryPath, string replacement)
+    public static RenameOperationBuilder Rename(this SearchBuilder builder, string replacement)
     {
-        return new RenameOperationBuilder(builder.ToSearch(), directoryPath, replacement);
+        return new RenameOperationBuilder(builder.ToSearch(), replacement);
     }
 
-    public static RenameOperationBuilder Rename(this SearchBuilder builder, string directoryPath, MatchEvaluator matchEvaluator)
+    public static RenameOperationBuilder Rename(this SearchBuilder builder, MatchEvaluator matchEvaluator)
     {
-        return new RenameOperationBuilder(builder.ToSearch(), directoryPath, matchEvaluator);
+        return new RenameOperationBuilder(builder.ToSearch(), matchEvaluator);
     }
 
-    public static ReplaceOperationBuilder Replace(this SearchBuilder builder, string directoryPath, string destinationPath)
+    public static ReplaceOperationBuilder Replace(this SearchBuilder builder, string replacement)
     {
-        return new ReplaceOperationBuilder(builder.ToSearch(), directoryPath, destinationPath);
+        return new ReplaceOperationBuilder(builder.ToSearch(), replacement);
     }
 
-    public static ReplaceOperationBuilder Replace(this SearchBuilder builder, string directoryPath, MatchEvaluator matchEvaluator)
+    public static ReplaceOperationBuilder Replace(this SearchBuilder builder, MatchEvaluator matchEvaluator)
     {
-        return new ReplaceOperationBuilder(builder.ToSearch(), directoryPath, matchEvaluator);
+        return new ReplaceOperationBuilder(builder.ToSearch(), matchEvaluator);
     }
 }

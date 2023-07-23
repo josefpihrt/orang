@@ -20,33 +20,33 @@ public class SearchBuilder
     private Action<SearchProgress>? _logProgress;
     private Encoding? _defaultEncoding;
 
-    public SearchBuilder MatchFile(Action<FileMatcherBuilder> configureMatcher)
+    public SearchBuilder MatchFile(Action<FileMatcherBuilder> action)
     {
         var builder = new FileMatcherBuilder();
 
-        configureMatcher(builder);
+        action(builder);
 
         _file = builder.Build();
 
         return this;
     }
 
-    public SearchBuilder MatchDirectory(Action<DirectoryMatcherBuilder> configureMatcher)
+    public SearchBuilder MatchDirectory(Action<DirectoryMatcherBuilder> action)
     {
         var builder = new DirectoryMatcherBuilder();
 
-        configureMatcher(builder);
+        action(builder);
 
         _directory = builder.Build();
 
         return this;
     }
 
-    public SearchBuilder SearchDirectory(Action<DirectoryMatcherBuilder> configureMatcher)
+    public SearchBuilder SearchDirectory(Action<DirectoryMatcherBuilder> action)
     {
         var builder = new DirectoryMatcherBuilder();
 
-        configureMatcher(builder);
+        action(builder);
 
         _searchDirectory = builder.Build();
 
@@ -148,6 +148,7 @@ public class SearchBuilder
         return this;
     }
 
+    //TODO: directoryPaths
     public IEnumerable<FileMatch> Matches(
         string directoryPath,
         CancellationToken cancellationToken = default)

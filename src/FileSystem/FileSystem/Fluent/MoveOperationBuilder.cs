@@ -11,8 +11,6 @@ namespace Orang.FileSystem.Fluent;
 public class MoveOperationBuilder
 {
     private readonly Search _search;
-    private readonly string _directoryPath;
-    private readonly string _destinationPath;
     private ConflictResolution _conflictResolution = ConflictResolution.Skip;
     private bool _dryRun;
     private bool _flat;
@@ -24,20 +22,12 @@ public class MoveOperationBuilder
     private Func<string, string, bool>? _compareFile;
     private Func<string, string, bool>? _compareDirectory;
 
-    internal MoveOperationBuilder(Search search, string directoryPath, string destinationPath)
+    internal MoveOperationBuilder(Search search)
     {
         if (search is null)
             throw new ArgumentNullException(nameof(search));
 
-        if (directoryPath is null)
-            throw new ArgumentNullException(nameof(directoryPath));
-
-        if (destinationPath is null)
-            throw new ArgumentNullException(nameof(destinationPath));
-
         _search = search;
-        _directoryPath = directoryPath;
-        _destinationPath = destinationPath;
     }
 
     public MoveOperationBuilder WithConflictResolution(ConflictResolution conflictResolution)
@@ -119,8 +109,14 @@ public class MoveOperationBuilder
         return this;
     }
 
-    public IOperationResult Run(CancellationToken cancellationToken = default)
+    public IOperationResult Run(string directoryPath, string destinationPath, CancellationToken cancellationToken = default)
     {
+        if (directoryPath is null)
+            throw new ArgumentNullException(nameof(directoryPath));
+
+        if (destinationPath is null)
+            throw new ArgumentNullException(nameof(destinationPath));
+
         var options = new CopyOptions()
         {
             ConflictResolution = _conflictResolution,
@@ -135,6 +131,6 @@ public class MoveOperationBuilder
             CompareDirectory = _compareDirectory,
         };
 
-        return _search.Move(_directoryPath, _destinationPath, options, cancellationToken);
+        return _search.Move(directoryPath, destinationPath, options, cancellationToken);
     }
 }

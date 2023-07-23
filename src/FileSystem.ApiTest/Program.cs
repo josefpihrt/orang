@@ -12,30 +12,37 @@ public static class Program
 {
     public static void Main()
     {
+        const string directoryPath = "";
+
         IOperationResult result = new SearchBuilder()
-            .DirectoryName(Pattern.Any("bin", "obj", PatternOptions.Equals))
-            .SkipDirectory(Pattern.Any(".git", ".vs", PatternOptions.Equals))
-            .Delete("<DIRECTORY_PATH>")
+            .MatchDirectory(directory => directory
+                .Name(Pattern.Any("bin", "obj", PatternOptions.Equals))
+                .NonEmptyOnly())
+            .SkipDirectory(Pattern.Any(".git", ".vs", PatternOptions.Equals | PatternOptions.Literal))
+            .Delete()
             .ContentOnly()
             .DryRun()
             .LogOperation(o => Console.WriteLine(o.Path))
-            .Run(CancellationToken.None);
+            .Run(directoryPath, CancellationToken.None);
+
+        Console.WriteLine(result.Telemetry.MatchingDirectoryCount);
 
         var search = new Search(
             new DirectoryMatcher()
             {
-                Name = new Matcher(Pattern.Any(new[] { "bin", "obj" }, PatternOptions.Equals)),
+                Name = new Matcher(@"\A(bin|obj)\z"),
+                EmptyOption = FileEmptyOption.NonEmpty,
             },
             new SearchOptions()
             {
                 SearchDirectory = new DirectoryMatcher()
                 {
-                    Name = new Matcher(Pattern.Any(new[] { ".git", ".vs" }, PatternOptions.Equals), invert: true)
+                    Name = new Matcher(@"\A(\.git|\.vs)\z", invert: true)
                 }
             });
 
         result = search.Delete(
-            "<DIRECTORY_PATH>",
+            directoryPath,
             new DeleteOptions()
             {
                 ContentOnly = true,
@@ -44,7 +51,6 @@ public static class Program
             },
             CancellationToken.None);
 
-        Console.WriteLine(result.Telemetry.DirectoryCount);
         Console.WriteLine(result.Telemetry.MatchingDirectoryCount);
     }
 }

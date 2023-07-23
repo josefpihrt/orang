@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading;
 
@@ -11,7 +12,6 @@ namespace Orang.FileSystem.Fluent;
 public class RenameOperationBuilder
 {
     private readonly Search _search;
-    private readonly string _directoryPath;
     private readonly string? _replacement;
     private readonly MatchEvaluator? _matchEvaluator;
     private ReplaceFunctions _functions;
@@ -21,35 +21,27 @@ public class RenameOperationBuilder
     private IDialogProvider<ConflictInfo>? _dialogProvider;
     private ConflictResolution _conflictResolution = ConflictResolution.Skip;
 
-    internal RenameOperationBuilder(Search search, string directoryPath, string replacement)
+    internal RenameOperationBuilder(Search search, string replacement)
     {
         if (search is null)
             throw new ArgumentNullException(nameof(search));
-
-        if (directoryPath is null)
-            throw new ArgumentNullException(nameof(directoryPath));
 
         if (replacement is null)
             throw new ArgumentNullException(nameof(replacement));
 
         _search = search;
-        _directoryPath = directoryPath;
         _replacement = replacement;
     }
 
-    internal RenameOperationBuilder(Search search, string directoryPath, MatchEvaluator matchEvaluator)
+    internal RenameOperationBuilder(Search search, MatchEvaluator matchEvaluator)
     {
         if (search is null)
             throw new ArgumentNullException(nameof(search));
-
-        if (directoryPath is null)
-            throw new ArgumentNullException(nameof(directoryPath));
 
         if (matchEvaluator is null)
             throw new ArgumentNullException(nameof(matchEvaluator));
 
         _search = search;
-        _directoryPath = directoryPath;
         _matchEvaluator = matchEvaluator;
     }
 
@@ -95,9 +87,44 @@ public class RenameOperationBuilder
         return this;
     }
 
-    public IOperationResult Run(CancellationToken cancellationToken = default)
+    public IOperationResult Run(string directoryPath, CancellationToken cancellationToken = default)
     {
-        var options = new RenameOptions()
+        if (directoryPath is null)
+            throw new ArgumentNullException(nameof(directoryPath));
+
+        RenameOptions options = CreateOptions();
+
+        return Run(directoryPath, options, cancellationToken);
+    }
+
+    public IOperationResult Run(IEnumerable<string> directoryPaths, CancellationToken cancellationToken = default)
+    {
+        if (directoryPaths is null)
+            throw new ArgumentNullException(nameof(directoryPaths));
+
+        RenameOptions options = CreateOptions();
+
+        var telemetry = new SearchTelemetry();
+
+        foreach (string directoryPath in directoryPaths)
+        {
+            IOperationResult result = Run(directoryPath, options, cancellationToken);
+            telemetry.Add(result.Telemetry);
+        }
+
+        return new OperationResult(telemetry);
+    }
+
+    private IOperationResult Run(string directoryPath, RenameOptions options, CancellationToken cancellationToken)
+    {
+        return (_replacement is not null)
+            ? _search.Rename(directoryPath, _replacement, options, cancellationToken)
+            : _search.Rename(directoryPath, _matchEvaluator!, options, cancellationToken);
+    }
+
+    private RenameOptions CreateOptions()
+    {
+        return new RenameOptions()
         {
             ReplaceFunctions = _functions,
             CultureInvariant = _cultureInvariant,
@@ -106,14 +133,5 @@ public class RenameOperationBuilder
             DialogProvider = _dialogProvider,
             ConflictResolution = _conflictResolution,
         };
-
-        if (_replacement is not null)
-        {
-            return _search.Rename(_directoryPath, _replacement, options, cancellationToken);
-        }
-        else
-        {
-            return _search.Rename(_directoryPath, _matchEvaluator!, options, cancellationToken);
-        }
     }
 }

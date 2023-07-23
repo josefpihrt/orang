@@ -21,9 +21,6 @@ public static class Program
             .LogOperation(o => Console.WriteLine(o.Path))
             .Run(CancellationToken.None);
 
-        Console.WriteLine(result.Telemetry.DirectoryCount);
-        Console.WriteLine(result.Telemetry.MatchingDirectoryCount);
-
         var search = new Search(
             new DirectoryMatcher()
             {

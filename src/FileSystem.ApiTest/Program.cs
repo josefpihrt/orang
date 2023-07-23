@@ -15,7 +15,7 @@ public static class Program
         IOperationResult result = new SearchBuilder()
             .DirectoryName(Pattern.Any("bin", "obj", PatternOptions.Equals))
             .SkipDirectory(Pattern.Any(".git", ".vs", PatternOptions.Equals))
-            .WithDelete("<DIRECTORY_PATH>")
+            .Delete("<DIRECTORY_PATH>")
             .ContentOnly()
             .DryRun()
             .LogOperation(o => Console.WriteLine(o.Path))

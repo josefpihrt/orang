@@ -14,7 +14,7 @@ internal sealed class RenameCommandOptions : DeleteOrRenameCommandOptions
 
     public ConflictResolution ConflictResolution { get; internal set; }
 
-        public bool KeepOriginal { get; internal set; }
+    public bool KeepOriginal { get; internal set; }
 
     public ReplaceOptions ReplaceOptions { get; internal set; } = null!;
 

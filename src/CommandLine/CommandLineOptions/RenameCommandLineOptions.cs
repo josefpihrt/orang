@@ -57,13 +57,13 @@ internal sealed class RenameCommandLineOptions : DeleteOrRenameCommandLineOption
     [Option(
             longName: OptionNames.KeepOriginal,
             HelpText = "Create a new file instead of renaming original file.")]
-        public bool KeepOriginal { get; set; }
+    public bool KeepOriginal { get; set; }
 
-        [Option(
-        shortName: OptionShortNames.MaxCount,
-        longName: OptionNames.MaxCount,
-        HelpText = "Stop renaming after specified number is reached.",
-        MetaValue = MetaValues.Num)]
+    [Option(
+    shortName: OptionShortNames.MaxCount,
+    longName: OptionNames.MaxCount,
+    HelpText = "Stop renaming after specified number is reached.",
+    MetaValue = MetaValues.Num)]
     public int MaxCount { get; set; }
 
     [HideFromConsoleHelp]
@@ -288,7 +288,7 @@ internal sealed class RenameCommandLineOptions : DeleteOrRenameCommandLineOption
         options.MaxMatchesInFile = MaxMatchesInFile;
         options.ConflictResolution = conflictResolution;
         options.Interactive = Interactive;
-            options.KeepOriginal = KeepOriginal;
+        options.KeepOriginal = KeepOriginal;
 
         return true;
     }

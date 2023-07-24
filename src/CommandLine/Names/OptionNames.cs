@@ -45,7 +45,7 @@ internal static class OptionNames
     public const string IncludingBom = "including-bom";
     public const string Input = "input";
     public const string Interactive = "interactive";
-        public const string KeepOriginal = "keep-original";
+    public const string KeepOriginal = "keep-original";
     public const string LineNumber = "line-number";
     public const string Manual = "manual";
     public const string MaxCount = "max-count";

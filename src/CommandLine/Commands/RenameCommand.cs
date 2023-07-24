@@ -187,10 +187,10 @@ internal class RenameCommand : DeleteOrRenameCommand<RenameCommandOptions>
                 {
                     Directory.Move(path, newPath);
                 }
-                    else if (Options.KeepOriginal)
-                    {
-                        File.Copy(path, newPath);
-                    }
+                else if (Options.KeepOriginal)
+                {
+                    File.Copy(path, newPath);
+                }
                 else
                 {
                     File.Move(path, newPath);

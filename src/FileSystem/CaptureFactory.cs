@@ -6,271 +6,270 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using Orang.Text.RegularExpressions;
 
-namespace Orang
+namespace Orang;
+
+internal static class CaptureFactory
 {
-    internal static class CaptureFactory
+    public static MaxReason GetCaptures(
+        ref List<Capture> captures,
+        Match match,
+        int groupNumber = 0,
+        int count = 0,
+        Func<string, bool>? predicate = null,
+        CancellationToken cancellationToken = default)
     {
-        public static MaxReason GetCaptures(
-            ref List<Capture> captures,
-            Match match,
-            int groupNumber = 0,
-            int count = 0,
-            Func<string, bool>? predicate = null,
-            CancellationToken cancellationToken = default)
+        MaxReason maxReason;
+        if (groupNumber < 1)
         {
-            MaxReason maxReason;
-            if (groupNumber < 1)
+            maxReason = GetMatches(ref captures, match, count, predicate, cancellationToken);
+        }
+        else
+        {
+            maxReason = GetCapturesImpl(ref captures, match, groupNumber, count, predicate, cancellationToken);
+        }
+
+        if (captures.Count > 1
+            && captures[0].Index > captures[1].Index)
+        {
+            captures.Reverse();
+        }
+
+        return maxReason;
+    }
+
+    private static MaxReason GetMatches(
+        ref List<Capture> matches,
+        Match match,
+        int count,
+        Func<string, bool>? predicate,
+        CancellationToken cancellationToken)
+    {
+        do
+        {
+            matches.Add(match);
+
+            if (predicate is not null)
             {
-                maxReason = GetMatches(ref captures, match, count, predicate, cancellationToken);
+                Match m = match.NextMatch();
+
+                match = Match.Empty;
+
+                while (m.Success)
+                {
+                    if (predicate(m.Value))
+                    {
+                        match = m;
+                        break;
+                    }
+
+                    m = m.NextMatch();
+                }
             }
             else
             {
-                maxReason = GetCapturesImpl(ref captures, match, groupNumber, count, predicate, cancellationToken);
+                match = match.NextMatch();
             }
 
-            if (captures.Count > 1
-                && captures[0].Index > captures[1].Index)
+            if (matches.Count == count)
             {
-                captures.Reverse();
+                return (match.Success)
+                    ? MaxReason.CountExceedsMax
+                    : MaxReason.CountEqualsMax;
             }
 
-            return maxReason;
+            cancellationToken.ThrowIfCancellationRequested();
         }
+        while (match.Success);
 
-        private static MaxReason GetMatches(
-            ref List<Capture> matches,
-            Match match,
-            int count,
-            Func<string, bool>? predicate,
-            CancellationToken cancellationToken)
+        return MaxReason.None;
+    }
+
+    private static MaxReason GetCapturesImpl(
+        ref List<Capture> captures,
+        Match match,
+        int groupNumber,
+        int count,
+        Func<string, bool>? predicate,
+        CancellationToken cancellationToken)
+    {
+        Group group = match.Groups[groupNumber];
+
+        do
         {
-            do
+            Capture prevCapture = null!;
+
+            foreach (Capture capture in group.Captures)
             {
-                matches.Add(match);
-
-                if (predicate != null)
+                if (prevCapture is not null
+                    && prevCapture.EndIndex() <= capture.EndIndex()
+                    && prevCapture.Index >= capture.Index)
                 {
-                    Match m = match.NextMatch();
-
-                    match = Match.Empty;
-
-                    while (m.Success)
-                    {
-                        if (predicate(m.Value))
-                        {
-                            match = m;
-                            break;
-                        }
-
-                        m = m.NextMatch();
-                    }
+                    captures[^1] = capture;
                 }
                 else
                 {
-                    match = match.NextMatch();
+                    captures.Add(capture);
                 }
 
-                if (matches.Count == count)
-                {
-                    return (match.Success)
-                        ? MaxReason.CountExceedsMax
-                        : MaxReason.CountEqualsMax;
-                }
+                if (captures.Count == count)
+                    return (group.Success) ? MaxReason.CountExceedsMax : MaxReason.CountEqualsMax;
 
                 cancellationToken.ThrowIfCancellationRequested();
 
-            } while (match.Success);
-
-            return MaxReason.None;
-        }
-
-        private static MaxReason GetCapturesImpl(
-            ref List<Capture> captures,
-            Match match,
-            int groupNumber,
-            int count,
-            Func<string, bool>? predicate,
-            CancellationToken cancellationToken)
-        {
-            Group group = match.Groups[groupNumber];
-
-            do
-            {
-                Capture prevCapture = null!;
-
-                foreach (Capture capture in group.Captures)
-                {
-                    if (prevCapture != null
-                        && prevCapture.EndIndex() <= capture.EndIndex()
-                        && prevCapture.Index >= capture.Index)
-                    {
-                        captures[^1] = capture;
-                    }
-                    else
-                    {
-                        captures.Add(capture);
-                    }
-
-                    if (captures.Count == count)
-                        return (group.Success) ? MaxReason.CountExceedsMax : MaxReason.CountEqualsMax;
-
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    prevCapture = capture;
-                }
-
-                group = NextGroup();
-
-            } while (group.Success);
-
-            return MaxReason.None;
-
-            Group NextGroup()
-            {
-                while (true)
-                {
-                    match = match.NextMatch();
-
-                    if (!match.Success)
-                        break;
-
-                    Group g = match.Groups[groupNumber];
-
-                    if (g.Success
-                        && predicate?.Invoke(g.Value) != false)
-                    {
-                        return g;
-                    }
-                }
-
-                return Match.Empty;
-            }
-        }
-
-        public static MaxReason GetSplits(
-            Match match,
-            Regex regex,
-            string input,
-            int count,
-            Func<string, bool>? predicate,
-            ref List<ICapture> splits,
-            CancellationToken cancellationToken)
-        {
-            var maxReason = MaxReason.None;
-
-            using (IEnumerator<ICapture>? en = ((regex.RightToLeft)
-                ? GetSplitsRightToLeft(match, input)
-                : GetSplits(match, input))
-                .GetEnumerator())
-            {
-                while (en.MoveNext())
-                {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    if (predicate?.Invoke(en.Current.Value) == false)
-                        continue;
-
-                    splits.Add(en.Current);
-
-                    count--;
-
-                    if (count == 0)
-                    {
-                        maxReason = (en.MoveNext()) ? MaxReason.CountExceedsMax : MaxReason.CountEqualsMax;
-                        break;
-                    }
-                }
+                prevCapture = capture;
             }
 
-            if (regex.RightToLeft)
-                splits.Reverse();
-
-            return maxReason;
+            group = NextGroup();
         }
+        while (group.Success);
 
-        private static IEnumerable<SplitCapture> GetSplits(
-            Match match,
-            string input)
+        return MaxReason.None;
+
+        Group NextGroup()
         {
-            int prevIndex = 0;
-
-            List<Group>? groups = null;
-
-            do
+            while (true)
             {
-                yield return new SplitCapture(input[prevIndex..match.Index], prevIndex);
-
-                if (match.Groups.Count > 1)
-                {
-                    groups = AddGroups(match, ref groups, (x, y) => x.Index.CompareTo(y.Index));
-
-                    foreach (Group group in groups)
-                        yield return new SplitCapture(group);
-                }
-
-                prevIndex = match.Index + match.Length;
-
                 match = match.NextMatch();
 
-            } while (match.Success);
+                if (!match.Success)
+                    break;
 
-            yield return new SplitCapture(input[prevIndex..], prevIndex);
-        }
+                Group g = match.Groups[groupNumber];
 
-        private static IEnumerable<SplitCapture> GetSplitsRightToLeft(
-            Match match,
-            string input)
-        {
-            int prevIndex = input.Length;
-
-            List<Group>? groups = null;
-
-            do
-            {
-                int endIndex = match.Index + match.Length;
-
-                yield return new SplitCapture(input[endIndex..prevIndex], endIndex);
-
-                if (match.Groups.Count > 1)
+                if (g.Success
+                    && predicate?.Invoke(g.Value) != false)
                 {
-                    groups = AddGroups(match, ref groups, (x, y) => -x.Index.CompareTo(y.Index));
-
-                    foreach (Group group in groups)
-                        yield return new SplitCapture(group);
-                }
-
-                prevIndex = match.Index;
-
-                match = match.NextMatch();
-
-            } while (match.Success);
-
-            yield return new SplitCapture(input.Substring(0, prevIndex), 0);
-        }
-
-        private static List<Group> AddGroups(Match match, ref List<Group>? groups, Comparison<Group> comparison)
-        {
-            if (groups == null)
-            {
-                groups = new List<Group>();
-            }
-            else
-            {
-                groups.Clear();
-            }
-
-            foreach (Group group in match.Groups)
-            {
-                if (group.Success
-                    && group.Name != "0")
-                {
-                    groups.Add(group);
+                    return g;
                 }
             }
 
-            groups.Sort(comparison);
-
-            return groups;
+            return Match.Empty;
         }
+    }
+
+    public static MaxReason GetSplits(
+        Match match,
+        Regex regex,
+        string input,
+        int count,
+        Func<string, bool>? predicate,
+        ref List<ICapture> splits,
+        CancellationToken cancellationToken)
+    {
+        var maxReason = MaxReason.None;
+
+        using (IEnumerator<ICapture>? en = ((regex.RightToLeft)
+            ? GetSplitsRightToLeft(match, input)
+            : GetSplits(match, input))
+            .GetEnumerator())
+        {
+            while (en.MoveNext())
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+
+                if (predicate?.Invoke(en.Current.Value) == false)
+                    continue;
+
+                splits.Add(en.Current);
+
+                count--;
+
+                if (count == 0)
+                {
+                    maxReason = (en.MoveNext()) ? MaxReason.CountExceedsMax : MaxReason.CountEqualsMax;
+                    break;
+                }
+            }
+        }
+
+        if (regex.RightToLeft)
+            splits.Reverse();
+
+        return maxReason;
+    }
+
+    private static IEnumerable<SplitCapture> GetSplits(
+        Match match,
+        string input)
+    {
+        int prevIndex = 0;
+
+        List<Group>? groups = null;
+
+        do
+        {
+            yield return new SplitCapture(input[prevIndex..match.Index], prevIndex);
+
+            if (match.Groups.Count > 1)
+            {
+                groups = AddGroups(match, ref groups, (x, y) => x.Index.CompareTo(y.Index));
+
+                foreach (Group group in groups)
+                    yield return new SplitCapture(group);
+            }
+
+            prevIndex = match.Index + match.Length;
+
+            match = match.NextMatch();
+        }
+        while (match.Success);
+
+        yield return new SplitCapture(input[prevIndex..], prevIndex);
+    }
+
+    private static IEnumerable<SplitCapture> GetSplitsRightToLeft(
+        Match match,
+        string input)
+    {
+        int prevIndex = input.Length;
+
+        List<Group>? groups = null;
+
+        do
+        {
+            int endIndex = match.Index + match.Length;
+
+            yield return new SplitCapture(input[endIndex..prevIndex], endIndex);
+
+            if (match.Groups.Count > 1)
+            {
+                groups = AddGroups(match, ref groups, (x, y) => -x.Index.CompareTo(y.Index));
+
+                foreach (Group group in groups)
+                    yield return new SplitCapture(group);
+            }
+
+            prevIndex = match.Index;
+
+            match = match.NextMatch();
+        }
+        while (match.Success);
+
+        yield return new SplitCapture(input.Substring(0, prevIndex), 0);
+    }
+
+    private static List<Group> AddGroups(Match match, ref List<Group>? groups, Comparison<Group> comparison)
+    {
+        if (groups is null)
+        {
+            groups = new List<Group>();
+        }
+        else
+        {
+            groups.Clear();
+        }
+
+        foreach (Group group in match.Groups)
+        {
+            if (group.Success
+                && group.Name != "0")
+            {
+                groups.Add(group);
+            }
+        }
+
+        groups.Sort(comparison);
+
+        return groups;
     }
 }

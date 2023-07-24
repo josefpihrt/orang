@@ -4,309 +4,308 @@ using System;
 using System.Globalization;
 using Orang.Expressions;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+internal static class PredicateHelpers
 {
-    internal static class PredicateHelpers
+    public static Func<string, bool> GetLengthPredicate(Expression expression)
     {
-        public static Func<string, bool> GetLengthPredicate(Expression expression)
+        if (expression.Kind == ExpressionKind.IntervalExpression)
         {
-            if (expression.Kind == ExpressionKind.IntervalExpression)
+            var intervalExpression = (IntervalExpression)expression;
+
+            BinaryExpression left = intervalExpression.Left;
+            BinaryExpression right = intervalExpression.Right;
+
+            int value1 = Parse(left.Value);
+            int value2 = Parse(right.Value);
+
+            switch (left.Kind)
             {
-                var intervalExpression = (IntervalExpression)expression;
-
-                BinaryExpression left = intervalExpression.Left;
-                BinaryExpression right = intervalExpression.Right;
-
-                int value1 = Parse(left.Value);
-                int value2 = Parse(right.Value);
-
-                switch (left.Kind)
-                {
-                    case ExpressionKind.GreaterThanExpression:
+                case ExpressionKind.GreaterThanExpression:
+                    {
+                        switch (right.Kind)
                         {
-                            switch (right.Kind)
-                            {
-                                case ExpressionKind.LessThanExpression:
-                                    return f => f.Length > value1 && f.Length < value2;
-                                case ExpressionKind.LessThanOrEqualExpression:
-                                    return f => f.Length > value1 && f.Length <= value2;
-                            }
-
-                            break;
+                            case ExpressionKind.LessThanExpression:
+                                return f => f.Length > value1 && f.Length < value2;
+                            case ExpressionKind.LessThanOrEqualExpression:
+                                return f => f.Length > value1 && f.Length <= value2;
                         }
-                    case ExpressionKind.LessThanExpression:
+
+                        break;
+                    }
+                case ExpressionKind.LessThanExpression:
+                    {
+                        switch (right.Kind)
                         {
-                            switch (right.Kind)
-                            {
-                                case ExpressionKind.GreaterThanExpression:
-                                    return f => f.Length < value1 && f.Length > value2;
-                                case ExpressionKind.GreaterThanOrEqualExpression:
-                                    return f => f.Length < value1 && f.Length >= value2;
-                            }
-
-                            break;
+                            case ExpressionKind.GreaterThanExpression:
+                                return f => f.Length < value1 && f.Length > value2;
+                            case ExpressionKind.GreaterThanOrEqualExpression:
+                                return f => f.Length < value1 && f.Length >= value2;
                         }
-                    case ExpressionKind.GreaterThanOrEqualExpression:
+
+                        break;
+                    }
+                case ExpressionKind.GreaterThanOrEqualExpression:
+                    {
+                        switch (right.Kind)
                         {
-                            switch (right.Kind)
-                            {
-                                case ExpressionKind.LessThanExpression:
-                                    return f => f.Length >= value1 && f.Length < value2;
-                                case ExpressionKind.LessThanOrEqualExpression:
-                                    return f => f.Length >= value1 && f.Length <= value2;
-                            }
-
-                            break;
+                            case ExpressionKind.LessThanExpression:
+                                return f => f.Length >= value1 && f.Length < value2;
+                            case ExpressionKind.LessThanOrEqualExpression:
+                                return f => f.Length >= value1 && f.Length <= value2;
                         }
-                    case ExpressionKind.LessThanOrEqualExpression:
+
+                        break;
+                    }
+                case ExpressionKind.LessThanOrEqualExpression:
+                    {
+                        switch (right.Kind)
                         {
-                            switch (right.Kind)
-                            {
-                                case ExpressionKind.GreaterThanExpression:
-                                    return f => f.Length <= value1 && f.Length > value2;
-                                case ExpressionKind.GreaterThanOrEqualExpression:
-                                    return f => f.Length <= value1 && f.Length >= value2;
-                            }
-
-                            break;
+                            case ExpressionKind.GreaterThanExpression:
+                                return f => f.Length <= value1 && f.Length > value2;
+                            case ExpressionKind.GreaterThanOrEqualExpression:
+                                return f => f.Length <= value1 && f.Length >= value2;
                         }
-                }
+
+                        break;
+                    }
             }
-            else if (expression is BinaryExpression binaryExpression)
+        }
+        else if (expression is BinaryExpression binaryExpression)
+        {
+            int value = Parse(binaryExpression.Value);
+
+            switch (binaryExpression.Kind)
             {
-                int value = Parse(binaryExpression.Value);
-
-                switch (binaryExpression.Kind)
-                {
-                    case ExpressionKind.EqualsExpression:
-                        return f => f.Length == value;
-                    case ExpressionKind.GreaterThanExpression:
-                        return f => f.Length > value;
-                    case ExpressionKind.LessThanExpression:
-                        return f => f.Length < value;
-                    case ExpressionKind.GreaterThanOrEqualExpression:
-                        return f => f.Length >= value;
-                    case ExpressionKind.LessThanOrEqualExpression:
-                        return f => f.Length <= value;
-                }
-            }
-
-            throw new ArgumentException("", nameof(expression));
-
-            int Parse(string value)
-            {
-                if (!int.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out int result))
-                    throw new ArgumentException("", nameof(expression));
-
-                return result;
+                case ExpressionKind.EqualsExpression:
+                    return f => f.Length == value;
+                case ExpressionKind.GreaterThanExpression:
+                    return f => f.Length > value;
+                case ExpressionKind.LessThanExpression:
+                    return f => f.Length < value;
+                case ExpressionKind.GreaterThanOrEqualExpression:
+                    return f => f.Length >= value;
+                case ExpressionKind.LessThanOrEqualExpression:
+                    return f => f.Length <= value;
             }
         }
 
-        public static Func<long, bool> GetLongPredicate(Expression expression)
+        throw new ArgumentException("", nameof(expression));
+
+        static int Parse(string value)
         {
-            if (expression.Kind == ExpressionKind.IntervalExpression)
+            if (!int.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out int result))
+                throw new ArgumentException("", nameof(expression));
+
+            return result;
+        }
+    }
+
+    public static Func<long, bool> GetLongPredicate(Expression expression)
+    {
+        if (expression.Kind == ExpressionKind.IntervalExpression)
+        {
+            var intervalExpression = (IntervalExpression)expression;
+
+            BinaryExpression left = intervalExpression.Left;
+            BinaryExpression right = intervalExpression.Right;
+
+            long value1 = Parse(left.Value);
+            long value2 = Parse(right.Value);
+
+            switch (left.Kind)
             {
-                var intervalExpression = (IntervalExpression)expression;
-
-                BinaryExpression left = intervalExpression.Left;
-                BinaryExpression right = intervalExpression.Right;
-
-                long value1 = Parse(left.Value);
-                long value2 = Parse(right.Value);
-
-                switch (left.Kind)
-                {
-                    case ExpressionKind.GreaterThanExpression:
+                case ExpressionKind.GreaterThanExpression:
+                    {
+                        switch (right.Kind)
                         {
-                            switch (right.Kind)
-                            {
-                                case ExpressionKind.LessThanExpression:
-                                    return f => f > value1 && f < value2;
-                                case ExpressionKind.LessThanOrEqualExpression:
-                                    return f => f > value1 && f <= value2;
-                            }
-
-                            break;
+                            case ExpressionKind.LessThanExpression:
+                                return f => f > value1 && f < value2;
+                            case ExpressionKind.LessThanOrEqualExpression:
+                                return f => f > value1 && f <= value2;
                         }
-                    case ExpressionKind.LessThanExpression:
+
+                        break;
+                    }
+                case ExpressionKind.LessThanExpression:
+                    {
+                        switch (right.Kind)
                         {
-                            switch (right.Kind)
-                            {
-                                case ExpressionKind.GreaterThanExpression:
-                                    return f => f < value1 && f > value2;
-                                case ExpressionKind.GreaterThanOrEqualExpression:
-                                    return f => f < value1 && f >= value2;
-                            }
-
-                            break;
+                            case ExpressionKind.GreaterThanExpression:
+                                return f => f < value1 && f > value2;
+                            case ExpressionKind.GreaterThanOrEqualExpression:
+                                return f => f < value1 && f >= value2;
                         }
-                    case ExpressionKind.GreaterThanOrEqualExpression:
+
+                        break;
+                    }
+                case ExpressionKind.GreaterThanOrEqualExpression:
+                    {
+                        switch (right.Kind)
                         {
-                            switch (right.Kind)
-                            {
-                                case ExpressionKind.LessThanExpression:
-                                    return f => f >= value1 && f < value2;
-                                case ExpressionKind.LessThanOrEqualExpression:
-                                    return f => f >= value1 && f <= value2;
-                            }
-
-                            break;
+                            case ExpressionKind.LessThanExpression:
+                                return f => f >= value1 && f < value2;
+                            case ExpressionKind.LessThanOrEqualExpression:
+                                return f => f >= value1 && f <= value2;
                         }
-                    case ExpressionKind.LessThanOrEqualExpression:
+
+                        break;
+                    }
+                case ExpressionKind.LessThanOrEqualExpression:
+                    {
+                        switch (right.Kind)
                         {
-                            switch (right.Kind)
-                            {
-                                case ExpressionKind.GreaterThanExpression:
-                                    return f => f <= value1 && f > value2;
-                                case ExpressionKind.GreaterThanOrEqualExpression:
-                                    return f => f <= value1 && f >= value2;
-                            }
-
-                            break;
+                            case ExpressionKind.GreaterThanExpression:
+                                return f => f <= value1 && f > value2;
+                            case ExpressionKind.GreaterThanOrEqualExpression:
+                                return f => f <= value1 && f >= value2;
                         }
-                }
+
+                        break;
+                    }
             }
-            else if (expression is BinaryExpression binaryExpression)
+        }
+        else if (expression is BinaryExpression binaryExpression)
+        {
+            long value = Parse(binaryExpression.Value);
+
+            switch (binaryExpression.Kind)
             {
-                long value = Parse(binaryExpression.Value);
-
-                switch (binaryExpression.Kind)
-                {
-                    case ExpressionKind.EqualsExpression:
-                        return f => f == value;
-                    case ExpressionKind.GreaterThanExpression:
-                        return f => f > value;
-                    case ExpressionKind.LessThanExpression:
-                        return f => f < value;
-                    case ExpressionKind.GreaterThanOrEqualExpression:
-                        return f => f >= value;
-                    case ExpressionKind.LessThanOrEqualExpression:
-                        return f => f <= value;
-                }
-            }
-
-            throw new ArgumentException("", nameof(expression));
-
-            long Parse(string value)
-            {
-                if (!long.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out long result))
-                    throw new ArgumentException("", nameof(expression));
-
-                return result;
+                case ExpressionKind.EqualsExpression:
+                    return f => f == value;
+                case ExpressionKind.GreaterThanExpression:
+                    return f => f > value;
+                case ExpressionKind.LessThanExpression:
+                    return f => f < value;
+                case ExpressionKind.GreaterThanOrEqualExpression:
+                    return f => f >= value;
+                case ExpressionKind.LessThanOrEqualExpression:
+                    return f => f <= value;
             }
         }
 
-        public static Func<DateTime, bool> GetDateTimePredicate(Expression expression)
+        throw new ArgumentException("", nameof(expression));
+
+        static long Parse(string value)
         {
-            if (expression.Kind == ExpressionKind.IntervalExpression)
+            if (!long.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out long result))
+                throw new ArgumentException("", nameof(expression));
+
+            return result;
+        }
+    }
+
+    public static Func<DateTime, bool> GetDateTimePredicate(Expression expression)
+    {
+        if (expression.Kind == ExpressionKind.IntervalExpression)
+        {
+            var intervalExpression = (IntervalExpression)expression;
+
+            BinaryExpression left = intervalExpression.Left;
+            BinaryExpression right = intervalExpression.Right;
+
+            DateTime value1 = Parse(left.Value, out bool dateOnly1);
+            DateTime value2 = Parse(right.Value, out bool dateOnly2);
+
+            switch (left.Kind)
             {
-                var intervalExpression = (IntervalExpression)expression;
-
-                BinaryExpression left = intervalExpression.Left;
-                BinaryExpression right = intervalExpression.Right;
-
-                DateTime value1 = Parse(left.Value, out bool dateOnly1);
-                DateTime value2 = Parse(right.Value, out bool dateOnly2);
-
-                switch (left.Kind)
-                {
-                    case ExpressionKind.GreaterThanExpression:
+                case ExpressionKind.GreaterThanExpression:
+                    {
+                        switch (right.Kind)
                         {
-                            switch (right.Kind)
-                            {
-                                case ExpressionKind.LessThanExpression:
-                                    return f => ((dateOnly1) ? f.Date : f) > value1 && ((dateOnly2) ? f.Date : f) < value2;
-                                case ExpressionKind.LessThanOrEqualExpression:
-                                    return f => ((dateOnly1) ? f.Date : f) > value1 && ((dateOnly2) ? f.Date : f) <= value2;
-                            }
-
-                            break;
+                            case ExpressionKind.LessThanExpression:
+                                return f => ((dateOnly1) ? f.Date : f) > value1 && ((dateOnly2) ? f.Date : f) < value2;
+                            case ExpressionKind.LessThanOrEqualExpression:
+                                return f => ((dateOnly1) ? f.Date : f) > value1 && ((dateOnly2) ? f.Date : f) <= value2;
                         }
-                    case ExpressionKind.LessThanExpression:
+
+                        break;
+                    }
+                case ExpressionKind.LessThanExpression:
+                    {
+                        switch (right.Kind)
                         {
-                            switch (right.Kind)
-                            {
-                                case ExpressionKind.GreaterThanExpression:
-                                    return f => ((dateOnly1) ? f.Date : f) < value1 && ((dateOnly2) ? f.Date : f) > value2;
-                                case ExpressionKind.GreaterThanOrEqualExpression:
-                                    return f => ((dateOnly1) ? f.Date : f) < value1 && ((dateOnly2) ? f.Date : f) >= value2;
-                            }
-
-                            break;
+                            case ExpressionKind.GreaterThanExpression:
+                                return f => ((dateOnly1) ? f.Date : f) < value1 && ((dateOnly2) ? f.Date : f) > value2;
+                            case ExpressionKind.GreaterThanOrEqualExpression:
+                                return f => ((dateOnly1) ? f.Date : f) < value1 && ((dateOnly2) ? f.Date : f) >= value2;
                         }
-                    case ExpressionKind.GreaterThanOrEqualExpression:
+
+                        break;
+                    }
+                case ExpressionKind.GreaterThanOrEqualExpression:
+                    {
+                        switch (right.Kind)
                         {
-                            switch (right.Kind)
-                            {
-                                case ExpressionKind.LessThanExpression:
-                                    return f => ((dateOnly1) ? f.Date : f) >= value1 && ((dateOnly2) ? f.Date : f) < value2;
-                                case ExpressionKind.LessThanOrEqualExpression:
-                                    return f => ((dateOnly1) ? f.Date : f) >= value1 && ((dateOnly2) ? f.Date : f) <= value2;
-                            }
-
-                            break;
+                            case ExpressionKind.LessThanExpression:
+                                return f => ((dateOnly1) ? f.Date : f) >= value1 && ((dateOnly2) ? f.Date : f) < value2;
+                            case ExpressionKind.LessThanOrEqualExpression:
+                                return f => ((dateOnly1) ? f.Date : f) >= value1 && ((dateOnly2) ? f.Date : f) <= value2;
                         }
-                    case ExpressionKind.LessThanOrEqualExpression:
+
+                        break;
+                    }
+                case ExpressionKind.LessThanOrEqualExpression:
+                    {
+                        switch (right.Kind)
                         {
-                            switch (right.Kind)
-                            {
-                                case ExpressionKind.GreaterThanExpression:
-                                    return f => ((dateOnly1) ? f.Date : f) <= value1 && ((dateOnly2) ? f.Date : f) > value2;
-                                case ExpressionKind.GreaterThanOrEqualExpression:
-                                    return f => ((dateOnly1) ? f.Date : f) <= value1 && ((dateOnly2) ? f.Date : f) >= value2;
-                            }
-
-                            break;
+                            case ExpressionKind.GreaterThanExpression:
+                                return f => ((dateOnly1) ? f.Date : f) <= value1 && ((dateOnly2) ? f.Date : f) > value2;
+                            case ExpressionKind.GreaterThanOrEqualExpression:
+                                return f => ((dateOnly1) ? f.Date : f) <= value1 && ((dateOnly2) ? f.Date : f) >= value2;
                         }
-                }
+
+                        break;
+                    }
             }
-            else if (expression is BinaryExpression binaryExpression)
+        }
+        else if (expression is BinaryExpression binaryExpression)
+        {
+            DateTime value = Parse(binaryExpression.Value, out bool dateOnly);
+
+            switch (binaryExpression.Kind)
             {
-                DateTime value = Parse(binaryExpression.Value, out bool dateOnly);
-
-                switch (binaryExpression.Kind)
-                {
-                    case ExpressionKind.EqualsExpression:
-                        return f => ((dateOnly) ? f.Date : f) == value;
-                    case ExpressionKind.GreaterThanExpression:
-                        return f => ((dateOnly) ? f.Date : f) > value;
-                    case ExpressionKind.LessThanExpression:
-                        return f => ((dateOnly) ? f.Date : f) < value;
-                    case ExpressionKind.GreaterThanOrEqualExpression:
-                        return f => ((dateOnly) ? f.Date : f) >= value;
-                    case ExpressionKind.LessThanOrEqualExpression:
-                        return f => ((dateOnly) ? f.Date : f) <= value;
-                }
+                case ExpressionKind.EqualsExpression:
+                    return f => ((dateOnly) ? f.Date : f) == value;
+                case ExpressionKind.GreaterThanExpression:
+                    return f => ((dateOnly) ? f.Date : f) > value;
+                case ExpressionKind.LessThanExpression:
+                    return f => ((dateOnly) ? f.Date : f) < value;
+                case ExpressionKind.GreaterThanOrEqualExpression:
+                    return f => ((dateOnly) ? f.Date : f) >= value;
+                case ExpressionKind.LessThanOrEqualExpression:
+                    return f => ((dateOnly) ? f.Date : f) <= value;
             }
-            else if (expression.Kind == ExpressionKind.DecrementExpression)
+        }
+        else if (expression.Kind == ExpressionKind.DecrementExpression)
+        {
+            var decrementExpression = (DecrementExpression)expression;
+
+            if (!TimeSpan.TryParse(decrementExpression.Value, CultureInfo.InvariantCulture, out TimeSpan result))
+                throw new ArgumentException("", nameof(expression));
+
+            DateTime dateTime = DateTime.Now - result;
+
+            return f => f > dateTime;
+        }
+
+        throw new ArgumentException("", nameof(expression));
+
+        static DateTime Parse(string value, out bool dateOnly)
+        {
+            if (value is null)
             {
-                var decrementExpression = (DecrementExpression)expression;
-
-                if (!TimeSpan.TryParse(decrementExpression.Value, CultureInfo.InvariantCulture, out TimeSpan result))
-                    throw new ArgumentException("", nameof(expression));
-
-                DateTime dateTime = DateTime.Now - result;
-
-                return f => f > dateTime;
+                dateOnly = false;
+                return DateTime.MinValue;
             }
 
-            throw new ArgumentException("", nameof(expression));
+            if (!DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime result))
+                throw new ArgumentException("", nameof(expression));
 
-            DateTime Parse(string value, out bool dateOnly)
-            {
-                if (value == null)
-                {
-                    dateOnly = false;
-                    return DateTime.MinValue;
-                }
+            dateOnly = result.TimeOfDay.Duration() == TimeSpan.Zero;
 
-                if (!DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime result))
-                    throw new ArgumentException("", nameof(expression));
-
-                dateOnly = result.TimeOfDay.Duration() == TimeSpan.Zero;
-
-                return result;
-            }
+            return result;
         }
     }
 }

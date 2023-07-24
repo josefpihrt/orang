@@ -2,35 +2,33 @@
 
 using System.Threading;
 using Orang.Text.RegularExpressions;
-using static Orang.Logger;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+internal class RegexEscapeCommand : AbstractCommand<RegexEscapeCommandOptions>
 {
-    internal class RegexEscapeCommand : AbstractCommand<RegexEscapeCommandOptions>
+    public RegexEscapeCommand(RegexEscapeCommandOptions options, Logger logger) : base(options, logger)
     {
-        public RegexEscapeCommand(RegexEscapeCommandOptions options) : base(options)
+    }
+
+    protected override CommandResult ExecuteCore(CancellationToken cancellationToken = default)
+    {
+        string input = Options.Input;
+        string result;
+
+        if (Options.Replacement)
         {
+            result = RegexEscape.EscapeSubstitution(input);
+        }
+        else
+        {
+            result = RegexEscape.Escape(input, Options.InCharGroup);
         }
 
-        protected override CommandResult ExecuteCore(CancellationToken cancellationToken = default)
-        {
-            string input = Options.Input;
-            string result;
+        result = result.Replace("\"", "\\\"");
 
-            if (Options.Replacement)
-            {
-                result = RegexEscape.EscapeSubstitution(input);
-            }
-            else
-            {
-                result = RegexEscape.Escape(input, Options.InCharGroup);
-            }
+        _logger.WriteLine(result);
 
-            result = result.Replace("\"", "\\\"");
-
-            WriteLine(result);
-
-            return CommandResult.Success;
-        }
+        return CommandResult.Success;
     }
 }

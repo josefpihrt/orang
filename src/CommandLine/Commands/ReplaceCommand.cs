@@ -2,13 +2,12 @@
 
 using System.Diagnostics;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+internal class ReplaceCommand : CommonReplaceCommand<ReplaceCommandOptions>
 {
-    internal class ReplaceCommand : CommonReplaceCommand<ReplaceCommandOptions>
+    public ReplaceCommand(ReplaceCommandOptions options, Logger logger) : base(options, logger)
     {
-        public ReplaceCommand(ReplaceCommandOptions options) : base(options)
-        {
-            Debug.Assert(!options.ContentFilter!.IsNegative);
-        }
+        Debug.Assert(!options.ContentFilter!.IsNegative);
     }
 }

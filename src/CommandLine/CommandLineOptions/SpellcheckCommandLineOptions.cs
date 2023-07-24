@@ -5,104 +5,103 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Text.RegularExpressions;
 using CommandLine;
+using Orang.CommandLine.Annotations;
 using Orang.Spelling;
-using static Orang.CommandLine.ParseHelpers;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+[Verb("spellcheck", HelpText = "Searches the files' content for potential misspellings and typos.")]
+[CommandGroup("File System", 1)]
+#if DEBUG
+[OptionValueProvider(nameof(Word), OptionValueProviderNames.PatternOptions_Word)]
+#endif
+internal sealed class SpellcheckCommandLineOptions : CommonReplaceCommandLineOptions
 {
-    [Verb("spellcheck", HelpText = "Searches the files' content for potential misspellings and typos.")]
-    [CommandGroup("File System", 1)]
+    [Option(
+        longName: OptionNames.CaseSensitive,
+        HelpText = "Specifies case-sensitive matching.")]
+    public bool CaseSensitive { get; set; }
+
+    [Option(
+        shortName: OptionShortNames.Content,
+        longName: OptionNames.Content,
+        HelpText = "Regular expression for files' content.",
+        MetaValue = MetaValues.Regex)]
+    public override IEnumerable<string> Content { get; set; } = null!;
+
+    [Option(
+        longName: OptionNames.MaxWordLength,
+        Default = int.MaxValue,
+        HelpText = "Specifies maximal word length to be checked.")]
+    public int MaxWordLength { get; set; }
+
+    [Option(
+        longName: OptionNames.MinWordLength,
+        Default = 3,
+        HelpText = "Specifies minimal word length to be checked. Default value is 3.")]
+    public int MinWordLength { get; set; }
+
+    [Option(
+        longName: OptionNames.Words,
+        Required = true,
+        HelpText = "Specified path to file and/or directory that contains list of allowed words.",
+        MetaValue = MetaValues.Path)]
+    public IEnumerable<string> Words { get; set; } = null!;
 #if DEBUG
-    [OptionValueProvider(nameof(Word), OptionValueProviderNames.PatternOptions_Word)]
+    [Option(
+        longName: OptionNames.Word)]
+    public IEnumerable<string> Word { get; set; } = null!;
 #endif
-    internal sealed class SpellcheckCommandLineOptions : CommonReplaceCommandLineOptions
+    public bool TryParse(SpellcheckCommandOptions options, ParseContext context)
     {
-        [Option(
-            longName: OptionNames.CaseSensitive,
-            HelpText = "Specifies case-sensitive matching.")]
-        public bool CaseSensitive { get; set; }
+        var baseOptions = (CommonReplaceCommandOptions)options;
 
-        [Option(
-            shortName: OptionShortNames.Content,
-            longName: OptionNames.Content,
-            HelpText = "Regular expression for files' content.",
-            MetaValue = MetaValues.Regex)]
-        public override IEnumerable<string> Content { get; set; } = null!;
+        if (!TryParse(baseOptions, context))
+            return false;
 
-        [Option(
-            longName: OptionNames.MaxWordLength,
-            Default = int.MaxValue,
-            HelpText = "Specifies maximal word length to be checked.")]
-        public int MaxWordLength { get; set; }
+        options = (SpellcheckCommandOptions)baseOptions;
 
-        [Option(
-            longName: OptionNames.MinWordLength,
-            Default = 3,
-            HelpText = "Specifies minimal word length to be checked. Default value is 3.")]
-        public int MinWordLength { get; set; }
+        Regex? wordRegex = null;
 
-        [Option(
-            longName: OptionNames.Words,
-            Required = true,
-            HelpText = "Specified path to file and/or directory that contains list of allowed words.",
-            MetaValue = MetaValues.Path)]
-        public IEnumerable<string> Words { get; set; } = null!;
+        if (!context.TryEnsureFullPath(Words, out ImmutableArray<string> wordListPaths))
+            return false;
 #if DEBUG
-        [Option(
-            longName: OptionNames.Word)]
-        public IEnumerable<string> Word { get; set; } = null!;
-#endif
-        public bool TryParse(SpellcheckCommandOptions options)
+        if (Word.Any())
         {
-            var baseOptions = (CommonReplaceCommandOptions)options;
-
-            if (!TryParse(baseOptions))
-                return false;
-
-            options = (SpellcheckCommandOptions)baseOptions;
-
-            Regex? wordRegex = null;
-
-            if (!TryEnsureFullPath(Words, out ImmutableArray<string> wordListPaths))
-                return false;
-#if DEBUG
-            if (Word.Any())
+            if (!context.TryParseFilter(
+                Word,
+                OptionNames.Word,
+                OptionValueProviders.PatternOptions_Word_Provider,
+                out Filter? wordFilter))
             {
-                if (!FilterParser.TryParse(
-                    Word,
-                    OptionNames.Word,
-                    OptionValueProviders.PatternOptions_Word_Provider,
-                    out Filter? wordFilter))
-                {
-                    return false;
-                }
-
-                wordRegex = wordFilter!.Regex;
+                return false;
             }
+
+            wordRegex = wordFilter!.Regex;
+        }
 #endif
-            WordListLoaderResult result = WordListLoader.Load(
-                wordListPaths,
-                minWordLength: MinWordLength,
-                maxWordLength: MaxWordLength,
-                (CaseSensitive) ? WordListLoadOptions.None : WordListLoadOptions.IgnoreCase);
+        WordListLoaderResult result = WordListLoader.Load(
+            wordListPaths,
+            minWordLength: MinWordLength,
+            maxWordLength: MaxWordLength,
+            (CaseSensitive) ? WordListLoadOptions.None : WordListLoadOptions.IgnoreCase);
 
-            var data = new SpellingData(result.List, result.CaseSensitiveList, result.FixList);
+        var data = new SpellingData(result.List, result.CaseSensitiveList, result.FixList);
 
-            var spellcheckerOptions = new SpellcheckerOptions(
-                SplitMode.CaseAndHyphen,
-                MinWordLength,
-                MaxWordLength);
+        var spellcheckerOptions = new SpellcheckerOptions(
+            SplitMode.CaseAndHyphen,
+            MinWordLength,
+            MaxWordLength);
 
-            var spellchecker = new Spellchecker(data, wordRegex, spellcheckerOptions);
+        var spellchecker = new Spellchecker(data, wordRegex, spellcheckerOptions);
 
-            options.Replacer = new SpellcheckState(spellchecker, data);
+        options.Replacer = new SpellcheckState(spellchecker, data);
 
-            return true;
-        }
+        return true;
+    }
 
-        protected override Filter? GetDefaultContentFilter()
-        {
-            return Filter.EntireInput;
-        }
+    protected override Filter? GetDefaultContentFilter()
+    {
+        return Filter.EntireInput;
     }
 }

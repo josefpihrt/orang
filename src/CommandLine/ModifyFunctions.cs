@@ -2,26 +2,27 @@
 
 using System;
 
-namespace Orang
+namespace Orang;
+
+[Flags]
+internal enum ModifyFunctions
 {
-    [Flags]
-    internal enum ModifyFunctions
-    {
-        None = 0,
-        Distinct = 1,
-        Sort = 1 << 1,
-        SortDescending = 1 << 2,
-        Enumerable = Distinct | Sort | SortDescending,
-        Except = 1 << 3,
-        Intersect = 1 << 4,
-        Except_Intersect = Except | Intersect,
-        Group = 1 << 5,
-        Except_Intersect_Group = Except_Intersect | Group,
-        RemoveEmpty = 1 << 6,
-        RemoveWhiteSpace = 1 << 7,
-        TrimStart = 1 << 8,
-        TrimEnd = 1 << 9,
-        ToLower = 1 << 10,
-        ToUpper = 1 << 11,
-    }
+    None = 0,
+    Distinct = 1,
+    SortAscending = 1 << 1,
+    SortDescending = 1 << 2,
+    Sort = SortAscending | SortDescending,
+    Enumerable = Distinct | Sort,
+    Except = 1 << 3,
+    Intersect = 1 << 4,
+    Except_Intersect = Except | Intersect,
+    Group = 1 << 5,
+    Except_Intersect_Group = Except_Intersect | Group,
+    RemoveEmpty = 1 << 6,
+    RemoveWhiteSpace = 1 << 7,
+    TrimStart = 1 << 8,
+    TrimEnd = 1 << 9,
+    ToLower = 1 << 10,
+    ToUpper = 1 << 11,
+    Count = 1 << 12,
 }

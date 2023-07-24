@@ -5,324 +5,340 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using CommandLine;
+using Orang.CommandLine.Annotations;
 using Orang.FileSystem;
 using Orang.Text.RegularExpressions;
-using static Orang.CommandLine.ParseHelpers;
-using static Orang.Logger;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+[OptionValueProvider(nameof(Content), OptionValueProviderNames.PatternOptionsWithoutGroupAndPartAndNegative)]
+[OptionValueProvider(nameof(Highlight), OptionValueProviderNames.ReplaceHighlightOptions)]
+internal abstract class CommonReplaceCommandLineOptions : FileSystemCommandLineOptions
 {
-    [OptionValueProvider(nameof(Content), OptionValueProviderNames.PatternOptionsWithoutGroupAndPartAndNegative)]
-    [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.ReplaceHighlightOptions)]
-    internal abstract class CommonReplaceCommandLineOptions : FileSystemCommandLineOptions
+    [Option(
+        longName: OptionNames.Ask,
+        HelpText = "Ask for permission after each file or value.",
+        MetaValue = MetaValues.AskMode)]
+    public string Ask { get; set; } = null!;
+
+    public abstract IEnumerable<string> Content { get; set; }
+
+    [Option(
+        shortName: OptionShortNames.DryRun,
+        longName: OptionNames.DryRun,
+        HelpText = "Display which files should be updated but do not actually update any file.")]
+    public bool DryRun { get; set; }
+
+    [Option(
+        longName: OptionNames.Interactive,
+        HelpText = "Enable editing of a replacement.")]
+    public bool Interactive { get; set; }
+
+    [Option(
+        longName: OptionNames.Pipe,
+        HelpText = "Defines how to use redirected/piped input.",
+        MetaValue = MetaValues.PipeMode)]
+    public string Pipe { get; set; } = null!;
+
+    [Option(
+        longName: OptionNames.Input,
+        HelpText = "The input string to be searched.",
+        MetaValue = MetaValues.Input)]
+    public IEnumerable<string> Input { get; set; } = null!;
+
+    [Option(
+        shortName: OptionShortNames.MaxCount,
+        longName: OptionNames.MaxCount,
+        HelpText = "Stop searching after specified number is reached.",
+        MetaValue = MetaValues.Num)]
+    public int MaxCount { get; set; }
+
+    [HideFromConsoleHelp]
+    [Option(
+        longName: OptionNames.MaxMatchingFiles,
+        HelpText = "Stop searching after specified number of files is found.",
+        MetaValue = MetaValues.Num)]
+    public int MaxMatchingFiles { get; set; }
+
+    [HideFromConsoleHelp]
+    [Option(
+        longName: OptionNames.MaxMatchesInFile,
+        HelpText = "Stop searching in a file after specified number of matches is found.",
+        MetaValue = MetaValues.Num)]
+    public int MaxMatchesInFile { get; set; }
+
+    [Option(
+        shortName: OptionShortNames.Name,
+        longName: OptionNames.Name,
+        HelpText = "Regular expression for file or directory name.",
+        MetaValue = MetaValues.Regex)]
+    public IEnumerable<string> Name { get; set; } = null!;
+
+    public bool TryParse(CommonReplaceCommandOptions options, ParseContext context)
     {
-        [Option(
-            longName: OptionNames.Ask,
-            HelpText = "Ask for permission after each file or value.",
-            MetaValue = MetaValues.AskMode)]
-        public string Ask { get; set; } = null!;
-
-        public abstract IEnumerable<string> Content { get; set; }
-
-        [Option(
-            shortName: OptionShortNames.DryRun,
-            longName: OptionNames.DryRun,
-            HelpText = "Display which files should be updated but do not actually update any file.")]
-        public bool DryRun { get; set; }
-
-        [Option(
-            longName: OptionNames.Interactive,
-            HelpText = "Enable editing of a replacement.")]
-        public bool Interactive { get; set; }
-
-        [Option(
-            longName: OptionNames.Pipe,
-            HelpText = "Defines how to use redirected/piped input.",
-            MetaValue = MetaValues.PipeMode)]
-        public string Pipe { get; set; } = null!;
-
-        [Option(
-            longName: OptionNames.Input,
-            HelpText = "The input string to be searched.",
-            MetaValue = MetaValues.Input)]
-        public IEnumerable<string> Input { get; set; } = null!;
-
-        [Option(
-            shortName: OptionShortNames.MaxCount,
-            longName: OptionNames.MaxCount,
-            HelpText = "Stop searching after specified number is reached.",
-            MetaValue = MetaValues.MaxOptions)]
-        public IEnumerable<string> MaxCount { get; set; } = null!;
-
-        [Option(
-            shortName: OptionShortNames.Name,
-            longName: OptionNames.Name,
-            HelpText = "Regular expression for file or directory name.",
-            MetaValue = MetaValues.Regex)]
-        public IEnumerable<string> Name { get; set; } = null!;
-
-        public bool TryParse(CommonReplaceCommandOptions options)
+        if (!context.TryParseAsEnum(
+            Pipe,
+            OptionNames.Pipe,
+            out PipeMode pipeMode,
+            PipeMode.None,
+            OptionValueProviders.PipeMode))
         {
-            if (!TryParseAsEnum(
-                Pipe,
-                OptionNames.Pipe,
-                out PipeMode pipeMode,
-                PipeMode.None,
-                OptionValueProviders.PipeMode))
+            return false;
+        }
+
+        if (pipeMode == PipeMode.None)
+        {
+            if (Console.IsInputRedirected)
+                PipeMode = PipeMode.Text;
+        }
+        else
+        {
+            if (!Console.IsInputRedirected)
             {
+                context.WriteError("Redirected/piped input is required "
+                    + $"when option '{OptionNames.GetHelpText(OptionNames.Pipe)}' is specified.");
+
                 return false;
             }
 
-            if (pipeMode == PipeMode.None)
+            PipeMode = pipeMode;
+        }
+
+        if (!context.TryParseProperties(Ask, Name, options))
+            return false;
+
+        var baseOptions = (FileSystemCommandOptions)options;
+
+        if (!TryParse(baseOptions, context))
+            return false;
+
+        options = (CommonReplaceCommandOptions)baseOptions;
+
+        Filter? contentFilter = null;
+        if (!Content.Any())
+        {
+            contentFilter = GetDefaultContentFilter();
+        }
+
+        if (contentFilter is null
+            && !context.TryParseFilter(
+                Content,
+                OptionNames.Content,
+                OptionValueProviders.PatternOptionsWithoutGroupAndPartAndNegativeProvider,
+                out contentFilter))
+        {
+            return false;
+        }
+
+        string? input = null;
+
+        if (Input.Any()
+            && !context.TryParseInput(Input, out input))
+        {
+            return false;
+        }
+
+        if (pipeMode != PipeMode.Paths
+            && Console.IsInputRedirected)
+        {
+            if (input is not null)
             {
-                if (Console.IsInputRedirected)
-                    PipeMode = PipeMode.Text;
+                context.WriteError("Cannot use both redirected/piped input and "
+                    + $"option '{OptionNames.GetHelpText(OptionNames.Input)}'.");
+
+                return false;
+            }
+
+            if (contentFilter is null)
+            {
+                context.WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Content)}' is required "
+                    + "when redirected/piped input is used as a text to be searched.");
+
+                return false;
+            }
+
+            input = ConsoleHelpers.ReadRedirectedInput();
+        }
+
+        ContentDisplayStyle contentDisplayStyle;
+        PathDisplayStyle pathDisplayStyle;
+
+        if (!context.TryParseDisplay(
+            values: Display,
+            optionName: OptionNames.Display,
+            contentDisplayStyle: out ContentDisplayStyle? contentDisplayStyle2,
+            pathDisplayStyle: out PathDisplayStyle? pathDisplayStyle2,
+            lineDisplayOptions: out LineDisplayOptions lineDisplayOptions,
+            lineContext: out LineContext lineContext,
+            displayParts: out DisplayParts displayParts,
+            includeCreationTime: out bool includeCreationTime,
+            includeModifiedTime: out bool includeModifiedTime,
+            includeSize: out bool includeSize,
+            indent: out string? indent,
+            separator: out string? separator,
+            noAlign: out bool _,
+            contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider_WithoutUnmatchedLines,
+            pathDisplayStyleProvider: OptionValueProviders.PathDisplayStyleProvider))
+        {
+            return false;
+        }
+
+        if (ContentMode is not null)
+        {
+            if (context.TryParseAsEnum(
+                ContentMode,
+                OptionNames.ContentMode,
+                out ContentDisplayStyle contentDisplayStyle3,
+                provider: OptionValueProviders.ContentDisplayStyleProvider_WithoutUnmatchedLines))
+            {
+                contentDisplayStyle2 = contentDisplayStyle3;
             }
             else
             {
-                if (!Console.IsInputRedirected)
-                {
-                    WriteError("Redirected/piped input is required "
-                        + $"when option '{OptionNames.GetHelpText(OptionNames.Pipe)}' is specified.");
-
-                    return false;
-                }
-
-                PipeMode = pipeMode;
+                return false;
             }
+        }
 
-            if (!TryParseProperties(Ask, Name, options))
-                return false;
-
-            var baseOptions = (FileSystemCommandOptions)options;
-
-            if (!TryParse(baseOptions))
-                return false;
-
-            options = (CommonReplaceCommandOptions)baseOptions;
-
-            Filter? contentFilter = null;
-            if (!Content.Any())
+        if (PathMode is not null)
+        {
+            if (context.TryParseAsEnum(
+                PathMode,
+                OptionNames.PathMode,
+                out PathDisplayStyle pathDisplayStyle3,
+                provider: OptionValueProviders.PathDisplayStyleProvider))
             {
-                contentFilter = GetDefaultContentFilter();
+                pathDisplayStyle2 = pathDisplayStyle3;
             }
-
-            if (contentFilter == null
-                && !FilterParser.TryParse(
-                    Content,
-                    OptionNames.Content,
-                    OptionValueProviders.PatternOptionsWithoutGroupAndPartAndNegativeProvider,
-                    out contentFilter))
+            else
             {
                 return false;
             }
+        }
 
-            if (!TryParseMaxCount(MaxCount, out int maxMatchingFiles, out int maxMatchesInFile))
-                return false;
+        if (Count)
+            displayParts |= DisplayParts.Count;
 
-            string? input = null;
+        if (Summary)
+            displayParts |= DisplayParts.Summary;
 
-            if (Input.Any()
-                && !TryParseInput(Input, out input))
-            {
-                return false;
-            }
+        if (Context >= 0)
+            lineContext = new LineContext(Context);
 
-            if (pipeMode != PipeMode.Paths
-                && Console.IsInputRedirected)
-            {
-                if (input != null)
-                {
-                    WriteError("Cannot use both redirected/piped input and "
-                        + $"option '{OptionNames.GetHelpText(OptionNames.Input)}'.");
+        if (BeforeContext >= 0)
+            lineContext = lineContext.WithBefore(BeforeContext);
 
-                    return false;
-                }
+        if (AfterContext >= 0)
+            lineContext = lineContext.WithAfter(AfterContext);
 
-                if (contentFilter == null)
-                {
-                    WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Content)}' is required "
-                        + "when redirected/piped input is used as a text to be searched.");
-
-                    return false;
-                }
-
-                input = ConsoleHelpers.ReadRedirectedInput();
-            }
-
-            ContentDisplayStyle contentDisplayStyle;
-            PathDisplayStyle pathDisplayStyle;
-
-            if (!TryParseDisplay(
-                values: Display,
-                optionName: OptionNames.Display,
-                contentDisplayStyle: out ContentDisplayStyle? contentDisplayStyle2,
-                pathDisplayStyle: out PathDisplayStyle? pathDisplayStyle2,
-                lineDisplayOptions: out LineDisplayOptions lineDisplayOptions,
-                lineContext: out LineContext lineContext,
-                displayParts: out DisplayParts displayParts,
-                includeCreationTime: out bool includeCreationTime,
-                includeModifiedTime: out bool includeModifiedTime,
-                includeSize: out bool includeSize,
-                indent: out string? indent,
-                separator: out string? separator,
-                noAlign: out bool _,
-                contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider_WithoutUnmatchedLines,
-                pathDisplayStyleProvider: OptionValueProviders.PathDisplayStyleProvider))
-            {
-                return false;
-            }
-
-            if (ContentMode != null)
-            {
-                if (TryParseAsEnum(
-                    ContentMode,
-                    OptionNames.ContentMode,
-                    out ContentDisplayStyle contentDisplayStyle3,
-                    provider: OptionValueProviders.ContentDisplayStyleProvider_WithoutUnmatchedLines))
-                {
-                    contentDisplayStyle2 = contentDisplayStyle3;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-
-            if (PathMode != null)
-            {
-                if (TryParseAsEnum(
-                    PathMode,
-                    OptionNames.PathMode,
-                    out PathDisplayStyle pathDisplayStyle3,
-                    provider: OptionValueProviders.PathDisplayStyleProvider))
-                {
-                    pathDisplayStyle2 = pathDisplayStyle3;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-
-            if (Count)
-                displayParts |= DisplayParts.Count;
-
-            if (Summary)
-                displayParts |= DisplayParts.Summary;
-
-            if (Context >= 0)
-                lineContext = new LineContext(Context);
-
-            if (LineNumber)
-                lineDisplayOptions |= LineDisplayOptions.IncludeLineNumber;
+        if (LineNumber)
+            lineDisplayOptions |= LineDisplayOptions.IncludeLineNumber;
 #if DEBUG
-            if (ContentIndent != null)
-                indent = RegexEscape.ConvertCharacterEscapes(ContentIndent);
+        if (ContentIndent is not null)
+            indent = RegexEscape.ConvertCharacterEscapes(ContentIndent);
 
-            if (ContentSeparator != null)
-                separator = ContentSeparator;
+        if (ContentSeparator is not null)
+            separator = ContentSeparator;
 
-            if (NoContent)
-                contentDisplayStyle2 = ContentDisplayStyle.Omit;
+        if (NoContent)
+            contentDisplayStyle2 = ContentDisplayStyle.Omit;
 
-            if (NoPath)
-                pathDisplayStyle2 = PathDisplayStyle.Omit;
+        if (NoPath)
+            pathDisplayStyle2 = PathDisplayStyle.Omit;
 #endif
-            if (includeCreationTime)
-                options.FilePropertyOptions = options.FilePropertyOptions.WithIncludeCreationTime(true);
+        if (includeCreationTime)
+            options.FilePropertyOptions = options.FilePropertyOptions.WithIncludeCreationTime(true);
 
-            if (includeModifiedTime)
-                options.FilePropertyOptions = options.FilePropertyOptions.WithIncludeModifiedTime(true);
+        if (includeModifiedTime)
+            options.FilePropertyOptions = options.FilePropertyOptions.WithIncludeModifiedTime(true);
 
-            if (includeSize)
-                options.FilePropertyOptions = options.FilePropertyOptions.WithIncludeSize(true);
+        if (includeSize)
+            options.FilePropertyOptions = options.FilePropertyOptions.WithIncludeSize(true);
 
-            if (contentDisplayStyle2 != null)
-            {
-                if (options.AskMode == AskMode.Value
-                    && contentDisplayStyle2 == ContentDisplayStyle.AllLines)
-                {
-                    string helpValue = OptionValueProviders.ContentDisplayStyleProvider
-                        .GetValue(nameof(ContentDisplayStyle.AllLines))
-                        .HelpValue;
-
-                    string helpValue2 = OptionValueProviders.AskModeProvider.GetValue(nameof(AskMode.Value)).HelpValue;
-
-                    WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Display)}' cannot have value "
-                        + $"'{helpValue}' when option '{OptionNames.GetHelpText(OptionNames.Ask)}' has value '{helpValue2}'.");
-
-                    return false;
-                }
-
-                contentDisplayStyle = contentDisplayStyle2.Value;
-            }
-            else if (Input.Any())
-            {
-                contentDisplayStyle = ContentDisplayStyle.AllLines;
-            }
-            else
-            {
-                contentDisplayStyle = ContentDisplayStyle.Line;
-            }
-
-            pathDisplayStyle = pathDisplayStyle2 ?? PathDisplayStyle.Full;
-
-            if (pathDisplayStyle == PathDisplayStyle.Relative
-                && options.Paths.Length > 1
-                && options.SortOptions != null)
-            {
-                pathDisplayStyle = PathDisplayStyle.Full;
-            }
-
-            if (!TryParseHighlightOptions(
-                Highlight,
-                out HighlightOptions highlightOptions,
-                defaultValue: HighlightOptions.Replacement,
-                contentDisplayStyle: contentDisplayStyle,
-                provider: OptionValueProviders.ReplaceHighlightOptionsProvider))
-            {
-                return false;
-            }
-
-            options.Format = new OutputDisplayFormat(
-                contentDisplayStyle: contentDisplayStyle,
-                pathDisplayStyle: pathDisplayStyle,
-                lineOptions: lineDisplayOptions,
-                lineContext: lineContext,
-                displayParts: displayParts,
-                indent: indent,
-                separator: separator);
-
-            options.HighlightOptions = highlightOptions;
-            options.ContentFilter = contentFilter;
-            options.Input = input;
-            options.DryRun = DryRun;
-            options.MaxMatchesInFile = maxMatchesInFile;
-            options.MaxMatchingFiles = maxMatchingFiles;
-            options.MaxTotalMatches = 0;
-            options.Interactive = Interactive;
-
-            return true;
-        }
-
-        protected virtual Filter? GetDefaultContentFilter()
+        if (contentDisplayStyle2 is not null)
         {
-            return null;
-        }
-
-        protected override bool TryParsePaths(out ImmutableArray<PathInfo> paths)
-        {
-            if (Path.Any()
-                && Input.Any())
+            if (options.AskMode == AskMode.Value
+                && contentDisplayStyle2 == ContentDisplayStyle.AllLines)
             {
-                WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Input)}' and "
-                    + $"argument '{ArgumentMetaNames.Path}' cannot be set both at the same time.");
+                string helpValue = OptionValueProviders.ContentDisplayStyleProvider
+                    .GetValue(nameof(ContentDisplayStyle.AllLines))
+                    .HelpValue;
+
+                string helpValue2 = OptionValueProviders.AskModeProvider.GetValue(nameof(AskMode.Value)).HelpValue;
+
+                context.WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Display)}' cannot have value "
+                    + $"'{helpValue}' when option '{OptionNames.GetHelpText(OptionNames.Ask)}' has value '{helpValue2}'.");
 
                 return false;
             }
 
-            return base.TryParsePaths(out paths);
+            contentDisplayStyle = contentDisplayStyle2.Value;
         }
+        else if (Input.Any())
+        {
+            contentDisplayStyle = ContentDisplayStyle.AllLines;
+        }
+        else
+        {
+            contentDisplayStyle = ContentDisplayStyle.Line;
+        }
+
+        pathDisplayStyle = pathDisplayStyle2 ?? PathDisplayStyle.Full;
+
+        if (pathDisplayStyle == PathDisplayStyle.Relative
+            && options.Paths.Length > 1
+            && options.SortOptions is not null)
+        {
+            pathDisplayStyle = PathDisplayStyle.Full;
+        }
+
+        if (!context.TryParseHighlightOptions(
+            Highlight,
+            out HighlightOptions highlightOptions,
+            defaultValue: HighlightOptions.Replacement,
+            contentDisplayStyle: contentDisplayStyle,
+            provider: OptionValueProviders.ReplaceHighlightOptionsProvider))
+        {
+            return false;
+        }
+
+        options.Format = new OutputDisplayFormat(
+            contentDisplayStyle: contentDisplayStyle,
+            pathDisplayStyle: pathDisplayStyle,
+            lineOptions: lineDisplayOptions,
+            lineContext: lineContext,
+            displayParts: displayParts,
+            indent: indent,
+            separator: separator);
+
+        options.HighlightOptions = highlightOptions;
+        options.ContentFilter = contentFilter;
+        options.Input = input;
+        options.DryRun = DryRun;
+        options.MaxMatchesInFile = MaxMatchesInFile;
+        options.MaxMatchingFiles = MaxMatchingFiles;
+        options.MaxTotalMatches = MaxCount;
+        options.Interactive = Interactive;
+
+        return true;
+    }
+
+    protected virtual Filter? GetDefaultContentFilter()
+    {
+        return null;
+    }
+
+    protected override bool TryParsePaths(out ImmutableArray<PathInfo> paths, ParseContext context)
+    {
+        if (Path.Any()
+            && Input.Any())
+        {
+            context.WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Input)}' and "
+                + $"argument '{ArgumentMetaNames.Path}' cannot be set both at the same time.");
+
+            paths = default;
+            return false;
+        }
+
+        return base.TryParsePaths(out paths, context);
     }
 }

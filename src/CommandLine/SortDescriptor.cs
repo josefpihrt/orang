@@ -2,22 +2,21 @@
 
 using System.Diagnostics;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+[DebuggerDisplay("{DebuggerDisplay,nq}")]
+internal readonly struct SortDescriptor
 {
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    internal readonly struct SortDescriptor
+    public SortDescriptor(SortProperty property, SortDirection direction = SortDirection.Ascending)
     {
-        public SortDescriptor(SortProperty property, SortDirection direction = SortDirection.Ascending)
-        {
-            Property = property;
-            Direction = direction;
-        }
-
-        public SortProperty Property { get; }
-
-        public SortDirection Direction { get; }
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private string DebuggerDisplay => $"{Property} {Direction}";
+        Property = property;
+        Direction = direction;
     }
+
+    public SortProperty Property { get; }
+
+    public SortDirection Direction { get; }
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    private string DebuggerDisplay => $"{Property} {Direction}";
 }

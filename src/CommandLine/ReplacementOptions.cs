@@ -2,16 +2,16 @@
 
 using System;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+[Flags]
+internal enum ReplacementOptions
 {
-    [Flags]
-    internal enum ReplacementOptions
-    {
-        None = 0,
-        Literal = 1,
-        FromFile = 1 << 1,
-        Escape = 1 << 2,
-        FromDll = 1 << 3,
-        CSharp = 1 << 4,
-    }
+    None = 0,
+    Literal = 1,
+    FromFile = 1 << 1,
+    Escape = 1 << 2,
+    FromDll = 1 << 3,
+    CSharp = 1 << 4,
+    FromCSharpFile = FromFile | CSharp,
 }

@@ -1,10 +1,10 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-namespace Orang
+namespace Orang;
+
+internal enum ValueSortProperty
 {
-    internal enum ValueSortProperty
-    {
-        None = 0,
-        Length = 1,
-    }
+    None = 0,
+    Length = 1,
+    Count = 2,
 }

@@ -3,27 +3,26 @@
 using System;
 using Orang.FileSystem;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+internal abstract class DeleteOrRenameCommand<TOptions> :
+    CommonFindCommand<TOptions>,
+    INotifyDirectoryChanged
+    where TOptions : DeleteOrRenameCommandOptions
 {
-    internal abstract class DeleteOrRenameCommand<TOptions> :
-        CommonFindCommand<TOptions>,
-        INotifyDirectoryChanged
-        where TOptions : DeleteOrRenameCommandOptions
+    protected DeleteOrRenameCommand(TOptions options, Logger logger) : base(options, logger)
     {
-        protected DeleteOrRenameCommand(TOptions options) : base(options)
-        {
-        }
+    }
 
-        public event EventHandler<DirectoryChangedEventArgs>? DirectoryChanged;
+    public event EventHandler<DirectoryChangedEventArgs>? DirectoryChanged;
 
-        protected virtual void OnDirectoryChanged(DirectoryChangedEventArgs e)
-        {
-            DirectoryChanged?.Invoke(this, e);
-        }
+    protected virtual void OnDirectoryChanged(DirectoryChangedEventArgs e)
+    {
+        DirectoryChanged?.Invoke(this, e);
+    }
 
-        protected sealed override void ExecuteResult(SearchResult result, SearchContext context, ColumnWidths? columnWidths)
-        {
-            ExecuteMatchCore(result.FileMatch, context, result.BaseDirectoryPath, columnWidths);
-        }
+    protected sealed override void ExecuteResult(SearchResult result, SearchContext context, ColumnWidths? columnWidths)
+    {
+        ExecuteMatchCore(result.FileMatch, context, result.BaseDirectoryPath, columnWidths);
     }
 }

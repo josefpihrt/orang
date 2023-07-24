@@ -1,17 +1,16 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-namespace Orang
+namespace Orang;
+
+public class ColumnWidths
 {
-    public class ColumnWidths
+    public ColumnWidths(int nameWidth, int sizeWidth = 0)
     {
-        public ColumnWidths(int nameWidth, int sizeWidth = 0)
-        {
-            NameWidth = nameWidth;
-            SizeWidth = sizeWidth;
-        }
-
-        public int NameWidth { get; }
-
-        public int SizeWidth { get; }
+        NameWidth = nameWidth;
+        SizeWidth = sizeWidth;
     }
+
+    public int NameWidth { get; }
+
+    public int SizeWidth { get; }
 }

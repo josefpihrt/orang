@@ -1,3 +1,73 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+### Changed
+
+- Migrate documentation to [Docusaurus](https://josefpihrt.github.io/docs/orang) ([#48](https://github.com/josefpihrt/roslynator/pull/48)).
+
+### Fixed
+
+- Check correctly if name changed during renaming ([#54](https://github.com/josefpihrt/roslynator/pull/54)).
+
+## [0.3.2] - 2022-06-26
+
+### Added
+
+- Add support for Source Link ([#42](https://github.com/josefpihrt/roslynator/pull/42)).
+- Add CI/CD pipeline ([#41](https://github.com/josefpihrt/roslynator/pull/41)).
+- Add NuGet readme file ([#38](https://github.com/josefpihrt/roslynator/pull/38)).
+
+### Changed
+
+- Migrate script to PowerShell ([#40](https://github.com/josefpihrt/roslynator/pull/40)).
+- Replace ruleset with editorconfig ([#39](https://github.com/josefpihrt/roslynator/pull/39)).
+- Format changelog according to 'Keep a Changelog' ([#37](https://github.com/josefpihrt/roslynator/pull/37)).
+- Rename `master` to `main`.
+
+### Fixed
+
+- Specify max matching files with `--max-count` correctly ([commit](https://github.com/JosefPihrt/Orang/commit/a6b2b3379a170741f4ae47747220a9ae5e8fcf08)).
+
+-----
+<!-- Content below does not adhere to 'Keep a Changelog' format -->
+
+## 0.3.1 (2022-03-29)
+
+## 0.3.0-rc (2021-11-14)
+
+* Change shortcut for `--attributes-to-skip` from `-b` to `-A`
+* Empty name pattern matches entire name (or its part): `--name ""`
+* Empty content pattern matches entire file's content: `--content ""`
+* Matching lines/values are not indented by default
+* Add allowed values for option `--modify`
+  * `count`
+  * `sort-by=count`
+* Add option `--max-matches-in-file`
+* Add option `--max-matching-files`
+* Add option `--max-word-length` (command `spellcheck`)
+* Add option `-P,--no-path` (a shortcut for `--path-mode omit`)
+* Add option `-C,--no-content` (a shortcut for `--content-mode omit`)
+* Deprecate option `--display` and replace it with:
+  * `--after-context`
+  * `--before-context`
+  * `--content-mode`
+  * `--context`
+  * `--count`
+  * `--line-number`
+  * `--path-mode`
+  * `-u,--summary`
+  * `--align-columns`
+* Deprecate command `escape` and replace it with `regex escape`
+* Deprecate command `list-patterns` and replace it with `regex list`
+* Deprecate command `match` and replace it with `regex match`
+* Deprecate command `split` and replace it with `regex split`
+
 ## 0.2.2 (2021-07-21)
 
 * Add command `sync` ([commit](https://github.com/JosefPihrt/Roslynator/commit/81b2f412f81edb4f205195226777f0a7f565a350))

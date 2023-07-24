@@ -2,25 +2,24 @@
 
 using Orang.FileSystem;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+internal sealed class RenameCommandOptions : DeleteOrRenameCommandOptions
 {
-    internal sealed class RenameCommandOptions : DeleteOrRenameCommandOptions
+    internal RenameCommandOptions()
     {
-        internal RenameCommandOptions()
-        {
-        }
+    }
 
-        public bool Interactive { get; internal set; }
+    public bool Interactive { get; internal set; }
 
-        public ConflictResolution ConflictResolution { get; internal set; }
+    public ConflictResolution ConflictResolution { get; internal set; }
 
         public bool KeepOriginal { get; internal set; }
 
-        public ReplaceOptions ReplaceOptions { get; internal set; } = null!;
+    public ReplaceOptions ReplaceOptions { get; internal set; } = null!;
 
-        protected override void WriteDiagnosticCore()
-        {
-            DiagnosticWriter.WriteRenameCommand(this);
-        }
+    protected override void WriteDiagnosticCore(DiagnosticWriter writer)
+    {
+        writer.WriteRenameCommand(this);
     }
 }

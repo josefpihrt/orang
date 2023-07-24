@@ -1,13 +1,11 @@
 ﻿<Project>
 
   <PropertyGroup>
-    <Version>0.2.2.0</Version>
-    <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)global.ruleset</CodeAnalysisRuleSet>
-    <LangVersion>9.0</LangVersion>
+    <LangVersion>10.0</LangVersion>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)Orang.snk</AssemblyOriginatorKeyFile>
     <Authors>Josef Pihrt</Authors>
-    <Copyright>Copyright (c) 2019-2021 Josef Pihrt</Copyright>
+    <Copyright>Copyright (c) 2019-2022 Josef Pihrt</Copyright>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 

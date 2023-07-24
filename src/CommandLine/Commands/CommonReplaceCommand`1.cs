@@ -71,7 +71,7 @@ internal class CommonReplaceCommand<TOptions> : CommonFindCommand<TOptions> wher
                     predicate: contentFilter.Predicate,
                     captures: groups);
 
-                IEnumerable<ICapture> captures = GetCaptures(groups, context.CancellationToken)
+                IEnumerable<ICapture> captures = GetCaptures(groups, null, context.CancellationToken)
                     ?? groups.Select(f => (ICapture)new RegexCapture(f));
 
                 using (IEnumerator<ICapture> en = captures.GetEnumerator())
@@ -151,7 +151,7 @@ internal class CommonReplaceCommand<TOptions> : CommonFindCommand<TOptions> wher
                 predicate: Options.ContentFilter!.Predicate,
                 captures: groups);
 
-            List<ICapture>? captures = GetCaptures(groups, context.CancellationToken);
+            List<ICapture>? captures = GetCaptures(groups, fileMatch, context.CancellationToken);
 
             using (IEnumerator<ICapture> en = (captures ?? groups.Select(f => (ICapture)new RegexCapture(f))).GetEnumerator())
             {
@@ -447,6 +447,7 @@ internal class CommonReplaceCommand<TOptions> : CommonFindCommand<TOptions> wher
 
     protected virtual List<ICapture>? GetCaptures(
         List<Capture> groups,
+        FileMatch? fileMatch,
         CancellationToken cancellationToken)
     {
         return null;

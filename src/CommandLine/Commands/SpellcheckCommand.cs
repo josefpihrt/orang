@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Microsoft.CodeAnalysis.Text;
+using Orang.FileSystem;
 using Orang.Spelling;
 
 namespace Orang.CommandLine;
@@ -36,33 +37,51 @@ internal sealed class SpellcheckCommand : CommonReplaceCommand<SpellcheckCommand
             return;
     }
 
-    protected override List<ICapture>? GetCaptures(List<Capture> groups, CancellationToken cancellationToken)
+    protected override List<ICapture>? GetCaptures(
+        List<Capture> groups,
+        FileMatch? fileMatch,
+        CancellationToken cancellationToken)
     {
         var captures = new List<ICapture>();
         List<TextSpan>? filteredSpans = null;
 
         foreach (Capture capture in groups)
         {
-            foreach (SpellingMatch spellingMatch in SpellcheckState.Spellchecker.AnalyzeText(capture.Value))
+            IEnumerable<CaptureSlim>? subcaptures = null;
+
+            if (fileMatch is not null
+                && FileSystemHelpers.HasExtension(fileMatch.Path, "md"))
             {
-                var captureInfo = new SpellingCapture(
-                    spellingMatch.Value,
-                    capture.Index + spellingMatch.Index,
-                    containingValue: spellingMatch.Parent,
-                    containingValueIndex: spellingMatch.ParentIndex);
+                subcaptures = MarkdownProcessor.ProcessText(capture.Value);
+            }
+            else
+            {
+                subcaptures = new[] { new CaptureSlim(capture.Value, capture.Index, capture.Length) };
+            }
 
-                if (filteredSpans is null)
-                    filteredSpans = GetFilteredSpans(groups, cancellationToken);
-
-                var captureSpan = new TextSpan(captureInfo.Index, captureInfo.Length);
-
-                foreach (TextSpan filteredSpan in filteredSpans)
+            foreach (CaptureSlim subcapture in subcaptures)
+            {
+                foreach (SpellingMatch spellingMatch in SpellcheckState.Spellchecker.AnalyzeText(subcapture.Value))
                 {
-                    if (filteredSpan.IntersectsWith(captureSpan))
-                        continue;
-                }
+                    var captureInfo = new SpellingCapture(
+                        spellingMatch.Value,
+                        capture.Index + subcapture.Index + spellingMatch.Index,
+                        containingValue: spellingMatch.Parent,
+                        containingValueIndex: spellingMatch.ParentIndex);
 
-                captures.Add(captureInfo);
+                    if (filteredSpans is null)
+                        filteredSpans = GetFilteredSpans(groups, cancellationToken);
+
+                    var captureSpan = new TextSpan(captureInfo.Index, captureInfo.Length);
+
+                    foreach (TextSpan filteredSpan in filteredSpans)
+                    {
+                        if (filteredSpan.IntersectsWith(captureSpan))
+                            continue;
+                    }
+
+                    captures.Add(captureInfo);
+                }
             }
         }
 

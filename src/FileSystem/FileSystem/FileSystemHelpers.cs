@@ -428,6 +428,15 @@ internal static class FileSystemHelpers
         return path.Length;
     }
 
+    public static bool HasExtension(string path, string extension)
+    {
+        int index = GetExtensionIndex(path);
+
+        return (index >= 0)
+            && index < path.Length - 1
+            && string.CompareOrdinal(path, index + 1, extension, 0, extension.Length) == 0;
+    }
+
     public static bool IsDirectorySeparator(char ch)
     {
         return ch == Path.DirectorySeparatorChar

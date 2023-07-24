@@ -3,14 +3,14 @@
 using System.Collections.Immutable;
 using System.Text.RegularExpressions;
 
-namespace Orang.Spelling
-{
-    public class Spellchecker
-    {
-        private static readonly Regex _delimiterRegex = new Regex(@"(\s|,|\.|:|;|!|\?|""|\|)+", RegexOptions.ExplicitCapture);
+namespace Orang.Spelling;
 
-        private static readonly Regex _wordRegex = new(
-            @"
+public class Spellchecker
+{
+    private static readonly Regex _delimiterRegex = new(@"(\s|,|\.|:|;|!|\?|""|\|)+", RegexOptions.ExplicitCapture);
+
+    private static readonly Regex _wordRegex = new(
+        @"
 \b
 \p{L}{2,}
 (-\p{L}{2,})*
@@ -24,9 +24,9 @@ namespace Orang.Spelling
 |
     \b
 )",
-            RegexOptions.ExplicitCapture | RegexOptions.IgnorePatternWhitespace);
+        RegexOptions.ExplicitCapture | RegexOptions.IgnorePatternWhitespace);
 
-        private const string _splitCasePattern = @"
+    private const string _splitCasePattern = @"
     (?<=
         \p{Lu}
     )
@@ -42,392 +42,391 @@ namespace Orang.Spelling
     )
 ";
 
-        private static readonly Regex _splitIdentifierRegex = new(
-            @"\P{L}+|" + _splitCasePattern,
-            RegexOptions.IgnorePatternWhitespace);
+    private static readonly Regex _splitIdentifierRegex = new(
+        @"\P{L}+|" + _splitCasePattern,
+        RegexOptions.IgnorePatternWhitespace);
 
-        private static readonly Regex _urlRegex = new(
-            @"\bhttps?://[^\s]+(?=\s|\z)", RegexOptions.IgnoreCase);
+    private static readonly Regex _urlRegex = new(
+        @"\bhttps?://[^\s]+(?=\s|\z)", RegexOptions.IgnoreCase);
 
-        private readonly Regex _splitRegex;
+    private readonly Regex _splitRegex;
 
-        public SpellingData Data { get; }
+    public SpellingData Data { get; }
 
-        public Regex WordRegex { get; }
+    public Regex WordRegex { get; }
 
-        public SpellcheckerOptions Options { get; }
+    public SpellcheckerOptions Options { get; }
 
-        public Spellchecker(
-            SpellingData data,
-            Regex? wordRegex = null,
-            SpellcheckerOptions? options = null)
+    public Spellchecker(
+        SpellingData data,
+        Regex? wordRegex = null,
+        SpellcheckerOptions? options = null)
+    {
+        Data = data;
+        WordRegex = wordRegex ?? _wordRegex;
+        Options = options ?? SpellcheckerOptions.Default;
+
+        _splitRegex = new Regex("-|" + _splitCasePattern, RegexOptions.IgnorePatternWhitespace);
+    }
+
+    public ImmutableArray<SpellingMatch> AnalyzeText(string value)
+    {
+        int prevEnd = 0;
+
+        Match match = _urlRegex.Match(value, prevEnd);
+
+        ImmutableArray<SpellingMatch>.Builder? builder = null;
+
+        while (match.Success)
         {
-            Data = data;
-            WordRegex = wordRegex ?? _wordRegex;
-            Options = options ?? SpellcheckerOptions.Default;
+            AnalyzeText(value, prevEnd, match.Index - prevEnd, ref builder);
 
-            _splitRegex = new Regex("-|" + _splitCasePattern, RegexOptions.IgnorePatternWhitespace);
+            prevEnd = match.Index + match.Length;
+
+            match = match.NextMatch();
         }
 
-        public ImmutableArray<SpellingMatch> AnalyzeText(string value)
-        {
-            int prevEnd = 0;
+        AnalyzeText(value, prevEnd, value.Length - prevEnd, ref builder);
 
-            Match match = _urlRegex.Match(value, prevEnd);
+        return builder?.ToImmutableArray() ?? ImmutableArray<SpellingMatch>.Empty;
+    }
 
-            ImmutableArray<SpellingMatch>.Builder? builder = null;
+    private void AnalyzeText(
+        string value,
+        int startIndex,
+        int length,
+        ref ImmutableArray<SpellingMatch>.Builder? builder)
+    {
+        int index = startIndex;
 
-            while (match.Success)
-            {
-                AnalyzeText(value, prevEnd, match.Index - prevEnd, ref builder);
-
-                prevEnd = match.Index + match.Length;
-
-                match = match.NextMatch();
-            }
-
-            AnalyzeText(value, prevEnd, value.Length - prevEnd, ref builder);
-
-            return builder?.ToImmutableArray() ?? ImmutableArray<SpellingMatch>.Empty;
-        }
-
-        private void AnalyzeText(
-            string value,
-            int startIndex,
-            int length,
-            ref ImmutableArray<SpellingMatch>.Builder? builder)
-        {
-            int index = startIndex;
-
-            for (
+        for (
                 Match match = _delimiterRegex.Match(value, startIndex, length);
-                match.Success;
-                match = match.NextMatch())
-            {
-                AnalyzeText(value, index, match.Index - index, startIndex, length, ref builder);
+            match.Success;
+            match = match.NextMatch())
+        {
+            AnalyzeText(value, index, match.Index - index, startIndex, length, ref builder);
 
-                index = match.Index + match.Length;
-            }
-
-            AnalyzeText(value, index, startIndex + length - index, startIndex, length, ref builder);
+            index = match.Index + match.Length;
         }
 
-        private void AnalyzeText(
-            string value,
-            int startIndex,
-            int length,
-            int parentStartIndex,
-            int parentLength,
-            ref ImmutableArray<SpellingMatch>.Builder? builder)
+        AnalyzeText(value, index, startIndex + length - index, startIndex, length, ref builder);
+    }
+
+    private void AnalyzeText(
+        string value,
+        int startIndex,
+        int length,
+        int parentStartIndex,
+        int parentLength,
+        ref ImmutableArray<SpellingMatch>.Builder? builder)
+    {
+        int sequenceEndIndex = -1;
+
+        Match match = WordRegex.Match(value, startIndex, length);
+
+        if (!match.Success)
+            return;
+
+        Match nextMatch = match.NextMatch();
+
+        if (nextMatch.Success
+            || match.Index > startIndex)
         {
-            int sequenceEndIndex = -1;
-
-            Match match = WordRegex.Match(value, startIndex, length);
-
-            if (!match.Success)
+            // exclude non-standard words like v[isual-]b[asic]
+            if (Data.Contains(value.Substring(startIndex, length)))
                 return;
+        }
 
-            Match nextMatch = match.NextMatch();
+        AnalyzeText(match, value, parentStartIndex, parentLength, ref sequenceEndIndex, ref builder);
 
-            if (nextMatch.Success
-                || match.Index > startIndex)
-            {
-                // exclude non-standard words like v[isual-]b[asic]
-                if (Data.Contains(value.Substring(startIndex, length)))
-                    return;
-            }
+        match = nextMatch;
 
+        while (match.Success)
+        {
             AnalyzeText(match, value, parentStartIndex, parentLength, ref sequenceEndIndex, ref builder);
 
-            match = nextMatch;
-
-            while (match.Success)
-            {
-                AnalyzeText(match, value, parentStartIndex, parentLength, ref sequenceEndIndex, ref builder);
-
-                match = match.NextMatch();
-            }
+            match = match.NextMatch();
         }
+    }
 
-        private void AnalyzeText(
-            Match match,
-            string value,
-            int startIndex,
-            int length,
-            ref int sequenceEndIndex,
-            ref ImmutableArray<SpellingMatch>.Builder? builder)
+    private void AnalyzeText(
+        Match match,
+        string value,
+        int startIndex,
+        int length,
+        ref int sequenceEndIndex,
+        ref ImmutableArray<SpellingMatch>.Builder? builder)
+    {
+        if (sequenceEndIndex >= 0)
         {
-            if (sequenceEndIndex >= 0)
+            if (match.Index <= sequenceEndIndex)
             {
-                if (match.Index <= sequenceEndIndex)
-                {
-                    return;
-                }
-                else
-                {
-                    sequenceEndIndex = -1;
-                }
-            }
-
-            WordSequenceMatch sequenceMatch = Data.GetSequenceMatch(value, startIndex, length, match);
-
-            if (!sequenceMatch.IsDefault)
-            {
-                sequenceEndIndex = sequenceMatch.EndIndex;
                 return;
             }
-
-            if (IsAllowedLength(match.Length))
+            else
             {
-                if (_splitRegex == null)
-                {
-                    AnalyzeValue(match.Value, match.Index, null, 0, ref builder);
-                }
-                else
-                {
-                    AnalyzeSplit(_splitRegex, match.Value, match.Index, 0, ref builder);
-                }
+                sequenceEndIndex = -1;
             }
         }
 
-        internal ImmutableArray<SpellingMatch> AnalyzeIdentifier(
-            string value,
-            int prefixLength = 0)
+        WordSequenceMatch sequenceMatch = Data.GetSequenceMatch(value, startIndex, length, match);
+
+        if (!sequenceMatch.IsDefault)
         {
-            if (!IsAllowedLength(value.Length))
-                return ImmutableArray<SpellingMatch>.Empty;
-
-            if (prefixLength > 0
-                && Data.Contains(value))
-            {
-                return ImmutableArray<SpellingMatch>.Empty;
-            }
-
-            ImmutableArray<SpellingMatch>.Builder? builder = null;
-
-            AnalyzeSplit(_splitIdentifierRegex, value, 0, prefixLength, ref builder);
-
-            return builder?.ToImmutableArray() ?? ImmutableArray<SpellingMatch>.Empty;
+            sequenceEndIndex = sequenceMatch.EndIndex;
+            return;
         }
 
-        private void AnalyzeSplit(
-            Regex regex,
-            string input,
-            int offset,
-            int prefixLength,
-            ref ImmutableArray<SpellingMatch>.Builder? builder)
+        if (IsAllowedLength(match.Length))
         {
-            Match match = regex.Match(input, prefixLength);
-
-            if (match.Success
-                && prefixLength > 0
-                && match.Index == prefixLength)
+            if (_splitRegex is null)
             {
+                AnalyzeValue(match.Value, match.Index, null, 0, ref builder);
+            }
+            else
+            {
+                AnalyzeSplit(_splitRegex, match.Value, match.Index, 0, ref builder);
+            }
+        }
+    }
+
+    internal ImmutableArray<SpellingMatch> AnalyzeIdentifier(
+        string value,
+        int prefixLength = 0)
+    {
+        if (!IsAllowedLength(value.Length))
+            return ImmutableArray<SpellingMatch>.Empty;
+
+        if (prefixLength > 0
+            && Data.Contains(value))
+        {
+            return ImmutableArray<SpellingMatch>.Empty;
+        }
+
+        ImmutableArray<SpellingMatch>.Builder? builder = null;
+
+        AnalyzeSplit(_splitIdentifierRegex, value, 0, prefixLength, ref builder);
+
+        return builder?.ToImmutableArray() ?? ImmutableArray<SpellingMatch>.Empty;
+    }
+
+    private void AnalyzeSplit(
+        Regex regex,
+        string input,
+        int offset,
+        int prefixLength,
+        ref ImmutableArray<SpellingMatch>.Builder? builder)
+    {
+        Match match = regex.Match(input, prefixLength);
+
+        if (match.Success
+            && prefixLength > 0
+            && match.Index == prefixLength)
+        {
+            match = match.NextMatch();
+        }
+
+        if (!match.Success)
+        {
+            if (prefixLength > 0)
+            {
+                AnalyzeValue(input.Substring(prefixLength), offset + prefixLength, input, offset, ref builder);
+            }
+            else
+            {
+                AnalyzeValue(input, offset, null, 0, ref builder);
+            }
+        }
+        else if (!Data.Contains(input))
+        {
+            int prevIndex = prefixLength;
+
+            do
+            {
+                AnalyzeValue(input[prevIndex..match.Index], prevIndex + offset, input, offset, ref builder);
+
+                prevIndex = match.Index + match.Length;
+
                 match = match.NextMatch();
             }
+            while (match.Success);
 
-            if (!match.Success)
+            AnalyzeValue(input[prevIndex..], prevIndex + offset, input, offset, ref builder);
+        }
+    }
+
+    private void AnalyzeValue(
+        string value,
+        int valueIndex,
+        string? containingValue,
+        int containingValueIndex,
+        ref ImmutableArray<SpellingMatch>.Builder? builder)
+    {
+        if (IsMatch(value))
+        {
+            var spellingMatch = new SpellingMatch(value, valueIndex, containingValue, containingValueIndex);
+
+            (builder ??= ImmutableArray.CreateBuilder<SpellingMatch>()).Add(spellingMatch);
+        }
+    }
+
+    private bool IsMatch(string value)
+    {
+        if (!IsAllowedLength(value.Length))
+            return false;
+
+        if (IsAllowedNonsensicalWord(value))
+            return false;
+
+        if (Data.Contains(value))
+            return false;
+
+        return true;
+    }
+
+    private bool IsAllowedLength(int value)
+    {
+        return value >= Options.MinWordLength
+            && value <= Options.MaxWordLength;
+    }
+
+    private static bool IsAllowedNonsensicalWord(string value)
+    {
+        if (value.Length < 3)
+            return false;
+
+        switch (value)
+        {
+            case "xyz":
+            case "Xyz":
+            case "XYZ":
+            case "asdfgh":
+            case "Asdfgh":
+            case "ASDFGH":
+            case "qwerty":
+            case "Qwerty":
+            case "QWERTY":
+            case "qwertz":
+            case "Qwertz":
+            case "QWERTZ":
+                return true;
+        }
+
+        if (IsAbcSequence())
+            return true;
+
+        if (IsAaaSequence())
+            return true;
+
+        if (IsAaaBbbCccSequence())
+            return true;
+
+        return false;
+
+        bool IsAbcSequence()
+        {
+            int num = 0;
+
+            if (value[0] == 'a')
             {
-                if (prefixLength > 0)
+                if (value[1] == 'b')
                 {
-                    AnalyzeValue(input.Substring(prefixLength), offset + prefixLength, input, offset, ref builder);
+                    num = 'c';
                 }
                 else
                 {
-                    AnalyzeValue(input, offset, null, 0, ref builder);
+                    return false;
                 }
             }
-            else if (!Data.Contains(input))
+            else if (value[0] == 'A')
             {
-                int prevIndex = prefixLength;
-
-                do
+                if (value[1] == 'B')
                 {
-                    AnalyzeValue(input[prevIndex..match.Index], prevIndex + offset, input, offset, ref builder);
-
-                    prevIndex = match.Index + match.Length;
-
-                    match = match.NextMatch();
+                    num = 'C';
                 }
-                while (match.Success);
-
-                AnalyzeValue(input[prevIndex..], prevIndex + offset, input, offset, ref builder);
+                else if (value[1] == 'b')
+                {
+                    num = 'c';
+                }
+                else
+                {
+                    return false;
+                }
             }
-        }
 
-        private void AnalyzeValue(
-            string value,
-            int valueIndex,
-            string? containingValue,
-            int containingValueIndex,
-            ref ImmutableArray<SpellingMatch>.Builder? builder)
-        {
-            if (IsMatch(value))
+            for (int i = 2; i < value.Length; i++)
             {
-                var spellingMatch = new SpellingMatch(value, valueIndex, containingValue, containingValueIndex);
+                if (value[i] != num)
+                    return false;
 
-                (builder ??= ImmutableArray.CreateBuilder<SpellingMatch>()).Add(spellingMatch);
+                num++;
             }
-        }
-
-        private bool IsMatch(string value)
-        {
-            if (!IsAllowedLength(value.Length))
-                return false;
-
-            if (IsAllowedNonsensicalWord(value))
-                return false;
-
-            if (Data.Contains(value))
-                return false;
 
             return true;
         }
 
-        private bool IsAllowedLength(int value)
+        bool IsAaaSequence()
         {
-            return value >= Options.MinWordLength
-                && value <= Options.MaxWordLength;
+            char ch = value[0];
+            int i = 1;
+
+            if (ch >= 65
+                && ch <= 90
+                && value[1] == ch + 32)
+            {
+                ch = (char)(ch + 32);
+                i++;
+            }
+
+            while (i < value.Length)
+            {
+                if (value[i] != ch)
+                    return false;
+
+                i++;
+            }
+
+            return true;
         }
 
-        private static bool IsAllowedNonsensicalWord(string value)
+        // aabbcc
+        bool IsAaaBbbCccSequence()
         {
-            if (value.Length < 3)
-                return false;
+            char ch = value[0];
+            int i = 1;
 
-            switch (value)
+            while (i < value.Length
+                && value[i] == ch)
             {
-                case "xyz":
-                case "Xyz":
-                case "XYZ":
-                case "asdfgh":
-                case "Asdfgh":
-                case "ASDFGH":
-                case "qwerty":
-                case "Qwerty":
-                case "QWERTY":
-                case "qwertz":
-                case "Qwertz":
-                case "QWERTZ":
-                    return true;
+                i++;
             }
 
-            if (IsAbcSequence())
-                return true;
+            if (i > 1
+                && (ch == 'a' || ch == 'A')
+                && value.Length >= 6
+                && value.Length % i == 0)
+            {
+                int length = i;
+                int count = value.Length / i;
 
-            if (IsAaaSequence())
-                return true;
+                for (int j = 0; j < count - 1; j++)
+                {
+                    var ch2 = (char)(ch + j + 1);
 
-            if (IsAaaBbbCccSequence())
+                    int start = i + (j * length);
+                    int end = start + length;
+
+                    for (int k = i + (j * length); k < end; k++)
+                    {
+                        if (ch2 != value[k])
+                            return false;
+                    }
+                }
+
                 return true;
+            }
 
             return false;
-
-            bool IsAbcSequence()
-            {
-                int num = 0;
-
-                if (value[0] == 'a')
-                {
-                    if (value[1] == 'b')
-                    {
-                        num = 'c';
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                else if (value[0] == 'A')
-                {
-                    if (value[1] == 'B')
-                    {
-                        num = 'C';
-                    }
-                    else if (value[1] == 'b')
-                    {
-                        num = 'c';
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-
-                for (int i = 2; i < value.Length; i++)
-                {
-                    if (value[i] != num)
-                        return false;
-
-                    num++;
-                }
-
-                return true;
-            }
-
-            bool IsAaaSequence()
-            {
-                char ch = value[0];
-                int i = 1;
-
-                if (ch >= 65
-                    && ch <= 90
-                    && value[1] == ch + 32)
-                {
-                    ch = (char)(ch + 32);
-                    i++;
-                }
-
-                while (i < value.Length)
-                {
-                    if (value[i] != ch)
-                        return false;
-
-                    i++;
-                }
-
-                return true;
-            }
-
-            // aabbcc
-            bool IsAaaBbbCccSequence()
-            {
-                char ch = value[0];
-                int i = 1;
-
-                while (i < value.Length
-                    && value[i] == ch)
-                {
-                    i++;
-                }
-
-                if (i > 1
-                    && (ch == 'a' || ch == 'A')
-                    && value.Length >= 6
-                    && value.Length % i == 0)
-                {
-                    int length = i;
-                    int count = value.Length / i;
-
-                    for (int j = 0; j < count - 1; j++)
-                    {
-                        var ch2 = (char)(ch + j + 1);
-
-                        int start = i + (j * length);
-                        int end = start + length;
-
-                        for (int k = i + (j * length); k < end; k++)
-                        {
-                            if (ch2 != value[k])
-                                return false;
-                        }
-                    }
-
-                    return true;
-                }
-
-                return false;
-            }
         }
     }
 }

@@ -2,31 +2,30 @@
 
 using System.Diagnostics;
 
-namespace Orang.FileSystem
+namespace Orang.FileSystem;
+
+[DebuggerDisplay("{DebuggerDisplay,nq}")]
+public class CopyOptions
 {
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class CopyOptions
+    internal static CopyOptions Default { get; } = new();
+
+    public CopyOptions(
+        ConflictResolution conflictResolution = ConflictResolution.Skip,
+        FileCompareOptions compareOptions = FileCompareOptions.None,
+        bool flat = false)
     {
-        internal static CopyOptions Default { get; } = new();
-
-        public CopyOptions(
-            ConflictResolution conflictResolution = ConflictResolution.Skip,
-            FileCompareOptions compareOptions = FileCompareOptions.None,
-            bool flat = false)
-        {
-            ConflictResolution = conflictResolution;
-            CompareOptions = compareOptions;
-            Flat = flat;
-        }
-
-        public ConflictResolution ConflictResolution { get; }
-
-        public FileCompareOptions CompareOptions { get; }
-
-        public bool Flat { get; }
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private string DebuggerDisplay
-            => $"{nameof(ConflictResolution)} = {ConflictResolution}  {nameof(CompareOptions)} = {CompareOptions}";
+        ConflictResolution = conflictResolution;
+        CompareOptions = compareOptions;
+        Flat = flat;
     }
+
+    public ConflictResolution ConflictResolution { get; }
+
+    public FileCompareOptions CompareOptions { get; }
+
+    public bool Flat { get; }
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    private string DebuggerDisplay
+        => $"{nameof(ConflictResolution)} = {ConflictResolution}  {nameof(CompareOptions)} = {CompareOptions}";
 }

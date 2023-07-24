@@ -1,20 +1,19 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+internal sealed class SyncCommandOptions : CommonCopyCommandOptions
 {
-    internal sealed class SyncCommandOptions : CommonCopyCommandOptions
+    internal SyncCommandOptions()
     {
-        internal SyncCommandOptions()
-        {
-        }
+    }
 
-        new public SyncConflictResolution ConflictResolution { get; internal set; }
+    new public SyncConflictResolution ConflictResolution { get; internal set; }
 
-        public bool DetectRename { get; internal set; }
+    public bool DetectRename { get; internal set; }
 
-        protected override void WriteDiagnosticCore(DiagnosticWriter writer)
-        {
-            writer.WriteSyncCommand(this);
-        }
+    protected override void WriteDiagnosticCore(DiagnosticWriter writer)
+    {
+        writer.WriteSyncCommand(this);
     }
 }

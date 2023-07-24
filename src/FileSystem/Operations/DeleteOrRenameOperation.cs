@@ -3,19 +3,18 @@
 using System;
 using Orang.FileSystem;
 
-namespace Orang.Operations
+namespace Orang.Operations;
+
+internal abstract class DeleteOrRenameOperation : FileSystemOperation, INotifyDirectoryChanged
 {
-    internal abstract class DeleteOrRenameOperation : FileSystemOperation, INotifyDirectoryChanged
+    protected DeleteOrRenameOperation()
     {
-        protected DeleteOrRenameOperation()
-        {
-        }
+    }
 
-        public event EventHandler<DirectoryChangedEventArgs>? DirectoryChanged;
+    public event EventHandler<DirectoryChangedEventArgs>? DirectoryChanged;
 
-        protected virtual void OnDirectoryChanged(DirectoryChangedEventArgs e)
-        {
-            DirectoryChanged?.Invoke(this, e);
-        }
+    protected virtual void OnDirectoryChanged(DirectoryChangedEventArgs e)
+    {
+        DirectoryChanged?.Invoke(this, e);
     }
 }

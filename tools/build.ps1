@@ -1,14 +1,5 @@
 #dotnet tool install -g orang.dotnet.cli
 
-$version="0.3.1"
-
-orang replace -e cmd -c "(?<=--version )\d+\.\d+\.\d+(-\w+)?" -r "$version"
-
-orang replace "../src" -e csproj -c "(?<=<PackageVersion>)\d+\.\d+\.\d+(-\w+)?(?=</PackageVersion>)" -r "$version"
-
-orang replace "../src/CommandLine/PackageInfo.cs" -c "(?<="")\d+\.\d+\.\d+(-\w+)?(?="")" -r "$version"
-Write-Host
-
 orang delete "../src" -a d -n "bin|obj" e --content-only -t n -y su s
 Write-Host
 
@@ -39,4 +30,3 @@ Remove-Item "$outDir/*"
 Copy-Item -Path "../src/CommandLine/bin/Release/Orang.DotNet.Cli.*.nupkg" -Destination "$outDir"
 
 Write-Host "DONE"
-Read-Host

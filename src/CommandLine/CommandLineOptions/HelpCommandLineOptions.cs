@@ -5,57 +5,56 @@ using System.Linq;
 using CommandLine;
 using Orang.CommandLine.Annotations;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+[Verb("help", HelpText = "Displays help.")]
+[OptionValueProvider(nameof(Filter), OptionValueProviderNames.PatternOptions_List)]
+[CommandGroup("Other", 3)]
+internal sealed class HelpCommandLineOptions : AbstractCommandLineOptions
 {
-    [Verb("help", HelpText = "Displays help.")]
-    [OptionValueProvider(nameof(Filter), OptionValueProviderNames.PatternOptions_List)]
-    [CommandGroup("Other", 3)]
-    internal sealed class HelpCommandLineOptions : AbstractCommandLineOptions
+    [Value(
+        index: 0,
+        HelpText = "Command name.",
+        MetaName = ArgumentMetaNames.Command)]
+    public IEnumerable<string> Command { get; set; } = null!;
+
+    [Option(
+        shortName: OptionShortNames.Filter,
+        longName: OptionNames.Filter,
+        HelpText = "Regular expression to filter results.",
+        MetaValue = MetaValues.Regex)]
+    public IEnumerable<string> Filter { get; set; } = null!;
+
+    [Option(
+        shortName: OptionShortNames.Manual,
+        longName: OptionNames.Manual,
+        HelpText = "Display full manual.")]
+    public bool Manual { get; set; }
+
+    [Option(
+        shortName: OptionShortNames.Online,
+        longName: OptionNames.Online,
+        HelpText = "Launch online help in a default browser.")]
+    public bool Online { get; set; }
+
+    public bool TryParse(HelpCommandOptions options, ParseContext context)
     {
-        [Value(
-            index: 0,
-            HelpText = "Command name.",
-            MetaName = ArgumentMetaNames.Command)]
-        public IEnumerable<string> Command { get; set; } = null!;
-
-        [Option(
-            shortName: OptionShortNames.Filter,
-            longName: OptionNames.Filter,
-            HelpText = "Regular expression to filter results.",
-            MetaValue = MetaValues.Regex)]
-        public IEnumerable<string> Filter { get; set; } = null!;
-
-        [Option(
-            shortName: OptionShortNames.Manual,
-            longName: OptionNames.Manual,
-            HelpText = "Display full manual.")]
-        public bool Manual { get; set; }
-
-        [Option(
-            shortName: OptionShortNames.Online,
-            longName: OptionNames.Online,
-            HelpText = "Launch online help in a default browser.")]
-        public bool Online { get; set; }
-
-        public bool TryParse(HelpCommandOptions options, ParseContext context)
+        if (!context.TryParseFilter(
+            Filter,
+            OptionNames.Filter,
+            OptionValueProviders.PatternOptions_List_Provider,
+            out Filter? filter,
+            allowNull: true,
+            includedPatternOptions: PatternOptions.IgnoreCase))
         {
-            if (!context.TryParseFilter(
-                Filter,
-                OptionNames.Filter,
-                OptionValueProviders.PatternOptions_List_Provider,
-                out Filter? filter,
-                includedPatternOptions: PatternOptions.IgnoreCase,
-                allowNull: true))
-            {
-                return false;
-            }
-
-            options.Command = Command.ToArray();
-            options.Filter = filter;
-            options.Manual = Manual;
-            options.Online = Online;
-
-            return true;
+            return false;
         }
+
+        options.Command = Command.ToArray();
+        options.Filter = filter;
+        options.Manual = Manual;
+        options.Online = Online;
+
+        return true;
     }
 }

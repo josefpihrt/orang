@@ -3,70 +3,69 @@
 using System;
 using System.Threading;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+internal abstract class AbstractCommand<TOptions> where TOptions : AbstractCommandOptions
 {
-    internal abstract class AbstractCommand<TOptions> where TOptions : AbstractCommandOptions
+    private ContentTextWriter? _contentWriter;
+    protected Logger _logger;
+
+    protected AbstractCommand(TOptions options, Logger logger)
     {
-        private ContentTextWriter? _contentWriter;
-        protected Logger _logger;
+        Options = options;
+        _logger = logger;
+    }
 
-        protected AbstractCommand(TOptions options, Logger logger)
+    public TOptions Options { get; }
+
+    protected ContentTextWriter ContentWriter
+    {
+        get
         {
-            Options = options;
-            _logger = logger;
+            if (_contentWriter is null)
+                Interlocked.CompareExchange(ref _contentWriter, new ContentTextWriter(_logger), null);
+
+            return _contentWriter;
         }
+    }
 
-        public TOptions Options { get; }
+    protected abstract CommandResult ExecuteCore(CancellationToken cancellationToken = default);
 
-        protected ContentTextWriter ContentWriter
+    public CommandResult Execute(CancellationToken cancellationToken = default)
+    {
+        try
         {
-            get
-            {
-                if (_contentWriter == null)
-                    Interlocked.CompareExchange(ref _contentWriter, new ContentTextWriter(_logger), null);
+            return ExecuteCore(cancellationToken);
+        }
+        catch (OperationCanceledException ex)
+        {
+            OperationCanceled(ex);
+        }
+        catch (AggregateException ex)
+        {
+            OperationCanceledException? operationCanceledException = ex.GetOperationCanceledException();
 
-                return _contentWriter;
+            if (operationCanceledException is not null)
+            {
+                OperationCanceled(operationCanceledException);
+            }
+            else
+            {
+                throw;
             }
         }
 
-        protected abstract CommandResult ExecuteCore(CancellationToken cancellationToken = default);
+        return CommandResult.Canceled;
+    }
 
-        public CommandResult Execute(CancellationToken cancellationToken = default)
-        {
-            try
-            {
-                return ExecuteCore(cancellationToken);
-            }
-            catch (OperationCanceledException ex)
-            {
-                OperationCanceled(ex);
-            }
-            catch (AggregateException ex)
-            {
-                OperationCanceledException? operationCanceledException = ex.GetOperationCanceledException();
+    protected virtual void OperationCanceled(OperationCanceledException ex)
+    {
+        OperationCanceled();
+    }
 
-                if (operationCanceledException != null)
-                {
-                    OperationCanceled(operationCanceledException);
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return CommandResult.Canceled;
-        }
-
-        protected virtual void OperationCanceled(OperationCanceledException ex)
-        {
-            OperationCanceled();
-        }
-
-        protected virtual void OperationCanceled()
-        {
-            _logger.WriteLine();
-            _logger.WriteLine("Operation was canceled.");
-        }
+    protected virtual void OperationCanceled()
+    {
+        _logger.WriteLine();
+        _logger.WriteLine("Operation was canceled.");
     }
 }

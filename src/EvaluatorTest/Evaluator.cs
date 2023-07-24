@@ -2,15 +2,14 @@
 
 using System.Text.RegularExpressions;
 
-namespace Orang.Runtime
-{
-    public static class Evaluator
-    {
-        public static string Evaluate(Match match)
-        {
-            string value = match.Value;
+namespace Orang.Runtime;
 
-            return Helpers.FirstCharToUpper(value);
-        }
+public static class Evaluator
+{
+    public static string Evaluate(Match match)
+    {
+        string value = match.Value;
+
+        return Helpers.FirstCharToUpper(value);
     }
 }

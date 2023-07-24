@@ -1,13 +1,50 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Text.RegularExpressions;
+using Orang.Text.RegularExpressions;
 
 namespace Orang.Spelling;
 
 public class Spellchecker
 {
-    private static readonly Regex _delimiterRegex = new(@"(\s|,|\.|:|;|!|\?|""|\|)+", RegexOptions.ExplicitCapture);
+    private static readonly Regex _delimiterRegex = CreateDelimiterRegex();
+
+    private static Regex CreateDelimiterRegex()
+    {
+        const string delimitersText = @"
+!
+""
+#
+$
+%
+&
+*
++
+,
+.
+/
+:
+;
+<
+=
+>
+?
+@
+\
+^
+`
+|
+~";
+        IEnumerable<string> delimiters = Regex.Split(delimitersText, "\r?\n")
+            .Where(f => f.Length > 0)
+            .Append(" ")
+            .Select(f => RegexEscape.Escape(f));
+
+        return new Regex($"(?:{string.Join('|', delimiters)})+");
+    }
 
     private static readonly Regex _wordRegex = new(
         @"

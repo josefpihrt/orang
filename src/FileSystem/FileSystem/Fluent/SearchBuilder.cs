@@ -1,10 +1,8 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 
 #pragma warning disable RCS1223 // Mark publicly visible type with DebuggerDisplay attribute.
 
@@ -146,14 +144,6 @@ public class SearchBuilder
         _defaultEncoding = encoding;
 
         return this;
-    }
-
-    //TODO: directoryPaths
-    public IEnumerable<FileMatch> Matches(
-        string directoryPath,
-        CancellationToken cancellationToken = default)
-    {
-        return ToSearch().Matches(directoryPath, cancellationToken);
     }
 
     public Search ToSearch()

@@ -120,14 +120,14 @@ public class FileMatcherBuilder
         return this;
     }
 
-    public FileMatcherBuilder EmptyOnly()
+    public FileMatcherBuilder Empty()
     {
         _emptyOption = FileEmptyOption.Empty;
 
         return this;
     }
 
-    public FileMatcherBuilder NonEmptyOnly()
+    public FileMatcherBuilder NonEmpty()
     {
         _emptyOption = FileEmptyOption.NonEmpty;
 

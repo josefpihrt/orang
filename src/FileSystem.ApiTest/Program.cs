@@ -17,7 +17,7 @@ public static class Program
         IOperationResult result = new SearchBuilder()
             .MatchDirectory(d => d
                 .Name(Pattern.Any("bin", "obj", PatternOptions.Equals))
-                .NonEmptyOnly())
+                .NonEmpty())
             .SkipDirectory(Pattern.Any(".git", ".vs", PatternOptions.Equals | PatternOptions.Literal))
             .Delete(d => d
                 .ContentOnly()

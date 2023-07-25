@@ -54,22 +54,21 @@ public class DirectoryMatcherBuilder
         return this;
     }
 
-    //TODO: EmptyOnly > Empty
-    public DirectoryMatcherBuilder EmptyOnly()
+    public DirectoryMatcherBuilder Empty()
     {
         _emptyOption = FileEmptyOption.Empty;
 
         return this;
     }
 
-    public DirectoryMatcherBuilder NonEmptyOnly()
+    public DirectoryMatcherBuilder NonEmpty()
     {
         _emptyOption = FileEmptyOption.NonEmpty;
 
         return this;
     }
 
-    //TODO: Match > Predicate, DirectoryInfoMatch, DirectoryInfoPredicate
+    //TODO: Match > Predicate, DirectoryInfoMatch, DirectoryInfoPredicate, WithDirectoryInfo
     public DirectoryMatcherBuilder Match(Func<DirectoryInfo, bool> predicate)
     {
         _matchDirectoryInfo = predicate;

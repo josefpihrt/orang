@@ -18,6 +18,28 @@ public static class SearchBuilderExtensions
         return builder.ToSearch().Matches(directoryPath, cancellationToken);
     }
 
+    public static IEnumerable<FileMatch> Matches(
+        this SearchBuilder builder,
+        IEnumerable<string> directoryPaths,
+        CancellationToken cancellationToken = default)
+    {
+        if (directoryPaths is null)
+            throw new ArgumentNullException(nameof(directoryPaths));
+
+        return Matches();
+
+        IEnumerable<FileMatch> Matches()
+        {
+            Search search = builder.ToSearch();
+
+            foreach (string directoryPath in directoryPaths)
+            {
+                foreach (FileMatch fileMatch in search.Matches(directoryPath, cancellationToken))
+                    yield return fileMatch;
+            }
+        }
+    }
+
     public static DeleteOperation Delete(this SearchBuilder builder, Action<DeleteOperationBuilder> configure)
     {
         if (configure is null)

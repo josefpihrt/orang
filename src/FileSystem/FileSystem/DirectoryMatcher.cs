@@ -21,7 +21,7 @@ public class DirectoryMatcher
 
     public FileEmptyOption EmptyOption { get; set; }
 
-    public Func<DirectoryInfo, bool>? MatchDirectoryInfo { get; set; }
+    internal Func<DirectoryInfo, bool>? MatchDirectoryInfo { get; set; }
 
     internal (FileMatch? FileMatch, Exception? Exception) Match(string path)
     {

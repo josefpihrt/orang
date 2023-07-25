@@ -26,7 +26,7 @@ public class FileMatcher
 
     public FileEmptyOption EmptyOption { get; set; }
 
-    public Func<FileInfo, bool>? MatchFileInfo { get; set; }
+    internal Func<FileInfo, bool>? MatchFileInfo { get; set; }
 
     internal (FileMatch? FileMatch, Exception? Exception) Match(string path, Encoding? defaultEncoding = null)
     {

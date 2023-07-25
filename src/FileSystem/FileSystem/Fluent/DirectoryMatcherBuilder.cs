@@ -15,7 +15,6 @@ public class DirectoryMatcherBuilder
     private FileAttributes? _attributes;
     private FileAttributes? _attributesToSkip;
     private FileEmptyOption? _emptyOption;
-    private Func<DirectoryInfo, bool>? _matchDirectoryInfo;
 
     internal DirectoryMatcherBuilder()
     {
@@ -68,14 +67,6 @@ public class DirectoryMatcherBuilder
         return this;
     }
 
-    //TODO: Match > Predicate, DirectoryInfoMatch, DirectoryInfoPredicate, WithDirectoryInfo
-    public DirectoryMatcherBuilder Match(Func<DirectoryInfo, bool> predicate)
-    {
-        _matchDirectoryInfo = predicate;
-
-        return this;
-    }
-
     internal DirectoryMatcher Build()
     {
         return new DirectoryMatcher()
@@ -85,7 +76,6 @@ public class DirectoryMatcherBuilder
             WithAttributes = _attributes ?? 0,
             WithoutAttributes = _attributesToSkip ?? 0,
             EmptyOption = _emptyOption ?? FileEmptyOption.None,
-            MatchDirectoryInfo = _matchDirectoryInfo,
         };
     }
 }

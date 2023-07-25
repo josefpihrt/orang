@@ -17,7 +17,6 @@ public class FileMatcherBuilder
     private FileAttributes? _withAttributes;
     private FileAttributes? _withoutAttributes;
     private FileEmptyOption? _emptyOption;
-    private Func<FileInfo, bool>? _matchFileInfo;
 
     internal FileMatcherBuilder()
     {
@@ -134,13 +133,6 @@ public class FileMatcherBuilder
         return this;
     }
 
-    public FileMatcherBuilder Match(Func<FileInfo, bool> predicate)
-    {
-        _matchFileInfo = predicate;
-
-        return this;
-    }
-
     internal FileMatcher Build()
     {
         return new FileMatcher()
@@ -152,7 +144,6 @@ public class FileMatcherBuilder
             WithAttributes = _withAttributes ?? 0,
             WithoutAttributes = _withoutAttributes ?? 0,
             EmptyOption = _emptyOption ?? FileEmptyOption.None,
-            MatchFileInfo = _matchFileInfo,
         };
     }
 }

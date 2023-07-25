@@ -20,33 +20,33 @@ public class SearchBuilder
     private Action<SearchProgress>? _logProgress;
     private Encoding? _defaultEncoding;
 
-    public SearchBuilder MatchFile(Action<FileMatcherBuilder> action)
+    public SearchBuilder MatchFile(Action<FileMatcherBuilder> configure)
     {
         var builder = new FileMatcherBuilder();
 
-        action(builder);
+        configure(builder);
 
         _file = builder.Build();
 
         return this;
     }
 
-    public SearchBuilder MatchDirectory(Action<DirectoryMatcherBuilder> action)
+    public SearchBuilder MatchDirectory(Action<DirectoryMatcherBuilder> configure)
     {
         var builder = new DirectoryMatcherBuilder();
 
-        action(builder);
+        configure(builder);
 
         _directory = builder.Build();
 
         return this;
     }
 
-    public SearchBuilder SearchDirectory(Action<DirectoryMatcherBuilder> action)
+    public SearchBuilder SearchDirectory(Action<DirectoryMatcherBuilder> configure)
     {
         var builder = new DirectoryMatcherBuilder();
 
-        action(builder);
+        configure(builder);
 
         _searchDirectory = builder.Build();
 

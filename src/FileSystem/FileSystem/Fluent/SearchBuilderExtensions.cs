@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using System.Threading;
 
 #pragma warning disable RCS1223 // Mark publicly visible type with DebuggerDisplay attribute.
@@ -18,38 +18,58 @@ public static class SearchBuilderExtensions
         return builder.ToSearch().Matches(directoryPath, cancellationToken);
     }
 
-    public static DeleteOperationBuilder Delete(this SearchBuilder builder)
+    public static DeleteOperation Delete(this SearchBuilder builder, Action<DeleteOperationBuilder> configure)
     {
-        return new DeleteOperationBuilder(builder.ToSearch());
+        if (configure is null)
+            throw new ArgumentNullException(nameof(configure));
+
+        var deleteBuilder = new DeleteOperationBuilder();
+        configure(deleteBuilder);
+
+        return new DeleteOperation(builder.ToSearch(), deleteBuilder.CreateOptions());
     }
 
-    public static CopyOperationBuilder Copy(this SearchBuilder builder)
+    public static CopyOperation Copy(this SearchBuilder builder, Action<CopyOperationBuilder> configure)
     {
-        return new CopyOperationBuilder(builder.ToSearch());
+        if (configure is null)
+            throw new ArgumentNullException(nameof(configure));
+
+        var copyBuilder = new CopyOperationBuilder();
+        configure(copyBuilder);
+
+        return new CopyOperation(builder.ToSearch(), copyBuilder.CreateOptions());
     }
 
-    public static MoveOperationBuilder Move(this SearchBuilder builder)
+    public static MoveOperation Move(this SearchBuilder builder, Action<MoveOperationBuilder> configure)
     {
-        return new MoveOperationBuilder(builder.ToSearch());
+        if (configure is null)
+            throw new ArgumentNullException(nameof(configure));
+
+        var moveBuilder = new MoveOperationBuilder();
+        configure(moveBuilder);
+
+        return new MoveOperation(builder.ToSearch(), moveBuilder.CreateOptions());
     }
 
-    public static RenameOperationBuilder Rename(this SearchBuilder builder, string replacement)
+    public static RenameOperation Rename(this SearchBuilder builder, Action<RenameOperationBuilder> configure)
     {
-        return new RenameOperationBuilder(builder.ToSearch(), replacement);
+        if (configure is null)
+            throw new ArgumentNullException(nameof(configure));
+
+        var renameBuilder = new RenameOperationBuilder();
+        configure(renameBuilder);
+
+        return new RenameOperation(builder.ToSearch(), renameBuilder.CreateOptions());
     }
 
-    public static RenameOperationBuilder Rename(this SearchBuilder builder, MatchEvaluator matchEvaluator)
+    public static ReplaceOperation Replace(this SearchBuilder builder, Action<ReplaceOperationBuilder> configure)
     {
-        return new RenameOperationBuilder(builder.ToSearch(), matchEvaluator);
-    }
+        if (configure is null)
+            throw new ArgumentNullException(nameof(configure));
 
-    public static ReplaceOperationBuilder Replace(this SearchBuilder builder, string replacement)
-    {
-        return new ReplaceOperationBuilder(builder.ToSearch(), replacement);
-    }
+        var replaceBuilder = new ReplaceOperationBuilder();
+        configure(replaceBuilder);
 
-    public static ReplaceOperationBuilder Replace(this SearchBuilder builder, MatchEvaluator matchEvaluator)
-    {
-        return new ReplaceOperationBuilder(builder.ToSearch(), matchEvaluator);
+        return new ReplaceOperation(builder.ToSearch(), replaceBuilder.CreateOptions());
     }
 }

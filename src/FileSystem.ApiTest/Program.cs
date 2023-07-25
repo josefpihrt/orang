@@ -15,14 +15,14 @@ public static class Program
         const string directoryPath = "";
 
         IOperationResult result = new SearchBuilder()
-            .MatchDirectory(directory => directory
+            .MatchDirectory(d => d
                 .Name(Pattern.Any("bin", "obj", PatternOptions.Equals))
                 .NonEmptyOnly())
             .SkipDirectory(Pattern.Any(".git", ".vs", PatternOptions.Equals | PatternOptions.Literal))
-            .Delete()
-            .ContentOnly()
-            .DryRun()
-            .LogOperation(o => Console.WriteLine(o.Path))
+            .Delete(d => d
+                .ContentOnly()
+                .DryRun()
+                .LogOperation(o => Console.WriteLine(o.Path)))
             .Run(directoryPath, CancellationToken.None);
 
         Console.WriteLine(result.Telemetry.MatchingDirectoryCount);

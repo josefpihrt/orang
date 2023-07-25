@@ -164,7 +164,7 @@ public class Search
 
     public IOperationResult Rename(
         string directoryPath,
-        string replacement,
+        string? replacement = null,
         RenameOptions? options = null,
         CancellationToken cancellationToken = default)
     {
@@ -253,7 +253,7 @@ public class Search
 
     public IOperationResult Replace(
         string directoryPath,
-        string replacement,
+        string? replacement = null,
         ReplaceOptions? options = null,
         CancellationToken cancellationToken = default)
     {

@@ -2,7 +2,6 @@
 
 using System;
 using System.IO;
-using System.Threading;
 
 #pragma warning disable RCS1223 // Mark publicly visible type with DebuggerDisplay attribute.
 
@@ -10,7 +9,6 @@ namespace Orang.FileSystem.Fluent;
 
 public class MoveOperationBuilder
 {
-    private readonly Search _search;
     private ConflictResolution _conflictResolution = ConflictResolution.Skip;
     private bool _dryRun;
     private bool _flat;
@@ -22,25 +20,19 @@ public class MoveOperationBuilder
     private Func<string, string, bool>? _compareFile;
     private Func<string, string, bool>? _compareDirectory;
 
-    internal MoveOperationBuilder(Search search)
+    internal MoveOperationBuilder()
     {
-        if (search is null)
-            throw new ArgumentNullException(nameof(search));
-
-        _search = search;
     }
 
     public MoveOperationBuilder WithConflictResolution(ConflictResolution conflictResolution)
     {
         _conflictResolution = conflictResolution;
-
         return this;
     }
 
     public MoveOperationBuilder CompareSize()
     {
         _comparedProperties |= FileCompareProperties.Size;
-
         return this;
     }
 
@@ -48,7 +40,6 @@ public class MoveOperationBuilder
     {
         _comparedProperties |= FileCompareProperties.ModifiedTime;
         _allowedTimeDiff = allowedTimeDiff;
-
         return this;
     }
 
@@ -56,68 +47,54 @@ public class MoveOperationBuilder
     {
         _comparedProperties |= FileCompareProperties.Attributes;
         _comparedAttributes = attributes;
-
         return this;
     }
 
     public MoveOperationBuilder CompareContent()
     {
         _comparedProperties |= FileCompareProperties.Content;
-
         return this;
     }
 
     public MoveOperationBuilder CompareFile(Func<string, string, bool> comparer)
     {
         _compareFile = comparer;
-
         return this;
     }
 
     public MoveOperationBuilder CompareDirectory(Func<string, string, bool> comparer)
     {
         _compareDirectory = comparer;
-
         return this;
     }
 
     public MoveOperationBuilder Flat()
     {
         _flat = true;
-
         return this;
     }
 
     public MoveOperationBuilder DryRun()
     {
         _dryRun = true;
-
         return this;
     }
 
     public MoveOperationBuilder LogOperation(Action<OperationProgress> logOperation)
     {
         _logOperation = logOperation;
-
         return this;
     }
 
     public MoveOperationBuilder WithDialogProvider(IDialogProvider<ConflictInfo> dialogProvider)
     {
         _dialogProvider = dialogProvider;
-
         return this;
     }
 
-    public IOperationResult Run(string directoryPath, string destinationPath, CancellationToken cancellationToken = default)
+    internal CopyOptions CreateOptions()
     {
-        if (directoryPath is null)
-            throw new ArgumentNullException(nameof(directoryPath));
-
-        if (destinationPath is null)
-            throw new ArgumentNullException(nameof(destinationPath));
-
-        var options = new CopyOptions()
+        return new CopyOptions()
         {
             ConflictResolution = _conflictResolution,
             ComparedProperties = _comparedProperties,
@@ -130,7 +107,5 @@ public class MoveOperationBuilder
             CompareFile = _compareFile,
             CompareDirectory = _compareDirectory,
         };
-
-        return _search.Move(directoryPath, destinationPath, options, cancellationToken);
     }
 }

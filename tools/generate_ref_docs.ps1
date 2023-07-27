@@ -5,7 +5,7 @@ dotnet build "../../Roslynator/src/CommandLine.sln" --no-restore /p:Configuratio
 
 & $roslynatorExe generate-doc "../src/Orang.sln" `
  --properties "Configuration=Release" `
- --projects "Core" "FileSystem" `
+ --projects "Common" "FileSystem" `
  --heading ".NET API Reference" `
  -o "build/ref" `
  --host docusaurus `
@@ -16,7 +16,7 @@ dotnet build "../../Roslynator/src/CommandLine.sln" --no-restore /p:Configuratio
 
 & $roslynatorExe generate-doc-root "../src/Orang.sln" `
  --properties "Configuration=Release" `
- --projects "Core" "FileSystem" `
+ --projects "Common" "FileSystem" `
  -o "build/ref.md" `
  --host docusaurus `
  --heading ".NET API Reference" `

@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using DotMarkdown;
+using DotMarkdown.Docusaurus;
 using DotMarkdown.Linq;
 using Orang.CommandLine;
 using Orang.CommandLine.Annotations;
@@ -60,7 +61,8 @@ internal static class Program
         var settings = new MarkdownWriterSettings(markdownFormat);
 
         using (var sw = new StreamWriter(filePath, append: false, Encoding.UTF8))
-        using (MarkdownWriter mw = MarkdownWriter.Create(sw, settings))
+        using (MarkdownWriter mw2 = MarkdownWriter.Create(sw, settings))
+        using (var mw = new DocusaurusMarkdownWriter(mw2))
         {
             WriteFrontMatter(mw, 0, "Orang CLI");
 
@@ -102,16 +104,12 @@ internal static class Program
             Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
 
             using (var sw = new StreamWriter(filePath, append: false, Encoding.UTF8))
-            using (MarkdownWriter mw = MarkdownWriter.Create(sw, settings))
+            using (MarkdownWriter mw2 = MarkdownWriter.Create(sw, settings))
+            using (var mw = new DocusaurusMarkdownWriter(mw2))
             {
                 var writer = new DocumentationWriter(mw);
 
-                mw.WriteRaw("---");
-                mw.WriteLine();
-                mw.WriteRaw($"sidebar_label: {command.DisplayName}");
-                mw.WriteLine();
-                mw.WriteRaw("---");
-                mw.WriteLine();
+                WriteFrontMatter(mw, label: command.DisplayName);
 
                 writer.WriteCommandHeading(command, application);
                 writer.WriteCommandDescription(command);
@@ -142,7 +140,8 @@ internal static class Program
         Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
 
         using (var sw = new StreamWriter(filePath, append: false, Encoding.UTF8))
-        using (MarkdownWriter mw = MarkdownWriter.Create(sw, settings))
+        using (MarkdownWriter mw2 = MarkdownWriter.Create(sw, settings))
+        using (var mw = new DocusaurusMarkdownWriter(mw2))
         {
             WriteFrontMatter(mw, 0, "Commands");
 
@@ -235,7 +234,7 @@ internal static class Program
         string description = _removeNewlineRegex.Replace(optionValue.Description ?? "", " ");
 
         return TableRow(
-            value,
+            value!,
             (string.IsNullOrEmpty(shortValue)) ? " " : shortValue,
             (string.IsNullOrEmpty(description)) ? " " : description);
     }
@@ -250,27 +249,20 @@ internal static class Program
     }
 #pragma warning restore IDE0060, RCS1163
 
-    private static void WriteFrontMatter(MarkdownWriter mw, int? position = null, string? label = null)
+    private static void WriteFrontMatter(DocusaurusMarkdownWriter mw, int? position = null, string? label = null)
     {
         if (position is not null
             || label is not null)
         {
-            mw.WriteRaw("---");
-            mw.WriteLine();
+            var items = new List<(string, object)>();
+
             if (position is not null)
-            {
-                mw.WriteRaw($"sidebar_position: {position}");
-                mw.WriteLine();
-            }
+                items.Add(("sidebar_position", position));
 
             if (label is not null)
-            {
-                mw.WriteRaw($"sidebar_label: {label}");
-                mw.WriteLine();
-            }
+                items.Add(("sidebar_label", label));
 
-            mw.WriteRaw("---");
-            mw.WriteLine();
+            mw.WriteDocusaurusFrontMatter(items);
         }
     }
 }

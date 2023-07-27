@@ -12,7 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommandLine", "CommandLine\CommandLine.csproj", "{5FC70E60-F77A-4D4F-8484-6E432351CD1F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", "{AD61C9B8-AF0F-420E-85A9-10E8B5AF446C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "Common\Common.csproj", "{AD61C9B8-AF0F-420E-85A9-10E8B5AF446C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EvaluatorTest", "EvaluatorTest\EvaluatorTest.csproj", "{69050EE0-4163-404B-828B-7EF6C8E20847}"
 EndProject

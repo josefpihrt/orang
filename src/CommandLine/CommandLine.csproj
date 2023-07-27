@@ -21,7 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Spelling\Spelling.csproj" />
-    <ProjectReference Include="..\Core\Core.csproj" />
+    <ProjectReference Include="..\Common\Common.csproj" />
     <ProjectReference Include="..\CommandLine.Core\CommandLine.Core.csproj" />
     <ProjectReference Include="..\FileSystem\FileSystem.csproj" />
   </ItemGroup>

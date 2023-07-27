@@ -2,13 +2,13 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <AssemblyName>Orang.Core</AssemblyName>
+    <AssemblyName>Orang.Common</AssemblyName>
     <RootNamespace>Orang</RootNamespace>
   </PropertyGroup>
 
   <PropertyGroup>
     <IsPackable>true</IsPackable>
-    <PackageId>Orang.Core</PackageId>
+    <PackageId>Orang.Common</PackageId>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

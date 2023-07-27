@@ -5,7 +5,7 @@ dotnet build "../../Roslynator/src/CommandLine.sln" --no-restore /p:Configuratio
 
 & $roslynatorExe generate-doc "../src/FileSystem/FileSystem.csproj" `
  --properties "Configuration=Release" `
- --heading "Orang .NET API Reference" `
+ --heading ".NET API Reference" `
  -o "build/ref" `
  --host docusaurus `
  --group-by-common-namespace `
@@ -17,7 +17,7 @@ dotnet build "../../Roslynator/src/CommandLine.sln" --no-restore /p:Configuratio
  --properties "Configuration=Release" `
  -o "build/ref.md" `
  --host docusaurus `
- --heading "Orang .NET API Reference" `
+ --heading ".NET API Reference" `
  --ignored-parts content `
  --root-directory-url "ref"
 

@@ -36,7 +36,7 @@ internal class OutputWriter
         if (matchItems.Count == 0)
             return default;
 
-        int groupNumber = options.Filter.GroupNumber;
+        int groupNumber = options.Matcher.GroupNumber;
 
         OutputSymbols symbols = OutputSymbols.Create(HighlightOptions);
 
@@ -64,7 +64,7 @@ internal class OutputWriter
                     .ThenBy(f => f.Number)
                     .SelectMany(f => f.CaptureItems)
                     .Select(f => f.Value)
-                    .Where(f => options.Filter.Predicate?.Invoke(f) != false)
+                    .Where(f => options.Matcher.Predicate?.Invoke(f) != false)
                     .Modify(options.ModifyOptions)
                     .GetEnumerator())
                 {
@@ -121,7 +121,7 @@ internal class OutputWriter
                         {
                             CaptureItem captureItem = groupItem.CaptureItems[j];
 
-                            if (options.Filter.Predicate?.Invoke(captureItem.Value) == false)
+                            if (options.Matcher.Predicate?.Invoke(captureItem.Value) == false)
                                 continue;
 
                             if (addSeparator)
@@ -168,7 +168,7 @@ internal class OutputWriter
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (options.Filter.Predicate?.Invoke(matchItem.Value) == false)
+                if (options.Matcher.Predicate?.Invoke(matchItem.Value) == false)
                     continue;
 
                 valueWriter.Write(input, lastPos, matchItem.Index - lastPos, symbols: null);
@@ -224,7 +224,7 @@ internal class OutputWriter
                         {
                             cancellationToken.ThrowIfCancellationRequested();
 
-                            bool success = options.Filter.Predicate?.Invoke(en.Current) != false;
+                            bool success = options.Matcher.Predicate?.Invoke(en.Current) != false;
 
                             if (success)
                             {
@@ -272,7 +272,7 @@ internal class OutputWriter
 
                             SplitItem item = en.Current;
 
-                            bool success = options.Filter.Predicate?.Invoke(item.Value) != false;
+                            bool success = options.Matcher.Predicate?.Invoke(item.Value) != false;
 
                             if (success)
                             {
@@ -308,7 +308,7 @@ internal class OutputWriter
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                if (options.Filter.Predicate?.Invoke(item.Value) == false)
+                if (options.Matcher.Predicate?.Invoke(item.Value) == false)
                     continue;
 
                 valueWriter.Write(input, lastPos, item.Index - lastPos, symbols: null);

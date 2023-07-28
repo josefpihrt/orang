@@ -34,7 +34,7 @@ internal abstract class CommonCopyCommand<TOptions> :
 
     private PathWriter? PathWriter { get; }
 
-    protected override void OnSearchCreating(FileSystemSearch search)
+    protected override void OnSearchCreating(SearchState search)
     {
         if (Options.SearchTarget != SearchTarget.Files
             && !Options.StructureOnly)
@@ -43,9 +43,9 @@ internal abstract class CommonCopyCommand<TOptions> :
         }
     }
 
-    protected override NameFilter? CreateAdditionalDirectoryFilter()
+    protected override Func<string, bool>? CreateExcludeDirectoryPredicate(Func<string, bool>? predicate = null)
     {
-        return FileSystem.NameFilter.CreateFromDirectoryPath(Target, isNegative: true);
+        return DirectoryPredicate.Create(Target);
     }
 
     protected abstract string GetQuestionText(bool isDirectory);
@@ -54,7 +54,7 @@ internal abstract class CommonCopyCommand<TOptions> :
 
     protected override void ExecuteDirectory(string directoryPath, SearchContext context)
     {
-        if (FileSystemHelpers.IsSubdirectory(Target, directoryPath))
+        if (FileSystemUtilities.IsSubdirectory(Target, directoryPath))
         {
             _logger.WriteWarning("Source directory cannot be subdirectory of a destination directory.");
             return;
@@ -84,7 +84,7 @@ internal abstract class CommonCopyCommand<TOptions> :
         if (fileMatch.IsDirectory
             || (baseDirectoryPath is not null && !Options.Flat))
         {
-            Debug.Assert(sourcePath.StartsWith(baseDirectoryPath!, FileSystemHelpers.Comparison));
+            Debug.Assert(sourcePath.StartsWith(baseDirectoryPath!, FileSystemUtilities.Comparison));
 
             string relativePath = sourcePath.Substring(baseDirectoryPath!.Length + 1);
 
@@ -128,7 +128,7 @@ internal abstract class CommonCopyCommand<TOptions> :
             else if (directoryExists)
             {
                 if (Options.StructureOnly
-                    && FileSystemHelpers.AttributeEquals(sourcePath, destinationPath, Options.NoCompareAttributes))
+                    && FileSystemUtilities.AttributeEquals(sourcePath, destinationPath, Options.CompareAttributes))
                 {
                     return null;
                 }
@@ -138,12 +138,12 @@ internal abstract class CommonCopyCommand<TOptions> :
         }
         else if (fileExists)
         {
-            if (Options.CompareOptions != FileCompareOptions.None
-                && FileSystemHelpers.FileEquals(
+            if (Options.CompareProperties != FileCompareProperties.None
+                && FileSystemUtilities.FileEquals(
                     sourcePath,
                     destinationPath,
-                    Options.CompareOptions,
-                    Options.NoCompareAttributes,
+                    Options.CompareProperties,
+                    Options.CompareAttributes,
                     Options.AllowedTimeDiff))
             {
                 return null;
@@ -166,7 +166,7 @@ internal abstract class CommonCopyCommand<TOptions> :
             && ((isDirectory && directoryExists)
                 || (!isDirectory && fileExists)))
         {
-            destinationPath = FileSystemHelpers.CreateNewFilePath(destinationPath);
+            destinationPath = FileSystemUtilities.CreateNewFilePath(destinationPath);
         }
 
         if (!Options.OmitPath)
@@ -238,7 +238,7 @@ internal abstract class CommonCopyCommand<TOptions> :
                 {
                     if (Options.StructureOnly)
                     {
-                        FileSystemHelpers.UpdateAttributes(sourcePath, destinationPath);
+                        FileSystemUtilities.UpdateAttributes(sourcePath, destinationPath);
                     }
                     else
                     {

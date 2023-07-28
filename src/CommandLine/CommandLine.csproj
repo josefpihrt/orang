@@ -8,31 +8,11 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <IsPackable>true</IsPackable>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>orang</ToolCommandName>
     <PackageId>Orang.DotNet.Cli</PackageId>
-    <Description>Search, replace, rename and delete directories, files and its content using the power of .NET regular expressions.</Description>
-    <PackageProjectUrl>https://github.com/JosefPihrt/Orang</PackageProjectUrl>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <PackageIcon>icon.png</PackageIcon>
-    <PackageTags>RegularExpression;Regex;RegExp;CLI</PackageTags>
-    <PackageReadmeFile>docs/README.md</PackageReadmeFile>
-    <RepositoryUrl>https://github.com/JosefPihrt/Orang.git</RepositoryUrl>
-    <RepositoryType>git</RepositoryType>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
   </PropertyGroup>
-
-  <PropertyGroup Condition="'$(CI)' == 'true'">
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-  </PropertyGroup>
-
-  <ItemGroup Condition="'$(CI)' == 'true'">
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.8.0" />
@@ -41,7 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Spelling\Spelling.csproj" />
-    <ProjectReference Include="..\Core\Core.csproj" />
+    <ProjectReference Include="..\Common\Common.csproj" />
     <ProjectReference Include="..\CommandLine.Core\CommandLine.Core.csproj" />
     <ProjectReference Include="..\FileSystem\FileSystem.csproj" />
   </ItemGroup>
@@ -52,6 +32,15 @@
     <None Update="Resources\RegexSyntax.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>Orang.DocumentationGenerator, PublicKey=$(OrangPublicKey)</_Parameter1>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>Orang.CommandLine.Tests, PublicKey=$(OrangPublicKey)</_Parameter1>
+    </AssemblyAttribute>
   </ItemGroup>
 
 </Project>

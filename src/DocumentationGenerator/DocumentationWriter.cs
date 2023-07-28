@@ -36,7 +36,7 @@ internal class DocumentationWriter : MarkdownDocumentationWriter
 
             string metaValueUrl = provider2.Name;
 
-            _writer.WriteLink(provider2.Name, "../option-values" + MarkdownHelpers.CreateGitHubHeadingLink(metaValueUrl));
+            _writer.WriteLink(provider2.Name, "../options-values" + MarkdownHelpers.CreateGitHubHeadingLink(metaValueUrl));
 
             _writer.WriteString(": ");
 
@@ -60,7 +60,7 @@ internal class DocumentationWriter : MarkdownDocumentationWriter
                             _writer.WriteInlineCode(value.Remove(metaValueMatch.Index));
                             _writer.WriteLink(
                                 metaValueMatch.Value,
-                                "../option-values" + MarkdownHelpers.CreateGitHubHeadingLink(metaValueMatch.Value));
+                                "../options-values" + MarkdownHelpers.CreateGitHubHeadingLink(metaValueMatch.Value));
                         }
                         else
                         {

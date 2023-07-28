@@ -18,15 +18,15 @@ internal abstract class FileSystemCommandOptions : CommonRegexCommandOptions
 
     public ImmutableArray<PathInfo> Paths { get; internal set; }
 
-    public Filter? NameFilter { get; internal set; }
+    public Matcher? NameFilter { get; internal set; }
 
     public FileNamePart NamePart { get; internal set; }
 
-    public Filter? ExtensionFilter { get; internal set; }
+    public Matcher? ExtensionFilter { get; internal set; }
 
-    public Filter? ContentFilter { get; internal set; }
+    public Matcher? ContentFilter { get; internal set; }
 
-    public Filter? DirectoryFilter { get; internal set; }
+    public Matcher? DirectoryFilter { get; internal set; }
 
     public FileNamePart DirectoryNamePart { get; internal set; }
 
@@ -70,15 +70,15 @@ internal abstract class FileSystemCommandOptions : CommonRegexCommandOptions
 
     public string Indent => Format.Indent;
 
-    internal MatchOutputInfo? CreateOutputInfo(string input, Match match, Filter filter)
+    internal MatchOutputInfo? CreateOutputInfo(string input, Match match, Matcher matcher)
     {
         if (ContentDisplayStyle != ContentDisplayStyle.ValueDetail)
             return null;
 
-        int groupNumber = filter.GroupNumber;
+        int groupNumber = matcher.GroupNumber;
 
         return MatchOutputInfo.Create(
-            MatchData.Create(input, filter.Regex, match),
+            MatchData.Create(input, matcher.Regex, match),
             groupNumber,
             includeGroupNumber: groupNumber >= 0,
             includeCaptureNumber: false,

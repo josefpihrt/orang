@@ -1,6 +1,5 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Collections.Generic;
 using CommandLine;
 using Orang.CommandLine.Annotations;
@@ -62,7 +61,7 @@ internal abstract class CommonFindCommandLineOptions : FileSystemCommandLineOpti
             Content,
             OptionNames.Content,
             OptionValueProviders.PatternOptionsWithoutPartProvider,
-            out Filter? contentFilter,
+            out Matcher? contentFilter,
             allowNull: true,
             allowEmptyPattern: true))
         {
@@ -196,7 +195,7 @@ internal abstract class CommonFindCommandLineOptions : FileSystemCommandLineOpti
 
         options.Format = new OutputDisplayFormat(
             contentDisplayStyle: contentDisplayStyle
-                ?? ((ReferenceEquals(contentFilter, Filter.EntireInput)) ? ContentDisplayStyle.AllLines : DefaultContentDisplayStyle),
+                ?? ((ReferenceEquals(contentFilter, Matcher.EntireInput)) ? ContentDisplayStyle.AllLines : DefaultContentDisplayStyle),
             pathDisplayStyle: pathDisplayStyle ?? PathDisplayStyle.Full,
             lineOptions: lineDisplayOptions,
             lineContext: lineContext,

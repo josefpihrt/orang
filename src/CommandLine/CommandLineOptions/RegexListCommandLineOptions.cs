@@ -82,14 +82,14 @@ internal sealed class RegexListCommandLineOptions : AbstractCommandLineOptions
             Filter,
             OptionNames.Filter,
             OptionValueProviders.PatternOptions_List_Provider,
-            out Filter? filter,
+            out Matcher? matcher,
             allowNull: true,
             includedPatternOptions: PatternOptions.IgnoreCase))
         {
             return false;
         }
 
-        options.Filter = filter;
+        options.Matcher = matcher;
         options.Value = value;
         options.RegexOptions = regexOptions;
         options.InCharGroup = CharGroup;

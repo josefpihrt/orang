@@ -28,7 +28,7 @@ internal abstract class CommonFindCommand<TOptions> :
         }
     }
 
-    public Filter? ContentFilter => Options.ContentFilter;
+    public Matcher? ContentFilter => Options.ContentFilter;
 
     private OutputSymbols Symbols => _symbols ??= OutputSymbols.Create(Options.HighlightOptions);
 
@@ -99,7 +99,7 @@ internal abstract class CommonFindCommand<TOptions> :
 
         HighlightOptions highlightOptions = Options.HighlightOptions;
 
-        if (ReferenceEquals(ContentFilter, Filter.EntireInput))
+        if (ReferenceEquals(ContentFilter, Matcher.EntireInput))
             highlightOptions &= ~HighlightOptions.DefaultOrMatch;
 
         return new ContentWriterOptions(
@@ -199,7 +199,7 @@ internal abstract class CommonFindCommand<TOptions> :
         ColumnWidths? columnWidths = null)
     {
         if (!fileMatch.IsDirectory
-            && ContentFilter?.IsNegative == false
+            && ContentFilter?.Invert == false
             && !Options.OmitContent
             && _logger.ShouldWrite(Verbosity.Normal))
         {
@@ -210,7 +210,7 @@ internal abstract class CommonFindCommand<TOptions> :
             if (isPathDisplayed)
                 WritePath(context, fileMatch, baseDirectoryPath, indent, columnWidths, includeNewline: false);
 
-            if (ContentFilter!.IsNegative
+            if (ContentFilter!.Invert
                 || fileMatch.IsDirectory)
             {
                 _logger.WriteLineIf(isPathDisplayed, Verbosity.Minimal);
@@ -356,13 +356,13 @@ internal abstract class CommonFindCommand<TOptions> :
         ColumnWidths? columnWidths)
     {
         if (Options.PathDisplayStyle == PathDisplayStyle.Match
-            && fileMatch.NameMatch is not null
-            && !object.ReferenceEquals(fileMatch.NameMatch, Match.Empty))
+            && fileMatch.Name is not null
+            && !object.ReferenceEquals(fileMatch.Name, Match.Empty))
         {
             if (_logger.ShouldWrite(Verbosity.Minimal))
             {
                 _logger.Write(indent, Verbosity.Minimal);
-                _logger.Write(fileMatch.NameMatch.Value, (Options.HighlightMatch) ? Colors.Match_Path : default, Verbosity.Minimal);
+                _logger.Write(fileMatch.Name.Value, (Options.HighlightMatch) ? Colors.Match_Path : default, Verbosity.Minimal);
             }
         }
         else
@@ -383,7 +383,7 @@ internal abstract class CommonFindCommand<TOptions> :
 
         try
         {
-            Match match = fileMatch.ContentMatch!;
+            Match match = fileMatch.Content!;
 
             contentWriter = CommandLine.ContentWriter.CreateFind(
                 contentDisplayStyle: Options.ContentDisplayStyle,

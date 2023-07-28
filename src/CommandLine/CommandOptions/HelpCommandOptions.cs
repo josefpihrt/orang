@@ -10,7 +10,7 @@ internal sealed class HelpCommandOptions : AbstractCommandOptions
 
     public string[] Command { get; internal set; } = null!;
 
-    public Filter? Filter { get; internal set; }
+    public Matcher? Matcher { get; internal set; }
 
     public bool Manual { get; internal set; }
 

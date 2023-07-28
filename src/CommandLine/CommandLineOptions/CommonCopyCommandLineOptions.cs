@@ -43,7 +43,7 @@ internal abstract class CommonCopyCommandLineOptions : CommonFindCommandLineOpti
             Name,
             OptionNames.Name,
             OptionValueProviders.PatternOptionsProvider,
-            out Filter? nameFilter,
+            out Matcher? nameFilter,
             out FileNamePart namePart,
             allowNull: true))
         {

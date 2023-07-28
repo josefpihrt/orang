@@ -17,14 +17,14 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
     {
     }
 
-    private FileSystemSearch? _search;
+    private SearchState? _search;
     private ProgressReporter? _progressReporter;
 
-    protected FileSystemSearch Search => _search ??= CreateSearch();
+    protected SearchState Search => _search ??= CreateSearch();
 
     private ProgressReporter? ProgressReporter => _progressReporter ??= CreateProgressReporter();
 
-    public Filter? NameFilter => Options.NameFilter;
+    public Matcher? NameFilter => Options.NameFilter;
 
     protected virtual bool CanDisplaySummary => true;
 
@@ -32,60 +32,166 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
 
     public virtual bool CanUseResults => true;
 
-    protected virtual void OnSearchCreating(FileSystemSearch search)
+    protected virtual void OnSearchCreating(SearchState search)
     {
     }
 
-    private FileSystemSearch CreateSearch()
+    private SearchState CreateSearch()
     {
-        var filter = new FileSystemFilter(
-            name: Options.NameFilter,
-            part: Options.NamePart,
-            extension: Options.ExtensionFilter,
-            content: Options.ContentFilter,
-            properties: new FilePropertyFilter(
-                Options.FilePropertyOptions.CreationTimePredicate,
-                Options.FilePropertyOptions.ModifiedTimePredicate,
-                Options.FilePropertyOptions.SizePredicate),
-            attributes: Options.Attributes,
-            attributesToSkip: Options.AttributesToSkip,
-            emptyOption: Options.EmptyOption);
+        FilePropertyOptions properties = Options.FilePropertyOptions;
+        Func<FileInfo, bool>? filePredicate = null;
+        Func<DirectoryInfo, bool>? directoryPredicate = null;
 
-        var directoryFilters = new List<NameFilter>();
-
-        if (Options.DirectoryFilter is not null)
+        if (Options.SearchTarget == SearchTarget.Directories)
         {
-            var directoryFilter = new NameFilter(
-                name: Options.DirectoryFilter,
-                part: Options.DirectoryNamePart);
-
-            directoryFilters.Add(directoryFilter);
+            if (properties.CreationTimePredicate is not null)
+            {
+                if (properties.ModifiedTimePredicate is not null)
+                {
+                    directoryPredicate = di => properties.CreationTimePredicate(di.CreationTime)
+                        && properties.ModifiedTimePredicate(di.LastWriteTime);
+                }
+                else
+                {
+                    directoryPredicate = di => properties.CreationTimePredicate(di.CreationTime);
+                }
+            }
+            else if (properties.ModifiedTimePredicate is not null)
+            {
+                directoryPredicate = di => properties.ModifiedTimePredicate(di.LastWriteTime);
+            }
+        }
+        else if (properties.CreationTimePredicate is not null)
+        {
+            if (properties.ModifiedTimePredicate is not null)
+            {
+                if (properties.SizePredicate is not null)
+                {
+                    filePredicate = fi => properties.CreationTimePredicate(fi.CreationTime)
+                        && properties.ModifiedTimePredicate(fi.LastWriteTime)
+                        && properties.SizePredicate(fi.Length);
+                }
+                else
+                {
+                    filePredicate = fi => properties.CreationTimePredicate(fi.CreationTime)
+                        && properties.ModifiedTimePredicate(fi.LastWriteTime);
+                }
+            }
+            else if (properties.SizePredicate is not null)
+            {
+                filePredicate = fi => properties.CreationTimePredicate(fi.CreationTime)
+                    && properties.SizePredicate(fi.Length);
+            }
+            else
+            {
+                filePredicate = fi => properties.CreationTimePredicate(fi.CreationTime);
+            }
+        }
+        else if (properties.ModifiedTimePredicate is not null)
+        {
+            if (properties.SizePredicate is not null)
+            {
+                filePredicate = fi => properties.ModifiedTimePredicate(fi.LastWriteTime)
+                    && properties.SizePredicate(fi.Length);
+            }
+            else
+            {
+                filePredicate = fi => properties.ModifiedTimePredicate(fi.LastWriteTime);
+            }
+        }
+        else if (properties.SizePredicate is not null)
+        {
+            filePredicate = fi => properties.SizePredicate(fi.Length);
         }
 
-        NameFilter? additionalDirectoryFilter = CreateAdditionalDirectoryFilter();
+        FileMatcher? fileMatcher = null;
+        DirectoryMatcher? directoryMatcher = null;
 
-        if (additionalDirectoryFilter is not null)
-            directoryFilters.Add(additionalDirectoryFilter);
+        if (Options.SearchTarget != SearchTarget.Directories)
+        {
+            fileMatcher = new FileMatcher()
+            {
+                Name = Options.NameFilter,
+                NamePart = Options.NamePart,
+                Extension = Options.ExtensionFilter,
+                Content = Options.ContentFilter,
+                MatchFileInfo = filePredicate,
+                WithAttributes = Options.Attributes,
+                WithoutAttributes = Options.AttributesToSkip,
+                EmptyOption = Options.EmptyOption
+            };
+        }
 
-        var options = new FileSystemSearchOptions(
-            searchTarget: Options.SearchTarget,
-            recurseSubdirectories: Options.RecurseSubdirectories,
-            defaultEncoding: Options.DefaultEncoding);
+        if (Options.SearchTarget != SearchTarget.Files)
+        {
+            directoryMatcher = new DirectoryMatcher()
+            {
+                Name = Options.NameFilter,
+                NamePart = Options.NamePart,
+                MatchDirectoryInfo = directoryPredicate,
+                WithAttributes = Options.Attributes,
+                WithoutAttributes = Options.AttributesToSkip,
+                EmptyOption = Options.EmptyOption
+            };
+        }
 
-        var search = new FileSystemSearch(
-            filter: filter,
-            directoryFilters: directoryFilters,
-            searchProgress: ProgressReporter,
-            options: options);
+        Func<string, bool>? includeDirectory = null;
+        Func<string, bool>? excludeDirectory = null;
+
+        Matcher? directoryFilter = Options.DirectoryFilter;
+
+        if (directoryFilter is not null)
+        {
+            if (directoryFilter.Invert)
+            {
+                excludeDirectory = DirectoryPredicate.Create(directoryFilter, Options.DirectoryNamePart);
+            }
+            else
+            {
+                includeDirectory = DirectoryPredicate.Create(directoryFilter, Options.DirectoryNamePart);
+            }
+        }
+
+        includeDirectory = CombinePredicates(includeDirectory, CreateIncludeDirectoryPredicate());
+        excludeDirectory = CombinePredicates(excludeDirectory, CreateExcludeDirectoryPredicate());
+
+        var search = new SearchState(fileMatcher, directoryMatcher)
+        {
+            IncludeDirectory = includeDirectory,
+            ExcludeDirectory = excludeDirectory,
+            LogProgress = (ProgressReporter is not null) ? p => ProgressReporter.Report(p) : null,
+            RecurseSubdirectories = Options.RecurseSubdirectories,
+            DefaultEncoding = Options.DefaultEncoding,
+        };
 
         OnSearchCreating(search);
 
         return search;
+
+        static Func<string, bool>? CombinePredicates(Func<string, bool>? predicate, Func<string, bool>? predicate2)
+        {
+            if (predicate is not null)
+            {
+                if (predicate2 is not null)
+                {
+                    return path => predicate(path) && predicate2(path);
+                }
+
+                return predicate;
+            }
+
+            return predicate2;
+        }
     }
 
-    protected virtual NameFilter? CreateAdditionalDirectoryFilter()
+    protected virtual Func<string, bool>? CreateIncludeDirectoryPredicate(Func<string, bool>? predicate = null)
     {
-        return null;
+        return predicate;
+    }
+
+    protected virtual Func<string, bool>? CreateExcludeDirectoryPredicate(Func<string, bool>? predicate = null)
+    {
+        return predicate;
     }
 
     protected abstract void ExecuteDirectory(string directoryPath, SearchContext context);
@@ -473,7 +579,7 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
             && Options.FilePropertyOptions.IncludeSize)
         {
             size = (fileMatch.IsDirectory)
-                ? (context.DirectorySizeMap?[fileMatch.Path] ?? FileSystemHelpers.GetDirectorySize(fileMatch.Path))
+                ? (context.DirectorySizeMap?[fileMatch.Path] ?? FileSystemUtilities.GetDirectorySize(fileMatch.Path))
                 : new FileInfo(fileMatch.Path).Length;
 
             context.Telemetry.FilesTotalSize += size;
@@ -497,7 +603,7 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
             if (size == -1)
             {
                 size = (fileMatch.IsDirectory)
-                    ? (context.DirectorySizeMap?[fileMatch.Path] ?? FileSystemHelpers.GetDirectorySize(fileMatch.Path))
+                    ? (context.DirectorySizeMap?[fileMatch.Path] ?? FileSystemUtilities.GetDirectorySize(fileMatch.Path))
                     : new FileInfo(fileMatch.Path).Length;
             }
 

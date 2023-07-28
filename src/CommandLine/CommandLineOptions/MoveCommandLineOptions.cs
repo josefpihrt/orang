@@ -58,8 +58,8 @@ internal sealed class MoveCommandLineOptions : CommonCopyCommandLineOptions
         if (!context.TryParseAsEnumFlags(
             Compare,
             OptionNames.Compare,
-            out FileCompareOptions compareOptions,
-            FileCompareOptions.None,
+            out FileCompareProperties compareProperties,
+            FileCompareProperties.None,
             OptionValueProviders.FileCompareOptionsProvider))
         {
             return false;
@@ -78,7 +78,7 @@ internal sealed class MoveCommandLineOptions : CommonCopyCommandLineOptions
             return false;
         }
 
-        options.CompareOptions = compareOptions;
+        options.CompareProperties = compareProperties;
         options.DryRun = DryRun;
         options.Flat = Flat;
         options.ConflictResolution = conflictResolution;

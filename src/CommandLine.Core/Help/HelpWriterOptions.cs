@@ -8,13 +8,13 @@ public class HelpWriterOptions
 
     public HelpWriterOptions(
         string indent = "  ",
-        Filter? filter = null)
+        Matcher? matcher = null)
     {
         Indent = indent;
-        Filter = filter;
+        Matcher = matcher;
     }
 
     public string Indent { get; }
 
-    public Filter? Filter { get; }
+    public Matcher? Matcher { get; }
 }

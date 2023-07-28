@@ -11,7 +11,7 @@ namespace Orang.FileSystem.Fluent;
 
 public class RenameOperation
 {
-    public RenameOperation(Search search, RenameOptions options)
+    internal RenameOperation(Search search, RenameOptions options)
     {
         Search = search ?? throw new ArgumentNullException(nameof(search));
         Options = options ?? throw new ArgumentNullException(nameof(options));
@@ -37,7 +37,10 @@ public class RenameOperation
         return Search.Rename(directoryPath, matchEvaluator, Options, cancellationToken);
     }
 
-    public IOperationResult Run(IEnumerable<string> directoryPaths, string? replacement = null, CancellationToken cancellationToken = default)
+    public IOperationResult Run(
+        IEnumerable<string> directoryPaths,
+        string? replacement = null,
+        CancellationToken cancellationToken = default)
     {
         if (directoryPaths is null)
             throw new ArgumentNullException(nameof(directoryPaths));

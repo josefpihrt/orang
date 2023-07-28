@@ -56,13 +56,13 @@ public class MoveOperationBuilder
         return this;
     }
 
-    public MoveOperationBuilder CompareFile(Func<string, string, bool> comparer)
+    internal MoveOperationBuilder CompareFile(Func<string, string, bool> comparer)
     {
         _compareFile = comparer;
         return this;
     }
 
-    public MoveOperationBuilder CompareDirectory(Func<string, string, bool> comparer)
+    internal MoveOperationBuilder CompareDirectory(Func<string, string, bool> comparer)
     {
         _compareDirectory = comparer;
         return this;

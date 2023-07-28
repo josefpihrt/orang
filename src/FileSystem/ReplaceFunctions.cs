@@ -4,6 +4,7 @@ using System;
 
 namespace Orang;
 
+//TODO: make internal?
 [Flags]
 public enum ReplaceFunctions
 {

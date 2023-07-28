@@ -1,8 +1,10 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 #pragma warning disable RCS1223 // Mark publicly visible type with DebuggerDisplay attribute.
 
@@ -173,5 +175,88 @@ public class SearchBuilder
         {
             throw new InvalidOperationException("File matcher or directory matcher must be specified.");
         }
+    }
+
+    public IEnumerable<FileMatch> Matches(
+        string directoryPath,
+        CancellationToken cancellationToken = default)
+    {
+        return ToSearch().Matches(directoryPath, cancellationToken);
+    }
+
+    public IEnumerable<FileMatch> Matches(
+        IEnumerable<string> directoryPaths,
+        CancellationToken cancellationToken = default)
+    {
+        if (directoryPaths is null)
+            throw new ArgumentNullException(nameof(directoryPaths));
+
+        return Matches();
+
+        IEnumerable<FileMatch> Matches()
+        {
+            Search search = ToSearch();
+
+            foreach (string directoryPath in directoryPaths)
+            {
+                foreach (FileMatch fileMatch in search.Matches(directoryPath, cancellationToken))
+                    yield return fileMatch;
+            }
+        }
+    }
+
+    public DeleteOperation Delete(Action<DeleteOperationBuilder> configure)
+    {
+        if (configure is null)
+            throw new ArgumentNullException(nameof(configure));
+
+        var deleteBuilder = new DeleteOperationBuilder();
+        configure(deleteBuilder);
+
+        return new DeleteOperation(ToSearch(), deleteBuilder.CreateOptions());
+    }
+
+    public CopyOperation Copy(Action<CopyOperationBuilder> configure)
+    {
+        if (configure is null)
+            throw new ArgumentNullException(nameof(configure));
+
+        var copyBuilder = new CopyOperationBuilder();
+        configure(copyBuilder);
+
+        return new CopyOperation(ToSearch(), copyBuilder.CreateOptions());
+    }
+
+    public MoveOperation Move(Action<MoveOperationBuilder> configure)
+    {
+        if (configure is null)
+            throw new ArgumentNullException(nameof(configure));
+
+        var moveBuilder = new MoveOperationBuilder();
+        configure(moveBuilder);
+
+        return new MoveOperation(ToSearch(), moveBuilder.CreateOptions());
+    }
+
+    public RenameOperation Rename(Action<RenameOperationBuilder> configure)
+    {
+        if (configure is null)
+            throw new ArgumentNullException(nameof(configure));
+
+        var renameBuilder = new RenameOperationBuilder();
+        configure(renameBuilder);
+
+        return new RenameOperation(ToSearch(), renameBuilder.CreateOptions());
+    }
+
+    public ReplaceOperation Replace(Action<ReplaceOperationBuilder> configure)
+    {
+        if (configure is null)
+            throw new ArgumentNullException(nameof(configure));
+
+        var replaceBuilder = new ReplaceOperationBuilder();
+        configure(replaceBuilder);
+
+        return new ReplaceOperation(ToSearch(), replaceBuilder.CreateOptions());
     }
 }

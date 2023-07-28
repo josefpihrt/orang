@@ -13,9 +13,9 @@ public class CopyOptions
 
     public FileCompareProperties ComparedProperties { get; set; }
 
-    public Func<string, string, bool>? CompareFile { get; set; }
+    internal Func<string, string, bool>? CompareFile { get; set; }
 
-    public Func<string, string, bool>? CompareDirectory { get; set; }
+    internal Func<string, string, bool>? CompareDirectory { get; set; }
 
     public FileAttributes? ComparedAttributes { get; set; }
 

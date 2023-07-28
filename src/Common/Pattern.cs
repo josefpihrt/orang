@@ -7,7 +7,7 @@ using Orang.Text.RegularExpressions;
 
 namespace Orang;
 
-public static class Pattern
+internal static class Pattern
 {
     public static string From(
         string value,

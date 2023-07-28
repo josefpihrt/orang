@@ -9,7 +9,7 @@ namespace Orang.FileSystem.Fluent;
 
 public class MoveOperation
 {
-    public MoveOperation(Search search, CopyOptions options)
+    internal MoveOperation(Search search, CopyOptions options)
     {
         Search = search ?? throw new ArgumentNullException(nameof(search));
         Options = options ?? throw new ArgumentNullException(nameof(options));

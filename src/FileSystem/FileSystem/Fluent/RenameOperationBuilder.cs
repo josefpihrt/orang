@@ -31,6 +31,7 @@ public class RenameOperationBuilder
         return this;
     }
 
+    //TODO: move to RenameOperation.Run
     public RenameOperationBuilder DryRun()
     {
         _dryRun = true;

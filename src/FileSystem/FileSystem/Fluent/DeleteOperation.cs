@@ -10,7 +10,7 @@ namespace Orang.FileSystem.Fluent;
 
 public class DeleteOperation
 {
-    public DeleteOperation(Search search, DeleteOptions options)
+    internal DeleteOperation(Search search, DeleteOptions options)
     {
         Search = search ?? throw new ArgumentNullException(nameof(search));
         Options = options ?? throw new ArgumentNullException(nameof(options));

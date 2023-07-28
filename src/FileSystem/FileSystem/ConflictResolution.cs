@@ -7,5 +7,6 @@ public enum ConflictResolution
     Overwrite,
     Skip,
     Ask,
+    //TODO: ?
     Suffix,
 }

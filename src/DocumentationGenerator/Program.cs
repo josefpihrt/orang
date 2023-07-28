@@ -3,236 +3,279 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using DotMarkdown;
+using DotMarkdown.Docusaurus;
 using DotMarkdown.Linq;
 using Orang.CommandLine;
 using Orang.CommandLine.Annotations;
 using Orang.CommandLine.Help;
 using static DotMarkdown.Linq.MFactory;
 
-namespace Orang.Documentation
+namespace Orang.Documentation;
+
+internal static class Program
 {
-    internal static class Program
+    private static readonly Regex _removeNewlineRegex = new(@"\ *\r?\n\ *");
+
+    private static void Main(params string[] args)
     {
-        private static readonly Regex _removeNewlineRegex = new(@"\ *\r?\n\ *");
+        IEnumerable<Command> commands = CommandLoader.LoadCommands(typeof(AbstractCommandLineOptions).Assembly)
+            .Select(c =>
+            {
+                IEnumerable<CommandOption> options = c.Options
+                    .Where(f => f.PropertyInfo.GetCustomAttribute<HideFromHelpAttribute>() is null)
+                    .OrderBy(f => f, CommandOptionComparer.Name);
 
-        private static void Main(params string[] args)
+                return c.WithOptions(options);
+            })
+            .OrderBy(c => c.Name, StringComparer.InvariantCulture);
+
+        var application = new CommandLineApplication(
+            "orang",
+            "Search, replace, rename and delete files and its content using the power of .NET regular expressions.",
+            commands.OrderBy(f => f.Name, StringComparer.InvariantCulture));
+
+        if (args.Length < 2)
         {
-            IEnumerable<Command> commands = CommandLoader.LoadCommands(typeof(AbstractCommandLineOptions).Assembly)
-                .Select(c =>
+            Console.WriteLine("Invalid number of arguments");
+            return;
+        }
+
+        string? destinationDirectoryPath = args[0];
+        string? dataDirectoryPath = args[1];
+
+        string filePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "cli.md"));
+
+        Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
+
+        var markdownFormat = new MarkdownFormat(
+            bulletListStyle: BulletListStyle.Minus,
+            tableOptions: MarkdownFormat.Default.TableOptions | TableOptions.FormatHeaderAndContent,
+            angleBracketEscapeStyle: AngleBracketEscapeStyle.EntityRef);
+
+        var settings = new MarkdownWriterSettings(markdownFormat);
+
+        using (var sw = new StreamWriter(filePath, append: false, Encoding.UTF8))
+        using (MarkdownWriter mw2 = MarkdownWriter.Create(sw, settings))
+        using (var mw = new DocusaurusMarkdownWriter(mw2))
+        {
+            WriteFrontMatter(mw, 0, "Orang CLI");
+
+            mw.WriteStartHeading(1);
+            mw.WriteString("Orang Command Line Tool");
+            mw.WriteEndHeading();
+            mw.WriteString(application.Description);
+            mw.WriteLine();
+
+            mw.WriteHeading2("Commands");
+
+            foreach (Command command in commands)
+            {
+                mw.WriteStartBulletItem();
+                mw.WriteLink(command.DisplayName, $"cli/commands/{command.Name}");
+                mw.WriteEndBulletItem();
+            }
+
+            mw.WriteLine();
+
+            string readmeLinksFilePath = Path.Combine(dataDirectoryPath, "readme_bottom.md");
+
+            if (File.Exists(readmeLinksFilePath))
+                mw.WriteRaw(File.ReadAllText(readmeLinksFilePath));
+
+            WriteFootNote(mw);
+
+            Console.WriteLine(filePath);
+        }
+
+        GenerateCommands(commands, destinationDirectoryPath, settings);
+
+        GenerateOptionValues(commands, destinationDirectoryPath, settings);
+
+        GenerateExpressionSyntax(destinationDirectoryPath, settings);
+
+        foreach (Command command in application.Commands)
+        {
+            filePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "cli/commands", $"{command.Name}.md"));
+
+            Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
+
+            using (var sw = new StreamWriter(filePath, append: false, Encoding.UTF8))
+            using (MarkdownWriter mw2 = MarkdownWriter.Create(sw, settings))
+            using (var mw = new DocusaurusMarkdownWriter(mw2))
+            {
+                var writer = new DocumentationWriter(mw);
+
+                WriteFrontMatter(mw, label: command.DisplayName);
+
+                writer.WriteCommandHeading(command, application);
+                writer.WriteCommandDescription(command);
+
+                writer.WriteCommandSynopsis(command, application);
+                writer.WriteArguments(command.Arguments);
+                writer.WriteOptions(command.Options);
+
+                string samplesFilePath = Path.Combine(dataDirectoryPath, command.Name + "_bottom.md");
+
+                if (File.Exists(samplesFilePath))
                 {
-                    IEnumerable<CommandOption> options = c.Options
-                        .Where(f => f.PropertyInfo.GetCustomAttribute<HideFromHelpAttribute>() == null)
-                        .OrderBy(f => f, CommandOptionComparer.Name);
-
-                    return c.WithOptions(options);
-                })
-                .OrderBy(c => c.Name, StringComparer.InvariantCulture);
-
-            var application = new CommandLineApplication(
-                "orang",
-                "Search, replace, rename and delete files and its content using the power of .NET regular expressions.",
-                commands.OrderBy(f => f.Name, StringComparer.InvariantCulture));
-
-            string? destinationDirectoryPath = null;
-            string? dataDirectoryPath = null;
-
-            if (Debugger.IsAttached)
-            {
-                destinationDirectoryPath = (args.Length > 0) ? args[0] : @"..\..\..\..\..\docs\cli";
-                dataDirectoryPath = @"..\..\..\data";
-            }
-            else
-            {
-                destinationDirectoryPath = args[0];
-                dataDirectoryPath = @"..\src\DocumentationGenerator\data";
-            }
-
-            string readmeFilePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "README.md"));
-
-            var settings = new MarkdownWriterSettings(
-                MarkdownFormat.Default.WithTableOptions(
-                    MarkdownFormat.Default.TableOptions | TableOptions.FormatHeaderAndContent));
-
-            using (var sw = new StreamWriter(readmeFilePath, append: false, Encoding.UTF8))
-            using (MarkdownWriter mw = MarkdownWriter.Create(sw, settings))
-            {
-                mw.WriteStartHeading(1);
-                mw.WriteString("Orang Command-Line Interface");
-                mw.WriteRaw(" <img align=\"left\" src=\"../../images/icon48.png\">");
-                mw.WriteEndHeading();
-                mw.WriteString(application.Description);
-                mw.WriteLine();
-
-                mw.WriteHeading2("Commands");
-
-                Table(
-                    TableRow("Command", "Description"),
-                    application
-                        .Commands
-                        .Select(f => TableRow(Link(f.DisplayName, f.Name + "-command.md"), f.Description)))
-                    .WriteTo(mw);
-
-                mw.WriteLine();
-
-                string readmeLinksFilePath = Path.Combine(dataDirectoryPath, "readme_bottom.md");
-
-                if (File.Exists(readmeLinksFilePath))
-                    mw.WriteRaw(File.ReadAllText(readmeLinksFilePath));
+                    string content = File.ReadAllText(samplesFilePath);
+                    mw.WriteRaw(content);
+                }
 
                 WriteFootNote(mw);
 
-                Console.WriteLine(readmeFilePath);
+                Console.WriteLine(filePath);
             }
+        }
+    }
 
-            string valuesFilePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "OptionValues.md"));
+    private static void GenerateCommands(IEnumerable<Command> commands, string destinationDirectoryPath, MarkdownWriterSettings settings)
+    {
+        string filePath = Path.Combine(destinationDirectoryPath, "cli/commands.md");
 
-            ImmutableArray<OptionValueProvider> providers = OptionValueProvider.GetProviders(
-                commands.SelectMany(f => f.Options),
-                OptionValueProviders.ProvidersByName.Select(f => f.Value))
-                .ToImmutableArray();
+        Directory.CreateDirectory(Path.GetDirectoryName(filePath)!);
 
-            MDocument document = Document(
-                Heading1("List of Option Values"),
-                BulletList(providers.Select(f => Link(
-                    f.Name,
-                    MarkdownHelpers.CreateGitHubHeadingLink(f.Name)))),
-                providers.Select(provider =>
-                {
-                    return new MObject[]
-                    {
-                        Heading2(provider.Name),
-                        Table(
-                            TableRow("Value", " ", "Description"),
-                            provider.Values.Select(f => CreateTableRow(f, providers)))
-                    };
-                }));
+        using (var sw = new StreamWriter(filePath, append: false, Encoding.UTF8))
+        using (MarkdownWriter mw2 = MarkdownWriter.Create(sw, settings))
+        using (var mw = new DocusaurusMarkdownWriter(mw2))
+        {
+            WriteFrontMatter(mw, 0, "Commands");
 
-            document.Add(
-                Heading2("Expression Syntax"),
-                Table(
-                    TableRow("Expression", "Description"),
-                    HelpProvider.GetExpressionItems(includeDate: true)
-                        .Select(f => TableRow(InlineCode(f.expression), f.description))));
+            mw.WriteHeading1("Commands");
 
-            AddFootnote(document);
+            Table(
+                TableRow("Command", "Description"),
+                commands.Select(f => TableRow(Link(f.DisplayName, $"commands/{f.Name}"), f.Description)))
+                .WriteTo(mw);
 
-            var markdownFormat = new MarkdownFormat(
-                tableOptions: MarkdownFormat.Default.TableOptions | TableOptions.FormatContent);
+            WriteFootNote(mw);
 
-            File.WriteAllText(valuesFilePath, document.ToString(markdownFormat));
+            Console.WriteLine(filePath);
+        }
+    }
 
-            foreach (Command command in application.Commands)
+    private static void GenerateOptionValues(
+        IEnumerable<Command> commands,
+        string destinationDirectoryPath,
+        MarkdownWriterSettings settings)
+    {
+        string filePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "cli/options-values.md"));
+
+        ImmutableArray<OptionValueProvider> providers = OptionValueProvider.GetProviders(
+            commands.SelectMany(f => f.Options),
+            OptionValueProviders.ProvidersByName.Select(f => f.Value))
+            .ToImmutableArray();
+
+        MDocument document = Document(
+            Heading1("List of Option Values"),
+            providers.Select(provider =>
             {
-                readmeFilePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, $"{command.Name}-command.md"));
-
-                using (var sw = new StreamWriter(readmeFilePath, append: false, Encoding.UTF8))
-                using (MarkdownWriter mw = MarkdownWriter.Create(sw))
+                return new MObject[]
                 {
-                    var writer = new DocumentationWriter(mw);
+                    Heading2(provider.Name),
+                    Table(
+                        TableRow("Value", "Shortcut", "Description"),
+                        provider.Values.Select(f => CreateTableRow(f, providers)))
+                };
+            }));
 
-                    writer.WriteCommandHeading(command, application);
-                    writer.WriteCommandDescription(command);
+        AddFootnote(document);
 
-                    mw.WriteLink("Home", "README.md#readme");
+        File.WriteAllText(filePath, document.ToString(settings));
+    }
 
-                    foreach (string section in new[] { "Synopsis", "Arguments", "Options", "Samples" })
-                    {
-                        mw.WriteString(" ");
-                        mw.WriteCharEntity((char)0x2022);
-                        mw.WriteString(" ");
-                        mw.WriteLink(section, "#" + section);
-                    }
+    private static void GenerateExpressionSyntax(
+        string destinationDirectoryPath,
+        MarkdownWriterSettings settings)
+    {
+        string filePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "cli/expression-syntax.md"));
 
-                    mw.WriteLine();
+        MDocument document = Document(
+            Heading1("Expression Syntax"),
+            Table(
+                TableRow("Expression", "Description"),
+                HelpProvider.GetExpressionItems(includeDate: true)
+                    .Select(f => TableRow(InlineCode(f.expression), f.description))));
 
-                    writer.WriteCommandSynopsis(command, application);
-                    writer.WriteArguments(command.Arguments);
-                    writer.WriteOptions(command.Options);
+        AddFootnote(document);
 
-                    string samplesFilePath = Path.Combine(dataDirectoryPath, command.Name + "_bottom.md");
+        File.WriteAllText(filePath, document.ToString(settings));
+    }
 
-                    if (File.Exists(samplesFilePath))
-                    {
-                        string content = File.ReadAllText(samplesFilePath);
-                        mw.WriteRaw(content);
-                    }
+    private static MTableRow CreateTableRow(
+        OptionValue optionValue,
+        ImmutableArray<OptionValueProvider> providers)
+    {
+        object? value = null;
+        string? shortValue = null;
 
-                    WriteFootNote(mw);
-
-                    Console.WriteLine(readmeFilePath);
+        switch (optionValue)
+        {
+            case SimpleOptionValue simpleOptionValue:
+                {
+                    value = simpleOptionValue.Value;
+                    shortValue = simpleOptionValue.ShortValue;
+                    break;
                 }
-            }
+            case KeyValuePairOptionValue keyValuePairOptionValue:
+                {
+                    string value2 = keyValuePairOptionValue.Value;
 
-            Console.WriteLine("Done");
-
-            if (Debugger.IsAttached)
-                Console.ReadKey();
-        }
-
-        private static MTableRow CreateTableRow(
-            OptionValue optionValue,
-            ImmutableArray<OptionValueProvider> providers)
-        {
-            object? value = null;
-            string? shortValue = null;
-
-            switch (optionValue)
-            {
-                case SimpleOptionValue simpleOptionValue:
+                    if (OptionValueProvider.MetaValueRegex.IsMatch(value2)
+                        && providers.Any(f => f.Name == value2))
                     {
-                        value = simpleOptionValue.Value;
-                        shortValue = simpleOptionValue.ShortValue;
-                        break;
+                        value = Inline(
+                            $"{keyValuePairOptionValue.Key}=",
+                            Link(value2, MarkdownHelpers.CreateGitHubHeadingLink(value2)));
                     }
-                case KeyValuePairOptionValue keyValuePairOptionValue:
+                    else
                     {
-                        string value2 = keyValuePairOptionValue.Value;
-
-                        if (OptionValueProvider.MetaValueRegex.IsMatch(value2)
-                            && providers.Any(f => f.Name == value2))
-                        {
-                            value = Inline(
-                                $"{keyValuePairOptionValue.Key}=",
-                                Link(value2, MarkdownHelpers.CreateGitHubHeadingLink(value2)));
-                        }
-                        else
-                        {
-                            value = $"{keyValuePairOptionValue.Key}={value2}";
-                        }
-
-                        shortValue = keyValuePairOptionValue.ShortKey;
-                        break;
+                        value = $"{keyValuePairOptionValue.Key}={value2}";
                     }
-            }
 
-            string description = _removeNewlineRegex.Replace(optionValue.Description ?? "", " ");
-
-            return TableRow(
-                value,
-                (string.IsNullOrEmpty(shortValue)) ? " " : shortValue,
-                (string.IsNullOrEmpty(description)) ? " " : description);
+                    shortValue = keyValuePairOptionValue.ShortKey;
+                    break;
+                }
         }
 
-        private static void WriteFootNote(MarkdownWriter mw)
-        {
-            mw.WriteLine();
-            mw.WriteStartItalic();
-            mw.WriteString("(Generated with ");
-            mw.WriteLink("DotMarkdown", "http://github.com/JosefPihrt/DotMarkdown");
-            mw.WriteString(")");
-            mw.WriteEndItalic();
-        }
+        string description = _removeNewlineRegex.Replace(optionValue.Description ?? "", " ");
 
-        private static void AddFootnote(MDocument document)
+        return TableRow(
+            value!,
+            (string.IsNullOrEmpty(shortValue)) ? " " : shortValue,
+            (string.IsNullOrEmpty(description)) ? " " : description);
+    }
+
+#pragma warning disable IDE0060, RCS1163
+    private static void WriteFootNote(MarkdownWriter mw)
+    {
+    }
+
+    private static void AddFootnote(MDocument document)
+    {
+    }
+#pragma warning restore IDE0060, RCS1163
+
+    private static void WriteFrontMatter(DocusaurusMarkdownWriter mw, int? position = null, string? label = null)
+    {
+        if (position is not null
+            || label is not null)
         {
-            document.Add(Italic("(Generated with ", Link("DotMarkdown", "http://github.com/JosefPihrt/DotMarkdown"), ")"));
+            var items = new List<(string, object)>();
+
+            if (position is not null)
+                items.Add(("sidebar_position", position));
+
+            if (label is not null)
+                items.Add(("sidebar_label", label));
+
+            mw.WriteDocusaurusFrontMatter(items);
         }
     }
 }

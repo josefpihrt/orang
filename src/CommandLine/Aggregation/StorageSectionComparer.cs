@@ -4,39 +4,38 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Orang.FileSystem;
 
-namespace Orang.Aggregation
+namespace Orang.Aggregation;
+
+internal abstract class StorageSectionComparer : IComparer<StorageSection>, IEqualityComparer<StorageSection>
 {
-    internal abstract class StorageSectionComparer : IComparer<StorageSection>, IEqualityComparer<StorageSection>
+    public static StorageSectionComparer Path { get; } = new PathStorageSectionComparer();
+
+    public abstract int Compare([AllowNull] StorageSection x, [AllowNull] StorageSection y);
+
+    public abstract bool Equals([AllowNull] StorageSection x, [AllowNull] StorageSection y);
+
+    public abstract int GetHashCode([DisallowNull] StorageSection obj);
+
+    private class PathStorageSectionComparer : StorageSectionComparer
     {
-        public static StorageSectionComparer Path { get; } = new PathStorageSectionComparer();
-
-        public abstract int Compare([AllowNull] StorageSection x, [AllowNull] StorageSection y);
-
-        public abstract bool Equals([AllowNull] StorageSection x, [AllowNull] StorageSection y);
-
-        public abstract int GetHashCode([DisallowNull] StorageSection obj);
-
-        private class PathStorageSectionComparer : StorageSectionComparer
+        public override int Compare([AllowNull] StorageSection x, [AllowNull] StorageSection y)
         {
-            public override int Compare([AllowNull] StorageSection x, [AllowNull] StorageSection y)
-            {
-                return FileSystemHelpers.Comparer.Compare(x.FileMatch?.Path, y.FileMatch?.Path);
-            }
+            return FileSystemUtilities.Comparer.Compare(x.FileMatch?.Path, y.FileMatch?.Path);
+        }
 
-            public override bool Equals([AllowNull] StorageSection x, [AllowNull] StorageSection y)
-            {
-                return FileSystemHelpers.Comparer.Equals(x.FileMatch?.Path, y.FileMatch?.Path);
-            }
+        public override bool Equals([AllowNull] StorageSection x, [AllowNull] StorageSection y)
+        {
+            return FileSystemUtilities.Comparer.Equals(x.FileMatch?.Path, y.FileMatch?.Path);
+        }
 
-            public override int GetHashCode([DisallowNull] StorageSection obj)
-            {
-                string? path = obj.FileMatch?.Path;
+        public override int GetHashCode([DisallowNull] StorageSection obj)
+        {
+            string? path = obj.FileMatch?.Path;
 
-                if (path == null)
-                    return 0;
+            if (path is null)
+                return 0;
 
-                return FileSystemHelpers.Comparer.GetHashCode(path);
-            }
+            return FileSystemUtilities.Comparer.GetHashCode(path);
         }
     }
 }

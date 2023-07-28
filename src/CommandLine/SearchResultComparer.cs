@@ -4,191 +4,190 @@ using System;
 using System.Collections.Generic;
 using Orang.FileSystem;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+internal abstract class SearchResultComparer : Comparer<SearchResult>
 {
-    internal abstract class SearchResultComparer : Comparer<SearchResult>
+    public static SearchResultComparer Name { get; } = new SearchResultNameComparer(cultureInvariant: false);
+
+    public static SearchResultComparer Name_CultureInvariant { get; } = new SearchResultNameComparer(cultureInvariant: true);
+
+    public static SearchResultComparer CreationTime { get; } = new SearchResultCreationTimeComparer();
+
+    public static SearchResultComparer ModifiedTime { get; } = new SearchResultModifiedTimeComparer();
+
+    public static SearchResultComparer Size { get; } = new SearchResultSizeComparer();
+
+    public static SearchResultComparer Match { get; } = new SearchResultMatchComparer(cultureInvariant: false);
+
+    public static SearchResultComparer Match_CultureInvariant { get; } = new SearchResultMatchComparer(cultureInvariant: true);
+
+    public override abstract int Compare(SearchResult? x, SearchResult? y);
+
+    private class SearchResultNameComparer : SearchResultComparer
     {
-        public static SearchResultComparer Name { get; } = new SearchResultNameComparer(cultureInvariant: false);
-
-        public static SearchResultComparer Name_CultureInvariant { get; } = new SearchResultNameComparer(cultureInvariant: true);
-
-        public static SearchResultComparer CreationTime { get; } = new SearchResultCreationTimeComparer();
-
-        public static SearchResultComparer ModifiedTime { get; } = new SearchResultModifiedTimeComparer();
-
-        public static SearchResultComparer Size { get; } = new SearchResultSizeComparer();
-
-        public static SearchResultComparer Match { get; } = new SearchResultMatchComparer(cultureInvariant: false);
-
-        public static SearchResultComparer Match_CultureInvariant { get; } = new SearchResultMatchComparer(cultureInvariant: true);
-
-        public override abstract int Compare(SearchResult? x, SearchResult? y);
-
-        private class SearchResultNameComparer : SearchResultComparer
+        public SearchResultNameComparer(bool cultureInvariant)
         {
-            public SearchResultNameComparer(bool cultureInvariant)
+            StringComparison = (cultureInvariant) ? StringComparison.InvariantCulture : StringComparison.CurrentCulture;
+        }
+
+        public StringComparison StringComparison { get; }
+
+        public override int Compare(SearchResult? x, SearchResult? y)
+        {
+            if (object.ReferenceEquals(x, y))
+                return 0;
+
+            if (x is null)
+                return -1;
+
+            if (y is null)
+                return 1;
+
+            string path1 = x.Path;
+            string path2 = y.Path;
+
+            int i1 = -1;
+            int i2 = -1;
+
+            while (true)
             {
-                StringComparison = (cultureInvariant) ? StringComparison.InvariantCulture : StringComparison.CurrentCulture;
-            }
+                int l1 = FileSystemUtilities.IndexOfDirectorySeparator(path1, ++i1) - i1;
+                int l2 = FileSystemUtilities.IndexOfDirectorySeparator(path2, ++i2) - i2;
 
-            public StringComparison StringComparison { get; }
+                bool isLast1 = i1 + l1 == path1.Length;
+                bool isLast2 = i2 + l2 == path2.Length;
 
-            public override int Compare(SearchResult? x, SearchResult? y)
-            {
-                if (object.ReferenceEquals(x, y))
-                    return 0;
-
-                if (x == null)
-                    return -1;
-
-                if (y == null)
-                    return 1;
-
-                string path1 = x.Path;
-                string path2 = y.Path;
-
-                int i1 = -1;
-                int i2 = -1;
-
-                while (true)
+                if (isLast1)
                 {
-                    int l1 = FileSystemHelpers.IndexOfDirectorySeparator(path1, ++i1) - i1;
-                    int l2 = FileSystemHelpers.IndexOfDirectorySeparator(path2, ++i2) - i2;
-
-                    bool isLast1 = i1 + l1 == path1.Length;
-                    bool isLast2 = i2 + l2 == path2.Length;
-
-                    if (isLast1)
+                    if (isLast2)
                     {
-                        if (isLast2)
+                        if (x.IsDirectory)
                         {
-                            if (x.IsDirectory)
-                            {
-                                if (!y.IsDirectory)
-                                    return -1;
-                            }
-                            else if (y.IsDirectory)
-                            {
-                                return 1;
-                            }
+                            if (!y.IsDirectory)
+                                return -1;
                         }
-                        else if (!x.IsDirectory)
+                        else if (y.IsDirectory)
                         {
                             return 1;
                         }
                     }
-                    else if (isLast2
-                        && !y.IsDirectory)
+                    else if (!x.IsDirectory)
                     {
-                        return -1;
-                    }
-
-                    int diff = string.Compare(path1, i1, path2, i2, Math.Min(l1, l2), StringComparison);
-
-                    if (diff != 0)
-                        return diff;
-
-                    if (l1 != l2)
-                    {
-                        diff = l1 - l2;
-
-                        if (diff != 0)
-                            return diff;
-                    }
-
-                    i1 += l1;
-                    i2 += l2;
-
-                    if (isLast1)
-                        return (isLast2) ? 0 : -1;
-
-                    if (isLast2)
                         return 1;
+                    }
                 }
-            }
-        }
-
-        private class SearchResultCreationTimeComparer : SearchResultComparer
-        {
-            public override int Compare(SearchResult? x, SearchResult? y)
-            {
-                if (object.ReferenceEquals(x, y))
-                    return 0;
-
-                if (x == null)
+                else if (isLast2
+                    && !y.IsDirectory)
+                {
                     return -1;
+                }
 
-                if (y == null)
-                    return 1;
-
-                return x.FileSystemInfo.CreationTime.CompareTo(y.FileSystemInfo.CreationTime);
-            }
-        }
-
-        private class SearchResultModifiedTimeComparer : SearchResultComparer
-        {
-            public override int Compare(SearchResult? x, SearchResult? y)
-            {
-                if (object.ReferenceEquals(x, y))
-                    return 0;
-
-                if (x == null)
-                    return -1;
-
-                if (y == null)
-                    return 1;
-
-                return x.FileSystemInfo.LastWriteTime.CompareTo(y.FileSystemInfo.LastWriteTime);
-            }
-        }
-
-        private class SearchResultSizeComparer : SearchResultComparer
-        {
-            public override int Compare(SearchResult? x, SearchResult? y)
-            {
-                if (object.ReferenceEquals(x, y))
-                    return 0;
-
-                if (x == null)
-                    return -1;
-
-                if (y == null)
-                    return 1;
-
-                int diff = x.GetSize().CompareTo(y.GetSize());
+                int diff = string.Compare(path1, i1, path2, i2, Math.Min(l1, l2), StringComparison);
 
                 if (diff != 0)
                     return diff;
 
-                return Name.Compare(x, y);
+                if (l1 != l2)
+                {
+                    diff = l1 - l2;
+
+                    if (diff != 0)
+                        return diff;
+                }
+
+                i1 += l1;
+                i2 += l2;
+
+                if (isLast1)
+                    return (isLast2) ? 0 : -1;
+
+                if (isLast2)
+                    return 1;
             }
         }
+    }
 
-        private class SearchResultMatchComparer : SearchResultComparer
+    private class SearchResultCreationTimeComparer : SearchResultComparer
+    {
+        public override int Compare(SearchResult? x, SearchResult? y)
         {
-            public SearchResultMatchComparer(bool cultureInvariant)
-            {
-                StringComparison = (cultureInvariant) ? StringComparison.InvariantCulture : StringComparison.CurrentCulture;
-            }
+            if (object.ReferenceEquals(x, y))
+                return 0;
 
-            public StringComparison StringComparison { get; }
+            if (x is null)
+                return -1;
 
-            public override int Compare(SearchResult? x, SearchResult? y)
-            {
-                if (object.ReferenceEquals(x, y))
-                    return 0;
+            if (y is null)
+                return 1;
 
-                if (x == null)
-                    return -1;
+            return x.FileSystemInfo.CreationTime.CompareTo(y.FileSystemInfo.CreationTime);
+        }
+    }
 
-                if (y == null)
-                    return 1;
+    private class SearchResultModifiedTimeComparer : SearchResultComparer
+    {
+        public override int Compare(SearchResult? x, SearchResult? y)
+        {
+            if (object.ReferenceEquals(x, y))
+                return 0;
 
-                return string.Compare(
-                    x.FileMatch.NameMatch!.Value,
-                    y.FileMatch.NameMatch!.Value,
-                    StringComparison);
-            }
+            if (x is null)
+                return -1;
+
+            if (y is null)
+                return 1;
+
+            return x.FileSystemInfo.LastWriteTime.CompareTo(y.FileSystemInfo.LastWriteTime);
+        }
+    }
+
+    private class SearchResultSizeComparer : SearchResultComparer
+    {
+        public override int Compare(SearchResult? x, SearchResult? y)
+        {
+            if (object.ReferenceEquals(x, y))
+                return 0;
+
+            if (x is null)
+                return -1;
+
+            if (y is null)
+                return 1;
+
+            int diff = x.GetSize().CompareTo(y.GetSize());
+
+            if (diff != 0)
+                return diff;
+
+            return Name.Compare(x, y);
+        }
+    }
+
+    private class SearchResultMatchComparer : SearchResultComparer
+    {
+        public SearchResultMatchComparer(bool cultureInvariant)
+        {
+            StringComparison = (cultureInvariant) ? StringComparison.InvariantCulture : StringComparison.CurrentCulture;
+        }
+
+        public StringComparison StringComparison { get; }
+
+        public override int Compare(SearchResult? x, SearchResult? y)
+        {
+            if (object.ReferenceEquals(x, y))
+                return 0;
+
+            if (x is null)
+                return -1;
+
+            if (y is null)
+                return 1;
+
+            return string.Compare(
+                x.FileMatch.Name!.Value,
+                y.FileMatch.Name!.Value,
+                StringComparison);
         }
     }
 }

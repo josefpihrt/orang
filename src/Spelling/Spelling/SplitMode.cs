@@ -2,14 +2,13 @@
 
 using System;
 
-namespace Orang.Spelling
+namespace Orang.Spelling;
+
+[Flags]
+public enum SplitMode
 {
-    [Flags]
-    public enum SplitMode
-    {
-        None = 0,
-        Case = 1,
-        Hyphen = 1 << 1,
-        CaseAndHyphen = Case | Hyphen,
-    }
+    None = 0,
+    Case = 1,
+    Hyphen = 1 << 1,
+    CaseAndHyphen = Case | Hyphen,
 }

@@ -9,523 +9,628 @@ using System.Text;
 using System.Threading;
 using Orang.FileSystem;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> where TOptions : FileSystemCommandOptions
 {
-    internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> where TOptions : FileSystemCommandOptions
+    protected FileSystemCommand(TOptions options, Logger logger) : base(options, logger)
     {
-        protected FileSystemCommand(TOptions options, Logger logger) : base(options, logger)
+    }
+
+    private SearchState? _search;
+    private ProgressReporter? _progressReporter;
+
+    protected SearchState Search => _search ??= CreateSearch();
+
+    private ProgressReporter? ProgressReporter => _progressReporter ??= CreateProgressReporter();
+
+    public Matcher? NameFilter => Options.NameFilter;
+
+    protected virtual bool CanDisplaySummary => true;
+
+    public virtual bool CanEndProgress => !Options.OmitPath;
+
+    public virtual bool CanUseResults => true;
+
+    protected virtual void OnSearchCreating(SearchState search)
+    {
+    }
+
+    private SearchState CreateSearch()
+    {
+        FilePropertyOptions properties = Options.FilePropertyOptions;
+        Func<FileInfo, bool>? filePredicate = null;
+        Func<DirectoryInfo, bool>? directoryPredicate = null;
+
+        if (Options.SearchTarget == SearchTarget.Directories)
         {
-        }
-
-        private FileSystemSearch? _search;
-        private ProgressReporter? _progressReporter;
-
-        protected FileSystemSearch Search => _search ??= CreateSearch();
-
-        private ProgressReporter? ProgressReporter => _progressReporter ??= CreateProgressReporter();
-
-        public Filter? NameFilter => Options.NameFilter;
-
-        protected virtual bool CanDisplaySummary => true;
-
-        public virtual bool CanEndProgress => !Options.OmitPath;
-
-        public virtual bool CanUseResults => true;
-
-        protected virtual void OnSearchCreating(FileSystemSearch search)
-        {
-        }
-
-        private FileSystemSearch CreateSearch()
-        {
-            var filter = new FileSystemFilter(
-                name: Options.NameFilter,
-                part: Options.NamePart,
-                extension: Options.ExtensionFilter,
-                content: Options.ContentFilter,
-                properties: new FilePropertyFilter(
-                    Options.FilePropertyOptions.CreationTimePredicate,
-                    Options.FilePropertyOptions.ModifiedTimePredicate,
-                    Options.FilePropertyOptions.SizePredicate),
-                attributes: Options.Attributes,
-                attributesToSkip: Options.AttributesToSkip,
-                emptyOption: Options.EmptyOption);
-
-            var directoryFilters = new List<NameFilter>();
-
-            if (Options.DirectoryFilter != null)
+            if (properties.CreationTimePredicate is not null)
             {
-                var directoryFilter = new NameFilter(
-                    name: Options.DirectoryFilter,
-                    part: Options.DirectoryNamePart);
-
-                directoryFilters.Add(directoryFilter);
-            }
-
-            NameFilter? additionalDirectoryFilter = CreateAdditionalDirectoryFilter();
-
-            if (additionalDirectoryFilter != null)
-                directoryFilters.Add(additionalDirectoryFilter);
-
-            var options = new FileSystemSearchOptions(
-                searchTarget: Options.SearchTarget,
-                recurseSubdirectories: Options.RecurseSubdirectories,
-                minDirectoryDepth: Options.MinDirectoryDepth,
-                maxDirectoryDepth: Options.MaxDirectoryDepth,
-                defaultEncoding: Options.DefaultEncoding);
-
-            var search = new FileSystemSearch(
-                filter: filter,
-                directoryFilters: directoryFilters,
-                searchProgress: ProgressReporter,
-                options: options);
-
-            OnSearchCreating(search);
-
-            return search;
-        }
-
-        protected virtual NameFilter? CreateAdditionalDirectoryFilter()
-        {
-            return null;
-        }
-
-        protected abstract void ExecuteDirectory(string directoryPath, SearchContext context);
-
-        protected abstract void ExecuteFile(string filePath, SearchContext context);
-
-        protected abstract void ExecuteMatchCore(
-            FileMatch fileMatch,
-            SearchContext context,
-            string? baseDirectoryPath,
-            ColumnWidths? columnWidths);
-
-        protected abstract void ExecuteResult(SearchResult result, SearchContext context, ColumnWidths? columnWidths);
-
-        protected abstract void WriteSummary(SearchTelemetry telemetry, Verbosity verbosity);
-
-        protected virtual void WriteBeforeSummary()
-        {
-        }
-
-        protected sealed override CommandResult ExecuteCore(CancellationToken cancellationToken = default)
-        {
-            List<SearchResult>? results = null;
-
-            if (CanUseResults)
-            {
-                if (Options.SortOptions != null)
+                if (properties.ModifiedTimePredicate is not null)
                 {
-                    results = new List<SearchResult>();
+                    directoryPredicate = di => properties.CreationTimePredicate(di.CreationTime)
+                        && properties.ModifiedTimePredicate(di.LastWriteTime);
                 }
-                else if (Options.AlignColumns
-                    && !Options.FilePropertyOptions.IsEmpty)
+                else
                 {
-                    results = new List<SearchResult>();
+                    directoryPredicate = di => properties.CreationTimePredicate(di.CreationTime);
                 }
             }
-
-            var context = new SearchContext(
-                new SearchTelemetry(),
-                progress: ProgressReporter,
-                results: results,
-                cancellationToken: cancellationToken);
-
-            ExecuteCore(context);
-
-            if (context.TerminationReason == TerminationReason.Canceled)
-                return CommandResult.Canceled;
-
-            return (context.Telemetry.MatchingFileCount > 0 || context.Telemetry.MatchCount > 0)
-                ? CommandResult.Success
-                : CommandResult.NoMatch;
-        }
-
-        private ProgressReporter? CreateProgressReporter()
-        {
-            ProgressReportMode consoleReportMode;
-            if (_logger.ConsoleOut.ShouldWrite(Verbosity.Diagnostic))
+            else if (properties.ModifiedTimePredicate is not null)
             {
-                consoleReportMode = ProgressReportMode.Path;
+                directoryPredicate = di => properties.ModifiedTimePredicate(di.LastWriteTime);
             }
-            else if (Options.Progress)
+        }
+        else if (properties.CreationTimePredicate is not null)
+        {
+            if (properties.ModifiedTimePredicate is not null)
             {
-                consoleReportMode = ProgressReportMode.Dot;
+                if (properties.SizePredicate is not null)
+                {
+                    filePredicate = fi => properties.CreationTimePredicate(fi.CreationTime)
+                        && properties.ModifiedTimePredicate(fi.LastWriteTime)
+                        && properties.SizePredicate(fi.Length);
+                }
+                else
+                {
+                    filePredicate = fi => properties.CreationTimePredicate(fi.CreationTime)
+                        && properties.ModifiedTimePredicate(fi.LastWriteTime);
+                }
+            }
+            else if (properties.SizePredicate is not null)
+            {
+                filePredicate = fi => properties.CreationTimePredicate(fi.CreationTime)
+                    && properties.SizePredicate(fi.Length);
             }
             else
             {
-                consoleReportMode = ProgressReportMode.None;
+                filePredicate = fi => properties.CreationTimePredicate(fi.CreationTime);
             }
-
-            ProgressReportMode fileReportMode;
-            if (_logger.Out?.ShouldWrite(Verbosity.Diagnostic) == true)
+        }
+        else if (properties.ModifiedTimePredicate is not null)
+        {
+            if (properties.SizePredicate is not null)
             {
-                fileReportMode = ProgressReportMode.Path;
+                filePredicate = fi => properties.ModifiedTimePredicate(fi.LastWriteTime)
+                    && properties.SizePredicate(fi.Length);
             }
             else
             {
-                fileReportMode = ProgressReportMode.None;
+                filePredicate = fi => properties.ModifiedTimePredicate(fi.LastWriteTime);
             }
-
-            if (fileReportMode == ProgressReportMode.None)
-            {
-                if (consoleReportMode == ProgressReportMode.None)
-                {
-                    return (ShouldWriteSummary()) ? new ProgressReporter(GetPathIndent(), _logger) : null;
-                }
-                else if (consoleReportMode == ProgressReportMode.Dot)
-                {
-                    return new DotProgressReporter(GetPathIndent(), _logger);
-                }
-            }
-
-            return new DiagnosticProgressReporter(consoleReportMode, fileReportMode, Options, GetPathIndent(), _logger);
+        }
+        else if (properties.SizePredicate is not null)
+        {
+            filePredicate = fi => properties.SizePredicate(fi.Length);
         }
 
-        protected virtual void ExecuteCore(SearchContext context)
+        FileMatcher? fileMatcher = null;
+        DirectoryMatcher? directoryMatcher = null;
+
+        if (Options.SearchTarget != SearchTarget.Directories)
         {
-            var canceled = false;
-            Stopwatch stopwatch = Stopwatch.StartNew();
-
-            foreach (PathInfo pathInfo in Options.Paths)
+            fileMatcher = new FileMatcher()
             {
-                ExecuteCore(pathInfo.Path, context);
+                Name = Options.NameFilter,
+                NamePart = Options.NamePart,
+                Extension = Options.ExtensionFilter,
+                Content = Options.ContentFilter,
+                MatchFileInfo = filePredicate,
+                WithAttributes = Options.Attributes,
+                WithoutAttributes = Options.AttributesToSkip,
+                EmptyOption = Options.EmptyOption
+            };
+        }
 
-                if (context.TerminationReason == TerminationReason.MaxReached)
-                    break;
+        if (Options.SearchTarget != SearchTarget.Files)
+        {
+            directoryMatcher = new DirectoryMatcher()
+            {
+                Name = Options.NameFilter,
+                NamePart = Options.NamePart,
+                MatchDirectoryInfo = directoryPredicate,
+                WithAttributes = Options.Attributes,
+                WithoutAttributes = Options.AttributesToSkip,
+                EmptyOption = Options.EmptyOption
+            };
+        }
 
-                if (context.TerminationReason == TerminationReason.Canceled
-                    || context.CancellationToken.IsCancellationRequested)
-                {
-                    canceled = true;
-                    OperationCanceled();
-                    break;
-                }
+        Func<string, bool>? includeDirectory = null;
+        Func<string, bool>? excludeDirectory = null;
+
+        Matcher? directoryFilter = Options.DirectoryFilter;
+
+        if (directoryFilter is not null)
+        {
+            if (directoryFilter.Invert)
+            {
+                excludeDirectory = DirectoryPredicate.Create(directoryFilter, Options.DirectoryNamePart);
             }
-
-            if (context.Results != null)
+            else
             {
-                if (context.Progress?.ProgressReported == true
-                    && _logger.ConsoleOut.Verbosity >= Verbosity.Minimal)
-                {
-                    _logger.ConsoleOut.WriteLine();
-                    context.Progress.ProgressReported = false;
-                }
-
-                if (!canceled
-                    && context.Results.Count > 0)
-                {
-                    ExecuteResults(context);
-                }
-            }
-
-            stopwatch.Stop();
-
-            WriteBeforeSummary();
-
-            if (ShouldWriteSummary())
-            {
-                if (context.Progress != null)
-                {
-                    context.Telemetry.SearchedDirectoryCount = context.Progress.SearchedDirectoryCount;
-                    context.Telemetry.FileCount = context.Progress.FileCount;
-                    context.Telemetry.DirectoryCount = context.Progress.DirectoryCount;
-                }
-
-                context.Telemetry.Elapsed = stopwatch.Elapsed;
-
-                WriteSummary(context.Telemetry, (Options.IncludeSummary) ? Verbosity.Quiet : Verbosity.Detailed);
+                includeDirectory = DirectoryPredicate.Create(directoryFilter, Options.DirectoryNamePart);
             }
         }
 
-        protected bool ShouldWriteSummary()
+        includeDirectory = CombinePredicates(includeDirectory, CreateIncludeDirectoryPredicate());
+        excludeDirectory = CombinePredicates(excludeDirectory, CreateExcludeDirectoryPredicate());
+
+        var search = new SearchState(fileMatcher, directoryMatcher)
         {
-            if (CanDisplaySummary)
+            IncludeDirectory = includeDirectory,
+            ExcludeDirectory = excludeDirectory,
+            LogProgress = (ProgressReporter is not null) ? p => ProgressReporter.Report(p) : null,
+            RecurseSubdirectories = Options.RecurseSubdirectories,
+            DefaultEncoding = Options.DefaultEncoding,
+            MinDirectoryDepth = Options.MinDirectoryDepth,
+            MaxDirectoryDepth = Options.MaxDirectoryDepth,
+        };
+
+        OnSearchCreating(search);
+
+        return search;
+
+        static Func<string, bool>? CombinePredicates(Func<string, bool>? predicate, Func<string, bool>? predicate2)
+        {
+            if (predicate is not null)
             {
-                if (_logger.ShouldWrite(Verbosity.Detailed)
-                    || Options.IncludeSummary)
+                if (predicate2 is not null)
                 {
-                    return true;
+                    return path => predicate(path) && predicate2(path);
                 }
+
+                return predicate;
             }
 
-            return false;
+            return predicate2;
+        }
+    }
+
+    protected virtual Func<string, bool>? CreateIncludeDirectoryPredicate(Func<string, bool>? predicate = null)
+    {
+        return predicate;
+    }
+
+    protected virtual Func<string, bool>? CreateExcludeDirectoryPredicate(Func<string, bool>? predicate = null)
+    {
+        return predicate;
+    }
+
+    protected abstract void ExecuteDirectory(string directoryPath, SearchContext context);
+
+    protected abstract void ExecuteFile(string filePath, SearchContext context);
+
+    protected abstract void ExecuteMatchCore(
+        FileMatch fileMatch,
+        SearchContext context,
+        string? baseDirectoryPath,
+        ColumnWidths? columnWidths);
+
+    protected abstract void ExecuteResult(SearchResult result, SearchContext context, ColumnWidths? columnWidths);
+
+    protected abstract void WriteSummary(SearchTelemetry telemetry, Verbosity verbosity);
+
+    protected virtual void WriteBeforeSummary()
+    {
+    }
+
+    protected sealed override CommandResult ExecuteCore(CancellationToken cancellationToken = default)
+    {
+        List<SearchResult>? results = null;
+
+        if (CanUseResults)
+        {
+            if (Options.SortOptions is not null)
+            {
+                results = new List<SearchResult>();
+            }
+            else if (Options.AlignColumns
+                && !Options.FilePropertyOptions.IsEmpty)
+            {
+                results = new List<SearchResult>();
+            }
         }
 
-        private void ExecuteResults(SearchContext context)
+        var context = new SearchContext(
+            new SearchTelemetry(),
+            progress: ProgressReporter,
+            results: results,
+            cancellationToken: cancellationToken);
+
+        ExecuteCore(context);
+
+        if (context.TerminationReason == TerminationReason.Canceled)
+            return CommandResult.Canceled;
+
+        return (context.Telemetry.MatchingFileCount > 0 || context.Telemetry.MatchCount > 0)
+            ? CommandResult.Success
+            : CommandResult.NoMatch;
+    }
+
+    private ProgressReporter? CreateProgressReporter()
+    {
+        ProgressReportMode consoleReportMode;
+        if (_logger.ConsoleOut.ShouldWrite(Verbosity.Diagnostic))
         {
-            IEnumerable<SearchResult> results = context.Results!;
-            SortOptions? sortOptions = Options.SortOptions;
+            consoleReportMode = ProgressReportMode.Path;
+        }
+        else if (Options.Progress)
+        {
+            consoleReportMode = ProgressReportMode.Dot;
+        }
+        else
+        {
+            consoleReportMode = ProgressReportMode.None;
+        }
 
-            if (sortOptions?.Descriptors.Any() == true)
+        ProgressReportMode fileReportMode;
+        if (_logger.Out?.ShouldWrite(Verbosity.Diagnostic) == true)
+        {
+            fileReportMode = ProgressReportMode.Path;
+        }
+        else
+        {
+            fileReportMode = ProgressReportMode.None;
+        }
+
+        if (fileReportMode == ProgressReportMode.None)
+        {
+            if (consoleReportMode == ProgressReportMode.None)
             {
-                PathDisplayStyle pathDisplayStyle = Options.PathDisplayStyle;
+                return (ShouldWriteSummary()) ? new ProgressReporter(GetPathIndent(), _logger) : null;
+            }
+            else if (consoleReportMode == ProgressReportMode.Dot)
+            {
+                return new DotProgressReporter(GetPathIndent(), _logger);
+            }
+        }
 
-                if (pathDisplayStyle == PathDisplayStyle.Match
-                    && NameFilter == null)
-                {
-                    pathDisplayStyle = PathDisplayStyle.Full;
-                }
+        return new DiagnosticProgressReporter(consoleReportMode, fileReportMode, Options, GetPathIndent(), _logger);
+    }
 
-                results = SortHelpers.SortResults(context.Results!, sortOptions, pathDisplayStyle);
+    protected virtual void ExecuteCore(SearchContext context)
+    {
+        var canceled = false;
+        Stopwatch stopwatch = Stopwatch.StartNew();
 
-                if (sortOptions.MaxCount > 0)
-                    results = results.Take(sortOptions.MaxCount);
+        foreach (PathInfo pathInfo in Options.Paths)
+        {
+            ExecuteCore(pathInfo.Path, context);
+
+            if (context.TerminationReason == TerminationReason.MaxReached)
+                break;
+
+            if (context.TerminationReason == TerminationReason.Canceled
+                || context.CancellationToken.IsCancellationRequested)
+            {
+                canceled = true;
+                OperationCanceled();
+                break;
+            }
+        }
+
+        if (context.Results is not null)
+        {
+            if (context.Progress?.ProgressReported == true
+                && _logger.ConsoleOut.Verbosity >= Verbosity.Minimal)
+            {
+                _logger.ConsoleOut.WriteLine();
+                context.Progress.ProgressReported = false;
             }
 
-            ColumnWidths? columnWidths = null;
-
-            if (!Options.FilePropertyOptions.IsEmpty
-                && Options.AlignColumns)
+            if (!canceled
+                && context.Results.Count > 0)
             {
-                List<SearchResult> resultList = results.ToList();
+                ExecuteResults(context);
+            }
+        }
 
-                int maxNameWidth = resultList.Max(f => f.Path.Length);
-                int maxSizeWidth = 0;
+        stopwatch.Stop();
 
-                if (Options.FilePropertyOptions.IncludeSize)
+        WriteBeforeSummary();
+
+        if (ShouldWriteSummary())
+        {
+            if (context.Progress is not null)
+            {
+                context.Telemetry.SearchedDirectoryCount = context.Progress.SearchedDirectoryCount;
+                context.Telemetry.FileCount = context.Progress.FileCount;
+                context.Telemetry.DirectoryCount = context.Progress.DirectoryCount;
+            }
+
+            context.Telemetry.Elapsed = stopwatch.Elapsed;
+
+            WriteSummary(context.Telemetry, (Options.IncludeSummary) ? Verbosity.Quiet : Verbosity.Detailed);
+        }
+    }
+
+    protected bool ShouldWriteSummary()
+    {
+        if (CanDisplaySummary)
+        {
+            if (_logger.ShouldWrite(Verbosity.Detailed)
+                || Options.IncludeSummary)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void ExecuteResults(SearchContext context)
+    {
+        IEnumerable<SearchResult> results = context.Results!;
+        SortOptions? sortOptions = Options.SortOptions;
+
+        if (sortOptions?.Descriptors.Any() == true)
+        {
+            PathDisplayStyle pathDisplayStyle = Options.PathDisplayStyle;
+
+            if (pathDisplayStyle == PathDisplayStyle.Match
+                && NameFilter is null)
+            {
+                pathDisplayStyle = PathDisplayStyle.Full;
+            }
+
+            results = SortHelpers.SortResults(context.Results!, sortOptions, pathDisplayStyle);
+
+            if (sortOptions.MaxCount > 0)
+                results = results.Take(sortOptions.MaxCount);
+        }
+
+        ColumnWidths? columnWidths = null;
+
+        if (!Options.FilePropertyOptions.IsEmpty
+            && Options.AlignColumns)
+        {
+            List<SearchResult> resultList = results.ToList();
+
+            int maxNameWidth = resultList.Max(f => f.Path.Length);
+            int maxSizeWidth = 0;
+
+            if (Options.FilePropertyOptions.IncludeSize)
+            {
+                long maxSize = 0;
+
+                foreach (SearchResult result in resultList)
                 {
-                    long maxSize = 0;
+                    long size = result.GetSize();
 
-                    foreach (SearchResult result in resultList)
+                    if (result.IsDirectory)
                     {
-                        long size = result.GetSize();
+                        if (context.DirectorySizeMap is null)
+                            context.DirectorySizeMap = new Dictionary<string, long>();
 
-                        if (result.IsDirectory)
-                        {
-                            if (context.DirectorySizeMap == null)
-                                context.DirectorySizeMap = new Dictionary<string, long>();
-
-                            context.DirectorySizeMap[result.Path] = size;
-                        }
-
-                        if (size > maxSize)
-                            maxSize = size;
+                        context.DirectorySizeMap[result.Path] = size;
                     }
 
-                    maxSizeWidth = maxSize.ToString("n0").Length;
+                    if (size > maxSize)
+                        maxSize = size;
                 }
 
-                columnWidths = new ColumnWidths(maxNameWidth, maxSizeWidth);
-
-                results = resultList;
+                maxSizeWidth = maxSize.ToString("n0").Length;
             }
 
-            int i = 0;
+            columnWidths = new ColumnWidths(maxNameWidth, maxSizeWidth);
+
+            results = resultList;
+        }
+
+        int i = 0;
+
+        try
+        {
+            foreach (SearchResult result in results)
+            {
+                ExecuteResult(result, context, columnWidths);
+                i++;
+
+                if (context.TerminationReason == TerminationReason.Canceled)
+                    break;
+
+                context.CancellationToken.ThrowIfCancellationRequested();
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            context.TerminationReason = TerminationReason.Canceled;
+        }
+
+        if (context.TerminationReason == TerminationReason.Canceled
+            || context.CancellationToken.IsCancellationRequested)
+        {
+            OperationCanceled();
+        }
+
+        if (Options.FilePropertyOptions.IncludeSize
+            && context.Telemetry.FilesTotalSize == 0)
+        {
+            foreach (SearchResult result in results.Take(i))
+                context.Telemetry.FilesTotalSize += result.GetSize();
+        }
+    }
+
+    private void ExecuteCore(string path, SearchContext context)
+    {
+        if (Directory.Exists(path))
+        {
+            ProgressReporter? progress = context.Progress;
+
+            progress?.SetBaseDirectoryPath(path);
 
             try
             {
-                foreach (SearchResult result in results)
-                {
-                    ExecuteResult(result, context, columnWidths);
-                    i++;
-
-                    if (context.TerminationReason == TerminationReason.Canceled)
-                        break;
-
-                    context.CancellationToken.ThrowIfCancellationRequested();
-                }
+                ExecuteDirectory(path, context);
             }
             catch (OperationCanceledException)
             {
                 context.TerminationReason = TerminationReason.Canceled;
             }
 
-            if (context.TerminationReason == TerminationReason.Canceled
-                || context.CancellationToken.IsCancellationRequested)
-            {
-                OperationCanceled();
-            }
-
-            if (Options.FilePropertyOptions.IncludeSize
-                && context.Telemetry.FilesTotalSize == 0)
-            {
-                foreach (SearchResult result in results.Take(i))
-                    context.Telemetry.FilesTotalSize += result.GetSize();
-            }
-        }
-
-        private void ExecuteCore(string path, SearchContext context)
-        {
-            if (Directory.Exists(path))
-            {
-                ProgressReporter? progress = context.Progress;
-
-                progress?.SetBaseDirectoryPath(path);
-
-                try
-                {
-                    ExecuteDirectory(path, context);
-                }
-                catch (OperationCanceledException)
-                {
-                    context.TerminationReason = TerminationReason.Canceled;
-                }
-
-                if (progress?.ProgressReported == true)
-                {
-                    _logger.ConsoleOut.WriteLine();
-                    progress.ProgressReported = false;
-                }
-
-                progress?.SetBaseDirectoryPath(null);
-            }
-            else if (File.Exists(path))
-            {
-                try
-                {
-                    ExecuteFile(path, context);
-                }
-                catch (OperationCanceledException)
-                {
-                    context.TerminationReason = TerminationReason.Canceled;
-                }
-            }
-            else
-            {
-                string message = $"File or directory not found: {path}";
-
-                _logger.WriteLine(message, Colors.Message_Warning, Verbosity.Minimal);
-            }
-        }
-
-        protected void EndProgress(SearchContext context)
-        {
-            if (context.Progress?.ProgressReported == true
-                && _logger.ConsoleOut.Verbosity >= Verbosity.Minimal
-                && context.Results == null)
+            if (progress?.ProgressReported == true)
             {
                 _logger.ConsoleOut.WriteLine();
-                context.Progress.ProgressReported = false;
+                progress.ProgressReported = false;
             }
-        }
 
-        protected void ExecuteMatch(FileMatch fileMatch, SearchContext context, string? baseDirectoryPath = null)
+            progress?.SetBaseDirectoryPath(null);
+        }
+        else if (File.Exists(path))
         {
-            if (fileMatch.IsDirectory)
+            try
             {
-                context.Telemetry.MatchingDirectoryCount++;
+                ExecuteFile(path, context);
             }
-            else
+            catch (OperationCanceledException)
             {
-                context.Telemetry.MatchingFileCount++;
-            }
-
-            if (Options.MaxMatchingFiles == context.Telemetry.MatchingFileDirectoryCount)
-                context.TerminationReason = TerminationReason.MaxReached;
-
-            if (context.Results != null)
-            {
-                var searchResult = new SearchResult(fileMatch, baseDirectoryPath);
-
-                context.Results.Add(searchResult);
-            }
-            else
-            {
-                if (CanEndProgress)
-                    EndProgress(context);
-
-                ExecuteMatchCore(fileMatch, context, baseDirectoryPath, columnWidths: null);
+                context.TerminationReason = TerminationReason.Canceled;
             }
         }
-
-        protected IEnumerable<FileMatch> GetMatches(
-            string directoryPath,
-            SearchContext context)
+        else
         {
-            var notifyDirectoryChanged = this as INotifyDirectoryChanged;
+            string message = $"File or directory not found: {path}";
 
-            return GetMatches(
-                directoryPath: directoryPath,
-                context: context,
-                notifyDirectoryChanged: notifyDirectoryChanged);
+            _logger.WriteLine(message, Colors.Message_Warning, Verbosity.Minimal);
+        }
+    }
+
+    protected void EndProgress(SearchContext context)
+    {
+        if (context.Progress?.ProgressReported == true
+            && _logger.ConsoleOut.Verbosity >= Verbosity.Minimal
+            && context.Results is null)
+        {
+            _logger.ConsoleOut.WriteLine();
+            context.Progress.ProgressReported = false;
+        }
+    }
+
+    protected void ExecuteMatch(FileMatch fileMatch, SearchContext context, string? baseDirectoryPath = null)
+    {
+        if (fileMatch.IsDirectory)
+        {
+            context.Telemetry.MatchingDirectoryCount++;
+        }
+        else
+        {
+            context.Telemetry.MatchingFileCount++;
         }
 
-        protected IEnumerable<FileMatch> GetMatches(
-            string directoryPath,
-            SearchContext context,
-            INotifyDirectoryChanged? notifyDirectoryChanged)
+        if (Options.MaxMatchingFiles == context.Telemetry.MatchingFileDirectoryCount)
+            context.TerminationReason = TerminationReason.MaxReached;
+
+        if (context.Results is not null)
         {
-            return Search.Find(
-                directoryPath: directoryPath,
-                notifyDirectoryChanged: notifyDirectoryChanged,
-                cancellationToken: context.CancellationToken);
+            var searchResult = new SearchResult(fileMatch, baseDirectoryPath);
+
+            context.Results.Add(searchResult);
+        }
+        else
+        {
+            if (CanEndProgress)
+                EndProgress(context);
+
+            ExecuteMatchCore(fileMatch, context, baseDirectoryPath, columnWidths: null);
+        }
+    }
+
+    protected IEnumerable<FileMatch> GetMatches(
+        string directoryPath,
+        SearchContext context)
+    {
+        var notifyDirectoryChanged = this as INotifyDirectoryChanged;
+
+        return GetMatches(
+            directoryPath: directoryPath,
+            context: context,
+            notifyDirectoryChanged: notifyDirectoryChanged);
+    }
+
+    protected IEnumerable<FileMatch> GetMatches(
+        string directoryPath,
+        SearchContext context,
+        INotifyDirectoryChanged? notifyDirectoryChanged)
+    {
+        return Search.Find(
+            directoryPath: directoryPath,
+            notifyDirectoryChanged: notifyDirectoryChanged,
+            cancellationToken: context.CancellationToken);
+    }
+
+    protected FileMatch? MatchFile(string filePath)
+    {
+        return Search.MatchFile(filePath);
+    }
+
+    protected string GetPathIndent(string? baseDirectoryPath)
+    {
+        return (baseDirectoryPath is not null) ? GetPathIndent() : "";
+    }
+
+    private string GetPathIndent()
+    {
+        return "";
+    }
+
+    protected void WriteProperties(SearchContext context, FileMatch fileMatch, ColumnWidths? columnWidths)
+    {
+        long size = -1;
+
+        if (Options.IncludeSummary
+            && Options.FilePropertyOptions.IncludeSize)
+        {
+            size = (fileMatch.IsDirectory)
+                ? (context.DirectorySizeMap?[fileMatch.Path] ?? FileSystemUtilities.GetDirectorySize(fileMatch.Path))
+                : new FileInfo(fileMatch.Path).Length;
+
+            context.Telemetry.FilesTotalSize += size;
         }
 
-        protected FileMatch? MatchFile(string filePath)
-        {
-            return Search.MatchFile(filePath);
-        }
+        if (!_logger.ShouldWrite(Verbosity.Minimal))
+            return;
 
-        protected string GetPathIndent(string? baseDirectoryPath)
-        {
-            return (baseDirectoryPath != null) ? GetPathIndent() : "";
-        }
+        if (Options.FilePropertyOptions.IsEmpty)
+            return;
 
-        private string GetPathIndent()
-        {
-            return "";
-        }
+        StringBuilder sb = StringBuilderCache.GetInstance();
 
-        protected void WriteProperties(SearchContext context, FileMatch fileMatch, ColumnWidths? columnWidths)
-        {
-            long size = -1;
+        if (columnWidths is not null)
+            sb.Append(' ', columnWidths.NameWidth - fileMatch.Path.Length);
 
-            if (Options.IncludeSummary
-                && Options.FilePropertyOptions.IncludeSize)
+        if (Options.FilePropertyOptions.IncludeSize)
+        {
+            sb.Append("  ");
+
+            if (size == -1)
             {
                 size = (fileMatch.IsDirectory)
-                    ? (context.DirectorySizeMap?[fileMatch.Path] ?? FileSystemHelpers.GetDirectorySize(fileMatch.Path))
+                    ? (context.DirectorySizeMap?[fileMatch.Path] ?? FileSystemUtilities.GetDirectorySize(fileMatch.Path))
                     : new FileInfo(fileMatch.Path).Length;
-
-                context.Telemetry.FilesTotalSize += size;
             }
 
-            if (!_logger.ShouldWrite(Verbosity.Minimal))
-                return;
+            string sizeText = size.ToString(ApplicationOptions.Default.SizeFormat);
 
-            if (Options.FilePropertyOptions.IsEmpty)
-                return;
+            if (columnWidths is not null)
+                sb.Append(' ', columnWidths.SizeWidth - sizeText.Length);
 
-            StringBuilder sb = StringBuilderCache.GetInstance();
+            sb.Append(sizeText);
 
-            if (columnWidths != null)
-                sb.Append(' ', columnWidths.NameWidth - fileMatch.Path.Length);
-
-            if (Options.FilePropertyOptions.IncludeSize)
-            {
-                sb.Append("  ");
-
-                if (size == -1)
-                {
-                    size = (fileMatch.IsDirectory)
-                        ? (context.DirectorySizeMap?[fileMatch.Path] ?? FileSystemHelpers.GetDirectorySize(fileMatch.Path))
-                        : new FileInfo(fileMatch.Path).Length;
-                }
-
-                string sizeText = size.ToString(ApplicationOptions.Default.SizeFormat);
-
-                if (columnWidths != null)
-                    sb.Append(' ', columnWidths.SizeWidth - sizeText.Length);
-
-                sb.Append(sizeText);
-
-                context.Telemetry.FilesTotalSize += size;
-            }
-
-            if (Options.FilePropertyOptions.IncludeCreationTime)
-            {
-                sb.Append("  ");
-                sb.Append(File.GetCreationTime(fileMatch.Path).ToString(ApplicationOptions.Default.DateFormat));
-            }
-
-            if (Options.FilePropertyOptions.IncludeModifiedTime)
-            {
-                sb.Append("  ");
-                sb.Append(File.GetLastWriteTime(fileMatch.Path).ToString(ApplicationOptions.Default.DateFormat));
-            }
-
-            _logger.Write(StringBuilderCache.GetStringAndFree(sb), Verbosity.Minimal);
+            context.Telemetry.FilesTotalSize += size;
         }
+
+        if (Options.FilePropertyOptions.IncludeCreationTime)
+        {
+            sb.Append("  ");
+            sb.Append(File.GetCreationTime(fileMatch.Path).ToString(ApplicationOptions.Default.DateFormat));
+        }
+
+        if (Options.FilePropertyOptions.IncludeModifiedTime)
+        {
+            sb.Append("  ");
+            sb.Append(File.GetLastWriteTime(fileMatch.Path).ToString(ApplicationOptions.Default.DateFormat));
+        }
+
+        _logger.Write(StringBuilderCache.GetStringAndFree(sb), Verbosity.Minimal);
     }
 }

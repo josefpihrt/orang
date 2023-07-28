@@ -8,85 +8,84 @@ using System.Text.RegularExpressions;
 using Orang.FileSystem;
 using Orang.Text.RegularExpressions;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+internal abstract class FileSystemCommandOptions : CommonRegexCommandOptions
 {
-    internal abstract class FileSystemCommandOptions : CommonRegexCommandOptions
+    internal FileSystemCommandOptions()
     {
-        internal FileSystemCommandOptions()
-        {
-        }
+    }
 
-        public ImmutableArray<PathInfo> Paths { get; internal set; }
+    public ImmutableArray<PathInfo> Paths { get; internal set; }
 
-        public Filter? NameFilter { get; internal set; }
+    public Matcher? NameFilter { get; internal set; }
 
-        public FileNamePart NamePart { get; internal set; }
+    public FileNamePart NamePart { get; internal set; }
 
-        public Filter? ExtensionFilter { get; internal set; }
+    public Matcher? ExtensionFilter { get; internal set; }
 
-        public Filter? ContentFilter { get; internal set; }
+    public Matcher? ContentFilter { get; internal set; }
 
-        public Filter? DirectoryFilter { get; internal set; }
+    public Matcher? DirectoryFilter { get; internal set; }
 
-        public FileNamePart DirectoryNamePart { get; internal set; }
+    public FileNamePart DirectoryNamePart { get; internal set; }
 
-        public SearchTarget SearchTarget { get; internal set; }
+    public SearchTarget SearchTarget { get; internal set; }
 
-        public FileAttributes Attributes { get; internal set; }
+    public FileAttributes Attributes { get; internal set; }
 
-        public FileAttributes AttributesToSkip { get; internal set; }
+    public FileAttributes AttributesToSkip { get; internal set; }
 
-        public bool RecurseSubdirectories { get; internal set; }
+    public bool RecurseSubdirectories { get; internal set; }
 
-        public bool Progress { get; internal set; }
+    public bool Progress { get; internal set; }
 
-        public Encoding DefaultEncoding { get; internal set; } = null!;
+    public Encoding DefaultEncoding { get; internal set; } = null!;
 
-        public FileEmptyOption EmptyOption { get; internal set; }
+    public FileEmptyOption EmptyOption { get; internal set; }
 
-        public int MaxMatchingFiles { get; internal set; }
+    public int MaxMatchingFiles { get; internal set; }
 
-        public SortOptions? SortOptions { get; internal set; }
+    public SortOptions? SortOptions { get; internal set; }
 
-        public bool AlignColumns { get; internal set; }
+    public bool AlignColumns { get; internal set; }
 
-        public FilePropertyOptions FilePropertyOptions { get; internal set; } = null!;
+    public FilePropertyOptions FilePropertyOptions { get; internal set; } = null!;
 
-        public FilterPredicate<DateTime>? CreationTimePredicate { get; internal set; }
+    public FilterPredicate<DateTime>? CreationTimePredicate { get; internal set; }
 
-        public FilterPredicate<DateTime>? ModifiedTimePredicate { get; internal set; }
+    public FilterPredicate<DateTime>? ModifiedTimePredicate { get; internal set; }
 
-        public FilterPredicate<long>? SizePredicate { get; internal set; }
+    public FilterPredicate<long>? SizePredicate { get; internal set; }
 
         public int MinDirectoryDepth { get; internal set; }
 
         public int MaxDirectoryDepth { get; internal set; }
 
-        public ContentDisplayStyle ContentDisplayStyle => Format.ContentDisplayStyle;
+    public ContentDisplayStyle ContentDisplayStyle => Format.ContentDisplayStyle;
 
-        public bool OmitContent => ContentDisplayStyle == ContentDisplayStyle.Omit;
+    public bool OmitContent => ContentDisplayStyle == ContentDisplayStyle.Omit;
 
-        public PathDisplayStyle PathDisplayStyle => Format.PathDisplayStyle;
+    public PathDisplayStyle PathDisplayStyle => Format.PathDisplayStyle;
 
-        public bool OmitPath => PathDisplayStyle == PathDisplayStyle.Omit;
+    public bool OmitPath => PathDisplayStyle == PathDisplayStyle.Omit;
 
-        public bool DisplayRelativePath => PathDisplayStyle == PathDisplayStyle.Relative;
+    public bool DisplayRelativePath => PathDisplayStyle == PathDisplayStyle.Relative;
 
-        public string Indent => Format.Indent;
+    public string Indent => Format.Indent;
 
-        internal MatchOutputInfo? CreateOutputInfo(string input, Match match, Filter filter)
-        {
-            if (ContentDisplayStyle != ContentDisplayStyle.ValueDetail)
-                return null;
+    internal MatchOutputInfo? CreateOutputInfo(string input, Match match, Matcher matcher)
+    {
+        if (ContentDisplayStyle != ContentDisplayStyle.ValueDetail)
+            return null;
 
-            int groupNumber = filter.GroupNumber;
+        int groupNumber = matcher.GroupNumber;
 
-            return MatchOutputInfo.Create(
-                MatchData.Create(input, filter.Regex, match),
-                groupNumber,
-                includeGroupNumber: groupNumber >= 0,
-                includeCaptureNumber: false,
-                new OutputCaptions(shortMatch: ""));
-        }
+        return MatchOutputInfo.Create(
+            MatchData.Create(input, matcher.Regex, match),
+            groupNumber,
+            includeGroupNumber: groupNumber >= 0,
+            includeCaptureNumber: false,
+            new OutputCaptions(shortMatch: ""));
     }
 }

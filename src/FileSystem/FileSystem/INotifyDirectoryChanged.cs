@@ -2,10 +2,9 @@
 
 using System;
 
-namespace Orang.FileSystem
+namespace Orang.FileSystem;
+
+internal interface INotifyDirectoryChanged
 {
-    internal interface INotifyDirectoryChanged
-    {
-        event EventHandler<DirectoryChangedEventArgs> DirectoryChanged;
-    }
+    event EventHandler<DirectoryChangedEventArgs> DirectoryChanged;
 }

@@ -2,7 +2,6 @@
 
 using System.Collections.Generic;
 
-namespace Orang
-{
-    internal delegate IEnumerable<T> EnumerableModifier<T>(IEnumerable<T> enumerable);
-}
+namespace Orang;
+
+internal delegate IEnumerable<T> EnumerableModifier<T>(IEnumerable<T> enumerable);

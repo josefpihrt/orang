@@ -4,27 +4,26 @@ using System.Collections.Immutable;
 using System.Text.RegularExpressions;
 using Orang.Syntax;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+internal sealed class RegexListCommandOptions : AbstractCommandOptions
 {
-    internal sealed class RegexListCommandOptions : AbstractCommandOptions
+    internal RegexListCommandOptions()
     {
-        internal RegexListCommandOptions()
-        {
-        }
+    }
 
-        public char? Value { get; internal set; }
+    public char? Value { get; internal set; }
 
-        public Filter? Filter { get; internal set; }
+    public Matcher? Matcher { get; internal set; }
 
-        public bool InCharGroup { get; internal set; }
+    public bool InCharGroup { get; internal set; }
 
-        public RegexOptions RegexOptions { get; internal set; }
+    public RegexOptions RegexOptions { get; internal set; }
 
-        public ImmutableArray<SyntaxSection> Sections { get; internal set; }
+    public ImmutableArray<SyntaxSection> Sections { get; internal set; }
 
-        protected override void WriteDiagnosticCore(DiagnosticWriter writer)
-        {
-            writer.WriteRegexListCommand(this);
-        }
+    protected override void WriteDiagnosticCore(DiagnosticWriter writer)
+    {
+        writer.WriteRegexListCommand(this);
     }
 }

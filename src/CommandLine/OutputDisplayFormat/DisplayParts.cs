@@ -2,13 +2,12 @@
 
 using System;
 
-namespace Orang
+namespace Orang;
+
+[Flags]
+internal enum DisplayParts
 {
-    [Flags]
-    internal enum DisplayParts
-    {
-        None = 0,
-        Summary = 1,
-        Count = 1 << 1,
-    }
+    None = 0,
+    Summary = 1,
+    Count = 1 << 1,
 }

@@ -3,37 +3,36 @@
 using System.Collections.Generic;
 using Orang.CommandLine;
 
-namespace Orang.Aggregation
+namespace Orang.Aggregation;
+
+internal class ListResultStorage : IResultStorage
 {
-    internal class ListResultStorage : IResultStorage
+    public ListResultStorage()
+        : this(new List<string>())
     {
-        public ListResultStorage()
-            : this(new List<string>())
-        {
-        }
+    }
 
-        public ListResultStorage(List<string> list)
-        {
-            Values = list;
-        }
+    public ListResultStorage(List<string> list)
+    {
+        Values = list;
+    }
 
-        public List<string> Values { get; }
+    public List<string> Values { get; }
 
-        public int Count => Values.Count;
+    public int Count => Values.Count;
 
-        public void Add(string value)
-        {
-            Values.Add(value);
-        }
+    public void Add(string value)
+    {
+        Values.Add(value);
+    }
 
-        public void Add(string value, int start, int length)
-        {
-            Values.Add(value.Substring(start, length));
-        }
+    public void Add(string value, int start, int length)
+    {
+        Values.Add(value.Substring(start, length));
+    }
 
-        public void AddRange(IEnumerable<string> values)
-        {
-            Values.AddRange(values);
-        }
+    public void AddRange(IEnumerable<string> values)
+    {
+        Values.AddRange(values);
     }
 }

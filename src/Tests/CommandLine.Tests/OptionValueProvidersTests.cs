@@ -4,67 +4,66 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
-namespace Orang.CommandLine.Tests
+namespace Orang.CommandLine.Tests;
+
+public static class OptionValueProvidersTests
 {
-    public static class OptionValueProvidersTests
+    [Fact]
+    public static void VerifyUniqueName()
     {
-        [Fact]
-        public static void VerifyUniqueName()
+        foreach (OptionValueProvider provider in OptionValueProviders.ProvidersByName.Select(f => f.Value))
         {
-            foreach (OptionValueProvider provider in OptionValueProviders.ProvidersByName.Select(f => f.Value))
+            var dic = new Dictionary<string, OptionValue>();
+
+            foreach (OptionValue value in provider.Values)
             {
-                var dic = new Dictionary<string, OptionValue>();
+                Assert.False(dic.ContainsKey(value.Name), value.Name);
 
-                foreach (OptionValue value in provider.Values)
-                {
-                    Assert.False(dic.ContainsKey(value.Name), value.Name);
-
-                    dic[value.Name] = value;
-                }
+                dic[value.Name] = value;
             }
         }
+    }
 
-        [Fact]
-        public static void VerifyUniqueValues()
+    [Fact]
+    public static void VerifyUniqueValues()
+    {
+        foreach (OptionValueProvider provider in OptionValueProviders.ProvidersByName.Select(f => f.Value))
         {
-            foreach (OptionValueProvider provider in OptionValueProviders.ProvidersByName.Select(f => f.Value))
+            IDictionary<string, string> dic = new Dictionary<string, string>();
+
+            IEnumerable<SimpleOptionValue> optionValues = provider
+                .Values
+                .OfType<SimpleOptionValue>();
+
+            foreach (string value in optionValues
+                .Select(f => f.Value)
+                .Concat(optionValues.Select(f => f.ShortValue).Where(f => !string.IsNullOrEmpty(f))))
             {
-                IDictionary<string, string> dic = new Dictionary<string, string>();
+                Assert.DoesNotContain(value, dic);
 
-                IEnumerable<SimpleOptionValue> optionValues = provider
-                    .Values
-                    .OfType<SimpleOptionValue>();
-
-                foreach (string value in optionValues
-                    .Select(f => f.Value)
-                    .Concat(optionValues.Select(f => f.ShortValue).Where(f => !string.IsNullOrEmpty(f))))
-                {
-                    Assert.DoesNotContain(value, dic);
-
-                    dic[value] = value;
-                }
+                dic[value] = value;
             }
         }
+    }
 
-        [Fact]
-        public static void VerifyUniqueKeys()
+    [Fact]
+    public static void VerifyUniqueKeys()
+    {
+        foreach (OptionValueProvider provider in OptionValueProviders.ProvidersByName.Select(f => f.Value))
         {
-            foreach (OptionValueProvider provider in OptionValueProviders.ProvidersByName.Select(f => f.Value))
+            IDictionary<string, string> dic = new Dictionary<string, string>();
+
+            IEnumerable<KeyValuePairOptionValue> optionValues = provider
+                .Values
+                .OfType<KeyValuePairOptionValue>();
+
+            foreach (string value in optionValues
+                .Select(f => f.Key)
+                .Concat(optionValues.Select(f => f.ShortKey).Where(f => !string.IsNullOrEmpty(f))))
             {
-                IDictionary<string, string> dic = new Dictionary<string, string>();
+                Assert.DoesNotContain(value, dic);
 
-                IEnumerable<KeyValuePairOptionValue> optionValues = provider
-                    .Values
-                    .OfType<KeyValuePairOptionValue>();
-
-                foreach (string value in optionValues
-                    .Select(f => f.Key)
-                    .Concat(optionValues.Select(f => f.ShortKey).Where(f => !string.IsNullOrEmpty(f))))
-                {
-                    Assert.DoesNotContain(value, dic);
-
-                    dic[value] = value;
-                }
+                dic[value] = value;
             }
         }
     }

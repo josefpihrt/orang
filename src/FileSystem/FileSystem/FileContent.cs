@@ -4,35 +4,34 @@ using System;
 using System.Diagnostics;
 using System.Text;
 
-namespace Orang.FileSystem
+namespace Orang.FileSystem;
+
+[DebuggerDisplay("{DebuggerDisplay,nq}")]
+internal readonly struct FileContent
 {
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public readonly struct FileContent
+    internal FileContent(string text, Encoding encoding, bool hasBom)
     {
-        public FileContent(string text, Encoding encoding, bool hasBom)
+        Text = text ?? throw new ArgumentNullException(nameof(text));
+        Encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
+        HasBom = hasBom;
+    }
+
+    public string Text { get; }
+
+    public Encoding Encoding { get; }
+
+    public bool HasBom { get; }
+
+    public override string ToString() => Text;
+
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    private string DebuggerDisplay
+    {
+        get
         {
-            Text = text ?? throw new ArgumentNullException(nameof(text));
-            Encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
-            HasBom = hasBom;
+            return (Text is not null)
+                ? $"{Encoding.EncodingName}  {nameof(HasBom)} = {HasBom}"
+                : "Uninitialized";
         }
-
-        public string Text { get; }
-
-        public Encoding Encoding { get; }
-
-        public bool HasBom { get; }
-
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private string DebuggerDisplay
-        {
-            get
-            {
-                return (Text != null)
-                    ? $"{Encoding.EncodingName}  {nameof(HasBom)} = {HasBom}"
-                    : "Uninitialized";
-            }
-        }
-
-        public override string ToString() => Text;
     }
 }

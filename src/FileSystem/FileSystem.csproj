@@ -9,7 +9,6 @@
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <PackageId>Orang.FileSystem</PackageId>
-    <Description>A shared package used by Orang. Do not install this package manually, it will be added as a prerequisite by other packages that require it.</Description>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

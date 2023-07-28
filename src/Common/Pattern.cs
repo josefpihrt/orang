@@ -7,9 +7,9 @@ using Orang.Text.RegularExpressions;
 
 namespace Orang;
 
-internal static class Pattern
+public static class Pattern
 {
-    public static string From(
+    public static string Create(
         string value,
         PatternOptions options)
     {
@@ -19,27 +19,27 @@ internal static class Pattern
         if ((options & PatternOptions.Literal) != 0)
             value = RegexEscape.Escape(value);
 
-        return Create(value, options);
+        return CreateCore(value, options);
     }
 
-    public static string Any(
+    public static string Create(
         string value1,
         string value2,
         PatternOptions options = PatternOptions.None)
     {
-        return Any(new string[] { value1, value2 }, options);
+        return Create(new string[] { value1, value2 }, options);
     }
 
-    public static string Any(
+    public static string Create(
         string value1,
         string value2,
         string value3,
         PatternOptions options = PatternOptions.None)
     {
-        return Any(new string[] { value1, value2, value3 }, options);
+        return Create(new string[] { value1, value2, value3 }, options);
     }
 
-    public static string Any(
+    public static string Create(
         IEnumerable<string> values,
         PatternOptions options = PatternOptions.None)
     {
@@ -48,7 +48,7 @@ internal static class Pattern
 
         string text = JoinValues(values, (options & PatternOptions.Literal) != 0);
 
-        return Create(text, options);
+        return CreateCore(text, options);
 
         static string JoinValues(IEnumerable<string> values, bool literal)
         {
@@ -96,30 +96,36 @@ internal static class Pattern
         }
     }
 
-    private static string Create(string text, PatternOptions options)
+    private static string CreateCore(string value, PatternOptions options)
     {
+        if ((options & (PatternOptions.WholeLine | PatternOptions.WholeWord)) == (PatternOptions.WholeLine | PatternOptions.WholeWord))
+        {
+            throw new InvalidOperationException($"'{nameof(PatternOptions)}.{PatternOptions.WholeLine}' "
+                + $"and '{nameof(PatternOptions)}.{nameof(PatternOptions.WholeWord)}' cannot be set both at the same time.");
+        }
+
         if ((options & PatternOptions.WholeLine) != 0)
         {
-            text = @"(?:\A|(?<=\n))(?:" + text + @")(?:\z|(?=\r?\n))";
+            value = @"(?:\A|(?<=\n))(?:" + value + @")(?:\z|(?=\r?\n))";
         }
         else if ((options & PatternOptions.WholeWord) != 0)
         {
-            text = @"\b(?:" + text + @")\b";
+            value = @"\b(?:" + value + @")\b";
         }
 
         if ((options & PatternOptions.Equals) == PatternOptions.Equals)
         {
-            return @"\A(?:" + text + @")\z";
+            return @"\A(?:" + value + @")\z";
         }
         else if ((options & PatternOptions.StartsWith) != 0)
         {
-            return @"\A(?:" + text + ")";
+            return @"\A(?:" + value + ")";
         }
         else if ((options & PatternOptions.EndsWith) != 0)
         {
-            return "(?:" + text + @")\z";
+            return "(?:" + value + @")\z";
         }
 
-        return text;
+        return value;
     }
 }

@@ -57,7 +57,7 @@ public class FileMatcherBuilder
         else if (extensions.Length == 1)
         {
             return new Matcher(
-                Pattern.From(
+                Pattern.Create(
                     extensions[0],
                     PatternOptions.Equals | PatternOptions.Literal),
                 (FileSystemUtilities.IsCaseSensitive) ? RegexOptions.None : RegexOptions.IgnoreCase,
@@ -66,7 +66,7 @@ public class FileMatcherBuilder
         else
         {
             return new Matcher(
-                Pattern.Any(
+                Pattern.Create(
                     extensions,
                     PatternOptions.Equals | PatternOptions.Literal),
                 (FileSystemUtilities.IsCaseSensitive) ? RegexOptions.None : RegexOptions.IgnoreCase,

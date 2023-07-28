@@ -4,9 +4,8 @@ using System;
 
 namespace Orang;
 
-//TODO: make internal?
 [Flags]
-public enum ReplaceFunctions
+internal enum ReplaceFunctions
 {
     None = 0,
     TrimStart = 1,

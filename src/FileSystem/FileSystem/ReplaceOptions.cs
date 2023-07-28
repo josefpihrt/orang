@@ -8,7 +8,7 @@ namespace Orang.FileSystem;
 
 public class ReplaceOptions
 {
-    public ReplaceFunctions ReplaceFunctions { get; set; }
+    internal ReplaceFunctions ReplaceFunctions { get; set; }
 
     public bool CultureInvariant { get; set; }
 

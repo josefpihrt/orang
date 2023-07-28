@@ -17,7 +17,7 @@ public class ReplaceOperationBuilder
     {
     }
 
-    public ReplaceOperationBuilder WithFunctions(ReplaceFunctions functions)
+    internal ReplaceOperationBuilder WithFunctions(ReplaceFunctions functions)
     {
         _functions = functions;
         return this;

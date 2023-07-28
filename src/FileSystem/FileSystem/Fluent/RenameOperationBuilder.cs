@@ -19,7 +19,7 @@ public class RenameOperationBuilder
     {
     }
 
-    public RenameOperationBuilder WithFunctions(ReplaceFunctions functions)
+    internal RenameOperationBuilder WithFunctions(ReplaceFunctions functions)
     {
         _functions = functions;
         return this;
@@ -31,7 +31,6 @@ public class RenameOperationBuilder
         return this;
     }
 
-    //TODO: move to RenameOperation.Run
     public RenameOperationBuilder DryRun()
     {
         _dryRun = true;

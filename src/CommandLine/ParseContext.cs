@@ -1576,12 +1576,10 @@ internal class ParseContext
             return false;
         }
 
-        int groupIndex = -1;
-
         if (groupName is not null)
         {
-            groupIndex = regex.GroupNumberFromName(groupName);
-            if (groupIndex == -1)
+            int groupNumber = regex.GroupNumberFromName(groupName);
+            if (groupNumber == -1)
             {
                 string message = $"Group '{groupName}' does not exist.";
 
@@ -1601,7 +1599,7 @@ internal class ParseContext
         matcher = new Matcher(
             regex,
             invert: (patternOptions & PatternOptions.Negative) != 0,
-            group: groupIndex,
+            group: groupName,
             predicate: predicate);
 
         return true;

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0-beta2] - 2023-07-29
+
+### Added
+
+- Fix validation of group name ([#58](https://github.com/josefpihrt/roslynator/pull/58)).
+
+## [0.4.0-beta] - 2023-07-28
+
 ### Added
 
 - Add [.NET API](https://josefpihrt.github.io/docs/orang/ref) ([#51](https://github.com/josefpihrt/roslynator/pull/51)).

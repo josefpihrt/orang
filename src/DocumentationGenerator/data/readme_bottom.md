@@ -30,30 +30,17 @@ a user cannot specify argument (usually path(s)) as a last value of a command
 if the argument is preceded with multi-value parameter.
 
 Following command is invalid because path `C:/Documents` is treated as a value of multi-value parameter `-c | --content`.
-```
+```sh
 orang find -c "^abc" i m "C:/Documents"
 ```
 
 To fix this problem you can either add parameter `--paths`
-```
+```sh
 orang find -c "abc" i m --paths "C:/Documents"
 ```
 
 or you can specify path right after the command name:
 
-```
+```sh
 orang find "C:/Documents" -c "abc" i m
 ```
-
-## Links
-
-* [List of Option Values](cli/option-values)
-* [How to's](cli/how-to)
-
-## External Links
-
-* [.NET Core Global Tools Overview](https://docs.microsoft.com/dotnet/core/tools/global-tools)
-* [Create a .NET Core Global Tool Using the .NET Core CLI](https://docs.microsoft.com/dotnet/core/tools/global-tools-how-to-create)
-* [.NET Core 2.1 Global Tools](https://natemcmaster.com/blog/2018/05/12/dotnet-global-tools/)
-* [Windows CMD Shell](https://ss64.com/nt/syntax.html)
-* [Parsing C++ Command-Line Arguments](https://docs.microsoft.com/cpp/cpp/parsing-cpp-command-line-arguments?view=vs-2019)

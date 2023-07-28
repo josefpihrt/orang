@@ -97,6 +97,8 @@ internal static class Program
 
         GenerateOptionValues(commands, destinationDirectoryPath, settings);
 
+        GenerateExpressionSyntax(destinationDirectoryPath, settings);
+
         foreach (Command command in application.Commands)
         {
             filePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "cli/commands", $"{command.Name}.md"));
@@ -163,7 +165,7 @@ internal static class Program
         string destinationDirectoryPath,
         MarkdownWriterSettings settings)
     {
-        string filePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "cli/option-values.md"));
+        string filePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "cli/options-values.md"));
 
         ImmutableArray<OptionValueProvider> providers = OptionValueProvider.GetProviders(
             commands.SelectMany(f => f.Options),
@@ -183,8 +185,19 @@ internal static class Program
                 };
             }));
 
-        document.Add(
-            Heading2("Expression Syntax"),
+        AddFootnote(document);
+
+        File.WriteAllText(filePath, document.ToString(settings));
+    }
+
+    private static void GenerateExpressionSyntax(
+        string destinationDirectoryPath,
+        MarkdownWriterSettings settings)
+    {
+        string filePath = Path.GetFullPath(Path.Combine(destinationDirectoryPath, "cli/expression-syntax.md"));
+
+        MDocument document = Document(
+            Heading1("Expression Syntax"),
             Table(
                 TableRow("Expression", "Description"),
                 HelpProvider.GetExpressionItems(includeDate: true)

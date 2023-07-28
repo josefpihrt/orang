@@ -261,15 +261,15 @@ internal static class HelpProvider
         variableName ??= "x";
 
         builder.Add(($"{variableName}=n", ""));
-        builder.Add(($"{variableName}<n", ""));
-        builder.Add(($"{variableName}>n", ""));
-        builder.Add(($"{variableName}<=n", ""));
-        builder.Add(($"{variableName}>=n", ""));
-        builder.Add(($"{variableName}=<min;max>", "Inclusive interval"));
-        builder.Add(($"{variableName}=(min;max)", "Exclusive interval"));
+        builder.Add(($@"""{variableName}<n""", ""));
+        builder.Add(($@"""{variableName}>n""", ""));
+        builder.Add(($@"""{variableName}<=n""", ""));
+        builder.Add(($@" ""{variableName}>=n""", ""));
+        builder.Add(($@" ""{variableName}=<min;max>""", "Inclusive interval"));
+        builder.Add(($@" ""{variableName}=(min;max)""", "Exclusive interval"));
 
         if (includeDate)
-            builder.Add(($"{variableName}=-d|[d.]hh:mm[:ss]", $"{variableName} is greater than actual date - <VALUE>"));
+            builder.Add(($@"""{variableName}=-d|[d.]hh:mm[:ss]""", $"{variableName} is greater than actual date - <VALUE>"));
 
         return builder.ToImmutableArray();
     }

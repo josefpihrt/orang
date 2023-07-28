@@ -171,6 +171,23 @@ public abstract class HelpWriter
         }
     }
 
+    public void WriteExpressionSyntax(IEnumerable<OptionValueItemList> optionValues)
+    {
+        ImmutableArray<string> expressions = HelpProvider.GetExpressionItems(optionValues);
+
+        if (!expressions.IsEmpty)
+        {
+            WriteLine();
+            WriteHeading("Expression syntax");
+
+            foreach (string expression in expressions)
+            {
+                Write(Options.Indent);
+                WriteLine(expression);
+            }
+        }
+    }
+
     private void WriteValues(ImmutableArray<OptionValueItem> values)
     {
         foreach (OptionValueItem value in values)

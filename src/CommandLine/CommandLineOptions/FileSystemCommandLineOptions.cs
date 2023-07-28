@@ -72,18 +72,18 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
             longName: OptionNames.MinDepth,
             HelpText = "Minimum directory depth.",
             Default = -1)]
-        public int MinDepth { get; set; }
+    public int MinDepth { get; set; }
 
-        [Option(
-            longName: OptionNames.MaxDepth,
-            HelpText = "Maximum directory depth.",
-            Default = -1)]
-        public int MaxDepth { get; set; }
+    [Option(
+        longName: OptionNames.MaxDepth,
+        HelpText = "Maximum directory depth.",
+        Default = -1)]
+    public int MaxDepth { get; set; }
 
-        [Option(
-        shortName: OptionShortNames.NoContent,
-        longName: OptionNames.NoContent,
-        HelpText = "A shortcut for '--" + OptionNames.ContentMode + " omit'.")]
+    [Option(
+    shortName: OptionShortNames.NoContent,
+    longName: OptionNames.NoContent,
+    HelpText = "A shortcut for '--" + OptionNames.ContentMode + " omit'.")]
     public bool NoContent { get; set; }
 
     [HideFromConsoleHelp]
@@ -299,8 +299,8 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
         options.ModifiedTimePredicate = modifiedTimePredicate;
         options.SizePredicate = sizePredicate;
         options.AlignColumns = AlignColumns;
-            options.MinDirectoryDepth = MinDepth;
-            options.MaxDirectoryDepth = MaxDepth;
+        options.MinDirectoryDepth = MinDepth;
+        options.MaxDirectoryDepth = MaxDepth;
 
         options.FilePropertyOptions = new FilePropertyOptions(
             includeCreationTime: creationTime,

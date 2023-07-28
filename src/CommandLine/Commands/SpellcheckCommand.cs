@@ -50,7 +50,7 @@ internal sealed class SpellcheckCommand : CommonReplaceCommand<SpellcheckCommand
             IEnumerable<CaptureSlim>? subcaptures = null;
 
             if (fileMatch is not null
-                && FileSystemHelpers.HasExtension(fileMatch.Path, "md"))
+                && FileSystemUtilities.HasExtension(fileMatch.Path, "md"))
             {
                 subcaptures = MarkdownProcessor.ProcessText(capture.Value);
             }

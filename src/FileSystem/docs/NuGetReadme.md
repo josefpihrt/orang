@@ -27,9 +27,9 @@ using Orang.FileSystem.Fluent;
 
 IOperationResult result = new SearchBuilder()
     .MatchDirectory(d => d
-        .Name(Pattern.Create("bin", "obj", PatternOptions.Equals))
+        .Name(Pattern.Any("bin", "obj", PatternOptions.Equals))
         .NonEmpty())
-    .SkipDirectory(Pattern.Create(".git", ".vs", "node_modules", PatternOptions.Equals | PatternOptions.Literal))
+    .SkipDirectory(Pattern.Any(".git", ".vs", "node_modules", PatternOptions.Equals | PatternOptions.Literal))
     .Delete(d => d
         .ContentOnly()
         .DryRun()

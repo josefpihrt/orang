@@ -66,7 +66,7 @@ public class FileMatcherBuilder
         else
         {
             return new Matcher(
-                Pattern.Create(
+                Pattern.Any(
                     extensions,
                     PatternOptions.Equals | PatternOptions.Literal),
                 (FileSystemUtilities.IsCaseSensitive) ? RegexOptions.None : RegexOptions.IgnoreCase,

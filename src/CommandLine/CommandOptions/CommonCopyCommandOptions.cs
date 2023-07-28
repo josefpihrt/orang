@@ -14,9 +14,19 @@ internal abstract class CommonCopyCommandOptions : CommonFindCommandOptions
 
     public TimeSpan AllowedTimeDiff { get; internal set; }
 
-    public FileAttributes NoCompareAttributes { get; internal set; }
+    public FileAttributes? NoCompareAttributes { get; internal set; }
 
-    public FileCompareOptions CompareOptions { get; internal set; }
+    public FileAttributes? CompareAttributes
+    {
+        get
+        {
+            return (NoCompareAttributes is not null)
+                ? FileSystemUtilities.AllFileAttributes & ~NoCompareAttributes
+                : null;
+        }
+    }
+
+    public FileCompareProperties CompareProperties { get; internal set; }
 
     public bool DryRun { get; internal set; }
 

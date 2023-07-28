@@ -12,7 +12,7 @@ internal class DeleteCommand : DeleteOrRenameCommand<DeleteCommandOptions>
     {
     }
 
-    protected override void OnSearchCreating(FileSystemSearch search)
+    protected override void OnSearchCreating(SearchState search)
     {
         search.CanRecurseMatch = false;
     }
@@ -38,12 +38,10 @@ internal class DeleteCommand : DeleteOrRenameCommand<DeleteCommandOptions>
         {
             if (!Options.DryRun)
             {
-                FileSystemHelpers.Delete(
+                FileSystemUtilities.Delete(
                     fileMatch,
                     contentOnly: Options.ContentOnly,
-                    includingBom: Options.IncludingBom,
-                    filesOnly: Options.FilesOnly,
-                    directoriesOnly: Options.DirectoriesOnly);
+                    includingBom: Options.IncludingBom);
             }
 
             if (fileMatch.IsDirectory)

@@ -7,9 +7,9 @@ using System.Text;
 namespace Orang.FileSystem;
 
 [DebuggerDisplay("{DebuggerDisplay,nq}")]
-public readonly struct FileContent
+internal readonly struct FileContent
 {
-    public FileContent(string text, Encoding encoding, bool hasBom)
+    internal FileContent(string text, Encoding encoding, bool hasBom)
     {
         Text = text ?? throw new ArgumentNullException(nameof(text));
         Encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
@@ -22,6 +22,8 @@ public readonly struct FileContent
 
     public bool HasBom { get; }
 
+    public override string ToString() => Text;
+
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private string DebuggerDisplay
     {
@@ -32,6 +34,4 @@ public readonly struct FileContent
                 : "Uninitialized";
         }
     }
-
-    public override string ToString() => Text;
 }

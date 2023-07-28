@@ -10,7 +10,7 @@ internal abstract class RegexCommandOptions : CommonRegexCommandOptions
     {
     }
 
-    public Filter Filter { get; internal set; } = null!;
+    public Matcher Matcher { get; internal set; } = null!;
 
     public string Input { get; internal set; } = null!;
 

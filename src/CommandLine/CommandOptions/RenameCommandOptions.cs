@@ -14,7 +14,7 @@ internal sealed class RenameCommandOptions : DeleteOrRenameCommandOptions
 
     public ConflictResolution ConflictResolution { get; internal set; }
 
-    public ReplaceOptions ReplaceOptions { get; internal set; } = null!;
+    public Replacer Replacer { get; internal set; } = null!;
 
     protected override void WriteDiagnosticCore(DiagnosticWriter writer)
     {

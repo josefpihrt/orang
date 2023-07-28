@@ -114,7 +114,7 @@ internal abstract class CommonReplaceCommandLineOptions : FileSystemCommandLineO
 
         options = (CommonReplaceCommandOptions)baseOptions;
 
-        Filter? contentFilter = null;
+        Matcher? contentFilter = null;
         if (!Content.Any())
         {
             contentFilter = GetDefaultContentFilter();
@@ -322,7 +322,7 @@ internal abstract class CommonReplaceCommandLineOptions : FileSystemCommandLineO
         return true;
     }
 
-    protected virtual Filter? GetDefaultContentFilter()
+    protected virtual Matcher? GetDefaultContentFilter()
     {
         return null;
     }

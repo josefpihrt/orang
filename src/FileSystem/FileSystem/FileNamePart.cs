@@ -2,7 +2,6 @@
 
 namespace Orang.FileSystem;
 
-//TODO: PathPart, FilePathPart
 public enum FileNamePart
 {
     Name = 0,

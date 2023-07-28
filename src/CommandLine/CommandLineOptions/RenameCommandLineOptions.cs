@@ -111,7 +111,7 @@ internal sealed class RenameCommandLineOptions : DeleteOrRenameCommandLineOption
             Name,
             OptionNames.Name,
             OptionValueProviders.PatternOptionsWithoutGroupAndNegativeProvider,
-            out Filter? nameFilter,
+            out Matcher? nameFilter,
             out FileNamePart namePart,
             namePartProvider: OptionValueProviders.NamePartKindProvider_WithoutFullName))
         {
@@ -122,7 +122,7 @@ internal sealed class RenameCommandLineOptions : DeleteOrRenameCommandLineOption
             Content,
             OptionNames.Content,
             OptionValueProviders.PatternOptionsWithoutPartProvider,
-            out Filter? contentFilter,
+            out Matcher? contentFilter,
             allowNull: true,
             allowEmptyPattern: true))
         {
@@ -148,7 +148,7 @@ internal sealed class RenameCommandLineOptions : DeleteOrRenameCommandLineOption
             OptionNames.Modify,
             replacement,
             matchEvaluator,
-            out ReplaceOptions? replaceOptions))
+            out Replacer? replacer))
         {
             return false;
         }
@@ -263,7 +263,7 @@ internal sealed class RenameCommandLineOptions : DeleteOrRenameCommandLineOption
 
         options.Format = new OutputDisplayFormat(
             contentDisplayStyle: contentDisplayStyle
-                ?? ((ReferenceEquals(contentFilter, Filter.EntireInput)) ? ContentDisplayStyle.AllLines : ContentDisplayStyle.Omit),
+                ?? ((ReferenceEquals(contentFilter, Matcher.EntireInput)) ? ContentDisplayStyle.AllLines : ContentDisplayStyle.Omit),
             pathDisplayStyle: pathDisplayStyle ?? PathDisplayStyle.Full,
             lineOptions: lineDisplayOptions,
             lineContext: lineContext,
@@ -273,7 +273,7 @@ internal sealed class RenameCommandLineOptions : DeleteOrRenameCommandLineOption
 
         options.HighlightOptions = highlightOptions;
         options.SearchTarget = GetSearchTarget();
-        options.ReplaceOptions = replaceOptions;
+        options.Replacer = replacer;
         options.AskMode = (Ask) ? AskMode.File : AskMode.None;
         options.DryRun = DryRun;
         options.NameFilter = nameFilter;

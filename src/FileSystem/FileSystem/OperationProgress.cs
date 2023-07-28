@@ -8,27 +8,29 @@ namespace Orang.FileSystem;
 [DebuggerDisplay("{DebuggerDisplay,nq}")]
 public readonly struct OperationProgress
 {
-    internal OperationProgress(FileMatch fileMatch, OperationKind kind, Exception? exception = null)
-        : this(fileMatch, null, kind, exception)
+    internal OperationProgress(FileMatch match, OperationKind kind, Exception? exception = null)
+        : this(match, null, kind, exception)
     {
     }
 
-    internal OperationProgress(FileMatch fileMatch, string? newPath, OperationKind kind, Exception? exception = null)
+    internal OperationProgress(FileMatch match, string? newPath, OperationKind kind, Exception? exception = null)
     {
-        FileMatch = fileMatch;
+        Match = match;
         NewPath = newPath;
         Kind = kind;
         Exception = exception;
     }
 
-    public FileMatch FileMatch { get; }
+    public FileMatch Match { get; }
+
+    public string Path => Match.Path;
 
     public string? NewPath { get; }
 
-    public OperationKind Kind { get; }
+    internal OperationKind Kind { get; }
 
     public Exception? Exception { get; }
 
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    private string DebuggerDisplay => (FileMatch is not null) ? $"{Kind}  {FileMatch.Path}" : "Uninitialized";
+    private string DebuggerDisplay => (Match is not null) ? $"{Kind}  {Match.Path}" : "Uninitialized";
 }

@@ -20,12 +20,12 @@ internal abstract class StorageSectionComparer : IComparer<StorageSection>, IEqu
     {
         public override int Compare([AllowNull] StorageSection x, [AllowNull] StorageSection y)
         {
-            return FileSystemHelpers.Comparer.Compare(x.FileMatch?.Path, y.FileMatch?.Path);
+            return FileSystemUtilities.Comparer.Compare(x.FileMatch?.Path, y.FileMatch?.Path);
         }
 
         public override bool Equals([AllowNull] StorageSection x, [AllowNull] StorageSection y)
         {
-            return FileSystemHelpers.Comparer.Equals(x.FileMatch?.Path, y.FileMatch?.Path);
+            return FileSystemUtilities.Comparer.Equals(x.FileMatch?.Path, y.FileMatch?.Path);
         }
 
         public override int GetHashCode([DisallowNull] StorageSection obj)
@@ -35,7 +35,7 @@ internal abstract class StorageSectionComparer : IComparer<StorageSection>, IEqu
             if (path is null)
                 return 0;
 
-            return FileSystemHelpers.Comparer.GetHashCode(path);
+            return FileSystemUtilities.Comparer.GetHashCode(path);
         }
     }
 }

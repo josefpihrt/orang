@@ -2,11 +2,12 @@
 
 namespace Orang.FileSystem;
 
-public enum OperationKind : byte
+internal enum OperationKind : byte
 {
-    Replace = 0,
-    Rename = 1,
-    Delete = 2,
-    Copy = 3,
-    Move = 4,
+    None,
+    Copy,
+    Delete,
+    Move,
+    Rename,
+    Replace,
 }

@@ -49,7 +49,7 @@ internal sealed class RegexSplitCommandLineOptions : RegexCommandLineOptions
             Content,
             OptionNames.Content,
             OptionValueProviders.PatternOptionsWithoutGroupAndPartAndNegativeProvider,
-            out Filter? filter))
+            out Matcher? matcher))
         {
             return false;
         }
@@ -63,7 +63,7 @@ internal sealed class RegexSplitCommandLineOptions : RegexCommandLineOptions
             return false;
         }
 
-        options.Filter = filter!;
+        options.Matcher = matcher!;
         options.HighlightOptions = highlightOptions;
         options.OmitGroups = NoGroups;
         options.MaxCount = MaxCount;

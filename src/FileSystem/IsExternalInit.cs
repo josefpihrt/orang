@@ -2,7 +2,7 @@
 
 namespace System.Runtime.CompilerServices;
 
-using global::System.ComponentModel;
+using System.ComponentModel;
 
 [EditorBrowsable(EditorBrowsableState.Never)]
 internal static class IsExternalInit

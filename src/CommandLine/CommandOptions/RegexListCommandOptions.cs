@@ -14,7 +14,7 @@ internal sealed class RegexListCommandOptions : AbstractCommandOptions
 
     public char? Value { get; internal set; }
 
-    public Filter? Filter { get; internal set; }
+    public Matcher? Matcher { get; internal set; }
 
     public bool InCharGroup { get; internal set; }
 

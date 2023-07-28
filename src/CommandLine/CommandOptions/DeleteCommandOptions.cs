@@ -12,10 +12,6 @@ internal sealed class DeleteCommandOptions : DeleteOrRenameCommandOptions
 
     public bool IncludingBom { get; internal set; }
 
-    public bool FilesOnly { get; internal set; }
-
-    public bool DirectoriesOnly { get; internal set; }
-
     protected override void WriteDiagnosticCore(DiagnosticWriter writer)
     {
         writer.WriteDeleteCommand(this);

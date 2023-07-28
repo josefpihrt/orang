@@ -72,7 +72,7 @@ internal sealed class SpellcheckCommandLineOptions : CommonReplaceCommandLineOpt
                 Word,
                 OptionNames.Word,
                 OptionValueProviders.PatternOptions_Word_Provider,
-                out Filter? wordFilter))
+                out Matcher? wordFilter))
             {
                 return false;
             }
@@ -100,8 +100,8 @@ internal sealed class SpellcheckCommandLineOptions : CommonReplaceCommandLineOpt
         return true;
     }
 
-    protected override Filter? GetDefaultContentFilter()
+    protected override Matcher? GetDefaultContentFilter()
     {
-        return Filter.EntireInput;
+        return Matcher.EntireInput;
     }
 }

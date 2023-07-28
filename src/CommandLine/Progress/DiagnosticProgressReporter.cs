@@ -122,17 +122,17 @@ internal class DiagnosticProgressReporter : DotProgressReporter
         string? basePath,
         bool relativePath)
     {
-        if (string.Equals(path, basePath, FileSystemHelpers.Comparison))
+        if (string.Equals(path, basePath, FileSystemUtilities.Comparison))
             return (relativePath) ? "." : path;
 
         if (relativePath
             && basePath is not null
             && path.Length > basePath.Length
-            && path.StartsWith(basePath, FileSystemHelpers.Comparison))
+            && path.StartsWith(basePath, FileSystemUtilities.Comparison))
         {
             int startIndex = basePath.Length;
 
-            if (FileSystemHelpers.IsDirectorySeparator(path[startIndex]))
+            if (FileSystemUtilities.IsDirectorySeparator(path[startIndex]))
                 startIndex++;
 
             return path.AsSpan(startIndex);

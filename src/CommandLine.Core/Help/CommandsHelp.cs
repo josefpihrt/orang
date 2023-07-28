@@ -23,14 +23,14 @@ public class CommandsHelp
     public static CommandsHelp Create(
         IEnumerable<Command> commands,
         IEnumerable<OptionValueProvider>? providers = null,
-        Filter? filter = null)
+        Matcher? matcher = null)
     {
-        ImmutableArray<CommandItem> commandsHelp = HelpProvider.GetCommandItems(commands, filter);
+        ImmutableArray<CommandItem> commandsHelp = HelpProvider.GetCommandItems(commands, matcher);
 
         ImmutableArray<OptionValueItemList> values = HelpProvider.GetOptionValues(
             commands.SelectMany(f => f.Options),
             providers ?? ImmutableArray<OptionValueProvider>.Empty,
-            filter);
+            matcher);
 
         return new CommandsHelp(commandsHelp, values);
     }

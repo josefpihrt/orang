@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add [.NET API](https://josefpihrt.github.io/docs/orang/ref) ([#51](https://github.com/josefpihrt/roslynator/pull/51)).
+
 ### Changed
 
 - Migrate documentation to [Docusaurus](https://josefpihrt.github.io/docs/orang) ([#48](https://github.com/josefpihrt/roslynator/pull/48)).

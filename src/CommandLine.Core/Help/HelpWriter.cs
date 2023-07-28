@@ -27,7 +27,7 @@ public abstract class HelpWriter
             WriteArguments(arguments);
             WriteEndArguments(commandHelp);
         }
-        else if (Options.Filter is not null
+        else if (Options.Matcher is not null
             && commandHelp.Command.Arguments.Any())
         {
             WriteLine();
@@ -42,7 +42,7 @@ public abstract class HelpWriter
             WriteOptions(options);
             WriteEndOptions(commandHelp);
         }
-        else if (Options.Filter is not null
+        else if (Options.Matcher is not null
             && commandHelp.Command.Options.Any())
         {
             WriteLine();
@@ -114,7 +114,7 @@ public abstract class HelpWriter
 
             WriteEndCommands(commandsHelp);
         }
-        else if (Options.Filter is not null)
+        else if (Options.Matcher is not null)
         {
             WriteLine("No command found");
         }
@@ -167,6 +167,23 @@ public abstract class HelpWriter
                         WriteLine(expression);
                     }
                 }
+            }
+        }
+    }
+
+    public void WriteExpressionSyntax(IEnumerable<OptionValueItemList> optionValues)
+    {
+        ImmutableArray<string> expressions = HelpProvider.GetExpressionItems(optionValues);
+
+        if (!expressions.IsEmpty)
+        {
+            WriteLine();
+            WriteHeading("Expression syntax");
+
+            foreach (string expression in expressions)
+            {
+                Write(Options.Indent);
+                WriteLine(expression);
             }
         }
     }

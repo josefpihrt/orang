@@ -15,7 +15,7 @@ internal class RegexMatchCommand : RegexCommand<RegexMatchCommandOptions>
     {
         MatchData matchData = MatchData.Create(
             Options.Input,
-            Options.Filter.Regex,
+            Options.Matcher.Regex,
             Options.MaxCount,
             cancellationToken);
 

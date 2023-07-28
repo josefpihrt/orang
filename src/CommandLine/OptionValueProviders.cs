@@ -541,15 +541,15 @@ internal static class OptionValueProviders
 
     public static OptionValueProvider FileCompareOptionsProvider { get; } = new(
         MetaValues.CompareOptions,
-        SimpleOptionValue.Create(FileCompareOptions.None, description: "Compare files only by name."),
-        SimpleOptionValue.Create(FileCompareOptions.Attributes, description: "Compare file attributes."),
-        SimpleOptionValue.Create(FileCompareOptions.Content, description: "Compare file content."),
+        SimpleOptionValue.Create(FileCompareProperties.None, description: "Compare files only by name."),
+        SimpleOptionValue.Create(FileCompareProperties.Attributes, description: "Compare file attributes."),
+        SimpleOptionValue.Create(FileCompareProperties.Content, description: "Compare file content."),
         SimpleOptionValue.Create(
-            FileCompareOptions.ModifiedTime,
+            FileCompareProperties.ModifiedTime,
             shortValue: "mt",
             helpValue: "m[odified-]t[ime]",
             description: "Compare time a file was last modified."),
-        SimpleOptionValue.Create(FileCompareOptions.Size, description: "Compare file size.")
+        SimpleOptionValue.Create(FileCompareProperties.Size, description: "Compare file size.")
     );
 
     public static OptionValueProvider SyncConflictResolutionProvider { get; } = new(

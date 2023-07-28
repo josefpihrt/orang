@@ -12,11 +12,11 @@ internal class SpellcheckState : IReplacer
     public SpellcheckState(
         Spellchecker spellchecker,
         SpellingData data,
-        IEnumerable<Filter>? filters = null)
+        IEnumerable<Matcher>? matchers = null)
     {
         Spellchecker = spellchecker;
         Data = data;
-        Filters = filters?.ToImmutableArray() ?? ImmutableArray<Filter>.Empty;
+        Matchers = matchers?.ToImmutableArray() ?? ImmutableArray<Matcher>.Empty;
 
         OriginalFixes = data.Fixes;
     }
@@ -25,7 +25,7 @@ internal class SpellcheckState : IReplacer
 
     public SpellingData Data { get; internal set; }
 
-    public ImmutableArray<Filter> Filters { get; }
+    public ImmutableArray<Matcher> Matchers { get; }
 
     internal FixList OriginalFixes { get; }
 

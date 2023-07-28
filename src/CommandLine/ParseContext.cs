@@ -534,7 +534,7 @@ internal class ParseContext
         }
 
         if ((options & ModifierOptions.FromFile) != 0
-            && !FileSystemHelpers.TryReadAllText(value, out value!, ex => Logger.WriteError(ex)))
+            && !FileSystemUtilities.TryReadAllText(value, out value!, ex => Logger.WriteError(ex)))
         {
             return false;
         }
@@ -567,9 +567,9 @@ internal class ParseContext
         string optionName,
         string? replacement,
         MatchEvaluator? matchEvaluator,
-        [NotNullWhen(true)] out ReplaceOptions? replaceOptions)
+        [NotNullWhen(true)] out Replacer? replacer)
     {
-        replaceOptions = null;
+        replacer = null;
         var replaceFlags = ReplaceFlags.None;
 
         if (values is not null
@@ -598,14 +598,14 @@ internal class ParseContext
 
         if (matchEvaluator is not null)
         {
-            replaceOptions = new ReplaceOptions(
+            replacer = new Replacer(
                 matchEvaluator: matchEvaluator,
                 functions: functions,
                 cultureInvariant: (replaceFlags & ReplaceFlags.CultureInvariant) != 0);
         }
         else
         {
-            replaceOptions = new ReplaceOptions(
+            replacer = new Replacer(
                 replacement: replacement,
                 functions: functions,
                 cultureInvariant: (replaceFlags & ReplaceFlags.CultureInvariant) != 0);
@@ -872,7 +872,7 @@ internal class ParseContext
         }
 
         if ((options & ReplacementOptions.FromFile) != 0
-            && !FileSystemHelpers.TryReadAllText(value, out value!, ex => Logger.WriteError(ex)))
+            && !FileSystemUtilities.TryReadAllText(value, out value!, ex => Logger.WriteError(ex)))
         {
             return false;
         }
@@ -1314,7 +1314,7 @@ internal class ParseContext
     {
         try
         {
-            fullPath = FileSystemHelpers.EnsureFullPath(path);
+            fullPath = FileSystemUtilities.EnsureFullPath(path);
             return true;
         }
         catch (ArgumentException ex)
@@ -1362,7 +1362,7 @@ internal class ParseContext
         IEnumerable<string> values,
         string optionName,
         OptionValueProvider provider,
-        out Filter? filter,
+        out Matcher? matcher,
         bool allowNull = false,
         bool allowEmptyPattern = false,
         OptionValueProvider? namePartProvider = null,
@@ -1373,7 +1373,7 @@ internal class ParseContext
             values: values,
             optionName: optionName,
             provider: provider,
-            filter: out filter,
+            matcher: out matcher,
             namePart: out _,
             allowNull: allowNull,
             allowEmptyPattern: allowEmptyPattern,
@@ -1386,7 +1386,7 @@ internal class ParseContext
         IEnumerable<string> values,
         string optionName,
         OptionValueProvider provider,
-        out Filter? filter,
+        out Matcher? matcher,
         out FileNamePart namePart,
         bool allowNull = false,
         bool allowEmptyPattern = false,
@@ -1394,7 +1394,7 @@ internal class ParseContext
         FileNamePart defaultNamePart = FileNamePart.Name,
         PatternOptions includedPatternOptions = PatternOptions.None)
     {
-        filter = null;
+        matcher = null;
         namePart = defaultNamePart;
 
         string? pattern = values.FirstOrDefault();
@@ -1505,7 +1505,7 @@ internal class ParseContext
         if (pattern.Length == 0
             && allowEmptyPattern)
         {
-            filter = new Filter(new Regex(".+", RegexOptions.Singleline), predicate: predicate);
+            matcher = new Matcher(new Regex(".+", RegexOptions.Singleline), predicate: predicate);
             return true;
         }
 
@@ -1544,7 +1544,7 @@ internal class ParseContext
 
         if ((patternOptions & PatternOptions.FromFile) != 0)
         {
-            if (!FileSystemHelpers.TryReadAllText(pattern, out pattern, ex => Logger.WriteError(ex)))
+            if (!FileSystemUtilities.TryReadAllText(pattern, out pattern, ex => Logger.WriteError(ex)))
                 return false;
 
             if (pattern.Length == 0
@@ -1598,10 +1598,10 @@ internal class ParseContext
             }
         }
 
-        filter = new Filter(
+        matcher = new Matcher(
             regex,
-            isNegative: (patternOptions & PatternOptions.Negative) != 0,
-            groupNumber: groupIndex,
+            invert: (patternOptions & PatternOptions.Negative) != 0,
+            group: groupIndex,
             predicate: predicate);
 
         return true;
@@ -1818,7 +1818,7 @@ internal class ParseContext
             name,
             OptionNames.Name,
             OptionValueProviders.PatternOptionsProvider,
-            out Filter? nameFilter,
+            out Matcher? nameFilter,
             out FileNamePart namePart,
             allowNull: true,
             allowEmptyPattern: allowEmptyPattern))

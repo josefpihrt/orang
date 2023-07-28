@@ -18,7 +18,7 @@ internal class CommonReplaceCommand<TOptions> : CommonFindCommand<TOptions> wher
 
     public CommonReplaceCommand(TOptions options, Logger logger) : base(options, logger)
     {
-        Debug.Assert(!options.ContentFilter!.IsNegative);
+        Debug.Assert(!options.ContentFilter!.Invert);
     }
 
     protected override bool CanDisplaySummary => Options.Input is null;
@@ -51,7 +51,7 @@ internal class CommonReplaceCommand<TOptions> : CommonFindCommand<TOptions> wher
     {
         int count = 0;
         var maxReason = MaxReason.None;
-        Filter contentFilter = ContentFilter!;
+        Matcher contentFilter = ContentFilter!;
         Match? match = contentFilter.Match(input);
 
         if (match is not null)
@@ -144,7 +144,7 @@ internal class CommonReplaceCommand<TOptions> : CommonFindCommand<TOptions> wher
             groups = ListCache<Capture>.GetInstance();
 
             MaxReason maxReason = GetCaptures(
-                fileMatch.ContentMatch!,
+                fileMatch.Content!,
                 writerOptions.GroupNumber,
                 context,
                 isPathDisplayed: false,
@@ -232,7 +232,7 @@ internal class CommonReplaceCommand<TOptions> : CommonFindCommand<TOptions> wher
             {
                 MatchOutputInfo? outputInfo = Options.CreateOutputInfo(
                     fileMatch.ContentText,
-                    fileMatch.ContentMatch!,
+                    fileMatch.Content!,
                     ContentFilter!);
 
                 if (Options.AskMode == AskMode.Value

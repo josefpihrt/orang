@@ -35,7 +35,7 @@ internal class RegexListCommand : AbstractCommand<RegexListCommandOptions>
     {
         IEnumerable<SyntaxItem> items = SyntaxItems.Load();
 
-        Filter? filter = Options.Filter;
+        Matcher? matcher = Options.Matcher;
 
         ImmutableArray<SyntaxSection> sections = Options.Sections;
 
@@ -46,10 +46,10 @@ internal class RegexListCommand : AbstractCommand<RegexListCommandOptions>
                 .ToImmutableArray();
         }
 
-        if (filter is not null)
+        if (matcher is not null)
         {
-            items = items.Where(f => filter.IsMatch(f.Text)
-                || filter.IsMatch(f.Description));
+            items = items.Where(f => matcher.IsMatch(f.Text)
+                || matcher.IsMatch(f.Description));
         }
 
         if (sections.Any())
@@ -191,12 +191,12 @@ internal class RegexListCommand : AbstractCommand<RegexListCommandOptions>
             inCharGroup: Options.InCharGroup,
             options: Options.RegexOptions);
 
-        Filter? filter = Options.Filter;
+        Matcher? matcher = Options.Matcher;
 
-        if (filter is not null)
+        if (matcher is not null)
         {
-            patterns = patterns.Where(f => filter.IsMatch(f.Pattern)
-                || (!string.IsNullOrEmpty(f.Description) && filter.IsMatch(f.Description)));
+            patterns = patterns.Where(f => matcher.IsMatch(f.Pattern)
+                || (!string.IsNullOrEmpty(f.Description) && matcher.IsMatch(f.Description)));
         }
 
         ImmutableArray<SyntaxSection> sections = Options.Sections;

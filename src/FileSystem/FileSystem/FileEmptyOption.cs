@@ -4,7 +4,7 @@ namespace Orang.FileSystem;
 
 public enum FileEmptyOption
 {
-    None = 0,
-    Empty = 1,
-    NonEmpty = 2,
+    None,
+    Empty,
+    NonEmpty,
 }

@@ -44,7 +44,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: nuget_packages
-          path: src/Core/bin/Release/*nupkg
+          path: src/Common/bin/Release/*nupkg
       - uses: actions/upload-artifact@v3
         with:
           name: nuget_packages

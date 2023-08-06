@@ -1,4 +1,4 @@
-roslynator generate-doc "../src/Orang.sln" `
+ roslynator generate-doc "../src/Orang.sln" `
  --properties "Configuration=Release" `
  --projects "Common" "FileSystem" `
  --heading ".NET API Reference" `

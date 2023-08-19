@@ -70,7 +70,8 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
     [Option(
         longName: OptionNames.MaxDepth,
         HelpText = "Maximum directory depth.",
-        Default = -1)]
+        MetaValue = MetaValues.Num,
+        Default = int.MaxValue)]
     public int MaxDepth { get; set; }
 
     [HideFromConsoleHelp]

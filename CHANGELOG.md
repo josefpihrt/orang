@@ -10,8 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Add command `regex create` ([#45](https://github.com/josefpihrt/roslynator/pull/45)).
-- Add parameter `--max-depth` for maximum director depth ([#44](https://github.com/josefpihrt/roslynator/pull/44)).
-  - Add API `Orang.FileSystem.DirectoryMatcher.MaxDepth`
+- Add parameter `--max-depth` for maximum directory depth ([#44](https://github.com/josefpihrt/roslynator/pull/44)).
+  - Add property `Orang.FileSystem.DirectoryMatcher.MaxDepth`
 
 ## [0.4.0] - 2023-08-17
 

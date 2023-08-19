@@ -297,21 +297,8 @@ internal class SearchState
     }
 
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    private readonly struct Directory
+    private readonly record struct Directory(string Path, int Depth, MatchStatus Status)
     {
-        public Directory(string path, int depth, MatchStatus status)
-        {
-            Path = path;
-            Depth = depth;
-            Status = status;
-        }
-
-        public string Path { get; }
-
-        public int Depth { get; }
-
-        public MatchStatus Status { get; }
-
         public bool IsSuccess => Status == MatchStatus.Success;
 
         public bool IsFail => Status == MatchStatus.FailFromPositive || Status == MatchStatus.FailFromNegative;

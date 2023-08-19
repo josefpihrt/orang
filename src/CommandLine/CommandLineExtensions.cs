@@ -329,9 +329,11 @@ internal static class CommandLineExtensions
     {
         logger.WriteError(message ?? exception.Message);
 
-        var verbosity = Verbosity.Diagnostic;
+        const Verbosity verbosity =
 #if DEBUG
-        verbosity = Verbosity.Quiet;
+            Verbosity.Quiet;
+#else
+            Verbosity.Diagnostic;
 #endif
         if (logger.ConsoleOut.Verbosity >= verbosity)
             logger.ConsoleOut.ErrorWriter.WriteLine(exception.ToString());

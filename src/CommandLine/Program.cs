@@ -393,8 +393,11 @@ internal static class Program
 
     private static int Execute<TOptions>(
         AbstractCommand<TOptions> command,
+#if DEBUG
         AbstractCommandLineOptions options,
-        Logger logger) where TOptions : AbstractCommandOptions
+        Logger logger
+#endif
+        ) where TOptions : AbstractCommandOptions
     {
 #if DEBUG
         if (logger.ShouldWrite(Verbosity.Diagnostic))

@@ -88,6 +88,7 @@ internal static class Program
 
             ParserResult<object> parserResult = parser.ParseArguments<
                 CopyCommandLineOptions,
+                RegexCreateCommandLineOptions,
                 DeleteCommandLineOptions,
                 FindCommandLineOptions,
                 HelpCommandLineOptions,
@@ -161,6 +162,7 @@ internal static class Program
 
             return parserResult.MapResult(
                 (CopyCommandLineOptions options) => Copy(options, parseContext),
+                (RegexCreateCommandLineOptions options) => CreatePattern(options, parseContext),
                 (DeleteCommandLineOptions options) => Delete(options, parseContext),
                 (FindCommandLineOptions options) => Find(options, parseContext),
                 (HelpCommandLineOptions options) => Help(options, parseContext),
@@ -269,6 +271,16 @@ internal static class Program
             return ExitCodes.Error;
 
         return Execute(new CopyCommand(options, context.Logger), commandLineOptions, context.Logger);
+    }
+
+    private static int CreatePattern(RegexCreateCommandLineOptions commandLineOptions, ParseContext context)
+    {
+        var options = new RegexCreateCommandOptions();
+
+        if (!commandLineOptions.TryParse(options, context))
+            return ExitCodes.Error;
+
+        return Execute(new RegexCreateCommand(options, context.Logger), commandLineOptions, context.Logger);
     }
 
     private static int Delete(DeleteCommandLineOptions commandLineOptions, ParseContext context)

@@ -73,6 +73,7 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
         Default = -1)]
     public int MaxDepth { get; set; }
 
+    [HideFromConsoleHelp]
     [Option(
         shortName: OptionShortNames.NoContent,
         longName: OptionNames.NoContent,

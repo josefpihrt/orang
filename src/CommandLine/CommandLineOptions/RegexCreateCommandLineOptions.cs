@@ -6,7 +6,7 @@ using Orang.Text.RegularExpressions;
 
 namespace Orang.CommandLine;
 
-[Verb("regex-create", HelpText = "")]
+[Verb("regex-create", HelpText = "Creates regular expression pattern.")]
 [CommandGroup("Regex", 2)]
 [CommandAlias("regex create")]
 internal sealed class RegexCreateCommandLineOptions : AbstractCommandLineOptions
@@ -14,7 +14,7 @@ internal sealed class RegexCreateCommandLineOptions : AbstractCommandLineOptions
     [Value(
         index: 0,
         HelpText = "",
-        MetaName = "<PATTERN|PATH>")]
+        MetaName = "<PATTERN|FILE_PATH>")]
     public string Input { get; set; } = null!;
 
     [Option(

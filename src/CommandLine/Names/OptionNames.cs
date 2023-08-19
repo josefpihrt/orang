@@ -59,7 +59,6 @@ internal static class OptionNames
     public const string MaxMatchesInFile = "max-matches-in-file";
     public const string MaxMatchingFiles = "max-matching-files";
     public const string MaxWordLength = "max-word-length";
-    public const string MinDepth = "min-depth";
     public const string MinWordLength = "min-word-length";
     public const string Modifier = "modifier";
     public const string Modify = "modify";

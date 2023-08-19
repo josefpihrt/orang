@@ -45,9 +45,9 @@ internal class SearchState
 
     public SearchTelemetry? Telemetry { get; set; }
 
-    public int MinDirectoryDepth { get; set; } = -1;
+    public int MinDirectoryDepth { get; set; }
 
-    public int MaxDirectoryDepth { get; set; } = -1;
+    public int MaxDirectoryDepth { get; set; } = int.MaxValue;
 
     public IEnumerable<FileMatch> Find(
         string directoryPath,
@@ -196,8 +196,7 @@ internal class SearchState
                             }
 
                             if (matchStatus != MatchStatus.FailFromNegative
-                                && (MaxDirectoryDepth < 0
-                                    || directory.Depth < MaxDirectoryDepth))
+                                && directory.Depth < MaxDirectoryDepth)
                             {
                                 subdirectories!.Enqueue(new Directory(currentDirectory, directory.Depth + 1, matchStatus));
                             }

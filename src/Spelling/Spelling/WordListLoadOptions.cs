@@ -2,12 +2,11 @@
 
 using System;
 
-namespace Orang.Spelling
+namespace Orang.Spelling;
+
+[Flags]
+public enum WordListLoadOptions
 {
-    [Flags]
-    public enum WordListLoadOptions
-    {
-        None = 0,
-        IgnoreCase = 1,
-    }
+    None = 0,
+    IgnoreCase = 1,
 }

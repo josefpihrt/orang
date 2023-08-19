@@ -10,6 +10,4 @@ roslynator list-symbols "../src/FileSystem/FileSystem.csproj" `
  --file-log "roslynator.log" `
  --file-log-verbosity diag
 
- Write-Host "DONE"
- Read-Host
- 
+Write-Host "DONE"

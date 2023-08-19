@@ -2,12 +2,11 @@
 
 using System;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+[Flags]
+internal enum InputOptions
 {
-    [Flags]
-    internal enum InputOptions
-    {
-        None = 0,
-        Escape = 1,
-    }
+    None = 0,
+    Escape = 1,
 }

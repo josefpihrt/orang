@@ -1,87 +1,86 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+internal class AllLinesContentWriter : ContentWriter
 {
-    internal class AllLinesContentWriter : ContentWriter
+    private int _lastPos;
+    private ValueWriter? _valueWriter;
+
+    public AllLinesContentWriter(
+        string input,
+        ContentTextWriter? writer,
+        ContentWriterOptions options,
+        IResultStorage? storage = null) : base(input, writer, options)
     {
-        private int _lastPos;
-        private ValueWriter? _valueWriter;
+        ResultStorage = storage;
+    }
 
-        public AllLinesContentWriter(
-            string input,
-            ContentTextWriter? writer,
-            ContentWriterOptions options,
-            IResultStorage? storage = null) : base(input, writer, options)
+    public IResultStorage? ResultStorage { get; }
+
+    protected override ValueWriter ValueWriter
+    {
+        get
         {
-            ResultStorage = storage;
-        }
-
-        public IResultStorage? ResultStorage { get; }
-
-        protected override ValueWriter ValueWriter
-        {
-            get
+            if (_valueWriter is null)
             {
-                if (_valueWriter == null)
+                if (Options.IncludeLineNumber)
                 {
-                    if (Options.IncludeLineNumber)
-                    {
-                        _valueWriter = new LineNumberValueWriter(Writer, Options.Indent);
-                    }
-                    else
-                    {
-                        _valueWriter = new ValueWriter(Writer, Options.Indent);
-                    }
+                    _valueWriter = new LineNumberValueWriter(Writer, Options.Indent);
                 }
-
-                return _valueWriter;
+                else
+                {
+                    _valueWriter = new ValueWriter(Writer, Options.Indent);
+                }
             }
+
+            return _valueWriter;
         }
+    }
 
-        protected override void WriteStartMatches()
-        {
-            _lastPos = 0;
+    protected override void WriteStartMatches()
+    {
+        _lastPos = 0;
 
-            Write(Options.Indent);
+        Write(Options.Indent);
 
-            if (Options.IncludeLineNumber)
-                WriteLineNumber(1);
+        if (Options.IncludeLineNumber)
+            WriteLineNumber(1);
 
-            ResultStorage?.Add(Input);
-        }
+        ResultStorage?.Add(Input);
+    }
 
-        protected override void WriteStartMatch(ICapture capture)
-        {
-            int index = capture.Index;
+    protected override void WriteStartMatch(ICapture capture)
+    {
+        int index = capture.Index;
 
-            ValueWriter.Write(Input, _lastPos, index - _lastPos, symbols: null);
-        }
+        ValueWriter.Write(Input, _lastPos, index - _lastPos, symbols: null);
+    }
 
-        protected override void WriteEndMatch(ICapture capture)
-        {
-            _lastPos = capture.Index + capture.Length;
-        }
+    protected override void WriteEndMatch(ICapture capture)
+    {
+        _lastPos = capture.Index + capture.Length;
+    }
 
-        protected override void WriteMatchSeparator()
-        {
-        }
+    protected override void WriteMatchSeparator()
+    {
+    }
 
-        protected override void WriteStartReplacement(ICapture capture, string? result)
-        {
-        }
+    protected override void WriteStartReplacement(ICapture capture, string? result)
+    {
+    }
 
-        protected override void WriteEndReplacement(ICapture capture, string? result)
-        {
-        }
+    protected override void WriteEndReplacement(ICapture capture, string? result)
+    {
+    }
 
-        protected override void WriteEndMatches()
-        {
-            ValueWriter.Write(Input, _lastPos, Input.Length - _lastPos, symbols: null);
-            WriteLine();
-        }
+    protected override void WriteEndMatches()
+    {
+        ValueWriter.Write(Input, _lastPos, Input.Length - _lastPos, symbols: null);
+        WriteLine();
+    }
 
-        public override void Dispose()
-        {
-        }
+    public override void Dispose()
+    {
     }
 }

@@ -9,6 +9,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Add command `regex create` ([#45](https://github.com/josefpihrt/roslynator/pull/45)).
+
+## [0.4.0] - 2023-08-17
+
+## [0.4.0-beta.2] - 2023-07-29
+
+### Added
+
+- Fix validation of group name ([#58](https://github.com/josefpihrt/roslynator/pull/58)).
+
+## [0.4.0-beta] - 2023-07-28
+
+### Added
+
+- Add [.NET API](https://josefpihrt.github.io/docs/orang/ref) ([#51](https://github.com/josefpihrt/roslynator/pull/51)).
+
+### Changed
+
+- Migrate documentation to [Docusaurus](https://josefpihrt.github.io/docs/orang) ([#48](https://github.com/josefpihrt/roslynator/pull/48)).
+
+### Fixed
+
+- Check correctly if name changed during renaming ([#54](https://github.com/josefpihrt/roslynator/pull/54)).
+
+## [0.3.2] - 2022-06-26
+
+### Added
+
 - Add support for Source Link ([#42](https://github.com/josefpihrt/roslynator/pull/42)).
 - Add CI/CD pipeline ([#41](https://github.com/josefpihrt/roslynator/pull/41)).
 - Add NuGet readme file ([#38](https://github.com/josefpihrt/roslynator/pull/38)).

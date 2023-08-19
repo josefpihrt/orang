@@ -3,160 +3,159 @@
 using System;
 using System.IO;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+internal class AllLinesReplacementWriter : AllLinesContentWriter, IReportReplacement
 {
-    internal class AllLinesReplacementWriter : AllLinesContentWriter, IReportReplacement
+    private readonly TextWriter? _textWriter;
+    private int _writerIndex;
+    private ValueWriter? _valueWriter;
+    private ValueWriter? _replacementValueWriter;
+
+    public AllLinesReplacementWriter(
+        string input,
+        IReplacer replacer,
+        ContentTextWriter writer,
+        ContentWriterOptions options,
+        TextWriter? textWriter = null,
+        SpellcheckState? spellcheckState = null) : base(input, writer, options)
     {
-        private readonly TextWriter? _textWriter;
-        private int _writerIndex;
-        private ValueWriter? _valueWriter;
-        private ValueWriter? _replacementValueWriter;
+        Replacer = replacer;
+        _textWriter = textWriter;
+        SpellcheckState = spellcheckState;
+    }
 
-        public AllLinesReplacementWriter(
-            string input,
-            IReplacer replacer,
-            ContentTextWriter writer,
-            ContentWriterOptions options,
-            TextWriter? textWriter = null,
-            SpellcheckState? spellcheckState = null) : base(input, writer, options)
+    public IReplacer Replacer { get; }
+
+    public SpellcheckState? SpellcheckState { get; }
+
+    public int ReplacementCount { get; private set; }
+
+    protected override ValueWriter ValueWriter
+    {
+        get
         {
-            Replacer = replacer;
-            _textWriter = textWriter;
-            SpellcheckState = spellcheckState;
-        }
-
-        public IReplacer Replacer { get; }
-
-        public SpellcheckState? SpellcheckState { get; }
-
-        public int ReplacementCount { get; private set; }
-
-        protected override ValueWriter ValueWriter
-        {
-            get
+            if (_valueWriter is null)
             {
-                if (_valueWriter == null)
+                if (Options.IncludeLineNumber)
                 {
-                    if (Options.IncludeLineNumber)
-                    {
-                        _valueWriter = new LineNumberValueWriter(Writer, Options.Indent, includeEndingLineNumber: false);
-                    }
-                    else
-                    {
-                        _valueWriter = new ValueWriter(Writer, Options.Indent);
-                    }
+                    _valueWriter = new LineNumberValueWriter(Writer, Options.Indent, includeEndingLineNumber: false);
                 }
-
-                return _valueWriter;
-            }
-        }
-
-        private ValueWriter ReplacementValueWriter => _replacementValueWriter ??= new ValueWriter(Writer, Options.Indent);
-
-        protected override void WriteStartMatches()
-        {
-            ReplacementCount = 0;
-            _writerIndex = 0;
-
-            base.WriteStartMatches();
-        }
-
-        protected override void WriteNonEmptyMatchValue(ICapture capture)
-        {
-            if (Options.HighlightMatch)
-            {
-                base.WriteNonEmptyMatchValue(capture);
-            }
-            else if (Options.IncludeLineNumber)
-            {
-                ((LineNumberValueWriter)ValueWriter).LineNumber += TextHelpers.CountLines(
-                    Input,
-                    capture.Index,
-                    capture.Length);
-            }
-        }
-
-        protected override void WriteNonEmptyReplacementValue(
-            string result,
-            in ConsoleColors colors,
-            in ConsoleColors boundaryColors)
-        {
-            if (Options.IncludeLineNumber)
-            {
-                ReplacementValueWriter.Write(result, Symbols, colors, boundaryColors);
-            }
-            else
-            {
-                base.WriteNonEmptyReplacementValue(result, colors, boundaryColors);
-            }
-        }
-
-        protected override void WriteMatch(ICapture capture)
-        {
-            if (SpellcheckState?.Data.IgnoredValues.Contains(capture.Value) == true)
-                return;
-
-            base.WriteMatch(capture);
-        }
-
-        protected override void WriteEndMatch(ICapture capture)
-        {
-            string result = Replacer.Replace(capture);
-
-            WriteReplacement(capture, result);
-
-            if (Options.IncludeLineNumber)
-            {
-                int endIndex = capture.Index + capture.Length;
-
-                if (endIndex > 0
-                    && Input[endIndex - 1] == '\n')
+                else
                 {
-                    result ??= capture.Value;
-
-                    if (result.Length > 0
-                        && result[result.Length - 1] != '\n')
-                    {
-                        WriteLine();
-                        Write(Options.Indent);
-                    }
-
-                    WriteLineNumber(((LineNumberValueWriter)ValueWriter).LineNumber);
+                    _valueWriter = new ValueWriter(Writer, Options.Indent);
                 }
             }
 
-            base.WriteEndMatch(capture);
+            return _valueWriter;
         }
+    }
 
-        protected override void WriteEndReplacement(ICapture capture, string? result)
+    private ValueWriter ReplacementValueWriter => _replacementValueWriter ??= new ValueWriter(Writer, Options.Indent);
+
+    protected override void WriteStartMatches()
+    {
+        ReplacementCount = 0;
+        _writerIndex = 0;
+
+        base.WriteStartMatches();
+    }
+
+    protected override void WriteNonEmptyMatchValue(ICapture capture)
+    {
+        if (Options.HighlightMatch)
         {
-            if (result != null)
+            base.WriteNonEmptyMatchValue(capture);
+        }
+        else if (Options.IncludeLineNumber)
+        {
+            ((LineNumberValueWriter)ValueWriter).LineNumber += TextHelpers.CountLines(
+                Input,
+                capture.Index,
+                capture.Length);
+        }
+    }
+
+    protected override void WriteNonEmptyReplacementValue(
+        string result,
+        in ConsoleColors colors,
+        in ConsoleColors boundaryColors)
+    {
+        if (Options.IncludeLineNumber)
+        {
+            ReplacementValueWriter.Write(result, Symbols, colors, boundaryColors);
+        }
+        else
+        {
+            base.WriteNonEmptyReplacementValue(result, colors, boundaryColors);
+        }
+    }
+
+    protected override void WriteMatch(ICapture capture)
+    {
+        if (SpellcheckState?.Data.IgnoredValues.Contains(capture.Value) == true)
+            return;
+
+        base.WriteMatch(capture);
+    }
+
+    protected override void WriteEndMatch(ICapture capture)
+    {
+        string result = Replacer.Replace(capture);
+
+        WriteReplacement(capture, result);
+
+        if (Options.IncludeLineNumber)
+        {
+            int endIndex = capture.Index + capture.Length;
+
+            if (endIndex > 0
+                && Input[endIndex - 1] == '\n')
             {
-                _textWriter?.Write(Input.AsSpan(_writerIndex, capture.Index - _writerIndex));
-                _textWriter?.Write(result);
+                result ??= capture.Value;
 
-                _writerIndex = capture.Index + capture.Length;
+                if (result.Length > 0
+                    && result[result.Length - 1] != '\n')
+                {
+                    WriteLine();
+                    Write(Options.Indent);
+                }
 
-                ReplacementCount++;
+                WriteLineNumber(((LineNumberValueWriter)ValueWriter).LineNumber);
             }
-
-            SpellcheckState?.ProcessReplacement(Input, capture, result, lineNumber: (ValueWriter as LineNumberValueWriter)?.LineNumber);
-
-            base.WriteEndReplacement(capture, result);
         }
 
-        protected override void WriteEndMatches()
+        base.WriteEndMatch(capture);
+    }
+
+    protected override void WriteEndReplacement(ICapture capture, string? result)
+    {
+        if (result is not null)
         {
-            if (ReplacementCount > 0)
-                _textWriter?.Write(Input.AsSpan(_writerIndex, Input.Length - _writerIndex));
+            _textWriter?.Write(Input.AsSpan(_writerIndex, capture.Index - _writerIndex));
+            _textWriter?.Write(result);
 
-            base.WriteEndMatches();
+            _writerIndex = capture.Index + capture.Length;
+
+            ReplacementCount++;
         }
 
-        public override void Dispose()
-        {
-            if (ReplacementCount > 0)
-                _textWriter?.Dispose();
-        }
+        SpellcheckState?.ProcessReplacement(Input, capture, result, lineNumber: (ValueWriter as LineNumberValueWriter)?.LineNumber);
+
+        base.WriteEndReplacement(capture, result);
+    }
+
+    protected override void WriteEndMatches()
+    {
+        if (ReplacementCount > 0)
+            _textWriter?.Write(Input.AsSpan(_writerIndex, Input.Length - _writerIndex));
+
+        base.WriteEndMatches();
+    }
+
+    public override void Dispose()
+    {
+        if (ReplacementCount > 0)
+            _textWriter?.Dispose();
     }
 }

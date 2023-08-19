@@ -3,53 +3,52 @@
 using CommandLine;
 using Orang.CommandLine.Annotations;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+[Verb("regex-escape", HelpText = "Escapes special characters by replacing them with their escape codes.")]
+[CommandGroup("Regex", 2)]
+[CommandAlias("regex escape")]
+internal sealed class RegexEscapeCommandLineOptions : BaseCommandLineOptions
 {
-    [Verb("regex-escape", HelpText = "Escapes special characters by replacing them with their escape codes.")]
-    [CommandGroup("Regex", 2)]
-    [CommandAlias("regex escape")]
-    internal sealed class RegexEscapeCommandLineOptions : BaseCommandLineOptions
+    [Option(
+        shortName: OptionShortNames.Input,
+        longName: OptionNames.Input,
+        HelpText = "Text to be escaped.",
+        MetaValue = MetaValues.Input)]
+    public string Input { get; set; } = null!;
+
+    [Option(
+        longName: OptionNames.CharGroup,
+        HelpText = "Text is part of a character group.")]
+    public bool CharGroup { get; set; }
+
+    [Option(
+        shortName: OptionShortNames.Replacement,
+        longName: OptionNames.Replacement,
+        HelpText = "Text is a replacement string.")]
+    public bool Replacement { get; set; }
+
+    public bool TryParse(RegexEscapeCommandOptions options, ParseContext context)
     {
-        [Option(
-            shortName: OptionShortNames.Input,
-            longName: OptionNames.Input,
-            HelpText = "Text to be escaped.",
-            MetaValue = MetaValues.Input)]
-        public string Input { get; set; } = null!;
+        string input = Input;
 
-        [Option(
-            longName: OptionNames.CharGroup,
-            HelpText = "Text is part of a character group.")]
-        public bool CharGroup { get; set; }
-
-        [Option(
-            shortName: OptionShortNames.Replacement,
-            longName: OptionNames.Replacement,
-            HelpText = "Text is a replacement string.")]
-        public bool Replacement { get; set; }
-
-        public bool TryParse(RegexEscapeCommandOptions options, ParseContext context)
+        if (input is null)
         {
-            string input = Input;
+            string? redirectedInput = ConsoleHelpers.ReadRedirectedInput();
 
-            if (input == null)
+            if (redirectedInput is null)
             {
-                string? redirectedInput = ConsoleHelpers.ReadRedirectedInput();
-
-                if (redirectedInput == null)
-                {
-                    context.WriteError("Input is missing.");
-                    return false;
-                }
-
-                input = redirectedInput;
+                context.WriteError("Input is missing.");
+                return false;
             }
 
-            options.Input = input;
-            options.InCharGroup = CharGroup;
-            options.Replacement = Replacement;
-
-            return true;
+            input = redirectedInput;
         }
+
+        options.Input = input;
+        options.InCharGroup = CharGroup;
+        options.Replacement = Replacement;
+
+        return true;
     }
 }

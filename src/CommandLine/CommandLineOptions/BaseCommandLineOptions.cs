@@ -3,15 +3,14 @@
 using System.Collections.Generic;
 using CommandLine;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+internal class BaseCommandLineOptions : AbstractCommandLineOptions
 {
-    internal class BaseCommandLineOptions : AbstractCommandLineOptions
-    {
-        [Option(
-            shortName: OptionShortNames.Output,
-            longName: OptionNames.Output,
-            HelpText = "Path to a file that should store output.",
-            MetaValue = MetaValues.Output)]
-        public IEnumerable<string> Output { get; set; } = null!;
-    }
+    [Option(
+        shortName: OptionShortNames.Output,
+        longName: OptionNames.Output,
+        HelpText = "Path to a file that should store output.",
+        MetaValue = MetaValues.Output)]
+    public IEnumerable<string> Output { get; set; } = null!;
 }

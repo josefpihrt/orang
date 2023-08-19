@@ -1,31 +1,22 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Text.RegularExpressions;
+using System;
 
-namespace Orang.FileSystem
+namespace Orang.FileSystem;
+
+#pragma warning disable RCS1223 // Mark publicly visible type with DebuggerDisplay attribute.
+
+public class RenameOptions
 {
-    public class RenameOptions : ReplaceOptions
-    {
-        public RenameOptions(
-            string replacement,
-            ReplaceFunctions functions = ReplaceFunctions.None,
-            bool cultureInvariant = false,
-            ConflictResolution conflictResolution = ConflictResolution.Skip)
-            : base(replacement, functions, cultureInvariant)
-        {
-            ConflictResolution = conflictResolution;
-        }
+    internal ReplaceFunctions ReplaceFunctions { get; set; }
 
-        public RenameOptions(
-            MatchEvaluator matchEvaluator,
-            ReplaceFunctions functions = ReplaceFunctions.None,
-            bool cultureInvariant = false,
-            ConflictResolution conflictResolution = ConflictResolution.Skip)
-            : base(matchEvaluator, functions, cultureInvariant)
-        {
-            ConflictResolution = conflictResolution;
-        }
+    public bool CultureInvariant { get; set; }
 
-        public ConflictResolution ConflictResolution { get; }
-    }
+    public bool DryRun { get; set; }
+
+    public Action<OperationProgress>? LogOperation { get; set; }
+
+    public IDialogProvider<ConflictInfo>? DialogProvider { get; set; }
+
+    public ConflictResolution ConflictResolution { get; set; } = ConflictResolution.Skip;
 }

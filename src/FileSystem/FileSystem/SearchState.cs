@@ -45,6 +45,10 @@ internal class SearchState
 
     public SearchTelemetry? Telemetry { get; set; }
 
+    public int MinDirectoryDepth { get; set; }
+
+    public int MaxDirectoryDepth { get; set; } = int.MaxValue;
+
     public IEnumerable<FileMatch> Find(
         string directoryPath,
         CancellationToken cancellationToken = default)
@@ -89,14 +93,15 @@ internal class SearchState
                 : MatchStatus.FailFromPositive;
         }
 
-        var directory = new Directory(directoryPath, matchStatus);
+        var directory = new Directory(directoryPath, 0, matchStatus);
 
         while (true)
         {
             Report(directory.Path, SearchProgressKind.SearchDirectory, isDirectory: true);
 
             if (FileMatcher is not null
-                && !directory.IsFail)
+                && !directory.IsFail
+                && directory.Depth >= MinDirectoryDepth)
             {
                 IEnumerator<string> fi = null!;
 
@@ -157,7 +162,8 @@ internal class SearchState
 
                         if (!directory.IsFail
                             && DirectoryMatcher is not null
-                            && DirectoryMatcher?.NamePart != FileNamePart.Extension)
+                            && DirectoryMatcher?.NamePart != FileNamePart.Extension
+                            && directory.Depth >= MinDirectoryDepth)
                         {
                             if (matchStatus == MatchStatus.Unknown
                                 && (IncludeDirectory is not null || ExcludeDirectory is not null))
@@ -189,8 +195,11 @@ internal class SearchState
                                 matchStatus = IncludeOrExcludeDirectory(currentDirectory);
                             }
 
-                            if (matchStatus != MatchStatus.FailFromNegative)
-                                subdirectories!.Enqueue(new Directory(currentDirectory, matchStatus));
+                            if (matchStatus != MatchStatus.FailFromNegative
+                                && directory.Depth < MaxDirectoryDepth)
+                            {
+                                subdirectories!.Enqueue(new Directory(currentDirectory, directory.Depth + 1, matchStatus));
+                            }
                         }
 
                         cancellationToken.ThrowIfCancellationRequested();
@@ -287,18 +296,8 @@ internal class SearchState
     }
 
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    private readonly struct Directory
+    private readonly record struct Directory(string Path, int Depth, MatchStatus Status)
     {
-        public Directory(string path, MatchStatus status)
-        {
-            Path = path;
-            Status = status;
-        }
-
-        public string Path { get; }
-
-        public MatchStatus Status { get; }
-
         public bool IsSuccess => Status == MatchStatus.Success;
 
         public bool IsFail => Status == MatchStatus.FailFromPositive || Status == MatchStatus.FailFromNegative;

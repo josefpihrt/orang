@@ -67,6 +67,13 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
         HelpText = "Include line number.")]
     public bool LineNumber { get; set; }
 
+    [Option(
+        longName: OptionNames.MaxDepth,
+        HelpText = "Maximum directory depth.",
+        MetaValue = MetaValues.Num,
+        Default = int.MaxValue)]
+    public int MaxDepth { get; set; }
+
     [HideFromConsoleHelp]
     [Option(
         shortName: OptionShortNames.NoContent,
@@ -287,6 +294,7 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
         options.ModifiedTimePredicate = modifiedTimePredicate;
         options.SizePredicate = sizePredicate;
         options.AlignColumns = AlignColumns;
+        options.MaxDirectoryDepth = MaxDepth;
 
         options.FilePropertyOptions = new FilePropertyOptions(
             includeCreationTime: creationTime,

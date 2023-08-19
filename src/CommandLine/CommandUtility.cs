@@ -10,6 +10,7 @@ internal static class CommandUtility
     {
         switch (command)
         {
+            case "regex-create":
             case "regex-escape":
             case "regex-list":
             case "regex-match":
@@ -24,6 +25,7 @@ internal static class CommandUtility
     {
         switch (args[0])
         {
+            case "regex-create":
             case "regex-escape":
             case "regex-list":
             case "regex-match":
@@ -60,6 +62,11 @@ internal static class CommandUtility
                     {
                         switch (args[1])
                         {
+                            case "create":
+                                {
+                                    ReplaceArgs("regex-create", ref args);
+                                    break;
+                                }
                             case "escape":
                                 {
                                     ReplaceArgs("regex-escape", ref args);
@@ -112,6 +119,7 @@ internal static class CommandUtility
         {
             logger.WriteError($"Command '{commandName}' is invalid. "
                 + $"Use following commands instead:{Environment.NewLine}"
+                + $"  regex create{Environment.NewLine}"
                 + $"  regex escape{Environment.NewLine}"
                 + $"  regex list{Environment.NewLine}"
                 + $"  regex match{Environment.NewLine}"

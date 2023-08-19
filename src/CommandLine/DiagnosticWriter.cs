@@ -145,6 +145,13 @@ internal class DiagnosticWriter
         WriteLine();
     }
 
+    internal void WriteRegexCreateCommand(RegexCreateCommandOptions options)
+    {
+        WriteOption("input", options.Input);
+        WriteOption("pattern options", options.PatternOptions);
+        WriteOption("separator", options.Separator);
+    }
+
     internal void WriteCopyCommand(CopyCommandOptions options)
     {
         WriteOption("align columns", options.AlignColumns);

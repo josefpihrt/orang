@@ -69,9 +69,9 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
 
     [HideFromConsoleHelp]
     [Option(
-            longName: OptionNames.MinDepth,
-            HelpText = "Minimum directory depth.",
-            Default = -1)]
+        longName: OptionNames.MinDepth,
+        HelpText = "Minimum directory depth.",
+        Default = -1)]
     public int MinDepth { get; set; }
 
     [Option(
@@ -81,9 +81,9 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
     public int MaxDepth { get; set; }
 
     [Option(
-    shortName: OptionShortNames.NoContent,
-    longName: OptionNames.NoContent,
-    HelpText = "A shortcut for '--" + OptionNames.ContentMode + " omit'.")]
+        shortName: OptionShortNames.NoContent,
+        longName: OptionNames.NoContent,
+        HelpText = "A shortcut for '--" + OptionNames.ContentMode + " omit'.")]
     public bool NoContent { get; set; }
 
     [HideFromConsoleHelp]

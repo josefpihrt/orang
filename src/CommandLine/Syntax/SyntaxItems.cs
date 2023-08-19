@@ -8,38 +8,37 @@ using System.Linq;
 using System.Reflection;
 using System.Xml.Linq;
 
-namespace Orang.Syntax
+namespace Orang.Syntax;
+
+internal static class SyntaxItems
 {
-    internal static class SyntaxItems
+    private static ImmutableArray<SyntaxItem> _values;
+
+    public static IEnumerable<SyntaxItem> Load()
     {
-        private static ImmutableArray<SyntaxItem> _values;
+        string path = Path.Combine(
+            Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!,
+            Path.Combine("Resources", "RegexSyntax.xml"));
 
-        public static IEnumerable<SyntaxItem> Load()
+        return XDocument.Load(path)
+            .Root
+            .Elements()
+            .Select(f => new SyntaxItem(
+                f.Element("Text").Value,
+                (SyntaxSection)Enum.Parse(typeof(SyntaxSection), f.Element("Category").Value),
+                f.Element("Description").Value));
+    }
+
+    public static ImmutableArray<SyntaxItem> Values
+    {
+        get
         {
-            string path = Path.Combine(
-                Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!,
-                Path.Combine("Resources", "RegexSyntax.xml"));
-
-            return XDocument.Load(path)
-                .Root
-                .Elements()
-                .Select(f => new SyntaxItem(
-                    f.Element("Text").Value,
-                    (SyntaxSection)Enum.Parse(typeof(SyntaxSection), f.Element("Category").Value),
-                    f.Element("Description").Value));
-        }
-
-        public static ImmutableArray<SyntaxItem> Values
-        {
-            get
+            if (_values.IsDefault)
             {
-                if (_values.IsDefault)
-                {
-                    ImmutableInterlocked.InterlockedInitialize(ref _values, Load().ToImmutableArray());
-                }
-
-                return _values;
+                ImmutableInterlocked.InterlockedInitialize(ref _values, Load().ToImmutableArray());
             }
+
+            return _values;
         }
     }
 }

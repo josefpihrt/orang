@@ -1,12 +1,11 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+internal enum SortProperty
 {
-    internal enum SortProperty
-    {
-        Name = 0,
-        CreationTime = 1,
-        ModifiedTime = 2,
-        Size = 3,
-    }
+    Name = 0,
+    CreationTime = 1,
+    ModifiedTime = 2,
+    Size = 3,
 }

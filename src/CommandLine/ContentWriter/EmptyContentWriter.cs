@@ -2,49 +2,48 @@
 
 using System;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+internal class EmptyContentWriter : ContentWriter
 {
-    internal class EmptyContentWriter : ContentWriter
+    public EmptyContentWriter(
+        ContentTextWriter writer,
+        ContentWriterOptions options,
+        IResultStorage? resultStorage = null) : base("", writer, options)
     {
-        public EmptyContentWriter(
-            ContentTextWriter writer,
-            ContentWriterOptions options,
-            IResultStorage? resultStorage = null) : base("", writer, options)
-        {
-            ResultStorage = resultStorage;
-        }
+        ResultStorage = resultStorage;
+    }
 
-        protected override ValueWriter ValueWriter => throw new NotSupportedException();
+    protected override ValueWriter ValueWriter => throw new NotSupportedException();
 
-        public IResultStorage? ResultStorage { get; }
+    public IResultStorage? ResultStorage { get; }
 
-        protected override void WriteMatch(ICapture capture)
-        {
-            ResultStorage?.Add(capture.Value);
-        }
+    protected override void WriteMatch(ICapture capture)
+    {
+        ResultStorage?.Add(capture.Value);
+    }
 
-        protected override void WriteStartMatches()
-        {
-        }
+    protected override void WriteStartMatches()
+    {
+    }
 
-        protected override void WriteStartMatch(ICapture capture) => throw new NotSupportedException();
+    protected override void WriteStartMatch(ICapture capture) => throw new NotSupportedException();
 
-        protected override void WriteEndMatch(ICapture capture) => throw new NotSupportedException();
+    protected override void WriteEndMatch(ICapture capture) => throw new NotSupportedException();
 
-        protected override void WriteMatchSeparator()
-        {
-        }
+    protected override void WriteMatchSeparator()
+    {
+    }
 
-        protected override void WriteEndMatches()
-        {
-        }
+    protected override void WriteEndMatches()
+    {
+    }
 
-        protected override void WriteStartReplacement(ICapture capture, string? result) => throw new NotSupportedException();
+    protected override void WriteStartReplacement(ICapture capture, string? result) => throw new NotSupportedException();
 
-        protected override void WriteEndReplacement(ICapture capture, string? result) => throw new NotSupportedException();
+    protected override void WriteEndReplacement(ICapture capture, string? result) => throw new NotSupportedException();
 
-        public override void Dispose()
-        {
-        }
+    public override void Dispose()
+    {
     }
 }

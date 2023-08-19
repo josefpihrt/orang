@@ -1,32 +1,33 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Diagnostics;
+using System;
+using System.IO;
 
-namespace Orang.FileSystem
+#pragma warning disable RCS1223 // Mark publicly visible type with DebuggerDisplay attribute.
+
+namespace Orang.FileSystem;
+
+public class CopyOptions
 {
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class CopyOptions
-    {
-        internal static CopyOptions Default { get; } = new();
+    public ConflictResolution ConflictResolution { get; set; } = ConflictResolution.Skip;
 
-        public CopyOptions(
-            ConflictResolution conflictResolution = ConflictResolution.Skip,
-            FileCompareOptions compareOptions = FileCompareOptions.None,
-            bool flat = false)
-        {
-            ConflictResolution = conflictResolution;
-            CompareOptions = compareOptions;
-            Flat = flat;
-        }
+    public FileCompareProperties ComparedProperties { get; set; }
 
-        public ConflictResolution ConflictResolution { get; }
+    internal Func<string, string, bool>? CompareFile { get; set; }
 
-        public FileCompareOptions CompareOptions { get; }
+    internal Func<string, string, bool>? CompareDirectory { get; set; }
 
-        public bool Flat { get; }
+    public FileAttributes? ComparedAttributes { get; set; }
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private string DebuggerDisplay
-            => $"{nameof(ConflictResolution)} = {ConflictResolution}  {nameof(CompareOptions)} = {CompareOptions}";
-    }
+    public TimeSpan? AllowedTimeDiff { get; set; }
+
+    public bool Flat { get; set; }
+
+    internal bool StructureOnly { get; set; }
+
+    public bool DryRun { get; set; }
+
+    public Action<OperationProgress>? LogOperation { get; set; }
+
+    public IDialogProvider<ConflictInfo>? DialogProvider { get; set; }
 }

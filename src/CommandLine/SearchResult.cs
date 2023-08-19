@@ -5,48 +5,47 @@ using System.IO;
 using System.Text.RegularExpressions;
 using Orang.FileSystem;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+[DebuggerDisplay("{DebuggerDisplay,nq}")]
+internal class SearchResult
 {
-    [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    internal class SearchResult
+    private long? _size;
+
+    public SearchResult(
+        FileMatch fileMatch,
+        string? baseDirectoryPath,
+        ContentWriterOptions? writerOptions = null)
     {
-        private long? _size;
+        FileMatch = fileMatch;
+        BaseDirectoryPath = baseDirectoryPath;
+        WriterOptions = writerOptions;
+    }
 
-        public SearchResult(
-            FileMatch fileMatch,
-            string? baseDirectoryPath,
-            ContentWriterOptions? writerOptions = null)
-        {
-            FileMatch = fileMatch;
-            BaseDirectoryPath = baseDirectoryPath;
-            WriterOptions = writerOptions;
-        }
+    public FileMatch FileMatch { get; }
 
-        public FileMatch FileMatch { get; }
+    public string? BaseDirectoryPath { get; }
 
-        public string? BaseDirectoryPath { get; }
+    public ContentWriterOptions? WriterOptions { get; }
 
-        public ContentWriterOptions? WriterOptions { get; }
+    public string Path => FileMatch.Path;
 
-        public string Path => FileMatch.Path;
+    public bool IsDirectory => FileMatch.IsDirectory;
 
-        public bool IsDirectory => FileMatch.IsDirectory;
+    public Match? ContentMatch => FileMatch.Content;
 
-        public Match? ContentMatch => FileMatch.ContentMatch;
+    public string ContentText => FileMatch.ContentText;
 
-        public string ContentText => FileMatch.ContentText;
+    public FileSystemInfo FileSystemInfo => FileMatch.FileSystemInfo;
 
-        public FileSystemInfo FileSystemInfo => FileMatch.FileSystemInfo;
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    private string DebuggerDisplay => $"{Path}";
 
-        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-        private string DebuggerDisplay => $"{Path}";
-
-        public long GetSize()
-        {
-            return _size
-                ?? (_size = (IsDirectory)
-                    ? FileSystemHelpers.GetDirectorySize(Path)
-                    : ((FileInfo)FileSystemInfo).Length).Value;
-        }
+    public long GetSize()
+    {
+        return _size
+            ?? (_size = (IsDirectory)
+                ? FileSystemUtilities.GetDirectorySize(Path)
+                : ((FileInfo)FileSystemInfo).Length).Value;
     }
 }

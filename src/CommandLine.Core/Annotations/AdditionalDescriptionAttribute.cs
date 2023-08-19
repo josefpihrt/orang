@@ -2,16 +2,15 @@
 
 using System;
 
-namespace Orang.CommandLine.Annotations
-{
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
-    internal sealed class AdditionalDescriptionAttribute : Attribute
-    {
-        public AdditionalDescriptionAttribute(string text)
-        {
-            Text = text;
-        }
+namespace Orang.CommandLine.Annotations;
 
-        public string Text { get; }
+[AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+internal sealed class AdditionalDescriptionAttribute : Attribute
+{
+    public AdditionalDescriptionAttribute(string text)
+    {
+        Text = text;
     }
+
+    public string Text { get; }
 }

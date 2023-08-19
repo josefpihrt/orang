@@ -5,158 +5,157 @@ using System.Text.RegularExpressions;
 using Orang.FileSystem;
 using Orang.Text.RegularExpressions;
 
-namespace Orang
+namespace Orang;
+
+internal class PathWriter
 {
-    internal class PathWriter
+    private readonly Logger _logger;
+
+    public PathWriter(
+        Logger logger,
+        ConsoleColors pathColors,
+        ConsoleColors matchColors = default,
+        bool relativePath = false,
+        string? indent = null,
+        Verbosity verbosity = Verbosity.Minimal)
     {
-        private readonly Logger _logger;
+        _logger = logger;
+        PathColors = pathColors;
+        MatchColors = matchColors;
+        RelativePath = relativePath;
+        Indent = indent;
+        Verbosity = verbosity;
+    }
 
-        public PathWriter(
-            Logger logger,
-            ConsoleColors pathColors,
-            ConsoleColors matchColors = default,
-            bool relativePath = false,
-            string? indent = null,
-            Verbosity verbosity = Verbosity.Minimal)
+    public ConsoleColors BasePathColors { get; } = Colors.BasePath;
+
+    public ConsoleColors PathColors { get; }
+
+    public ConsoleColors MatchColors { get; }
+
+    public bool RelativePath { get; }
+
+    public string? Indent { get; }
+
+    public Verbosity Verbosity { get; }
+
+    public void WritePath(
+        FileMatch fileMatch,
+        string? basePath,
+        string? indent = null)
+    {
+        _logger.Write(indent ?? Indent, Verbosity);
+
+        string path = fileMatch.Path;
+
+        if (RelativePath
+            && string.Equals(path, basePath, FileSystemUtilities.Comparison))
         {
-            _logger = logger;
-            PathColors = pathColors;
-            MatchColors = matchColors;
-            RelativePath = relativePath;
-            Indent = indent;
-            Verbosity = verbosity;
+            _logger.Write(".", PathColors, Verbosity);
+            return;
         }
 
-        public ConsoleColors BasePathColors { get; } = Colors.BasePath;
+        int matchIndex = fileMatch.Index;
+        int startIndex = GetBasePathLength(path, basePath);
 
-        public ConsoleColors PathColors { get; }
-
-        public ConsoleColors MatchColors { get; }
-
-        public bool RelativePath { get; }
-
-        public string? Indent { get; }
-
-        public Verbosity Verbosity { get; }
-
-        public void WritePath(
-            FileMatch fileMatch,
-            string? basePath,
-            string? indent = null)
+        if (matchIndex >= 0
+            && !MatchColors.IsDefault)
         {
-            _logger.Write(indent ?? Indent, Verbosity);
-
-            string path = fileMatch.Path;
-
-            if (RelativePath
-                && string.Equals(path, basePath, FileSystemHelpers.Comparison))
+            if (matchIndex < startIndex)
             {
-                _logger.Write(".", PathColors, Verbosity);
-                return;
+                startIndex = matchIndex;
+
+                _logger.Write(path, 0, startIndex, BasePathColors, Verbosity);
+            }
+            else if (!RelativePath)
+            {
+                _logger.Write(path, 0, startIndex, BasePathColors, Verbosity);
             }
 
-            int matchIndex = fileMatch.Index;
-            int startIndex = GetBasePathLength(path, basePath);
+            int matchLength = fileMatch.Length;
 
-            if (matchIndex >= 0
-                && !MatchColors.IsDefault)
-            {
-                if (matchIndex < startIndex)
-                {
-                    startIndex = matchIndex;
-
-                    _logger.Write(path, 0, startIndex, BasePathColors, Verbosity);
-                }
-                else if (!RelativePath)
-                {
-                    _logger.Write(path, 0, startIndex, BasePathColors, Verbosity);
-                }
-
-                int matchLength = fileMatch.Length;
-
-                _logger.Write(path, startIndex, matchIndex - startIndex, colors: PathColors, Verbosity);
-                _logger.Write(path, matchIndex, matchLength, MatchColors, Verbosity);
-                _logger.Write(path, matchIndex + matchLength, path.Length - matchIndex - matchLength, colors: PathColors, Verbosity);
-            }
-            else
-            {
-                if (!RelativePath)
-                    _logger.Write(path, 0, startIndex, BasePathColors, Verbosity);
-
-                _logger.Write(path, startIndex, path.Length - startIndex, colors: PathColors, Verbosity);
-            }
+            _logger.Write(path, startIndex, matchIndex - startIndex, colors: PathColors, Verbosity);
+            _logger.Write(path, matchIndex, matchLength, MatchColors, Verbosity);
+            _logger.Write(path, matchIndex + matchLength, path.Length - matchIndex - matchLength, colors: PathColors, Verbosity);
         }
-
-        public void WritePath(
-            string path,
-            string? basePath,
-            string? indent = null)
+        else
         {
-            _logger.Write(indent ?? Indent, Verbosity);
+            if (!RelativePath)
+                _logger.Write(path, 0, startIndex, BasePathColors, Verbosity);
 
-            if (RelativePath
-                && string.Equals(path, basePath, FileSystemHelpers.Comparison))
-            {
-                _logger.Write(".", PathColors, Verbosity);
-            }
-            else
-            {
-                int startIndex = GetBasePathLength(path, basePath);
-
-                if (!RelativePath)
-                    _logger.Write(path, 0, startIndex, BasePathColors, Verbosity);
-
-                _logger.Write(path, startIndex, path.Length - startIndex, colors: PathColors, Verbosity);
-            }
+            _logger.Write(path, startIndex, path.Length - startIndex, colors: PathColors, Verbosity);
         }
+    }
 
-        public void WritePath(
-            FileMatch fileMatch,
-            List<ReplaceItem> items,
-            ConsoleColors replacementColors,
-            string? basePath,
-            string? indent = null)
+    public void WritePath(
+        string path,
+        string? basePath,
+        string? indent = null)
+    {
+        _logger.Write(indent ?? Indent, Verbosity);
+
+        if (RelativePath
+            && string.Equals(path, basePath, FileSystemUtilities.Comparison))
         {
-            _logger.Write(indent ?? Indent, Verbosity);
-
-            string path = fileMatch.Path;
+            _logger.Write(".", PathColors, Verbosity);
+        }
+        else
+        {
             int startIndex = GetBasePathLength(path, basePath);
 
             if (!RelativePath)
-                _logger.Write(path, 0, startIndex, Colors.BasePath, Verbosity);
+                _logger.Write(path, 0, startIndex, BasePathColors, Verbosity);
 
-            foreach (ReplaceItem item in items)
-            {
-                Match match = item.Match;
-
-                _logger.Write(path, startIndex, fileMatch.NameSpan.Start + match.Index - startIndex, Verbosity);
-
-                if (!MatchColors.IsDefault)
-                    _logger.Write(match.Value, MatchColors, Verbosity);
-
-                _logger.Write(item.Value, replacementColors, Verbosity);
-
-                startIndex = fileMatch.NameSpan.Start + match.Index + match.Length;
-            }
-
-            _logger.Write(path, startIndex, path.Length - startIndex, Verbosity);
+            _logger.Write(path, startIndex, path.Length - startIndex, colors: PathColors, Verbosity);
         }
+    }
 
-        protected int GetBasePathLength(string path, string? basePath)
+    public void WritePath(
+        FileMatch fileMatch,
+        List<ReplaceItem> items,
+        ConsoleColors replacementColors,
+        string? basePath,
+        string? indent = null)
+    {
+        _logger.Write(indent ?? Indent, Verbosity);
+
+        string path = fileMatch.Path;
+        int startIndex = GetBasePathLength(path, basePath);
+
+        if (!RelativePath)
+            _logger.Write(path, 0, startIndex, Colors.BasePath, Verbosity);
+
+        foreach (ReplaceItem item in items)
         {
-            if (basePath != null
-                && path.Length > basePath.Length
-                && path.StartsWith(basePath, FileSystemHelpers.Comparison))
-            {
-                int length = basePath.Length;
+            Match match = item.Match;
 
-                if (FileSystemHelpers.IsDirectorySeparator(path[length]))
-                    length++;
+            _logger.Write(path, startIndex, match.Index - startIndex, Verbosity);
 
-                return length;
-            }
+            if (!MatchColors.IsDefault)
+                _logger.Write(match.Value, MatchColors, Verbosity);
 
-            return 0;
+            _logger.Write(item.Value, replacementColors, Verbosity);
+
+            startIndex = match.Index + match.Length;
         }
+
+        _logger.Write(path, startIndex, path.Length - startIndex, Verbosity);
+    }
+
+    protected int GetBasePathLength(string path, string? basePath)
+    {
+        if (basePath is not null
+            && path.Length > basePath.Length
+            && path.StartsWith(basePath, FileSystemUtilities.Comparison))
+        {
+            int length = basePath.Length;
+
+            if (FileSystemUtilities.IsDirectorySeparator(path[length]))
+                length++;
+
+            return length;
+        }
+
+        return 0;
     }
 }

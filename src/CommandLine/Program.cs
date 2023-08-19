@@ -393,11 +393,10 @@ internal static class Program
 
     private static int Execute<TOptions>(
         AbstractCommand<TOptions> command,
-#if DEBUG
+#pragma warning disable RCS1163
         AbstractCommandLineOptions options,
-        Logger logger
-#endif
-        ) where TOptions : AbstractCommandOptions
+        Logger logger) where TOptions : AbstractCommandOptions
+#pragma warning restore RCS1163
     {
 #if DEBUG
         if (logger.ShouldWrite(Verbosity.Diagnostic))

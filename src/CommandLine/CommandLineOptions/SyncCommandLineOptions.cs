@@ -61,8 +61,11 @@ internal sealed class SyncCommandLineOptions : CommonCopyCommandLineOptions
         if (!context.TryParseAsEnumFlags(
             Compare,
             OptionNames.Compare,
-            out FileCompareOptions compareOptions,
-            FileCompareOptions.Attributes | FileCompareOptions.Content | FileCompareOptions.ModifiedTime | FileCompareOptions.Size,
+            out FileCompareProperties compareProperties,
+            FileCompareProperties.Attributes
+                | FileCompareProperties.Content
+                | FileCompareProperties.ModifiedTime
+                | FileCompareProperties.Size,
             OptionValueProviders.FileCompareOptionsProvider))
         {
             return false;
@@ -79,7 +82,7 @@ internal sealed class SyncCommandLineOptions : CommonCopyCommandLineOptions
         }
 
         options.SearchTarget = SearchTarget.All;
-        options.CompareOptions = compareOptions;
+        options.CompareProperties = compareProperties;
         options.DryRun = DryRun;
         options.Target = second;
         options.ConflictResolution = conflictResolution;

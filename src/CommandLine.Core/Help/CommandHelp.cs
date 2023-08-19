@@ -42,18 +42,18 @@ public class CommandHelp
     public static CommandHelp Create(
         Command command,
         IEnumerable<OptionValueProvider>? providers = null,
-        Filter? filter = null)
+        Matcher? matcher = null)
     {
         ImmutableArray<ArgumentItem> arguments = (command.Arguments.Any())
-            ? HelpProvider.GetArgumentItems(command.Arguments, filter)
+            ? HelpProvider.GetArgumentItems(command.Arguments, matcher)
             : ImmutableArray<ArgumentItem>.Empty;
 
-        ImmutableArray<OptionItem> options = HelpProvider.GetOptionItems(command.Options, filter);
+        ImmutableArray<OptionItem> options = HelpProvider.GetOptionItems(command.Options, matcher);
 
         ImmutableArray<OptionValueItemList> values = HelpProvider.GetOptionValues(
             command.Options,
             providers ?? ImmutableArray<OptionValueProvider>.Empty,
-            filter);
+            matcher);
 
         return new CommandHelp(command, arguments, options, values);
     }

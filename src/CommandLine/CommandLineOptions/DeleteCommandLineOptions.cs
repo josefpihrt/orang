@@ -80,7 +80,7 @@ internal sealed class DeleteCommandLineOptions : DeleteOrRenameCommandLineOption
             Name,
             OptionNames.Name,
             OptionValueProviders.PatternOptionsProvider,
-            out Filter? nameFilter,
+            out Matcher? nameFilter,
             out FileNamePart namePart,
             allowNull: true))
         {
@@ -100,7 +100,7 @@ internal sealed class DeleteCommandLineOptions : DeleteOrRenameCommandLineOption
             Content,
             OptionNames.Content,
             OptionValueProviders.PatternOptionsWithoutPartProvider,
-            out Filter? contentFilter,
+            out Matcher? contentFilter,
             allowNull: true,
             allowEmptyPattern: true))
         {
@@ -207,7 +207,7 @@ internal sealed class DeleteCommandLineOptions : DeleteOrRenameCommandLineOption
 
         options.Format = new OutputDisplayFormat(
             contentDisplayStyle: contentDisplayStyle
-                ?? ((ReferenceEquals(contentFilter, Filter.EntireInput)) ? ContentDisplayStyle.AllLines : ContentDisplayStyle.Omit),
+                ?? ((ReferenceEquals(contentFilter, Matcher.EntireInput)) ? ContentDisplayStyle.AllLines : ContentDisplayStyle.Omit),
             pathDisplayStyle: pathDisplayStyle ?? PathDisplayStyle.Full,
             lineOptions: lineDisplayOptions,
             lineContext: lineContext,

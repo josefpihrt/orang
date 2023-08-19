@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Josef Pihrt. All rights reserved. Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using Orang.FileSystem;
@@ -13,7 +12,7 @@ internal class RenameCommand : DeleteOrRenameCommand<RenameCommandOptions>
 {
     public RenameCommand(RenameCommandOptions options, Logger logger) : base(options, logger)
     {
-        Debug.Assert(options.NameFilter?.IsNegative == false);
+        Debug.Assert(options.NameFilter?.Invert == false);
 
         if (_logger.ShouldWrite(Verbosity.Minimal))
         {
@@ -35,10 +34,9 @@ internal class RenameCommand : DeleteOrRenameCommand<RenameCommandOptions>
 
     private PathWriter? PathWriter { get; }
 
-    protected override void OnSearchCreating(FileSystemSearch search)
+    protected override void OnSearchCreating(SearchState search)
     {
-        search.DisallowEnumeration = !Options.DryRun;
-        search.MatchPartOnly = true;
+        search.SupportsEnumeration = Options.DryRun;
 
         base.OnSearchCreating(search);
     }
@@ -51,35 +49,36 @@ internal class RenameCommand : DeleteOrRenameCommand<RenameCommandOptions>
     {
         string indent = GetPathIndent(baseDirectoryPath);
 
-        (List<ReplaceItem> replaceItems, MaxReason maxReason) = ReplaceHelpers.GetReplaceItems(
-            fileMatch.NameMatch!,
-            Options.ReplaceOptions,
+        ReplaceResult result = fileMatch.GetReplaceResult(
+            Options.Replacer,
             count: Options.MaxMatchesInFile,
             predicate: NameFilter!.Predicate,
             cancellationToken: context.CancellationToken);
 
-        string path = fileMatch.Path;
+        string newValue = result.NewName;
 
-        string newName = ReplaceHelpers.GetNewName(fileMatch, replaceItems);
-
-        if (string.IsNullOrWhiteSpace(newName))
+        if (string.IsNullOrWhiteSpace(newValue))
         {
             _logger.WriteLine($"{indent}New file name cannot be empty or contains only white-space.", Colors.Message_Warning);
             return;
         }
 
+        string path = fileMatch.Path;
+
         bool changed = string.Compare(
             path,
             fileMatch.NameSpan.Start,
-            newName,
+            newValue,
             0,
-            Math.Max(fileMatch.NameSpan.Length, newName.Length),
+            Math.Max(fileMatch.NameSpan.Length, newValue.Length),
             StringComparison.Ordinal) != 0;
 
         bool isInvalidName = changed
-            && FileSystemHelpers.ContainsInvalidFileNameChars(newName);
+            && FileSystemUtilities.ContainsInvalidFileNameChars(newValue);
 
-        string newPath = path.Substring(0, fileMatch.NameSpan.Start) + newName;
+        string newPath = path.Substring(0, fileMatch.NameSpan.Start)
+            + newValue
+            + path.Substring(fileMatch.NameSpan.Start + fileMatch.NameSpan.Length);
 
         if (Options.Interactive
             || (!Options.OmitPath && changed))
@@ -91,28 +90,28 @@ internal class RenameCommand : DeleteOrRenameCommand<RenameCommandOptions>
 
             PathWriter?.WritePath(
                 fileMatch,
-                replaceItems,
+                result.Items,
                 replaceColors,
                 baseDirectoryPath,
                 indent);
 
             WriteProperties(context, fileMatch, columnWidths);
-            _logger.WriteFilePathEnd(replaceItems.Count, maxReason, Options.IncludeCount);
+            _logger.WriteFilePathEnd(result.Count, result.MaxReason, Options.IncludeCount);
         }
 
-        ListCache<ReplaceItem>.Free(replaceItems);
+        ListCache<ReplaceItem>.Free(result.Items);
 
         if (Options.Interactive)
         {
-            string newName2 = ConsoleHelpers.ReadUserInput(newName, indent + "New name: ");
+            string newName2 = ConsoleHelpers.ReadUserInput(newValue, indent + "New name: ");
 
-            newPath = newPath.Substring(0, newPath.Length - newName.Length) + newName2;
+            newPath = newPath.Substring(0, newPath.Length - newValue.Length) + newName2;
 
             changed = !string.Equals(path, newPath, StringComparison.Ordinal);
 
             if (changed)
             {
-                isInvalidName = FileSystemHelpers.ContainsInvalidFileNameChars(newName2);
+                isInvalidName = FileSystemUtilities.ContainsInvalidFileNameChars(newName2);
 
                 if (isInvalidName)
                 {

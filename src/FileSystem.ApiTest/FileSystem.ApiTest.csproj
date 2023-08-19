@@ -1,15 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <OutputType>Exe</OutputType>
     <AssemblyName>Orang.FileSystem.ApiTest</AssemblyName>
     <RootNamespace>Orang.FileSystem</RootNamespace>
-    <IsPackable>false</IsPackable>
     <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Core\Core.csproj" />
+    <ProjectReference Include="..\Common\Common.csproj" />
     <ProjectReference Include="..\FileSystem\FileSystem.csproj" />
   </ItemGroup>
 

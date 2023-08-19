@@ -1,0 +1,478 @@
+﻿
+namespace Orang
+
+  public interface IDialogProvider<TMessage>
+
+    DialogResult GetResult(TMessage message);
+
+  public enum DialogResult
+
+    None = 0,
+
+    Yes = 1,
+
+    YesToAll = 2,
+
+    No = 3,
+
+    NoToAll = 4,
+
+    Cancel = 5,
+
+  [Flags]
+  public enum ReplaceFunctions
+
+    None = 0,
+
+    TrimStart = 1,
+
+    TrimEnd = 2,
+
+    Trim = TrimStart | TrimEnd,
+
+    ToLower = 4,
+
+    ToUpper = 8,
+
+namespace Orang.FileSystem
+
+  public class CopyOptions
+
+    public CopyOptions();
+
+    public TimeSpan? AllowedTimeDiff { get; set; }
+
+    public Func<string, string, bool>? CompareDirectory { get; set; }
+
+    public Func<string, string, bool>? CompareFile { get; set; }
+
+    public FileAttributes? ComparedAttributes { get; set; }
+
+    public FileCompareProperties ComparedProperties { get; set; }
+
+    public ConflictResolution ConflictResolution { get; set; }
+
+    public IDialogProvider<ConflictInfo>? DialogProvider { get; set; }
+
+    public bool DryRun { get; set; }
+
+    public bool Flat { get; set; }
+
+    public Action<OperationProgress>? LogOperation { get; set; }
+
+  public class DeleteOptions
+
+    public DeleteOptions();
+
+    public bool ContentOnly { get; set; }
+
+    public bool DryRun { get; set; }
+
+    public bool IncludingBom { get; set; }
+
+    public Action<OperationProgress>? LogOperation { get; set; }
+
+  public class DirectoryMatcher
+
+    public DirectoryMatcher();
+
+    public FileEmptyOption EmptyOption { get; set; }
+
+    public Func<DirectoryInfo, bool>? MatchDirectoryInfo { get; set; }
+
+    public Matcher? Name { get; set; }
+
+    public FileNamePart NamePart { get; set; }
+
+    public FileAttributes WithAttributes { get; set; }
+
+    public FileAttributes WithoutAttributes { get; set; }
+
+  public class DirectoryMatcherBuilder
+
+    public DirectoryMatcherBuilder EmptyOnly();
+
+    public DirectoryMatcherBuilder Match(Func<DirectoryInfo, bool> predicate);
+
+    public DirectoryMatcherBuilder Name(string pattern, RegexOptions options = None, bool invert = false, object? group = null, Func<string, bool>? predicate = null);
+
+    public DirectoryMatcherBuilder NamePart(FileNamePart namePart);
+
+    public DirectoryMatcherBuilder NonEmptyOnly();
+
+    public DirectoryMatcherBuilder WithAttributes(FileAttributes attributes);
+
+    public DirectoryMatcherBuilder WithoutAttributes(FileAttributes attributes);
+
+  public class FileMatch
+
+    public Match? Content { get; }
+
+    public bool IsDirectory { get; }
+
+    public Match? Name { get; }
+
+    public FileNameSpan NameSpan { get; }
+
+    public string Path { get; }
+
+  public class FileMatcher
+
+    public FileMatcher();
+
+    public Matcher? Content { get; set; }
+
+    public FileEmptyOption EmptyOption { get; set; }
+
+    public Matcher? Extension { get; set; }
+
+    public Func<FileInfo, bool>? MatchFileInfo { get; set; }
+
+    public Matcher? Name { get; set; }
+
+    public FileNamePart NamePart { get; set; }
+
+    public FileAttributes WithAttributes { get; set; }
+
+    public FileAttributes WithoutAttributes { get; set; }
+
+  public class FileMatcherBuilder
+
+    public FileMatcherBuilder Content(string pattern, RegexOptions options = None, bool invert = false, object? group = null, Func<string, bool>? predicate = null);
+
+    public FileMatcherBuilder EmptyOnly();
+
+    public FileMatcherBuilder Extension(string pattern, RegexOptions options = None, bool invert = false, object? group = null, Func<string, bool>? predicate = null);
+
+    public FileMatcherBuilder Match(Func<FileInfo, bool> predicate);
+
+    public FileMatcherBuilder Name(string pattern, RegexOptions options = None, bool invert = false, object? group = null, Func<string, bool>? predicate = null);
+
+    public FileMatcherBuilder NamePart(FileNamePart namePart);
+
+    public FileMatcherBuilder NonEmptyOnly();
+
+    public FileMatcherBuilder WithAttributes(FileAttributes attributes);
+
+    public FileMatcherBuilder WithExtensions(params string[] extensions);
+
+    public FileMatcherBuilder WithoutAttributes(FileAttributes attributes);
+
+    public FileMatcherBuilder WithoutExtensions(params string[] extensions);
+
+  public class RenameOptions
+
+    public RenameOptions();
+
+    public ConflictResolution ConflictResolution { get; set; }
+
+    public bool CultureInvariant { get; set; }
+
+    public IDialogProvider<ConflictInfo>? DialogProvider { get; set; }
+
+    public bool DryRun { get; set; }
+
+    public Action<OperationProgress>? LogOperation { get; set; }
+
+    public ReplaceFunctions ReplaceFunctions { get; set; }
+
+  public class ReplaceOptions
+
+    public ReplaceOptions();
+
+    public bool CultureInvariant { get; set; }
+
+    public bool DryRun { get; set; }
+
+    public Action<OperationProgress>? LogOperation { get; set; }
+
+    public ReplaceFunctions ReplaceFunctions { get; set; }
+
+  public class Search
+
+    public Search(DirectoryMatcher directoryMatcher, SearchOptions? options = null);
+
+    public Search(FileMatcher fileMatcher, SearchOptions? options = null);
+
+    public Search(FileMatcher fileMatcher, DirectoryMatcher directoryMatcher, SearchOptions? options = null);
+
+    public DirectoryMatcher? DirectoryMatcher { get; }
+
+    public FileMatcher? FileMatcher { get; }
+
+    public SearchOptions Options { get; }
+
+    public IOperationResult Copy(string directoryPath, string destinationPath, CopyOptions? options = null, CancellationToken cancellationToken = default);
+
+    public IOperationResult Delete(string directoryPath, DeleteOptions? options = null, CancellationToken cancellationToken = default);
+
+    public IEnumerable<FileMatch> Matches(string directoryPath, CancellationToken cancellationToken = default);
+
+    public IOperationResult Move(string directoryPath, string destinationPath, CopyOptions? options = null, CancellationToken cancellationToken = default);
+
+    public IOperationResult Rename(string directoryPath, MatchEvaluator matchEvaluator, RenameOptions? options = null, CancellationToken cancellationToken = default);
+
+    public IOperationResult Rename(string directoryPath, string replacement, RenameOptions? options = null, CancellationToken cancellationToken = default);
+
+    public IOperationResult Replace(string directoryPath, MatchEvaluator matchEvaluator, ReplaceOptions? options = null, CancellationToken cancellationToken = default);
+
+    public IOperationResult Replace(string directoryPath, string replacement, ReplaceOptions? options = null, CancellationToken cancellationToken = default);
+
+  public class SearchBuilder
+
+    public Search Build();
+
+    public CopyOperation Copy(string directoryPath, string destinationPath);
+
+    public static SearchBuilder Create();
+
+    public DeleteOperation Delete(string directoryPath);
+
+    public SearchBuilder DirectoryName(string pattern, RegexOptions options = None, bool invert = false, object? group = null, Func<string, bool>? predicate = null);
+
+    public SearchBuilder FileContent(string pattern, RegexOptions options = None, bool invert = false, object? group = null, Func<string, bool>? predicate = null);
+
+    public SearchBuilder FileExtension(string pattern, RegexOptions options = None, bool invert = false, object? group = null, Func<string, bool>? predicate = null);
+
+    public SearchBuilder FileName(string pattern, RegexOptions options = None, bool invert = false, object? group = null, Func<string, bool>? predicate = null);
+
+    public SearchBuilder LogProgress(Action<SearchProgress> logProgress);
+
+    public SearchBuilder MatchDirectory(Action<DirectoryMatcherBuilder> configureMatcher);
+
+    public SearchBuilder MatchFile(Action<FileMatcherBuilder> configureMatcher);
+
+    public MoveOperation Move(string directoryPath, string destinationPath);
+
+    public RenameOperation Rename(string directoryPath, MatchEvaluator matchEvaluator);
+
+    public RenameOperation Rename(string directoryPath, string replacement);
+
+    public ReplaceOperation Replace(string directoryPath, string destinationPath);
+
+    public ReplaceOperation Replace(string directoryPath, MatchEvaluator matchEvaluator);
+
+    public SearchBuilder SearchDirectory(Action<DirectoryMatcherBuilder> configureMatcher);
+
+    public SearchBuilder SkipDirectory(string pattern, RegexOptions options = None, object? group = null, Func<string, bool>? predicate = null);
+
+    public SearchBuilder TopDirectoryOnly();
+
+    public SearchBuilder WithDefaultEncoding(Encoding encoding);
+
+  public class SearchOptions
+
+    public SearchOptions();
+
+    public Encoding? DefaultEncoding { get; set; }
+
+    public Action<SearchProgress>? LogProgress { get; set; }
+
+    public DirectoryMatcher? SearchDirectory { get; set; }
+
+    public bool TopDirectoryOnly { get; set; }
+
+  public sealed class SearchTelemetry
+
+    public int DirectoryCount { get; internal set; }
+
+    public int FileCount { get; internal set; }
+
+    public int MatchCount { get; internal set; }
+
+    public int MatchingDirectoryCount { get; internal set; }
+
+    public int MatchingFileCount { get; internal set; }
+
+    public int ProcessedDirectoryCount { get; internal set; }
+
+    public int ProcessedFileCount { get; internal set; }
+
+    public int ProcessedMatchCount { get; internal set; }
+
+    public int SearchedDirectoryCount { get; internal set; }
+
+  public readonly struct ConflictInfo
+
+    public string DestinationPath { get; }
+
+    public string SourcePath { get; }
+
+  public readonly struct FileNameSpan
+
+    public int Length { get; }
+
+    public FileNamePart Part { get; }
+
+    public string Path { get; }
+
+    public int Start { get; }
+
+    public override string ToString();
+
+  public readonly struct OperationProgress
+
+    public Exception? Exception { get; }
+
+    public FileMatch Match { get; }
+
+    public string? NewPath { get; }
+
+    public string Path { get; }
+
+  public readonly struct SearchProgress
+
+    public Exception? Exception { get; }
+
+    public bool IsDirectory { get; }
+
+    public SearchProgressKind Kind { get; }
+
+    public string Path { get; }
+
+  public interface IOperationResult
+
+    SearchTelemetry Telemetry { get; }
+
+  public enum ConflictResolution
+
+    Overwrite = 0,
+
+    Skip = 1,
+
+    Ask = 2,
+
+    Suffix = 3,
+
+  [Flags]
+  public enum FileCompareProperties
+
+    None = 0,
+
+    Size = 1,
+
+    ModifiedTime = 2,
+
+    Attributes = 4,
+
+    Content = 8,
+
+  public enum FileEmptyOption
+
+    None = 0,
+
+    Empty = 1,
+
+    NonEmpty = 2,
+
+  public enum FileNamePart
+
+    Name = 0,
+
+    NameWithoutExtension = 1,
+
+    Extension = 2,
+
+    FullName = 3,
+
+  public enum SearchProgressKind
+
+    SearchDirectory = 0,
+
+    Directory = 1,
+
+    File = 2,
+
+namespace Orang.FileSystem.FileSystem.Operations
+
+  public class CopyOperation
+
+    public CopyOperation CompareAttributes(FileAttributes? attributes = null);
+
+    public CopyOperation CompareContent();
+
+    public CopyOperation CompareDirectory(Func<string, string, bool> comparer);
+
+    public CopyOperation CompareFile(Func<string, string, bool> comparer);
+
+    public CopyOperation CompareModifiedTime(TimeSpan? allowedTimeDiff = null);
+
+    public CopyOperation CompareSize();
+
+    public CopyOperation DryRun();
+
+    public IOperationResult Execute(CancellationToken cancellationToken = default);
+
+    public CopyOperation Flat();
+
+    public CopyOperation LogOperation(Action<OperationProgress> logOperation);
+
+    public CopyOperation WithConflictResolution(ConflictResolution conflictResolution);
+
+    public CopyOperation WithDialogProvider(IDialogProvider<ConflictInfo> dialogProvider);
+
+  public class DeleteOperation
+
+    public DeleteOperation ContentOnly();
+
+    public DeleteOperation DryRun();
+
+    public IOperationResult Execute(CancellationToken cancellationToken = default);
+
+    public DeleteOperation IncludingBom();
+
+    public DeleteOperation LogOperation(Action<OperationProgress> logOperation);
+
+  public class MoveOperation
+
+    public MoveOperation CompareAttributes(FileAttributes? attributes = null);
+
+    public MoveOperation CompareContent();
+
+    public MoveOperation CompareDirectory(Func<string, string, bool> comparer);
+
+    public MoveOperation CompareFile(Func<string, string, bool> comparer);
+
+    public MoveOperation CompareModifiedTime(TimeSpan? allowedTimeDiff = null);
+
+    public MoveOperation CompareSize();
+
+    public MoveOperation DryRun();
+
+    public IOperationResult Execute(CancellationToken cancellationToken = default);
+
+    public MoveOperation Flat();
+
+    public MoveOperation LogOperation(Action<OperationProgress> logOperation);
+
+    public MoveOperation WithConflictResolution(ConflictResolution conflictResolution);
+
+    public MoveOperation WithDialogProvider(IDialogProvider<ConflictInfo> dialogProvider);
+
+  public class RenameOperation
+
+    public RenameOperation CultureInvariant();
+
+    public RenameOperation DryRun();
+
+    public IOperationResult Execute(CancellationToken cancellationToken = default);
+
+    public RenameOperation LogOperation(Action<OperationProgress> logOperation);
+
+    public RenameOperation WithConflictResolution(ConflictResolution conflictResolution);
+
+    public RenameOperation WithDialogProvider(IDialogProvider<ConflictInfo> dialogProvider);
+
+    public RenameOperation WithFunctions(ReplaceFunctions functions);
+
+  public class ReplaceOperation
+
+    public ReplaceOperation CultureInvariant();
+
+    public ReplaceOperation DryRun();
+
+    public IOperationResult Execute(CancellationToken cancellationToken = default);
+
+    public ReplaceOperation LogOperation(Action<OperationProgress> logOperation);
+
+    public ReplaceOperation WithFunctions(ReplaceFunctions functions);

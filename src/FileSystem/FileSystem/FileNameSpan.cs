@@ -2,11 +2,10 @@
 
 using System;
 using System.Diagnostics;
-using static Orang.FileSystem.FileSystemHelpers;
+using static Orang.FileSystem.FileSystemUtilities;
 
 namespace Orang.FileSystem;
 
-//TODO: PathSpan, FilePathSpan
 [DebuggerDisplay("{DebuggerDisplay,nq}")]
 public readonly struct FileNameSpan
 {
@@ -38,7 +37,7 @@ public readonly struct FileNameSpan
 
     public override string ToString() => Path.Substring(Start, Length);
 
-    public static FileNameSpan FromFile(string path, FileNamePart part)
+    internal static FileNameSpan FromFile(string path, FileNamePart part)
     {
         if (path is null)
             throw new ArgumentNullException(nameof(path));
@@ -68,9 +67,7 @@ public readonly struct FileNameSpan
                     int dotIndex = GetExtensionIndex(path);
 
                     if (dotIndex >= path.Length - 1)
-                    {
                         return new FileNameSpan(path, path.Length, 0, part);
-                    }
 
                     return new FileNameSpan(path, dotIndex + 1, path.Length - dotIndex - 1, part);
                 }
@@ -81,7 +78,7 @@ public readonly struct FileNameSpan
         }
     }
 
-    public static FileNameSpan FromDirectory(string path, FileNamePart part)
+    internal static FileNameSpan FromDirectory(string path, FileNamePart part)
     {
         if (path is null)
             throw new ArgumentNullException(nameof(path));
@@ -99,7 +96,6 @@ public readonly struct FileNameSpan
                 {
                     return new FileNameSpan(path, 0, path.Length, part);
                 }
-            //case NamePartKind.Extension:
             default:
                 {
                     throw new ArgumentException("", nameof(part));

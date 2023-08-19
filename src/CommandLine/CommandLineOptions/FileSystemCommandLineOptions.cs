@@ -67,6 +67,13 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
         HelpText = "Include line number.")]
     public bool LineNumber { get; set; }
 
+    [Option(
+        longName: OptionNames.MaxDepth,
+        HelpText = "Maximum directory depth.",
+        MetaValue = MetaValues.Num,
+        Default = int.MaxValue)]
+    public int MaxDepth { get; set; }
+
     [HideFromConsoleHelp]
     [Option(
         shortName: OptionShortNames.NoContent,
@@ -218,7 +225,7 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
             IncludeDirectory,
             OptionNames.IncludeDirectory,
             OptionValueProviders.PatternOptionsProvider,
-            out Filter? directoryFilter,
+            out Matcher? directoryFilter,
             out FileNamePart directoryNamePart,
             allowNull: true,
             namePartProvider: OptionValueProviders.NamePartKindProvider_WithoutExtension))
@@ -230,7 +237,7 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
             Extension,
             OptionNames.Extension,
             OptionValueProviders.ExtensionOptionsProvider,
-            out Filter? extensionFilter,
+            out Matcher? extensionFilter,
             allowNull: true,
             defaultNamePart: FileNamePart.Extension,
             includedPatternOptions: PatternOptions.List | PatternOptions.Equals | PatternOptions.IgnoreCase))
@@ -287,6 +294,7 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
         options.ModifiedTimePredicate = modifiedTimePredicate;
         options.SizePredicate = sizePredicate;
         options.AlignColumns = AlignColumns;
+        options.MaxDirectoryDepth = MaxDepth;
 
         options.FilePropertyOptions = new FilePropertyOptions(
             includeCreationTime: creationTime,
@@ -324,7 +332,7 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
 
         if (PathsFrom is not null)
         {
-            if (!FileSystemHelpers.TryReadAllText(PathsFrom, out string? content, ex => context.WriteError(ex)))
+            if (!FileSystemUtilities.TryReadAllText(PathsFrom, out string? content, ex => context.WriteError(ex)))
                 return false;
 
             IEnumerable<string> lines = TextHelpers.ReadLines(content).Where(f => !string.IsNullOrWhiteSpace(f));

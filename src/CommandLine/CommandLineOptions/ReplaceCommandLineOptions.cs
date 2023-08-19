@@ -72,16 +72,16 @@ internal sealed class ReplaceCommandLineOptions : CommonReplaceCommandLineOption
             OptionNames.Modify,
             replacement,
             matchEvaluator,
-            out ReplaceOptions? replaceOptions))
+            out Replacer? replacer))
         {
             return false;
         }
 
-        options.Replacer = replaceOptions;
+        options.Replacer = replacer;
 #if DEBUG // --find
         if (Find)
         {
-            options.Replacer = ReplaceOptions.Empty;
+            options.Replacer = Replacer.Empty;
             options.HighlightOptions = HighlightOptions.Match;
             options.DryRun = true;
         }

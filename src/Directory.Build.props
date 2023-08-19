@@ -5,8 +5,46 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)Orang.snk</AssemblyOriginatorKeyFile>
     <Authors>Josef Pihrt</Authors>
-    <Copyright>Copyright (c) 2019-2022 Josef Pihrt</Copyright>
+    <Copyright>Copyright (c) 2019-2023 Josef Pihrt</Copyright>
+    <OrangPublicKey>00240000048000009400000006020000002400005253413100040000010001009ff202171ab25d708192b490c52c1a373c74a2849c734fd9f545bfedc92b61d4e10d356cd26213ef6d96af669a9b570cd6277d590c338cfc00ccc9a15d6ad5b08ac3a8a09db3eae536d653f4acb9c7e992162129b67b4bc72c08af7d67a48ecde99c53a5d2cd44b1e8179368f6db2ec7665061e3ef4029703df4b49952bd0de4</OrangPublicKey>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+
+  <PropertyGroup>
+    <Version Condition="'$(Version)' == ''">1.0.0</Version>
+    <IsPackable>false</IsPackable>
+    <Description>Search, replace, rename and delete directories, files and its content using the power of .NET regular expressions.</Description>
+    <PackageProjectUrl>https://github.com/JosefPihrt/Orang</PackageProjectUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageTags>FileSystem;RegularExpression;Regex;RegExp</PackageTags>
+    <PackageReadmeFile>docs/README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/JosefPihrt/Orang.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(CI)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(CI)' == 'true'">
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="roslynator.analyzers" Version="4.4.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="roslynator.formatting.analyzers" Version="4.4.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
 
 </Project>

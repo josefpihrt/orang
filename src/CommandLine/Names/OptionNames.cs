@@ -55,6 +55,7 @@ internal static class OptionNames
     public const string Literal = "literal";
     public const string Manual = "manual";
     public const string MaxCount = "max-count";
+    public const string MaxDepth = "max-depth";
     public const string MaxMatchesInFile = "max-matches-in-file";
     public const string MaxMatchingFiles = "max-matching-files";
     public const string MaxWordLength = "max-word-length";

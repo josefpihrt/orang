@@ -15,6 +15,7 @@ public class DirectoryMatcherBuilder
     private FileAttributes? _attributes;
     private FileAttributes? _attributesToSkip;
     private FileEmptyOption? _emptyOption;
+    private int _maxDepth = int.MaxValue;
 
     internal DirectoryMatcherBuilder()
     {
@@ -67,6 +68,13 @@ public class DirectoryMatcherBuilder
         return this;
     }
 
+    public DirectoryMatcherBuilder MaxDepth(int maxDepth)
+    {
+        _maxDepth = maxDepth;
+
+        return this;
+    }
+
     internal DirectoryMatcher Build()
     {
         return new DirectoryMatcher()
@@ -76,6 +84,7 @@ public class DirectoryMatcherBuilder
             WithAttributes = _attributes ?? 0,
             WithoutAttributes = _attributesToSkip ?? 0,
             EmptyOption = _emptyOption ?? FileEmptyOption.None,
+            MaxDepth = _maxDepth,
         };
     }
 }

@@ -38,7 +38,7 @@ internal sealed class RegexCreateCommandLineOptions : AbstractCommandLineOptions
     [Option(
         shortName: OptionShortNames.FromFile,
         longName: OptionNames.FromFile,
-        HelpText = "Path to a file that contains pattern.")]
+        HelpText = "Interpret argument value as path to a file whose content will be used as an input.")]
     public bool FromFile { get; set; }
 
     [Option(

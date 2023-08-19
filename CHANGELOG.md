@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add command `regex create` ([#45](https://github.com/josefpihrt/roslynator/pull/45)).
+
 ## [0.4.0] - 2023-08-17
 
 ## [0.4.0-beta.2] - 2023-07-29

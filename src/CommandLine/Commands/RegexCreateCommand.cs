@@ -3,53 +3,52 @@
 using System.Threading;
 using Orang.FileSystem;
 
-namespace Orang.CommandLine
+namespace Orang.CommandLine;
+
+internal class RegexCreateCommand : AbstractCommand<RegexCreateCommandOptions>
 {
-    internal class RegexCreateCommand : AbstractCommand<RegexCreateCommandOptions>
+    public RegexCreateCommand(RegexCreateCommandOptions options, Logger logger) : base(options, logger)
     {
-        public RegexCreateCommand(RegexCreateCommandOptions options, Logger logger) : base(options, logger)
+    }
+
+    protected override CommandResult ExecuteCore(CancellationToken cancellationToken = default)
+    {
+        PatternOptions patternOptions = Options.PatternOptions;
+
+        string pattern = Options.Input;
+
+        if ((patternOptions & PatternOptions.FromFile) != 0
+            && !FileSystemUtilities.TryReadAllText(pattern, out pattern!, ex => _logger.WriteError(ex)))
         {
+            return CommandResult.Fail;
         }
 
-        protected override CommandResult ExecuteCore(CancellationToken cancellationToken = default)
-        {
-            PatternOptions patternOptions = Options.PatternOptions;
+        pattern = PatternBuilder.BuildPattern(pattern, patternOptions, Options.Separator);
 
-            string pattern = Options.Input;
+        var inlineOptions = "";
 
-            if ((patternOptions & PatternOptions.FromFile) != 0
-                && !FileSystemUtilities.TryReadAllText(pattern, out pattern!, ex => _logger.WriteError(ex)))
-            {
-                return CommandResult.Fail;
-            }
+        if ((patternOptions & PatternOptions.IgnoreCase) != 0)
+            inlineOptions += "i";
 
-            pattern = PatternBuilder.BuildPattern(pattern, patternOptions, Options.Separator);
+        if ((patternOptions & PatternOptions.Multiline) != 0)
+            inlineOptions += "m";
 
-            var inlineOptions = "";
+        if ((patternOptions & PatternOptions.ExplicitCapture) != 0)
+            inlineOptions += "n";
 
-            if ((patternOptions & PatternOptions.IgnoreCase) != 0)
-                inlineOptions += "i";
+        if ((patternOptions & PatternOptions.Singleline) != 0)
+            inlineOptions += "s";
 
-            if ((patternOptions & PatternOptions.Multiline) != 0)
-                inlineOptions += "m";
+        if ((patternOptions & PatternOptions.IgnorePatternWhitespace) != 0)
+            inlineOptions += "x";
 
-            if ((patternOptions & PatternOptions.ExplicitCapture) != 0)
-                inlineOptions += "n";
+        if (!string.IsNullOrEmpty(inlineOptions))
+            inlineOptions = $"(?{inlineOptions})";
 
-            if ((patternOptions & PatternOptions.Singleline) != 0)
-                inlineOptions += "s";
+        pattern = inlineOptions + pattern;
 
-            if ((patternOptions & PatternOptions.IgnorePatternWhitespace) != 0)
-                inlineOptions += "x";
+        _logger.WriteLine(pattern, Verbosity.Minimal);
 
-            if (!string.IsNullOrEmpty(inlineOptions))
-                inlineOptions = $"(?{inlineOptions})";
-
-            pattern = inlineOptions + pattern;
-
-            _logger.WriteLine(pattern, Verbosity.Minimal);
-
-            return CommandResult.Success;
-        }
+        return CommandResult.Success;
     }
 }

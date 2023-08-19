@@ -162,7 +162,6 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
             LogProgress = (ProgressReporter is not null) ? p => ProgressReporter.Report(p) : null,
             RecurseSubdirectories = Options.RecurseSubdirectories,
             DefaultEncoding = Options.DefaultEncoding,
-            MinDirectoryDepth = Options.MinDirectoryDepth,
             MaxDirectoryDepth = Options.MaxDirectoryDepth,
         };
 

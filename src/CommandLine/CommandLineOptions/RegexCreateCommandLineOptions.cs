@@ -14,7 +14,7 @@ internal sealed class RegexCreateCommandLineOptions : AbstractCommandLineOptions
     [Value(
         index: 0,
         HelpText = "",
-        MetaName = "<PATTERN|FILE_PATH>")]
+        MetaName = "<PATTERN|PATH>")]
     public string Input { get; set; } = null!;
 
     [Option(

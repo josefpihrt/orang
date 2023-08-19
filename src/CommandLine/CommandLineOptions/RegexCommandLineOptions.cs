@@ -160,8 +160,8 @@ internal abstract class RegexCommandLineOptions : CommonRegexCommandLineOptions
             OptionNames.Modify,
             modifier,
             out ModifyOptions? modifyOptions,
-                out bool aggregateOnly,
-                out bool _))
+            out bool aggregateOnly,
+            out bool _))
         {
             return false;
         }

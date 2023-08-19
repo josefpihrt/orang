@@ -27,5 +27,5 @@ internal enum ModifyFlags
     CultureInvariant = 1 << 14,
     AggregateOnly = 1 << 15,
     Count = 1 << 16,
-        Save = 1 << 17,
+    Save = 1 << 17,
 }

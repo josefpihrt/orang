@@ -357,12 +357,12 @@ internal class ParseContext
         string optionName,
         EnumerableModifier<string>? modifier,
         [NotNullWhen(true)] out ModifyOptions? modifyOptions,
-            out bool aggregateOnly,
-            out bool saveAggregatedValues)
+        out bool aggregateOnly,
+        out bool saveAggregatedValues)
     {
         modifyOptions = null;
         aggregateOnly = false;
-            saveAggregatedValues = false;
+        saveAggregatedValues = false;
 
         var sortProperty = ValueSortProperty.None;
         List<string>? options = null;
@@ -492,7 +492,7 @@ internal class ParseContext
         }
 
         aggregateOnly = (modifyFlags & ModifyFlags.AggregateOnly) != 0;
-            saveAggregatedValues = (modifyFlags & ModifyFlags.Save) != 0;
+        saveAggregatedValues = (modifyFlags & ModifyFlags.Save) != 0;
 
         if (modifyFlags != ModifyFlags.None
             || functions != ModifyFunctions.None

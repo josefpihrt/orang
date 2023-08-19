@@ -51,8 +51,8 @@ internal sealed class AggregateManager
         ModifyOptions modifyOptions = Options.ModifyOptions;
 
         bool shouldCreate = modifyOptions.HasFunction(ModifyFunctions.Except_Intersect_Group)
-                || modifyOptions.Aggregate
-                || Options.SaveAggregatedValues;
+            || modifyOptions.Aggregate
+            || Options.SaveAggregatedValues;
 
         if (!shouldCreate)
             return null;
@@ -76,47 +76,47 @@ internal sealed class AggregateManager
 
     public void WriteAggregatedValues(CancellationToken cancellationToken)
     {
-            PathInfo pathInfo = Options.Paths[0];
+        PathInfo pathInfo = Options.Paths[0];
 
-            bool savingAggregatedValues = Options.SaveAggregatedValues
-                && pathInfo.Origin != PathOrigin.CurrentDirectory
-                && File.Exists(pathInfo.Path);
+        bool savingAggregatedValues = Options.SaveAggregatedValues
+            && pathInfo.Origin != PathOrigin.CurrentDirectory
+            && File.Exists(pathInfo.Path);
 
-            if (savingAggregatedValues)
+        if (savingAggregatedValues)
+        {
+            LogWriter? originalOut = _logger.Out;
+
+            try
             {
-                LogWriter? originalOut = _logger.Out;
-
-                try
+                using (var stream = new FileStream(pathInfo.Path, FileMode.Create, FileAccess.Write, FileShare.Read))
+                using (var writer = new StreamWriter(stream, Encoding.UTF8))
                 {
-                    using (var stream = new FileStream(pathInfo.Path, FileMode.Create, FileAccess.Write, FileShare.Read))
-                    using (var writer = new StreamWriter(stream, Encoding.UTF8))
+                    if (originalOut is not null)
                     {
-                        if (originalOut != null)
-                        {
-                            var writer2 = new TextWriter<TextWriter, TextWriter>(originalOut.Writer, writer);
-                            _logger.Out = new LogWriter(writer2) { Verbosity = originalOut.Verbosity };
-                        }
-                        else
-                        {
-                            _logger.Out = new LogWriter(writer) { Verbosity = Verbosity.Normal };
-                        }
-
-                        WriteAggregatedValuesImpl(savingAggregatedValues, cancellationToken);
+                        var writer2 = new TextWriter<TextWriter, TextWriter>(originalOut.Writer, writer);
+                        _logger.Out = new LogWriter(writer2) { Verbosity = originalOut.Verbosity };
                     }
-                }
-                finally
-                {
-                    _logger.Out = originalOut;
+                    else
+                    {
+                        _logger.Out = new LogWriter(writer) { Verbosity = Verbosity.Normal };
+                    }
+
+                    WriteAggregatedValuesImpl(savingAggregatedValues, cancellationToken);
                 }
             }
-            else
+            finally
             {
-                WriteAggregatedValuesImpl(savingAggregatedValues, cancellationToken);
+                _logger.Out = originalOut;
             }
         }
-
-        private void WriteAggregatedValuesImpl(bool savingAggregatedValues, CancellationToken cancellationToken)
+        else
         {
+            WriteAggregatedValuesImpl(savingAggregatedValues, cancellationToken);
+        }
+    }
+
+    private void WriteAggregatedValuesImpl(bool savingAggregatedValues, CancellationToken cancellationToken)
+    {
         int count = 0;
 
         IEnumerable<string> values = Storage.Values;
@@ -213,18 +213,18 @@ internal sealed class AggregateManager
                 {
                     _logger.ConsoleOut.WriteLineIf(ShouldWriteLine(_logger.ConsoleOut.Verbosity));
 
-                        if (_logger.Out != null
-                            && ShouldWriteLine(_logger.Out.Verbosity))
+                    if (_logger.Out is not null
+                        && ShouldWriteLine(_logger.Out.Verbosity))
+                    {
+                        if (_logger.Out.Writer is TextWriter<TextWriter, TextWriter> writer2)
                         {
-                            if (_logger.Out.Writer is TextWriter<TextWriter, TextWriter> writer2)
-                            {
-                                writer2.Writer1.WriteLine();
-                            }
-                            else if (!savingAggregatedValues)
-                            {
-                                _logger.Out.WriteLine();
-                            }
+                            writer2.Writer1.WriteLine();
                         }
+                        else if (!savingAggregatedValues)
+                        {
+                            _logger.Out.WriteLine();
+                        }
+                    }
                 }
 
                 do

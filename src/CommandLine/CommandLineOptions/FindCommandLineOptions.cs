@@ -123,8 +123,8 @@ internal sealed class FindCommandLineOptions : CommonFindCommandLineOptions
             OptionNames.Modify,
             modifier,
             out ModifyOptions? modifyOptions,
-                out bool aggregateOnly,
-                out bool saveAggregatedValues))
+            out bool aggregateOnly,
+            out bool saveAggregatedValues))
         {
             return false;
         }
@@ -142,7 +142,7 @@ internal sealed class FindCommandLineOptions : CommonFindCommandLineOptions
         options.Input = input;
         options.ModifyOptions = modifyOptions;
         options.AggregateOnly = aggregateOnly;
-            options.SaveAggregatedValues = saveAggregatedValues;
+        options.SaveAggregatedValues = saveAggregatedValues;
         options.Split = Split;
 
         options.Format = new OutputDisplayFormat(

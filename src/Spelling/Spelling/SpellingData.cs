@@ -15,8 +15,6 @@ public class SpellingData
     private WordCharMap? _reversedCharIndexMap;
     private ImmutableDictionary<string, ImmutableHashSet<string>>? _charMap;
 
-    public static SpellingData Empty { get; } = new(WordList.Default, WordList.CaseSensitive, FixList.Empty);
-
     public SpellingData(
         WordList words,
         WordList caseSensitiveWords,

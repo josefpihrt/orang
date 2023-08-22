@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 using Orang.Spelling;
 
@@ -136,6 +137,15 @@ internal sealed class SpellcheckCommand : CommonReplaceCommand<SpellcheckCommand
         return spans;
     }
 
+    protected override CommandResult GetCommandResult(SearchContext context)
+    {
+        List<SpellingFixResult> results = SpellcheckState.Results;
+
+        return (results.Count == 0 || (!Options.DryRun && results.All(f => f.HasFix)))
+                ? CommandResult.Success
+                : CommandResult.NoMatch;
+    }
+
     protected override void WriteBeforeSummary()
     {
         if (!_logger.ShouldWrite(Verbosity.Normal))
@@ -169,8 +179,12 @@ internal sealed class SpellcheckCommand : CommonReplaceCommand<SpellcheckCommand
 
         isFirst = true;
 
-        foreach (IGrouping<string, SpellingFixResult> grouping in SpellcheckState.Results
-            .Where(f => !f.HasFix)
+        IEnumerable<SpellingFixResult> results = SpellcheckState.Results;
+
+        if (!Options.DryRun)
+            results = results.Where(f => !f.HasFix);
+
+        foreach (IGrouping<string, SpellingFixResult> grouping in results
             .GroupBy(f => f.Value, comparer)
             .OrderBy(f => f.Key, comparer))
         {
@@ -210,8 +224,11 @@ internal sealed class SpellcheckCommand : CommonReplaceCommand<SpellcheckCommand
                 WriteMatchingLines(grouping, comparer, contentIndent, Colors.Match);
         }
 
-        WriteResults(SpellingFixKind.Predefined, "Auto fixes:", contentIndent, comparer, isDetailed: isDetailed);
-        WriteResults(SpellingFixKind.User, "User-applied fixes:", contentIndent, comparer, isDetailed: isDetailed);
+        if (!Options.DryRun)
+        {
+            WriteResults(SpellingFixKind.Predefined, "Auto fixes:", contentIndent, comparer, isDetailed: isDetailed);
+            WriteResults(SpellingFixKind.User, "User-applied fixes:", contentIndent, comparer, isDetailed: isDetailed);
+        }
     }
 
     private void WriteResults(

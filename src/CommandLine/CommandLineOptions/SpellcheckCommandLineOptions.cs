@@ -2,7 +2,7 @@
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
+using System.IO;
 using System.Text.RegularExpressions;
 using CommandLine;
 using Orang.CommandLine.Annotations;
@@ -12,9 +12,6 @@ namespace Orang.CommandLine;
 
 [Verb("spellcheck", HelpText = "Searches the files' content for potential misspellings and typos.")]
 [CommandGroup("File System", 1)]
-#if DEBUG
-[OptionValueProvider(nameof(Word), OptionValueProviderNames.PatternOptions_Word)]
-#endif
 internal sealed class SpellcheckCommandLineOptions : CommonReplaceCommandLineOptions
 {
     [Option(
@@ -47,11 +44,7 @@ internal sealed class SpellcheckCommandLineOptions : CommonReplaceCommandLineOpt
         HelpText = "Specified path to file and/or directory that contains list of allowed words.",
         MetaValue = MetaValues.Path)]
     public IEnumerable<string> Words { get; set; } = null!;
-#if DEBUG
-    [Option(
-        longName: OptionNames.Word)]
-    public IEnumerable<string> Word { get; set; } = null!;
-#endif
+
     public bool TryParse(SpellcheckCommandOptions options, ParseContext context)
     {
         var baseOptions = (CommonReplaceCommandOptions)options;
@@ -61,30 +54,29 @@ internal sealed class SpellcheckCommandLineOptions : CommonReplaceCommandLineOpt
 
         options = (SpellcheckCommandOptions)baseOptions;
 
-        Regex? wordRegex = null;
-
         if (!context.TryEnsureFullPath(Words, out ImmutableArray<string> wordListPaths))
             return false;
-#if DEBUG
-        if (Word.Any())
+
+        foreach (string path in wordListPaths)
         {
-            if (!context.TryParseFilter(
-                Word,
-                OptionNames.Word,
-                OptionValueProviders.PatternOptions_Word_Provider,
-                out Matcher? wordFilter))
+            if (!File.Exists(path)
+                && !Directory.Exists(path))
             {
+                context.WriteError($"File or directory not found: '{path}'.");
                 return false;
             }
-
-            wordRegex = wordFilter!.Regex;
         }
-#endif
+
+        var loadOptions = WordListLoadOptions.DetectNonWords;
+
+        if (!CaseSensitive)
+            loadOptions |= WordListLoadOptions.IgnoreCase;
+
         WordListLoaderResult result = WordListLoader.Load(
             wordListPaths,
             minWordLength: MinWordLength,
             maxWordLength: MaxWordLength,
-            (CaseSensitive) ? WordListLoadOptions.None : WordListLoadOptions.IgnoreCase);
+            loadOptions);
 
         var data = new SpellingData(result.List, result.CaseSensitiveList, result.FixList);
 
@@ -93,7 +85,7 @@ internal sealed class SpellcheckCommandLineOptions : CommonReplaceCommandLineOpt
             MinWordLength,
             MaxWordLength);
 
-        var spellchecker = new Spellchecker(data, wordRegex, spellcheckerOptions);
+        var spellchecker = new Spellchecker(data, spellcheckerOptions);
 
         options.Replacer = new SpellcheckState(spellchecker, data);
 

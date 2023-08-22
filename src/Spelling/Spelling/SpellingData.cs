@@ -114,7 +114,7 @@ public class SpellingData
         return default;
     }
 
-    private WordSequenceMatch GetSequenceMatch(
+    private static WordSequenceMatch GetSequenceMatch(
         string value,
         int startIndex,
         int length,

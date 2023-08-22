@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add parameter `--max-depth` for maximum directory depth ([#44](https://github.com/josefpihrt/roslynator/pull/44)).
   - Add property `Orang.FileSystem.DirectoryMatcher.MaxDepth`
 
+### Fixed
+
+- Fix exit code of command `spellcheck` ([#63](https://github.com/josefpihrt/roslynator/pull/63)).
+
 ## [0.4.0] - 2023-08-17
 
 ## [0.4.0-beta.2] - 2023-07-29

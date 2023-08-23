@@ -41,7 +41,7 @@ internal sealed class SpellcheckCommandLineOptions : CommonReplaceCommandLineOpt
     [Option(
         longName: OptionNames.Words,
         Required = true,
-        HelpText = "Specified path to file and/or directory that contains list of allowed words.",
+        HelpText = "Specified path to file and/or directory that contains list of known words.",
         MetaValue = MetaValues.Path)]
     public IEnumerable<string> Words { get; set; } = null!;
 

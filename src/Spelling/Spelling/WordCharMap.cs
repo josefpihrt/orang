@@ -46,7 +46,7 @@ public sealed class WordCharMap
 
     public static WordCharMap CreateCharIndexMap(WordList wordList, bool reverse = false)
     {
-        ImmutableDictionary<WordChar, ImmutableHashSet<string>> map = wordList.Values
+        ImmutableDictionary<WordChar, ImmutableHashSet<string>> map = wordList.Words
             .Select(s =>
             {
                 return (

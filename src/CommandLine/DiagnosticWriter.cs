@@ -535,10 +535,7 @@ internal class DiagnosticWriter
         WriteSortOptions("sort", options.SortOptions);
         WriteOption("split mode", spellcheckState.Spellchecker.Options.SplitMode);
         WriteOption("summary", options.Format.Includes(DisplayParts.Summary));
-#if DEBUG
-        WriteRegex("word", spellcheckState.Spellchecker.WordRegex);
-#endif
-        WriteOption("words", spellcheckState.Data.Words.Values.Count + spellcheckState.Data.CaseSensitiveWords.Values.Count);
+        WriteOption("words", spellcheckState.Data.WordList.Words.Count + spellcheckState.Data.CaseSensitiveWordList.Words.Count);
     }
 
     internal void WriteSyncCommand(SyncCommandOptions options)

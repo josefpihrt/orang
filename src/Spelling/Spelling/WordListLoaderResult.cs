@@ -2,7 +2,7 @@
 
 namespace Orang.Spelling;
 
-public readonly struct WordListLoaderResult
+public class WordListLoaderResult
 {
     internal WordListLoaderResult(WordList list, WordList caseSensitiveList, FixList fixList)
     {

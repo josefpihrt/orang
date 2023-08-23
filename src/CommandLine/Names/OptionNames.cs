@@ -91,7 +91,6 @@ internal static class OptionNames
     public const string Verbosity = "verbosity";
     public const string WholeLine = "whole-line";
     public const string WholeWord = "whole-word";
-    public const string Word = "word";
     public const string Words = "words";
 
     private static ImmutableDictionary<string, string>? _namesToShortNames;

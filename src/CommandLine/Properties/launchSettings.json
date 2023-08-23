@@ -2,7 +2,7 @@
   "profiles": {
     "CommandLine": {
       "commandName": "Project",
-      "commandLineArgs": "spellcheck C:\\code\\jp\\josefpihrt.github.io\\docs --min-word-length 4 -o c:/spellcheck/tmp.txt --words c:/spellcheck/words -e txt,md,mdx --dry-run -n \"dotmarkdown\\ref\\DotMarkdown\\LanguageIdentifiers\" p=f l ne -u"
+      "commandLineArgs": "help -v d"
     }
   }
 }

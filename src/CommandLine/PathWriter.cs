@@ -142,7 +142,7 @@ internal class PathWriter
         _logger.Write(path, startIndex, path.Length - startIndex, Verbosity);
     }
 
-    protected int GetBasePathLength(string path, string? basePath)
+    protected static int GetBasePathLength(string path, string? basePath)
     {
         if (basePath is not null
             && path.Length > basePath.Length

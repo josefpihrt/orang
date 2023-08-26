@@ -320,7 +320,7 @@ internal sealed class SpellcheckCommand : CommonReplaceCommand<SpellcheckCommand
     }
 
 #if DEBUG
-    public void SaveNewValues(
+    public static void SaveNewValues(
         SpellingData spellingData,
         FixList originalFixList,
         List<SpellingFixResult> results,

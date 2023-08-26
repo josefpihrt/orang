@@ -76,9 +76,10 @@ internal class RenameCommand : DeleteOrRenameCommand<RenameCommandOptions>
         bool isInvalidName = changed
             && FileSystemUtilities.ContainsInvalidFileNameChars(newValue);
 
-        string newPath = path.Substring(0, fileMatch.NameSpan.Start)
-            + newValue
-            + path.Substring(fileMatch.NameSpan.Start + fileMatch.NameSpan.Length);
+        string newPath = string.Concat(
+            path.AsSpan(0, fileMatch.NameSpan.Start),
+            newValue,
+            path.AsSpan(fileMatch.NameSpan.Start + fileMatch.NameSpan.Length));
 
         if (Options.Interactive
             || (!Options.OmitPath && changed))
@@ -105,7 +106,7 @@ internal class RenameCommand : DeleteOrRenameCommand<RenameCommandOptions>
         {
             string newName2 = ConsoleHelpers.ReadUserInput(newValue, indent + "New name: ");
 
-            newPath = newPath.Substring(0, newPath.Length - newValue.Length) + newName2;
+            newPath = string.Concat(newPath.AsSpan(0, newPath.Length - newValue.Length), newName2);
 
             changed = !string.Equals(path, newPath, StringComparison.Ordinal);
 

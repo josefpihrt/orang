@@ -10,7 +10,8 @@ namespace Orang;
 
 internal sealed class MatchOutputInfo
 {
-    private const string ItemSeparator = " ";
+    private const char ItemSeparator = ' ';
+    private const int ItemSeparatorLength = 1;
 
     private string? _matchSpaces;
     private string? _groupSpaces;
@@ -60,7 +61,7 @@ internal sealed class MatchOutputInfo
                 MatchWidth
                     + 1
                     + PrefixSeparator.Length
-                    + ItemSeparator.Length);
+                    + ItemSeparatorLength);
         }
     }
 
@@ -73,7 +74,7 @@ internal sealed class MatchOutputInfo
                 GroupWidth
                     + 1
                     + PrefixSeparator.Length
-                    + ItemSeparator.Length);
+                    + ItemSeparatorLength);
         }
     }
 
@@ -81,7 +82,7 @@ internal sealed class MatchOutputInfo
     {
         get
         {
-            int minWidth = PrefixSeparator.Length + ItemSeparator.Length + 1;
+            int minWidth = PrefixSeparator.Length + ItemSeparatorLength + 1;
 
             int width = 0;
 

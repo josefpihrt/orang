@@ -93,21 +93,21 @@ internal sealed class SplitOutputInfo
         }
 
         sb.Append(' ', SplitWidth - item.Name.Length);
-        sb.Append(" ");
+        sb.Append(' ');
 
         sb.Append(Captions.ShortIndex);
         sb.Append(PrefixSeparator);
 
         sb.Append(' ', IndexWidth - item.Index.GetDigitCount());
         sb.Append(item.Index);
-        sb.Append(" ");
+        sb.Append(' ');
 
         sb.Append(Captions.ShortLength);
         sb.Append(PrefixSeparator);
 
         sb.Append(' ', LengthWidth - item.Length.GetDigitCount());
         sb.Append(item.Length);
-        sb.Append(" ");
+        sb.Append(' ');
 
         return StringBuilderCache.GetStringAndFree(sb);
     }

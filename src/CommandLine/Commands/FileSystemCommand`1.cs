@@ -572,7 +572,7 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
         return (baseDirectoryPath is not null) ? GetPathIndent() : "";
     }
 
-    private string GetPathIndent()
+    private static string GetPathIndent()
     {
         return "";
     }

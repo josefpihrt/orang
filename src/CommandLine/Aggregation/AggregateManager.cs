@@ -273,7 +273,7 @@ internal sealed class AggregateManager
         }
     }
 
-    private IEnumerable<string> GetRange(List<string> values, int start, int end)
+    private static IEnumerable<string> GetRange(List<string> values, int start, int end)
     {
         for (int i = start; i < end; i++)
             yield return values[i];

@@ -118,7 +118,7 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
                 MatchFileInfo = filePredicate,
                 WithAttributes = Options.Attributes,
                 WithoutAttributes = Options.AttributesToSkip,
-                EmptyOption = Options.EmptyOption
+                EmptyOption = Options.EmptyOption,
             };
         }
 
@@ -131,7 +131,7 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
                 MatchDirectoryInfo = directoryPredicate,
                 WithAttributes = Options.Attributes,
                 WithoutAttributes = Options.AttributesToSkip,
-                EmptyOption = Options.EmptyOption
+                EmptyOption = Options.EmptyOption,
             };
         }
 

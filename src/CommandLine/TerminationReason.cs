@@ -6,5 +6,5 @@ internal enum TerminationReason
 {
     None,
     Canceled,
-    MaxReached
+    MaxReached,
 }

@@ -37,7 +37,7 @@ public static class Program
             {
                 SearchDirectory = new DirectoryMatcher()
                 {
-                    Name = new Matcher(@"\A(\.git|\.vs)\z", invert: true)
+                    Name = new Matcher(@"\A(\.git|\.vs)\z", invert: true),
                 }
             });
 

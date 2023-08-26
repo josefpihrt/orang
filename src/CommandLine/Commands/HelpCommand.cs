@@ -102,7 +102,7 @@ internal class HelpCommand : AbstractCommand<HelpCommandOptions>
                 var psi = new ProcessStartInfo()
                 {
                     FileName = url,
-                    UseShellExecute = true
+                    UseShellExecute = true,
                 };
 
                 Process.Start(psi);

@@ -162,6 +162,7 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
             LogProgress = (ProgressReporter is not null) ? p => ProgressReporter.Report(p) : null,
             RecurseSubdirectories = Options.RecurseSubdirectories,
             DefaultEncoding = Options.DefaultEncoding,
+            MaxDirectoryDepth = Options.MaxDirectoryDepth,
         };
 
         OnSearchCreating(search);
@@ -240,6 +241,11 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
         if (context.TerminationReason == TerminationReason.Canceled)
             return CommandResult.Canceled;
 
+        return GetCommandResult(context);
+    }
+
+    protected virtual CommandResult GetCommandResult(SearchContext context)
+    {
         return (context.Telemetry.MatchingFileCount > 0 || context.Telemetry.MatchCount > 0)
             ? CommandResult.Success
             : CommandResult.NoMatch;

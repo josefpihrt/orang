@@ -264,18 +264,15 @@ internal static class Program
 
     private static void WriteFrontMatter(DocusaurusMarkdownWriter mw, int? position = null, string? label = null)
     {
-        if (position is not null
-            || label is not null)
-        {
-            var items = new List<(string, object)>();
+        mw.WriteDocusaurusFrontMatter(GetItems());
 
+        IEnumerable<(string, object)> GetItems()
+        {
             if (position is not null)
-                items.Add(("sidebar_position", position));
+                yield return ("sidebar_position", position);
 
             if (label is not null)
-                items.Add(("sidebar_label", label));
-
-            mw.WriteDocusaurusFrontMatter(items);
+                yield return ("sidebar_label", label);
         }
     }
 }

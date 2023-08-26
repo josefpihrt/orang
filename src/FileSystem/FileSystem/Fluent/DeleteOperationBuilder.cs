@@ -48,7 +48,7 @@ public class DeleteOperationBuilder
             ContentOnly = _contentOnly,
             IncludingBom = _includingBom,
             DryRun = _dryRun,
-            LogOperation = _logOperation
+            LogOperation = _logOperation,
         };
     }
 }

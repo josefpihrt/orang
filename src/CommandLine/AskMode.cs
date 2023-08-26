@@ -6,5 +6,5 @@ internal enum AskMode
 {
     None = 0,
     File = 1,
-    Value = 2
+    Value = 2,
 }

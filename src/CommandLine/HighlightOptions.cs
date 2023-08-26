@@ -23,5 +23,5 @@ internal enum HighlightOptions
     Linefeed = 1 << 10,
     Newline = CarriageReturn | Linefeed,
     Space = 1 << 11,
-    Character = Tab | CarriageReturn | Linefeed | Space
+    Character = Tab | CarriageReturn | Linefeed | Space,
 }

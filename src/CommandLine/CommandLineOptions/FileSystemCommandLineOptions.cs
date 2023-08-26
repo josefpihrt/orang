@@ -387,7 +387,7 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
         return true;
     }
 
-    protected FileAttributes GetFileAttributes(FileSystemAttributes attributes)
+    protected static FileAttributes GetFileAttributes(FileSystemAttributes attributes)
     {
         FileAttributes fileAttributes = 0;
 

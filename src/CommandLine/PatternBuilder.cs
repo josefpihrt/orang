@@ -78,7 +78,7 @@ internal static class PatternBuilder
 
                         do
                         {
-                            sb.Append("|");
+                            sb.Append('|');
                             AppendValue(en.Current, sb);
                         }
                         while (en.MoveNext());
@@ -103,7 +103,7 @@ internal static class PatternBuilder
             {
                 sb.Append("(?:");
                 sb.Append(value);
-                sb.Append(")");
+                sb.Append(')');
             }
         }
     }

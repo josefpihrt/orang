@@ -734,22 +734,6 @@ internal class DiagnosticWriter
         }
     }
 
-#if DEBUG
-    private void WriteRegex(string name, Regex? regex)
-    {
-        WriteName(name);
-
-        if (regex is null)
-        {
-            WriteNullValue();
-            WriteLine();
-            return;
-        }
-
-        WriteRegex(regex);
-    }
-#endif
-
     private void WriteRegex(Regex regex)
     {
         WriteLine();

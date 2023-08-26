@@ -207,7 +207,7 @@ internal class RegexListCommand : AbstractCommand<RegexListCommandOptions>
         return patterns;
     }
 
-    private IEnumerable<PatternInfo> GetPatterns(
+    private static IEnumerable<PatternInfo> GetPatterns(
         int charCode,
         bool inCharGroup = false,
         RegexOptions options = RegexOptions.None)

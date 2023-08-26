@@ -1185,7 +1185,7 @@ internal class ParseContext
         return true;
     }
 
-    public bool TryParseAsEnum<TEnum>(
+    public static bool TryParseAsEnum<TEnum>(
         string value,
         out TEnum result,
         TEnum? defaultValue = null,
@@ -1605,7 +1605,7 @@ internal class ParseContext
         return true;
     }
 
-    private string BuildPattern(
+    private static string BuildPattern(
         string pattern,
         PatternOptions patternOptions,
         string? separator)
@@ -1673,7 +1673,7 @@ internal class ParseContext
 
                         do
                         {
-                            sb.Append("|");
+                            sb.Append('|');
                             AppendValue(en.Current, sb);
                         }
                         while (en.MoveNext());
@@ -1698,7 +1698,7 @@ internal class ParseContext
             {
                 sb.Append("(?:");
                 sb.Append(value);
-                sb.Append(")");
+                sb.Append(')');
             }
         }
     }
@@ -1766,7 +1766,7 @@ internal class ParseContext
         return true;
     }
 
-    private bool TryParseMatchTimeout(string value, out TimeSpan matchTimeout)
+    private static bool TryParseMatchTimeout(string value, out TimeSpan matchTimeout)
     {
         if (int.TryParse(value, NumberStyles.None, CultureInfo.InvariantCulture, out int seconds))
         {

@@ -587,7 +587,8 @@ internal static class OptionValueProviders
         IEnumerable<OptionValueProvider>? allProviders = null)
     {
         IEnumerable<string> metaValues = options
-            .SelectMany(f => OptionValueProvider.MetaValueRegex.Matches(f.Description).Select(m => m.Value))
+            .Where(f => !string.IsNullOrEmpty(f.Description))
+            .SelectMany(f => OptionValueProvider.MetaValueRegex.Matches(f.Description!).Select(m => m.Value))
             .Concat(options.Where(f => f.MetaValue is not null).Select(f => f.MetaValue).Cast<string>())
             .Distinct();
 

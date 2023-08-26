@@ -112,7 +112,7 @@ internal static class Program
                     return;
                 }
 
-                UnknownOptionError oldAttributesToSkipShortName = e
+                UnknownOptionError? oldAttributesToSkipShortName = e
                     .OfType<UnknownOptionError>()
                     .FirstOrDefault(f => f.Token == "b");
 

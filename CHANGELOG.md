@@ -9,19 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add command `regex create` ([#45](https://github.com/josefpihrt/roslynator/pull/45)).
-- Add parameter `--max-depth` for maximum directory depth ([#44](https://github.com/josefpihrt/roslynator/pull/44)).
+- Add command `regex create` ([#45](https://github.com/josefpihrt/orang/pull/45)).
+- Add parameter `--max-depth` for maximum directory depth ([#44](https://github.com/josefpihrt/orang/pull/44)).
   - Add property `Orang.FileSystem.DirectoryMatcher.MaxDepth`
 
 ### Changed
 
-- Bump Roslyn to 4.7.0 ([#64](https://github.com/josefpihrt/roslynator/pull/64)).
-- Change target framework to .NET 6 ([#66](https://github.com/josefpihrt/roslynator/pull/66)).
+- Bump Roslyn to 4.7.0 ([#64](https://github.com/josefpihrt/orang/pull/64)).
+- Change target framework to .NET 6 ([#66](https://github.com/josefpihrt/orang/pull/66)).
 - Update logo ([#70](https://github.com/josefpihrt/orang/pull/70)).
 
 ### Fixed
 
-- Fix exit code of command `spellcheck` ([#63](https://github.com/josefpihrt/roslynator/pull/63)).
+- Fix exit code of command `spellcheck` ([#63](https://github.com/josefpihrt/orang/pull/63)).
 
 ## [0.4.0] - 2023-08-17
 
@@ -29,40 +29,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Fix validation of group name ([#58](https://github.com/josefpihrt/roslynator/pull/58)).
+- Fix validation of group name ([#58](https://github.com/josefpihrt/orang/pull/58)).
 
 ## [0.4.0-beta] - 2023-07-28
 
 ### Added
 
-- Add [.NET API](https://josefpihrt.github.io/docs/orang/ref) ([#51](https://github.com/josefpihrt/roslynator/pull/51)).
+- Add [.NET API](https://josefpihrt.github.io/docs/orang/ref) ([#51](https://github.com/josefpihrt/orang/pull/51)).
 
 ### Changed
 
-- Migrate documentation to [Docusaurus](https://josefpihrt.github.io/docs/orang) ([#48](https://github.com/josefpihrt/roslynator/pull/48)).
+- Migrate documentation to [Docusaurus](https://josefpihrt.github.io/docs/orang) ([#48](https://github.com/josefpihrt/orang/pull/48)).
 
 ### Fixed
 
-- Check correctly if name changed during renaming ([#54](https://github.com/josefpihrt/roslynator/pull/54)).
+- Check correctly if name changed during renaming ([#54](https://github.com/josefpihrt/orang/pull/54)).
 
 ## [0.3.2] - 2022-06-26
 
 ### Added
 
-- Add support for Source Link ([#42](https://github.com/josefpihrt/roslynator/pull/42)).
-- Add CI/CD pipeline ([#41](https://github.com/josefpihrt/roslynator/pull/41)).
-- Add NuGet readme file ([#38](https://github.com/josefpihrt/roslynator/pull/38)).
+- Add support for Source Link ([#42](https://github.com/josefpihrt/orang/pull/42)).
+- Add CI/CD pipeline ([#41](https://github.com/josefpihrt/orang/pull/41)).
+- Add NuGet readme file ([#38](https://github.com/josefpihrt/orang/pull/38)).
 
 ### Changed
 
-- Migrate script to PowerShell ([#40](https://github.com/josefpihrt/roslynator/pull/40)).
-- Replace ruleset with editorconfig ([#39](https://github.com/josefpihrt/roslynator/pull/39)).
-- Format changelog according to 'Keep a Changelog' ([#37](https://github.com/josefpihrt/roslynator/pull/37)).
+- Migrate script to PowerShell ([#40](https://github.com/josefpihrt/orang/pull/40)).
+- Replace ruleset with editorconfig ([#39](https://github.com/josefpihrt/orang/pull/39)).
+- Format changelog according to 'Keep a Changelog' ([#37](https://github.com/josefpihrt/orang/pull/37)).
 - Rename `master` to `main`.
 
 ### Fixed
 
-- Specify max matching files with `--max-count` correctly ([commit](https://github.com/JosefPihrt/Orang/commit/a6b2b3379a170741f4ae47747220a9ae5e8fcf08)).
+- Specify max matching files with `--max-count` correctly ([commit](https://github.com/josefpihrt/orang/commit/a6b2b3379a170741f4ae47747220a9ae5e8fcf08)).
 
 -----
 <!-- Content below does not adhere to 'Keep a Changelog' format -->
@@ -141,7 +141,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.1.1 (2020-10-26)
 
-* Use C# code to compute replacements ([issue](https://github.com/JosefPihrt/Orang/issues/4))
+* Use C# code to compute replacements ([issue](https://github.com/josefpihrt/orang/issues/4))
   * `--replace <CSHARP_EXPRESSION> cs[harp]`
   * `--replace <CSHARP_CODE_FILE_PATH> cs[harp] f[rom-file]`
 * Deprecate option `--evaluator` and replace it with `--replace "DllPath,FullTypeName.MethodName" from-dll`

@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bump Roslyn to 4.7.0 ([#64](https://github.com/josefpihrt/orang/pull/64)).
 - Change target framework to .NET 6 ([#66](https://github.com/josefpihrt/orang/pull/66)).
+- Update logo ([#70](https://github.com/josefpihrt/orang/pull/70)).
 
 ### Fixed
 

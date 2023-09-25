@@ -27,7 +27,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\images\icon.png" Pack="true" PackagePath="\" Visible="false" />
+    <None Include="..\..\images\orang-logo-small.png" Pack="true" PackagePath="icon.png" Visible="false" />
     <None Include="docs\NuGetReadme.md" Pack="true" PackagePath="docs\README.md" />
     <None Update="Resources\RegexSyntax.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

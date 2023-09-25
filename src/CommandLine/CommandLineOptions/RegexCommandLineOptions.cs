@@ -48,7 +48,7 @@ internal abstract class RegexCommandLineOptions : CommonRegexCommandLineOptions
 
         options = (RegexCommandOptions)baseOptions;
 
-        string input = Input.FirstOrDefault();
+        string? input = Input.FirstOrDefault();
 
         if (!string.IsNullOrEmpty(Path))
         {

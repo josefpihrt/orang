@@ -283,7 +283,10 @@ internal abstract class CommonCopyCommand<TOptions> :
                 }
                 else
                 {
-                    Directory.CreateDirectory(Path.GetDirectoryName(destinationPath));
+                    string? parentDirectory = Path.GetDirectoryName(destinationPath);
+
+                    if (!string.IsNullOrEmpty(parentDirectory))
+                        Directory.CreateDirectory(parentDirectory);
                 }
 
                 ExecuteOperation(sourcePath, destinationPath);

@@ -84,15 +84,13 @@ internal class HelpCommand : AbstractCommand<HelpCommandOptions>
     }
 
     // https://github.com/dotnet/corefx/issues/10361
-    private void OpenHelpInBrowser(string? commandName)
+    private static void OpenHelpInBrowser(string? commandName)
     {
         var url = "https://josefpihrt.github.io/docs/orang/cli";
 
         if (commandName is not null)
             url += $"/commands/{commandName}";
-#if DEBUG
-        _logger.WriteLine(url, Verbosity.Normal);
-#endif
+
         try
         {
             Process.Start(url);
@@ -104,7 +102,7 @@ internal class HelpCommand : AbstractCommand<HelpCommandOptions>
                 var psi = new ProcessStartInfo()
                 {
                     FileName = url,
-                    UseShellExecute = true
+                    UseShellExecute = true,
                 };
 
                 Process.Start(psi);

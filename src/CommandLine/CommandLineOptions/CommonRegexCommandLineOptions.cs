@@ -50,7 +50,7 @@ internal abstract class CommonRegexCommandLineOptions : BaseCommandLineOptions
 
     [SuppressMessage("Style", "IDE0060:Remove unused parameter")]
     [SuppressMessage("Redundancy", "RCS1163:Unused parameter.")]
-    public bool TryParse(CommonRegexCommandOptions options, ParseContext context)
+    public static bool TryParse(CommonRegexCommandOptions options, ParseContext context)
     {
         return true;
     }

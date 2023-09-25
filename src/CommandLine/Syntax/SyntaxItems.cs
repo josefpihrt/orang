@@ -21,12 +21,12 @@ internal static class SyntaxItems
             Path.Combine("Resources", "RegexSyntax.xml"));
 
         return XDocument.Load(path)
-            .Root
+            .Root!
             .Elements()
             .Select(f => new SyntaxItem(
-                f.Element("Text").Value,
-                (SyntaxSection)Enum.Parse(typeof(SyntaxSection), f.Element("Category").Value),
-                f.Element("Description").Value));
+                f.Element("Text")!.Value,
+                (SyntaxSection)Enum.Parse(typeof(SyntaxSection), f.Element("Category")!.Value),
+                f.Element("Description")!.Value));
     }
 
     public static ImmutableArray<SyntaxItem> Values

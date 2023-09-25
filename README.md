@@ -1,4 +1,4 @@
-# Orang <img align="left" src="images/icon48.png">
+# Orang <img align="left" width="48px" height="48px" src="images/orang-logo-small.png">
 
 Orang is a cross-platform command-line tool for:
 

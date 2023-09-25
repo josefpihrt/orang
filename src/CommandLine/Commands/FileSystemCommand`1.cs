@@ -118,7 +118,7 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
                 MatchFileInfo = filePredicate,
                 WithAttributes = Options.Attributes,
                 WithoutAttributes = Options.AttributesToSkip,
-                EmptyOption = Options.EmptyOption
+                EmptyOption = Options.EmptyOption,
             };
         }
 
@@ -131,7 +131,7 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
                 MatchDirectoryInfo = directoryPredicate,
                 WithAttributes = Options.Attributes,
                 WithoutAttributes = Options.AttributesToSkip,
-                EmptyOption = Options.EmptyOption
+                EmptyOption = Options.EmptyOption,
             };
         }
 
@@ -567,12 +567,12 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
         return Search.MatchFile(filePath);
     }
 
-    protected string GetPathIndent(string? baseDirectoryPath)
+    protected static string GetPathIndent(string? baseDirectoryPath)
     {
         return (baseDirectoryPath is not null) ? GetPathIndent() : "";
     }
 
-    private string GetPathIndent()
+    private static string GetPathIndent()
     {
         return "";
     }

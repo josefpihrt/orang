@@ -181,7 +181,7 @@ internal static class Program
                     Heading2(provider.Name),
                     Table(
                         TableRow("Value", "Shortcut", "Description"),
-                        provider.Values.Select(f => CreateTableRow(f, providers)))
+                        provider.Values.Select(f => CreateTableRow(f, providers))),
                 };
             }));
 

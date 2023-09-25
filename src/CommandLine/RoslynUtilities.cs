@@ -153,9 +153,9 @@ internal static class RoslynUtilities
 
         logger.Write(indentation, verbosity);
         WriteLineNumber(verbosity, lineIndex, maxLineNumberLength);
-        logger.Write(text.Substring(0, index), verbosity);
-        logger.Write(text.Substring(index, span.Length), new ConsoleColors(ConsoleColor.Red), verbosity);
-        logger.WriteLine(text.Substring(index + span.Length), verbosity);
+        logger.Write(text.AsSpan(0, index), verbosity);
+        logger.Write(text.AsSpan(index, span.Length), new ConsoleColors(ConsoleColor.Red), verbosity);
+        logger.WriteLine(text.AsSpan(index + span.Length), verbosity);
 
         for (int i = lineIndex + 1; i <= endLineIndex; i++)
             WriteTextLine(i);

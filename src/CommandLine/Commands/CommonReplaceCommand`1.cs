@@ -433,7 +433,7 @@ internal class CommonReplaceCommand<TOptions> : CommonFindCommand<TOptions> wher
             indent: indent);
     }
 
-    private void WriteMatches(ContentWriter writer, IEnumerator<ICapture> en, SearchContext context)
+    private static void WriteMatches(ContentWriter writer, IEnumerator<ICapture> en, SearchContext context)
     {
         try
         {

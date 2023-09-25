@@ -68,7 +68,7 @@ internal class SearchState
             MatchCasing = MatchCasing.PlatformDefault,
             MatchType = MatchType.Simple,
             RecurseSubdirectories = false,
-            ReturnSpecialDirectories = false
+            ReturnSpecialDirectories = false,
         };
 
         var directories = new Queue<Directory>();

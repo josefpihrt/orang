@@ -1,4 +1,4 @@
-﻿## Exit Code
+﻿ ## Exit Code
 
 Code | Comment
 --- | ---

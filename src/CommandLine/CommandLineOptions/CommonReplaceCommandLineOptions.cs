@@ -80,7 +80,7 @@ internal abstract class CommonReplaceCommandLineOptions : FileSystemCommandLineO
             Pipe,
             OptionNames.Pipe,
             out PipeMode pipeMode,
-            PipeMode.None,
+            CommandLine.PipeMode.None,
             OptionValueProviders.PipeMode))
         {
             return false;

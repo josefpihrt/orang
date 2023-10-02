@@ -48,17 +48,25 @@ internal sealed class FindCommandLineOptions : CommonFindCommandLineOptions
 
     public bool TryParse(FindCommandOptions options, ParseContext context)
     {
-        if (!context.TryParseAsEnum(
-            Pipe,
-            OptionNames.Pipe,
-            out PipeMode pipeMode,
-            CommandLine.PipeMode.None,
-            OptionValueProviders.PipeMode))
+        PipeMode? pipeMode = null;
+
+        if (!string.IsNullOrEmpty(Pipe))
         {
-            return false;
+            if (!context.TryParseAsEnum(
+                Pipe,
+                OptionNames.Pipe,
+                out PipeMode pipeMode2,
+                CommandLine.PipeMode.None,
+                OptionValueProviders.PipeMode))
+            {
+                return false;
+            }
+
+            pipeMode = pipeMode2;
         }
 
-        if (pipeMode != CommandLine.PipeMode.None)
+        if (pipeMode == CommandLine.PipeMode.Paths
+            || pipeMode == CommandLine.PipeMode.Text)
         {
             if (!Console.IsInputRedirected)
             {

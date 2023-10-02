@@ -27,6 +27,8 @@ internal class SearchState
 
     public DirectoryMatcher? DirectoryMatcher { get; }
 
+    public GlobMatcher? GlobFilter { get; set; }
+
     public Func<string, bool>? IncludeDirectory { get; set; }
 
     public Func<string, bool>? ExcludeDirectory { get; set; }
@@ -123,7 +125,7 @@ internal class SearchState
                     {
                         while (fi.MoveNext())
                         {
-                            FileMatch? match = MatchFile(fi.Current);
+                            FileMatch? match = MatchFile(fi.Current, directoryPath);
 
                             if (match is not null)
                                 yield return match;
@@ -228,6 +230,30 @@ internal class SearchState
     {
         (FileMatch? fileMatch, Exception? exception) = FileMatcher!.Match(path, DefaultEncoding);
 
+        if (fileMatch is not null
+            && GlobFilter is not null)
+        {
+            string rootDirPath = Path.GetDirectoryName(path);
+
+            if (!GlobFilter.IsMatch(rootDirPath, path))
+                fileMatch = null;
+        }
+
+        Report(path, SearchProgressKind.File, exception: exception);
+
+        return fileMatch;
+    }
+
+    public FileMatch? MatchFile(string path, string rootDirPath)
+    {
+        (FileMatch? fileMatch, Exception? exception) = FileMatcher!.Match(path, DefaultEncoding);
+
+        if (fileMatch is not null
+            && GlobFilter?.IsMatch(rootDirPath, path) == false)
+        {
+            fileMatch = null;
+        }
+
         Report(path, SearchProgressKind.File, exception: exception);
 
         return fileMatch;
@@ -244,8 +270,6 @@ internal class SearchState
 
     private MatchStatus IncludeOrExcludeDirectory(string path)
     {
-        Debug.Assert(IncludeDirectory is not null || ExcludeDirectory is not null);
-
         if (ExcludeDirectory?.Invoke(path) == true)
             return MatchStatus.FailFromNegative;
 

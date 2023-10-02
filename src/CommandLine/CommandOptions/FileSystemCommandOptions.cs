@@ -18,6 +18,8 @@ internal abstract class FileSystemCommandOptions : CommonRegexCommandOptions
 
     public ImmutableArray<PathInfo> Paths { get; internal set; }
 
+    public GlobMatcher? GlobFilter { get; internal set; }
+
     public Matcher? NameFilter { get; internal set; }
 
     public FileNamePart NamePart { get; internal set; }

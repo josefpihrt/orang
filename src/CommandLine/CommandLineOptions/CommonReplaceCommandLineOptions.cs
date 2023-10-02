@@ -86,12 +86,7 @@ internal abstract class CommonReplaceCommandLineOptions : FileSystemCommandLineO
             return false;
         }
 
-        if (pipeMode == PipeMode.None)
-        {
-            if (Console.IsInputRedirected)
-                PipeMode = PipeMode.Text;
-        }
-        else
+        if (pipeMode != CommandLine.PipeMode.None)
         {
             if (!Console.IsInputRedirected)
             {
@@ -138,7 +133,8 @@ internal abstract class CommonReplaceCommandLineOptions : FileSystemCommandLineO
             return false;
         }
 
-        if (pipeMode != PipeMode.Paths
+        if (options.IsDefaultPath()
+            && pipeMode != CommandLine.PipeMode.Paths
             && Console.IsInputRedirected)
         {
             if (input is not null)

@@ -17,7 +17,7 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
 {
     private FileSystemAttributes FileSystemAttributes { get; set; }
 
-    protected PipeMode PipeMode { get; set; } = PipeMode.Paths;
+    protected PipeMode? PipeMode { get; set; }
 
     [AdditionalDescription(" For further information about the syntax see [reference documentation]("
         + "https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.filesystemglobbing.matcher?view=dotnet-plat-ext-7.0#remarks"
@@ -364,7 +364,7 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
         }
 
         if (Console.IsInputRedirected
-            && PipeMode == PipeMode.Paths)
+            && PipeMode == CommandLine.PipeMode.Paths)
         {
             if (!TryEnsureFullPath(
                 ConsoleHelpers.ReadRedirectedInputAsLines().Where(f => !string.IsNullOrEmpty(f)),

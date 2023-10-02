@@ -52,18 +52,13 @@ internal sealed class FindCommandLineOptions : CommonFindCommandLineOptions
             Pipe,
             OptionNames.Pipe,
             out PipeMode pipeMode,
-            PipeMode.None,
+            CommandLine.PipeMode.None,
             OptionValueProviders.PipeMode))
         {
             return false;
         }
 
-        if (pipeMode == PipeMode.None)
-        {
-            if (Console.IsInputRedirected)
-                PipeMode = PipeMode.Text;
-        }
-        else
+        if (pipeMode != CommandLine.PipeMode.None)
         {
             if (!Console.IsInputRedirected)
             {
@@ -88,7 +83,8 @@ internal sealed class FindCommandLineOptions : CommonFindCommandLineOptions
 
         string? input = null;
 
-        if (pipeMode != PipeMode.Paths
+        if (options.IsDefaultPath()
+            && pipeMode != CommandLine.PipeMode.Paths
             && Console.IsInputRedirected)
         {
             if (options.ContentFilter is null)

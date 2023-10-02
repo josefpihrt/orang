@@ -77,7 +77,7 @@ internal static class Program
             foreach (Command command in commands)
             {
                 mw.WriteStartBulletItem();
-                mw.WriteLink(command.DisplayName, $"cli/commands/{command.Name}");
+                mw.WriteLink(command.DisplayName, $"commands/{command.Name}");
                 mw.WriteEndBulletItem();
             }
 

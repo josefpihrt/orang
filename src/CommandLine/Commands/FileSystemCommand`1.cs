@@ -582,7 +582,8 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
         long size = -1;
 
         if (Options.IncludeSummary
-            && Options.FilePropertyOptions.IncludeSize)
+            && Options.FilePropertyOptions.IncludeSize
+            && !fileMatch.IsSubmatch)
         {
             size = (fileMatch.IsDirectory)
                 ? (context.DirectorySizeMap?[fileMatch.Path] ?? FileSystemUtilities.GetDirectorySize(fileMatch.Path))
@@ -620,7 +621,11 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
 
             sb.Append(sizeText);
 
-            context.Telemetry.FilesTotalSize += size;
+            if (!Options.IncludeSummary
+                && !fileMatch.IsSubmatch)
+            {
+                context.Telemetry.FilesTotalSize += size;
+            }
         }
 
         if (Options.FilePropertyOptions.IncludeCreationTime)

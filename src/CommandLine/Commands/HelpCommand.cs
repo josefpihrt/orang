@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
-using Orang.CommandLine.Annotations;
 using Orang.CommandLine.Help;
 
 namespace Orang.CommandLine;
@@ -144,7 +143,6 @@ internal class HelpCommand : AbstractCommand<HelpCommandOptions>
             writer.WriteValues(commandsHelp.Values);
 
         logger.WriteLine();
-        logger.WriteLine(GetFooterText());
     }
 
     private static void WriteManual(Logger logger, bool verbose = false, Matcher? matcher = null)
@@ -226,10 +224,5 @@ internal class HelpCommand : AbstractCommand<HelpCommandOptions>
     internal static string GetHeadingText()
     {
         return $"Orang Command-Line Tool version {typeof(Program).GetTypeInfo().Assembly.GetName().Version}";
-    }
-
-    internal static string GetFooterText(string? command = null)
-    {
-        return $"Run 'orang help {command ?? "[command]"}' to open help in a default browser.";
     }
 }

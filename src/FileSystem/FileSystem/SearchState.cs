@@ -74,11 +74,10 @@ internal class SearchState
         };
 
         var isRoot = true;
-        int matchMinDepth = -1;
-
+        int matchDepth = -1;
+        var directories = new Stack<Directory>();
         var directories = new Stack<Directory>();
         var subdirectories = new Stack<Directory>();
-
         string? newDirectoryPath = null;
 
         if (notifyDirectoryChanged is not null)
@@ -158,8 +157,8 @@ internal class SearchState
 
                     if (directoryMatch is not null)
                     {
-                        if (matchMinDepth > 0
-                            && directory.Depth > matchMinDepth)
+                        if (matchDepth > 0
+                            && directory.Depth > matchDepth)
                         {
                             directoryMatch.IsSubmatch = true;
                         }
@@ -172,14 +171,14 @@ internal class SearchState
             if (isRoot)
                 isRoot = false;
 
-            if (matchMinDepth == -1)
+            if (matchDepth == -1)
             {
                 if (directoryMatch is not null)
-                    matchMinDepth = directory.Depth;
+                    matchDepth = directory.Depth;
             }
-            else if (directory.Depth <= matchMinDepth)
+            else if (directory.Depth <= matchDepth)
             {
-                matchMinDepth = (directoryMatch is not null)
+                matchDepth = (directoryMatch is not null)
                     ? directory.Depth
                     : -1;
             }
@@ -202,7 +201,7 @@ internal class SearchState
                     {
                         di = (SupportsEnumeration)
                             ? EnumerateDirectories(newDirectoryPath ?? directory.Path, enumerationOptions).GetEnumerator()
-                            : ((IEnumerable<string>)GetDirectories(directory.Path, enumerationOptions)).GetEnumerator();
+                            : ((IEnumerable<string>)GetDirectories(newDirectoryPath ?? directory.Path, enumerationOptions)).GetEnumerator();
                     }
                     catch (Exception ex) when (IsWellKnownException(ex))
                     {

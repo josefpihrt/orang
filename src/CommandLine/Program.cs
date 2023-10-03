@@ -130,8 +130,6 @@ internal static class Program
                     CommandAliasAttribute? commandAlias = parserResult.TypeInfo.Current.GetCustomAttribute<CommandAliasAttribute>();
 
                     string commandName = commandAlias?.Alias ?? verbAttribute.Name;
-
-                    helpText.AddPreOptionsText(Environment.NewLine + HelpCommand.GetFooterText(commandName));
                 }
 
                 Console.Error.WriteLine(helpText);

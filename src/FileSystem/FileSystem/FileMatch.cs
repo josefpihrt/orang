@@ -47,6 +47,8 @@ public class FileMatch
 
     public bool IsDirectory { get; }
 
+    internal bool IsSubmatch { get; set; }
+
     internal FileSystemInfo FileSystemInfo
     {
         get

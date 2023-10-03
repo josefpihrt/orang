@@ -17,7 +17,7 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
 {
     private FileSystemAttributes FileSystemAttributes { get; set; }
 
-    protected PipeMode PipeMode { get; set; } = PipeMode.Paths;
+    protected PipeMode? PipeMode { get; set; }
 
     [HideFromConsoleHelp]
     [Option(
@@ -344,7 +344,7 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
         }
 
         if (Console.IsInputRedirected
-            && PipeMode == PipeMode.Paths)
+            && PipeMode == CommandLine.PipeMode.Paths)
         {
             if (!TryEnsureFullPath(
                 ConsoleHelpers.ReadRedirectedInputAsLines().Where(f => !string.IsNullOrEmpty(f)),

@@ -8,7 +8,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
-using Orang.CommandLine.Annotations;
 using Orang.CommandLine.Help;
 
 namespace Orang.CommandLine;
@@ -25,10 +24,8 @@ internal class HelpCommand : AbstractCommand<HelpCommandOptions>
         {
             WriteHelp(
                 commandName: Options.Command,
-                online: Options.Online,
                 manual: Options.Manual,
-                verbose: _logger.ConsoleOut.Verbosity > Verbosity.Normal,
-                matcher: Options.Matcher);
+                verbose: _logger.ConsoleOut.Verbosity > Verbosity.Normal);
         }
         catch (ArgumentException ex)
         {
@@ -39,47 +36,41 @@ internal class HelpCommand : AbstractCommand<HelpCommandOptions>
         return CommandResult.Success;
     }
 
-    private void WriteHelp(
-        string[] commandName,
-        bool online,
-        bool manual,
-        bool verbose,
-        Matcher? matcher = null)
+    private void WriteHelp(string[] commandName, bool manual, bool verbose)
     {
-        var isCompoundCommand = false;
-        string? commandName2 = commandName.FirstOrDefault();
-
-        if (commandName2 is not null)
-            isCompoundCommand = CommandUtility.IsCompoundCommand(commandName2);
-
-        if (commandName.Length > 0)
-            CommandUtility.CheckCommandName(ref commandName, _logger, showErrorMessage: false);
-
-        commandName2 = commandName.FirstOrDefault();
-
-        if (online)
+        if (manual)
         {
-            OpenHelpInBrowser(commandName2);
-        }
-        else if (commandName2 is not null)
-        {
-            Command? command = null;
-
-            if (!isCompoundCommand)
-                command = CommandLoader.LoadCommand(typeof(HelpCommand).Assembly, commandName2);
-
-            if (command is null)
-                throw new InvalidOperationException($"Command '{string.Join(' ', commandName)}' does not exist.");
-
-            WriteCommandHelp(command, _logger, verbose: verbose, matcher: matcher);
-        }
-        else if (manual)
-        {
-            WriteManual(_logger, verbose: verbose, matcher: matcher);
+            WriteManual(_logger, verbose: verbose);
         }
         else
         {
-            WriteCommandsHelp(_logger, verbose: verbose, matcher: matcher);
+            var isCompoundCommand = false;
+            string? commandName2 = commandName.FirstOrDefault();
+
+            if (commandName2 is not null)
+                isCompoundCommand = CommandUtility.IsCompoundCommand(commandName2);
+
+            if (commandName.Length > 0)
+                CommandUtility.CheckCommandName(ref commandName, _logger, showErrorMessage: false);
+
+            commandName2 = commandName.FirstOrDefault();
+
+            if (commandName2 is not null)
+            {
+                Command? command = null;
+
+                if (!isCompoundCommand)
+                    command = CommandLoader.LoadCommand(typeof(HelpCommand).Assembly, commandName2);
+
+                if (command is null)
+                    throw new InvalidOperationException($"Command '{string.Join(' ', commandName)}' does not exist.");
+
+                OpenHelpInBrowser(commandName2);
+            }
+            else
+            {
+                WriteCommandsHelp(_logger, verbose: verbose);
+            }
         }
     }
 
@@ -122,46 +113,20 @@ internal class HelpCommand : AbstractCommand<HelpCommandOptions>
         }
     }
 
-    public static void WriteCommandHelp(Command command, Logger logger, bool verbose = false, Matcher? matcher = null)
+    public static void WriteCommandHelp(Command command, Logger logger, Matcher? matcher = null)
     {
         var writer = new ConsoleHelpWriter(logger, new HelpWriterOptions(matcher: matcher));
-
-        IEnumerable<CommandOption> options = command.Options;
-
-        if (!verbose)
-        {
-            options = options.Where(f => !f.PropertyInfo
-                .GetCustomAttributes()
-                .Any(f => f is HideFromHelpAttribute || f is HideFromConsoleHelpAttribute));
-        }
-
-        options = options.OrderBy(f => f, CommandOptionComparer.Name);
-
-        command = command.WithOptions(options);
 
         CommandHelp commandHelp = CommandHelp.Create(command, OptionValueProviders.Providers, matcher: matcher);
 
         writer.WriteCommand(commandHelp);
 
-        if (verbose)
-        {
-            writer.WriteValues(commandHelp.Values);
-        }
-        else
-        {
-            IEnumerable<string> metaValues = OptionValueProviders.GetProviders(
-                commandHelp.Options.Select(f => f.Option),
-                OptionValueProviders.Providers)
-                .Select(f => f.Name);
+        IEnumerable<string> metaValues = OptionValueProviders.GetProviders(
+            commandHelp.Options.Select(f => f.Option),
+            OptionValueProviders.Providers)
+            .Select(f => f.Name);
 
-            if (metaValues.Any())
-            {
-                logger.WriteLine();
-                logger.Write($"Run 'orang help {command.DisplayName} -v d' to display list of option values for ");
-                logger.Write(TextHelpers.Join(", ", " and ", metaValues));
-                logger.WriteLine(".");
-            }
-        }
+        logger.WriteLine();
     }
 
     public static void WriteCommandsHelp(Logger logger, bool verbose = false, Matcher? matcher = null)
@@ -178,7 +143,6 @@ internal class HelpCommand : AbstractCommand<HelpCommandOptions>
             writer.WriteValues(commandsHelp.Values);
 
         logger.WriteLine();
-        logger.WriteLine(GetFooterText());
     }
 
     private static void WriteManual(Logger logger, bool verbose = false, Matcher? matcher = null)
@@ -260,12 +224,5 @@ internal class HelpCommand : AbstractCommand<HelpCommandOptions>
     internal static string GetHeadingText()
     {
         return $"Orang Command-Line Tool version {typeof(Program).GetTypeInfo().Assembly.GetName().Version}";
-    }
-
-    internal static string GetFooterText(string? command = null)
-    {
-        return $"Run 'orang help {command ?? "[command]"}' for more information on a command."
-            + Environment.NewLine
-            + $"Run 'orang help {command ?? "[command]"} -v d' for more information on option values.";
     }
 }

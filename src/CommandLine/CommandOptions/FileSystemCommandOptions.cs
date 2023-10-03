@@ -86,4 +86,10 @@ internal abstract class FileSystemCommandOptions : CommonRegexCommandOptions
             includeCaptureNumber: false,
             new OutputCaptions(shortMatch: ""));
     }
+
+    internal bool IsDefaultPath()
+    {
+        return Paths.Length == 1
+            && Paths[0].Origin == PathOrigin.CurrentDirectory;
+    }
 }

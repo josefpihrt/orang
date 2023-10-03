@@ -10,7 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Update logo ([#72](https://github.com/josefpihrt/orang/pull/72)).
-- Open help in browser on `orang help <COMMAND>` ([#76](https://github.com/josefpihrt/orang/pull/76)).  - Deprecate options `--online` and `--filter`.
+- Open help in browser on `orang help <COMMAND>` ([#76](https://github.com/josefpihrt/orang/pull/76)).
+  - Deprecate options `--online` and `--filter`.
 
 ## [0.5.0] - 2023-09-26
 

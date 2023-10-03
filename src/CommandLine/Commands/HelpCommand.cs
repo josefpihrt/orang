@@ -114,46 +114,20 @@ internal class HelpCommand : AbstractCommand<HelpCommandOptions>
         }
     }
 
-    public static void WriteCommandHelp(Command command, Logger logger, bool verbose = false, Matcher? matcher = null)
+    public static void WriteCommandHelp(Command command, Logger logger, Matcher? matcher = null)
     {
         var writer = new ConsoleHelpWriter(logger, new HelpWriterOptions(matcher: matcher));
-
-        IEnumerable<CommandOption> options = command.Options;
-
-        if (!verbose)
-        {
-            options = options.Where(f => !f.PropertyInfo
-                .GetCustomAttributes()
-                .Any(f => f is HideFromHelpAttribute || f is HideFromConsoleHelpAttribute));
-        }
-
-        options = options.OrderBy(f => f, CommandOptionComparer.Name);
-
-        command = command.WithOptions(options);
 
         CommandHelp commandHelp = CommandHelp.Create(command, OptionValueProviders.Providers, matcher: matcher);
 
         writer.WriteCommand(commandHelp);
 
-        if (verbose)
-        {
-            writer.WriteValues(commandHelp.Values);
-        }
-        else
-        {
-            IEnumerable<string> metaValues = OptionValueProviders.GetProviders(
-                commandHelp.Options.Select(f => f.Option),
-                OptionValueProviders.Providers)
-                .Select(f => f.Name);
+        IEnumerable<string> metaValues = OptionValueProviders.GetProviders(
+            commandHelp.Options.Select(f => f.Option),
+            OptionValueProviders.Providers)
+            .Select(f => f.Name);
 
-            if (metaValues.Any())
-            {
-                logger.WriteLine();
-                logger.Write($"Run 'orang help {command.DisplayName} -v d' to display list of option values for ");
-                logger.Write(TextHelpers.Join(", ", " and ", metaValues));
-                logger.WriteLine(".");
-            }
-        }
+        logger.WriteLine();
     }
 
     public static void WriteCommandsHelp(Logger logger, bool verbose = false, Matcher? matcher = null)
@@ -256,8 +230,6 @@ internal class HelpCommand : AbstractCommand<HelpCommandOptions>
 
     internal static string GetFooterText(string? command = null)
     {
-        return $"Run 'orang help {command ?? "[command]"}' for more information on a command."
-            + Environment.NewLine
-            + $"Run 'orang help {command ?? "[command]"} -v d' for more information on option values.";
+        return $"Run 'orang help {command ?? "[command]"}' to open help in a default browser.";
     }
 }

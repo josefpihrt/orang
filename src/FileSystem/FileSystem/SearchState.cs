@@ -244,6 +244,8 @@ internal class SearchState
 
     private MatchStatus IncludeOrExcludeDirectory(string path)
     {
+        Debug.Assert(IncludeDirectory is not null || ExcludeDirectory is not null);
+
         if (ExcludeDirectory?.Invoke(path) == true)
             return MatchStatus.FailFromNegative;
 

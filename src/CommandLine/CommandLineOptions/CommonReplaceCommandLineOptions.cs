@@ -76,22 +76,25 @@ internal abstract class CommonReplaceCommandLineOptions : FileSystemCommandLineO
 
     public bool TryParse(CommonReplaceCommandOptions options, ParseContext context)
     {
-        if (!context.TryParseAsEnum(
-            Pipe,
-            OptionNames.Pipe,
-            out PipeMode pipeMode,
-            PipeMode.None,
-            OptionValueProviders.PipeMode))
+        PipeMode? pipeMode = null;
+
+        if (!string.IsNullOrEmpty(Pipe))
         {
-            return false;
+            if (!context.TryParseAsEnum(
+                Pipe,
+                OptionNames.Pipe,
+                out PipeMode pipeMode2,
+                CommandLine.PipeMode.None,
+                OptionValueProviders.PipeMode))
+            {
+                return false;
+            }
+
+            pipeMode = pipeMode2;
         }
 
-        if (pipeMode == PipeMode.None)
-        {
-            if (Console.IsInputRedirected)
-                PipeMode = PipeMode.Text;
-        }
-        else
+        if (pipeMode == CommandLine.PipeMode.Paths
+            || pipeMode == CommandLine.PipeMode.Text)
         {
             if (!Console.IsInputRedirected)
             {
@@ -138,7 +141,8 @@ internal abstract class CommonReplaceCommandLineOptions : FileSystemCommandLineO
             return false;
         }
 
-        if (pipeMode != PipeMode.Paths
+        if (options.IsDefaultPath()
+            && pipeMode != CommandLine.PipeMode.Paths
             && Console.IsInputRedirected)
         {
             if (input is not null)

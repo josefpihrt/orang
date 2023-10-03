@@ -35,7 +35,7 @@ internal class ParseContext
 
     public void WriteWarning(string message)
     {
-        Logger.WriteLine(message);
+        Logger.WriteWarning(message);
     }
 
     public void WriteError(Exception exception)
@@ -85,7 +85,7 @@ internal class ParseContext
                 {
                     case "new-line":
                         {
-                            Logger.WriteWarning($"Value '{arr[i]}' is has been deprecated "
+                            Logger.WriteWarning($"Value '{arr[i]}' has been deprecated "
                                 + "and will be removed in future version. "
                                 + $"Use value '{OptionValues.HighlightOptions_Newline.HelpValue}' instead.");
 
@@ -94,7 +94,7 @@ internal class ParseContext
                         }
                     case "nl":
                         {
-                            Logger.WriteWarning($"Value '{arr[i]}' is has been deprecated "
+                            Logger.WriteWarning($"Value '{arr[i]}' has been deprecated "
                                 + "and will be removed in future version. "
                                 + $"Use value '{OptionValues.HighlightOptions_Newline.HelpValue}' instead.");
 
@@ -397,7 +397,7 @@ internal class ParseContext
 
                 if (value2 == "ao")
                 {
-                    Logger.WriteWarning($"Value '{value2}' is has been deprecated "
+                    Logger.WriteWarning($"Value '{value2}' has been deprecated "
                         + "and will be removed in future version. "
                         + $"Use value '{OptionValues.ModifyFlags_AggregateOnly.HelpValue}' instead.");
 
@@ -654,7 +654,7 @@ internal class ParseContext
 
                 if (key == "t")
                 {
-                    Logger.WriteWarning($"Value '{key}' is has been deprecated "
+                    Logger.WriteWarning($"Value '{key}' has been deprecated "
                         + "and will be removed in future version. "
                         + $"Use value '{OptionValues.Display_Context.HelpValue}' instead.");
 
@@ -662,7 +662,7 @@ internal class ParseContext
                 }
                 else if (key == "ta")
                 {
-                    Logger.WriteWarning($"Value '{key}' is has been deprecated "
+                    Logger.WriteWarning($"Value '{key}' has been deprecated "
                         + "and will be removed in future version. "
                         + $"Use value '{OptionValues.Display_ContextAfter.HelpValue}' instead.");
 
@@ -670,7 +670,7 @@ internal class ParseContext
                 }
                 else if (key == "tb")
                 {
-                    Logger.WriteWarning($"Value '{key}' is has been deprecated "
+                    Logger.WriteWarning($"Value '{key}' has been deprecated "
                         + "and will be removed in future version. "
                         + $"Use value '{OptionValues.Display_ContextBefore.HelpValue}' instead.");
 

@@ -135,7 +135,7 @@ internal sealed class RenameCommandLineOptions : DeleteOrRenameCommandLineOption
         if (matchEvaluator is null
             && Evaluator is not null)
         {
-            context.WriteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Evaluator)}' is has been deprecated "
+            context.WriteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Evaluator)}' has been deprecated "
                 + "and will be removed in future version. "
                 + $"Use option '{OptionNames.GetHelpText(OptionNames.Replacement)}' instead.");
 

@@ -10,11 +10,7 @@ internal sealed class HelpCommandOptions : AbstractCommandOptions
 
     public string[] Command { get; internal set; } = null!;
 
-    public Matcher? Matcher { get; internal set; }
-
     public bool Manual { get; internal set; }
-
-    public bool Online { get; internal set; }
 
     protected override void WriteDiagnosticCore(DiagnosticWriter writer)
     {

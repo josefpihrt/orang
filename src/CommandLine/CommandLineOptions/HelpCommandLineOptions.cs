@@ -18,6 +18,7 @@ internal sealed class HelpCommandLineOptions : AbstractCommandLineOptions
         MetaName = ArgumentMetaNames.Command)]
     public IEnumerable<string> Command { get; set; } = null!;
 
+    [HideFromHelp]
     [Option(
         shortName: OptionShortNames.Filter,
         longName: OptionNames.Filter,
@@ -31,6 +32,7 @@ internal sealed class HelpCommandLineOptions : AbstractCommandLineOptions
         HelpText = "Display full manual.")]
     public bool Manual { get; set; }
 
+    [HideFromHelp]
     [Option(
         shortName: OptionShortNames.Online,
         longName: OptionNames.Online,
@@ -39,21 +41,14 @@ internal sealed class HelpCommandLineOptions : AbstractCommandLineOptions
 
     public bool TryParse(HelpCommandOptions options, ParseContext context)
     {
-        if (!context.TryParseFilter(
-            Filter,
-            OptionNames.Filter,
-            OptionValueProviders.PatternOptions_List_Provider,
-            out Matcher? matcher,
-            allowNull: true,
-            includedPatternOptions: PatternOptions.IgnoreCase))
-        {
-            return false;
-        }
+        if (Filter.Any())
+            context.WriteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Filter)}' has been deprecated.");
+
+        if (Online)
+            context.WriteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Online)}' has been deprecated.");
 
         options.Command = Command.ToArray();
-        options.Matcher = matcher;
         options.Manual = Manual;
-        options.Online = Online;
 
         return true;
     }

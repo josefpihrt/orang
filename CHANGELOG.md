@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Update logo ([#72](https://github.com/josefpihrt/orang/pull/72)).
+- Change traversal to depth-first ([#77](https://github.com/josefpihrt/orang/pull/77)).
 
 ## [0.5.0] - 2023-09-26
 

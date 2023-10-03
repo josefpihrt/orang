@@ -25,10 +25,8 @@ internal class HelpCommand : AbstractCommand<HelpCommandOptions>
         {
             WriteHelp(
                 commandName: Options.Command,
-                online: Options.Online,
                 manual: Options.Manual,
-                verbose: _logger.ConsoleOut.Verbosity > Verbosity.Normal,
-                matcher: Options.Matcher);
+                verbose: _logger.ConsoleOut.Verbosity > Verbosity.Normal);
         }
         catch (ArgumentException ex)
         {
@@ -39,47 +37,41 @@ internal class HelpCommand : AbstractCommand<HelpCommandOptions>
         return CommandResult.Success;
     }
 
-    private void WriteHelp(
-        string[] commandName,
-        bool online,
-        bool manual,
-        bool verbose,
-        Matcher? matcher = null)
+    private void WriteHelp(string[] commandName, bool manual, bool verbose)
     {
-        var isCompoundCommand = false;
-        string? commandName2 = commandName.FirstOrDefault();
-
-        if (commandName2 is not null)
-            isCompoundCommand = CommandUtility.IsCompoundCommand(commandName2);
-
-        if (commandName.Length > 0)
-            CommandUtility.CheckCommandName(ref commandName, _logger, showErrorMessage: false);
-
-        commandName2 = commandName.FirstOrDefault();
-
-        if (online)
+        if (manual)
         {
-            OpenHelpInBrowser(commandName2);
-        }
-        else if (commandName2 is not null)
-        {
-            Command? command = null;
-
-            if (!isCompoundCommand)
-                command = CommandLoader.LoadCommand(typeof(HelpCommand).Assembly, commandName2);
-
-            if (command is null)
-                throw new InvalidOperationException($"Command '{string.Join(' ', commandName)}' does not exist.");
-
-            WriteCommandHelp(command, _logger, verbose: verbose, matcher: matcher);
-        }
-        else if (manual)
-        {
-            WriteManual(_logger, verbose: verbose, matcher: matcher);
+            WriteManual(_logger, verbose: verbose);
         }
         else
         {
-            WriteCommandsHelp(_logger, verbose: verbose, matcher: matcher);
+            var isCompoundCommand = false;
+            string? commandName2 = commandName.FirstOrDefault();
+
+            if (commandName2 is not null)
+                isCompoundCommand = CommandUtility.IsCompoundCommand(commandName2);
+
+            if (commandName.Length > 0)
+                CommandUtility.CheckCommandName(ref commandName, _logger, showErrorMessage: false);
+
+            commandName2 = commandName.FirstOrDefault();
+
+            if (commandName2 is not null)
+            {
+                Command? command = null;
+
+                if (!isCompoundCommand)
+                    command = CommandLoader.LoadCommand(typeof(HelpCommand).Assembly, commandName2);
+
+                if (command is null)
+                    throw new InvalidOperationException($"Command '{string.Join(' ', commandName)}' does not exist.");
+
+                OpenHelpInBrowser(commandName2);
+            }
+            else
+            {
+                WriteCommandsHelp(_logger, verbose: verbose);
+            }
         }
     }
 

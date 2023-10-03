@@ -292,7 +292,6 @@ internal class DiagnosticWriter
     {
         WriteOption("command", string.Join(' ', options.Command));
         WriteOption("manual", options.Manual);
-        WriteFilter("filter", options.Matcher);
     }
 
     internal void WriteMoveCommand(MoveCommandOptions options)

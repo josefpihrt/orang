@@ -198,7 +198,7 @@ internal class SearchState
                     {
                         di = (SupportsEnumeration)
                             ? EnumerateDirectories(newDirectoryPath ?? directory.Path, enumerationOptions).GetEnumerator()
-                            : ((IEnumerable<string>)GetDirectories(directory.Path, enumerationOptions)).GetEnumerator();
+                            : ((IEnumerable<string>)GetDirectories(newDirectoryPath ?? directory.Path, enumerationOptions)).GetEnumerator();
                     }
                     catch (Exception ex) when (IsWellKnownException(ex))
                     {

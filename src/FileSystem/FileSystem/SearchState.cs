@@ -71,32 +71,27 @@ internal class SearchState
             ReturnSpecialDirectories = false,
         };
 
-        var directories = new Queue<Directory>();
-        Queue<Directory>? subdirectories = (RecurseSubdirectories) ? new Queue<Directory>() : null;
-
-        string? currentDirectory = null;
+        var isRoot = true;
+        int matchDepth = -1;
+        var directories = new Stack<Directory>();
+        var subdirectories = new Stack<Directory>();
+        string? newDirectoryPath = null;
 
         if (notifyDirectoryChanged is not null)
         {
             notifyDirectoryChanged.DirectoryChanged
-                += (object sender, DirectoryChangedEventArgs e) => currentDirectory = e.NewName;
+                += (object sender, DirectoryChangedEventArgs e) => newDirectoryPath = e.NewName;
         }
 
-        MatchStatus matchStatus = (IncludeDirectory is not null || ExcludeDirectory is not null)
-            ? MatchStatus.Unknown
-            : MatchStatus.Success;
+        var directory = new Directory(directoryPath, 0, MatchStatus.Success);
 
-        if (IncludeDirectory is not null)
+        directories.Push(directory);
+
+        while (directories.Count > 0)
         {
-            matchStatus = (IncludeDirectory(directoryPath))
-                ? MatchStatus.Success
-                : MatchStatus.FailFromPositive;
-        }
+            directory = directories.Pop();
+            newDirectoryPath = null;
 
-        var directory = new Directory(directoryPath, 0, matchStatus);
-
-        while (true)
-        {
             Report(directory.Path, SearchProgressKind.SearchDirectory, isDirectory: true);
 
             if (FileMatcher is not null
@@ -134,92 +129,97 @@ internal class SearchState
                 }
             }
 
-            IEnumerator<string> di = null!;
+            FileMatch? directoryMatch = null;
 
-            try
-            {
-                di = (SupportsEnumeration)
-                    ? EnumerateDirectories(directory.Path, enumerationOptions).GetEnumerator()
-                    : ((IEnumerable<string>)GetDirectories(directory.Path, enumerationOptions)).GetEnumerator();
-            }
-            catch (Exception ex) when (IsWellKnownException(ex))
-            {
-                Debug.Fail(ex.ToString());
-                Report(directory.Path, SearchProgressKind.SearchDirectory, isDirectory: true, ex);
-            }
+            MatchStatus matchStatus = (ExcludeDirectory is null && directory.IsSuccess)
+                ? MatchStatus.Success
+                : MatchStatus.Unknown;
 
-            if (di is not null)
+            if (!isRoot
+                && !directory.IsFail
+                && DirectoryMatcher is not null
+                && DirectoryMatcher?.NamePart != FileNamePart.Extension
+                && directory.Depth >= MinDirectoryDepth)
             {
-                using (di)
+                if (matchStatus == MatchStatus.Unknown
+                    && (IncludeDirectory is not null || ExcludeDirectory is not null))
                 {
-                    while (di.MoveNext())
+                    matchStatus = IncludeOrExcludeDirectory(directory.Path);
+                }
+
+                if (matchStatus == MatchStatus.Success
+                    || matchStatus == MatchStatus.Unknown)
+                {
+                    directoryMatch = MatchDirectory(directory.Path);
+
+                    if (directoryMatch is not null)
                     {
-                        currentDirectory = di.Current;
-
-                        matchStatus = (ExcludeDirectory is null && directory.IsSuccess)
-                            ? MatchStatus.Success
-                            : MatchStatus.Unknown;
-
-                        if (!directory.IsFail
-                            && DirectoryMatcher is not null
-                            && DirectoryMatcher?.NamePart != FileNamePart.Extension
-                            && directory.Depth >= MinDirectoryDepth)
+                        if (matchDepth > 0
+                            && directory.Depth > matchDepth)
                         {
-                            if (matchStatus == MatchStatus.Unknown
-                                && (IncludeDirectory is not null || ExcludeDirectory is not null))
-                            {
-                                matchStatus = IncludeOrExcludeDirectory(currentDirectory);
-                            }
-
-                            if (matchStatus == MatchStatus.Success
-                                || matchStatus == MatchStatus.Unknown)
-                            {
-                                FileMatch? match = MatchDirectory(currentDirectory);
-
-                                if (match is not null)
-                                {
-                                    yield return match;
-
-                                    if (!CanRecurseMatch)
-                                        currentDirectory = null;
-                                }
-                            }
+                            directoryMatch.IsSubmatch = true;
                         }
 
-                        if (currentDirectory is not null
-                            && RecurseSubdirectories)
-                        {
-                            if (matchStatus == MatchStatus.Unknown
-                                && (IncludeDirectory is not null || ExcludeDirectory is not null))
-                            {
-                                matchStatus = IncludeOrExcludeDirectory(currentDirectory);
-                            }
-
-                            if (matchStatus != MatchStatus.FailFromNegative
-                                && directory.Depth < MaxDirectoryDepth)
-                            {
-                                subdirectories!.Enqueue(new Directory(currentDirectory, directory.Depth + 1, matchStatus));
-                            }
-                        }
-
-                        cancellationToken.ThrowIfCancellationRequested();
+                        yield return directoryMatch;
                     }
                 }
+            }
 
-                if (RecurseSubdirectories)
+            if (isRoot)
+                isRoot = false;
+
+            if (matchDepth == -1)
+            {
+                if (directoryMatch is not null)
+                    matchDepth = directory.Depth;
+            }
+            else if (directory.Depth <= matchDepth)
+            {
+                matchDepth = (directoryMatch is not null)
+                    ? directory.Depth
+                    : -1;
+            }
+
+            if ((directory.Depth == 0 || RecurseSubdirectories)
+                && (CanRecurseMatch || directoryMatch is null)
+                && directory.Depth < MaxDirectoryDepth)
+            {
+                if (matchStatus == MatchStatus.Unknown
+                    && (IncludeDirectory is not null || ExcludeDirectory is not null))
                 {
-                    while (subdirectories!.Count > 0)
-                        directories.Enqueue(subdirectories.Dequeue());
+                    matchStatus = IncludeOrExcludeDirectory(directory.Path);
                 }
-            }
 
-            if (directories.Count > 0)
-            {
-                directory = directories.Dequeue();
-            }
-            else
-            {
-                break;
+                if (matchStatus != MatchStatus.FailFromNegative)
+                {
+                    IEnumerator<string> di = null!;
+
+                    try
+                    {
+                        di = (SupportsEnumeration)
+                            ? EnumerateDirectories(newDirectoryPath ?? directory.Path, enumerationOptions).GetEnumerator()
+                            : ((IEnumerable<string>)GetDirectories(newDirectoryPath ?? directory.Path, enumerationOptions)).GetEnumerator();
+                    }
+                    catch (Exception ex) when (IsWellKnownException(ex))
+                    {
+                        Debug.Fail(ex.ToString());
+                        Report(directory.Path, SearchProgressKind.SearchDirectory, isDirectory: true, ex);
+                    }
+
+                    if (di is not null)
+                    {
+                        using (di)
+                        {
+                            while (di.MoveNext())
+                            {
+                                subdirectories.Push(new Directory(di.Current, directory.Depth + 1, matchStatus));
+                            }
+                        }
+
+                        while (subdirectories.Count > 0)
+                            directories.Push(subdirectories.Pop());
+                    }
+                }
             }
         }
     }

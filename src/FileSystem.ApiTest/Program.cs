@@ -18,7 +18,7 @@ public static class Program
             .MatchDirectory(d => d
                 .Name(Pattern.Any("bin", "obj", PatternOptions.Equals))
                 .NonEmpty())
-            .SkipDirectory(Pattern.Any(".git", ".vs", PatternOptions.Equals | PatternOptions.Literal))
+            .Exclude("**/.git", "**/.vs")
             .Delete(d => d
                 .ContentOnly()
                 .DryRun()
@@ -27,19 +27,18 @@ public static class Program
 
         Console.WriteLine(result.Telemetry.MatchingDirectoryCount);
 
+        var options = new SearchOptions();
+
+        options.Exclude.Add("**/.git");
+        options.Exclude.Add("**/.vs");
+
         var search = new Search(
             new DirectoryMatcher()
             {
                 Name = new Matcher(@"\A(bin|obj)\z"),
                 EmptyOption = FileEmptyOption.NonEmpty,
             },
-            new SearchOptions()
-            {
-                SearchDirectory = new DirectoryMatcher()
-                {
-                    Name = new Matcher(@"\A(\.git|\.vs)\z", invert: true),
-                }
-            });
+            options);
 
         result = search.Delete(
             directoryPath,

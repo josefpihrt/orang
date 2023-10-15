@@ -325,7 +325,7 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
 
         FileSystemAttributes = attributes;
 
-        options.GlobFilter = GlobMatcher.CreateOrDefault(Include, Exclude);
+        options.GlobFilter = GlobMatcher.TryCreate(Include, Exclude);
 
         return true;
     }

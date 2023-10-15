@@ -20,6 +20,9 @@ public class SearchBuilder
     private Action<SearchProgress>? _logProgress;
     private Encoding? _defaultEncoding;
 
+    private List<string>? _include;
+    private List<string>? _exclude;
+
     public SearchBuilder MatchFile(Action<FileMatcherBuilder> configure)
     {
         var builder = new FileMatcherBuilder();
@@ -42,6 +45,7 @@ public class SearchBuilder
         return this;
     }
 
+    [Obsolete("This method is obsolete and will be removed in future versions. Use method Include/Exclude instead.")]
     public SearchBuilder SearchDirectory(Action<DirectoryMatcherBuilder> configure)
     {
         var builder = new DirectoryMatcherBuilder();
@@ -53,6 +57,7 @@ public class SearchBuilder
         return this;
     }
 
+    [Obsolete("This method is obsolete and will be removed in future versions. Use method Include/Exclude instead.")]
     public SearchBuilder SkipDirectory(
         string pattern,
         RegexOptions options = RegexOptions.None,
@@ -63,6 +68,34 @@ public class SearchBuilder
         {
             Name = new Matcher(pattern, options, invert: true, group, predicate)
         };
+
+        return this;
+    }
+
+    public SearchBuilder Include(string globPattern)
+    {
+        (_include ??= new List<string>()).Add(globPattern);
+
+        return this;
+    }
+
+    public SearchBuilder Include(params string[] globPatterns)
+    {
+        (_include ??= new List<string>()).AddRange(globPatterns);
+
+        return this;
+    }
+
+    public SearchBuilder Exclude(string globPattern)
+    {
+        (_exclude ??= new List<string>()).Add(globPattern);
+
+        return this;
+    }
+
+    public SearchBuilder Exclude(params string[] globPatterns)
+    {
+        (_exclude ??= new List<string>()).AddRange(globPatterns);
 
         return this;
     }
@@ -152,11 +185,19 @@ public class SearchBuilder
     {
         var options = new SearchOptions()
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             SearchDirectory = _searchDirectory,
+#pragma warning restore CS0618 // Type or member is obsolete
             LogProgress = _logProgress,
             TopDirectoryOnly = _topDirectoryOnly,
             DefaultEncoding = _defaultEncoding,
         };
+
+        if (_include is not null)
+            options.Include.AddRange(_include);
+
+        if (_exclude is not null)
+            options.Exclude.AddRange(_exclude);
 
         FileMatcher? fileMatcher = _file;
         DirectoryMatcher? directoryMatcher = _directory;

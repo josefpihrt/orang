@@ -17,7 +17,7 @@ internal sealed class GlobMatcher
 
     public Microsoft.Extensions.FileSystemGlobbing.Matcher Matcher { get; }
 
-    public static GlobMatcher? CreateOrDefault(
+    public static GlobMatcher? TryCreate(
         IEnumerable<string> include,
         IEnumerable<string> exclude)
     {

@@ -140,8 +140,6 @@ internal abstract class RegexCommandLineOptions : CommonRegexCommandLineOptions
         if (ContentSeparator is not null)
             separator = ContentSeparator;
 #endif
-        EnumerableModifier<string>? modifier = null;
-
         if (!context.TryParseModifyOptions(
             Modify,
             OptionNames.Modify,

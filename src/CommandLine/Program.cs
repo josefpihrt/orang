@@ -112,13 +112,6 @@ internal static class Program
                     return;
                 }
 
-                UnknownOptionError? oldAttributesToSkipShortName = e
-                    .OfType<UnknownOptionError>()
-                    .FirstOrDefault(f => f.Token == "b");
-
-                if (oldAttributesToSkipShortName is not null)
-                    logger.WriteWarning("Shortcut '-b' has been deprecated. Use '-A' instead.");
-
                 var helpText = new HelpText(SentenceBuilder.Create(), HelpCommand.GetHeadingText());
 
                 helpText = HelpText.DefaultParsingErrorsHandler(parserResult, helpText);

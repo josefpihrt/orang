@@ -10,7 +10,6 @@ namespace Orang.CommandLine;
 
 [Verb("delete", HelpText = "Deletes files and directories.")]
 [OptionValueProvider(nameof(Content), OptionValueProviderNames.PatternOptionsWithoutPart)]
-[OptionValueProvider(nameof(Display), OptionValueProviderNames.Display_NonContent)]
 [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.DeleteHighlightOptions)]
 [CommandGroup("File System", 1)]
 internal sealed class DeleteCommandLineOptions : DeleteOrRenameCommandLineOptions
@@ -107,25 +106,13 @@ internal sealed class DeleteCommandLineOptions : DeleteOrRenameCommandLineOption
             return false;
         }
 
-        if (!context.TryParseDisplay(
-            values: Display,
-            optionName: OptionNames.Display,
-            contentDisplayStyle: out ContentDisplayStyle? contentDisplayStyle,
-            pathDisplayStyle: out PathDisplayStyle? pathDisplayStyle,
-            lineDisplayOptions: out LineDisplayOptions lineDisplayOptions,
-            lineContext: out LineContext lineContext,
-            displayParts: out DisplayParts displayParts,
-            includeCreationTime: out bool includeCreationTime,
-            includeModifiedTime: out bool includeModifiedTime,
-            includeSize: out bool includeSize,
-            indent: out string? indent,
-            separator: out string? separator,
-            noAlign: out bool _,
-            contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider,
-            pathDisplayStyleProvider: OptionValueProviders.PathDisplayStyleProvider))
-        {
-            return false;
-        }
+        var displayParts = DisplayParts.None;
+        var lineDisplayOptions = LineDisplayOptions.None;
+        ContentDisplayStyle? contentDisplayStyle = null;
+        PathDisplayStyle? pathDisplayStyle = null;
+        LineContext lineContext = default;
+        string? indent = null;
+        string? separator = null;
 
         if (ContentMode is not null)
         {
@@ -189,15 +176,6 @@ internal sealed class DeleteCommandLineOptions : DeleteOrRenameCommandLineOption
         if (NoPath)
             pathDisplayStyle = PathDisplayStyle.Omit;
 #endif
-        if (includeCreationTime)
-            options.FilePropertyOptions = options.FilePropertyOptions.WithIncludeCreationTime(true);
-
-        if (includeModifiedTime)
-            options.FilePropertyOptions = options.FilePropertyOptions.WithIncludeModifiedTime(true);
-
-        if (includeSize)
-            options.FilePropertyOptions = options.FilePropertyOptions.WithIncludeSize(true);
-
         if (pathDisplayStyle == PathDisplayStyle.Relative
             && options.Paths.Length > 1
             && options.SortOptions is not null)

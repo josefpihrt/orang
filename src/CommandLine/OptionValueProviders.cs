@@ -418,47 +418,6 @@ internal static class OptionValueProviders
         OptionValues.PathDisplayStyle_Omit
     );
 
-    public static OptionValueProvider DisplayProvider { get; } = new(
-        MetaValues.DisplayOptions,
-        OptionValues.Display_Content,
-        OptionValues.Display_Context,
-        OptionValues.Display_ContextBefore,
-        OptionValues.Display_ContextAfter,
-        OptionValues.Display_Count,
-        OptionValues.Display_CreationTime,
-        OptionValues.Display_Indent,
-        OptionValues.Display_LineNumber,
-        OptionValues.Display_ModifiedTime,
-        OptionValues.Display_NoAlign,
-        OptionValues.Display_Path,
-        OptionValues.Display_Size,
-        OptionValues.Display_Separator,
-        OptionValues.Display_Summary,
-        OptionValues.Display_TrimLine
-    );
-
-    public static OptionValueProvider DisplayProvider_MatchAndSplit { get; } = new(
-        OptionValueProviderNames.Display_MatchAndSplit,
-        DisplayProvider,
-        OptionValues.Display_Content,
-        OptionValues.Display_Indent,
-        OptionValues.Display_Separator,
-        OptionValues.Display_Summary
-    );
-
-    public static OptionValueProvider DisplayProvider_NonContent { get; } = new(
-        OptionValueProviderNames.Display_NonContent,
-        DisplayProvider,
-        OptionValues.Display_CreationTime,
-        OptionValues.Display_Indent,
-        OptionValues.Display_ModifiedTime,
-        OptionValues.Display_NoAlign,
-        OptionValues.Display_Path,
-        OptionValues.Display_Size,
-        OptionValues.Display_Separator,
-        OptionValues.Display_Summary
-    );
-
     public static OptionValueProvider SortFlagsProvider { get; } = new(
         MetaValues.SortOptions,
         OptionValues.SortFlags_Ascending,

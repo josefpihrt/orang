@@ -139,6 +139,7 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
         MetaValue = MetaValues.ExtensionFilter)]
     public IEnumerable<string> Extension { get; set; } = null!;
 
+    [HideFromConsoleHelp]
     [Option(
         shortName: OptionShortNames.IncludeDirectory,
         longName: OptionNames.IncludeDirectory,

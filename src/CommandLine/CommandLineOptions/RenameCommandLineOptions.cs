@@ -149,9 +149,13 @@ internal sealed class RenameCommandLineOptions : DeleteOrRenameCommandLineOption
         ContentDisplayStyle? contentDisplayStyle = null;
         PathDisplayStyle? pathDisplayStyle = null;
         LineContext lineContext = default;
+#if DEBUG
         string? indent = null;
         string? separator = null;
-
+#else
+        const string? indent = null;
+        const string? separator = null;
+#endif
         if (ContentMode is not null)
         {
             if (context.TryParseAsEnum(

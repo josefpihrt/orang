@@ -84,9 +84,12 @@ internal abstract class RegexCommandLineOptions : CommonRegexCommandLineOptions
         var displayParts = DisplayParts.None;
         const LineDisplayOptions lineDisplayOptions = LineDisplayOptions.None;
         ContentDisplayStyle? contentDisplayStyle = null;
+#if DEBUG
         string? indent = null;
         string? separator = null;
-
+#else
+        const string? indent = null;
+#endif
         if (Summary)
             displayParts |= DisplayParts.Summary;
 
@@ -136,7 +139,11 @@ internal abstract class RegexCommandLineOptions : CommonRegexCommandLineOptions
             lineOptions: lineDisplayOptions,
             displayParts: displayParts,
             indent: indent,
+#if DEBUG
             separator: separator ?? Environment.NewLine);
+#else
+            separator: Environment.NewLine);
+#endif
 
         options.ModifyOptions = modifyOptions;
         options.Input = input;

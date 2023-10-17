@@ -33,7 +33,6 @@ internal static class OptionNames
     public const string Encoding = "encoding";
     public const string EndsWith = "ends-with";
     new public const string Equals = "equals";
-    public const string Evaluator = "evaluator";
     public const string ExplicitCapture = "explicit-capture";
     public const string Extension = "extension";
     public const string Filter = "filter";

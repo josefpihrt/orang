@@ -42,13 +42,6 @@ internal sealed class RenameCommandLineOptions : DeleteOrRenameCommandLineOption
             + "but do not actually rename any file/directory.")]
     public bool DryRun { get; set; }
 
-    [HideFromHelp]
-    [Option(
-        longName: OptionNames.Evaluator,
-        HelpText = "[deprecated] Use option -r, --replacement instead.",
-        MetaValue = MetaValues.Evaluator)]
-    public string Evaluator { get; set; } = null!;
-
     [Option(
         longName: OptionNames.Interactive,
         HelpText = "Enable editing of a new name.")]
@@ -131,17 +124,6 @@ internal sealed class RenameCommandLineOptions : DeleteOrRenameCommandLineOption
 
         if (!context.TryParseReplacement(Replacement, out string? replacement, out MatchEvaluator? matchEvaluator))
             return false;
-
-        if (matchEvaluator is null
-            && Evaluator is not null)
-        {
-            context.WriteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Evaluator)}' has been deprecated "
-                + "and will be removed in future version. "
-                + $"Use option '{OptionNames.GetHelpText(OptionNames.Replacement)}' instead.");
-
-            if (!DelegateFactory.TryCreateFromAssembly(Evaluator, typeof(string), typeof(Match), context.Logger, out matchEvaluator))
-                return false;
-        }
 
         if (!context.TryParseReplaceOptions(
             Modify,

@@ -25,14 +25,7 @@ internal abstract class RegexCommandLineOptions : CommonRegexCommandLineOptions
         HelpText = "The input string to be searched.",
         MetaValue = MetaValues.Input)]
     public IEnumerable<string> Input { get; set; } = null!;
-#if DEBUG
-    [HideFromConsoleHelp]
-    [Option(
-        longName: OptionNames.Modifier,
-        HelpText = OptionHelpText.Modifier,
-        MetaValue = MetaValues.Modifier)]
-    public IEnumerable<string> Modifier { get; set; } = null!;
-#endif
+
     [Option(
         longName: OptionNames.Modify,
         HelpText = "Functions to modify results.",
@@ -147,18 +140,9 @@ internal abstract class RegexCommandLineOptions : CommonRegexCommandLineOptions
         if (ContentSeparator is not null)
             separator = ContentSeparator;
 #endif
-        EnumerableModifier<string>? modifier = null;
-#if DEBUG // --modifier
-        if (Modifier.Any()
-            && !context.TryParseModifier(Modifier, OptionNames.Modifier, out modifier))
-        {
-            return false;
-        }
-#endif
         if (!context.TryParseModifyOptions(
             Modify,
             OptionNames.Modify,
-            modifier,
             out ModifyOptions? modifyOptions,
             out bool aggregateOnly))
         {

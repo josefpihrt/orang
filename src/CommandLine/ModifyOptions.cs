@@ -16,15 +16,13 @@ internal class ModifyOptions
         bool aggregate = false,
         bool ignoreCase = false,
         bool cultureInvariant = false,
-        ValueSortProperty sortProperty = ValueSortProperty.None,
-        EnumerableModifier<string>? modifier = null)
+        ValueSortProperty sortProperty = ValueSortProperty.None)
     {
         Functions = functions;
         Aggregate = aggregate;
         IgnoreCase = ignoreCase;
         CultureInvariant = cultureInvariant;
         SortProperty = sortProperty;
-        Modifier = modifier;
     }
 
     public ModifyFunctions Functions { get; }
@@ -36,8 +34,6 @@ internal class ModifyOptions
     public bool CultureInvariant { get; }
 
     public ValueSortProperty SortProperty { get; }
-
-    public EnumerableModifier<string>? Modifier { get; }
 
     public StringComparer StringComparer
     {
@@ -60,11 +56,7 @@ internal class ModifyOptions
 
     public bool HasAnyFunction
     {
-        get
-        {
-            return Functions != ModifyFunctions.None
-                || Modifier is not null;
-        }
+        get { return Functions != ModifyFunctions.None; }
     }
 
     public CultureInfo CultureInfo => (CultureInvariant) ? CultureInfo.InvariantCulture : CultureInfo.CurrentCulture;
@@ -136,9 +128,6 @@ internal class ModifyOptions
                 values = values.OrderByDescending(f => f, comparer);
             }
         }
-
-        if (Modifier is not null)
-            values = Modifier(values);
 
         return values;
     }

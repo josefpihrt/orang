@@ -27,14 +27,7 @@ internal sealed class FindCommandLineOptions : CommonFindCommandLineOptions
         HelpText = "Defines how to use redirected/piped input.",
         MetaValue = MetaValues.PipeMode)]
     public string Pipe { get; set; } = null!;
-#if DEBUG
-    [HideFromConsoleHelp]
-    [Option(
-        longName: OptionNames.Modifier,
-        HelpText = OptionHelpText.Modifier,
-        MetaValue = MetaValues.Modifier)]
-    public IEnumerable<string> Modifier { get; set; } = null!;
-#endif
+
     [Option(
         longName: OptionNames.Modify,
         HelpText = "Functions to modify results.",
@@ -114,18 +107,9 @@ internal sealed class FindCommandLineOptions : CommonFindCommandLineOptions
             }
         }
 
-        EnumerableModifier<string>? modifier = null;
-#if DEBUG // --modifier
-        if (Modifier.Any()
-            && !context.TryParseModifier(Modifier, OptionNames.Modifier, out modifier))
-        {
-            return false;
-        }
-#endif
         if (!context.TryParseModifyOptions(
             Modify,
             OptionNames.Modify,
-            modifier,
             out ModifyOptions? modifyOptions,
             out bool aggregateOnly))
         {

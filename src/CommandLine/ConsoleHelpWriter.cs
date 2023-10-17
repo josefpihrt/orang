@@ -2,7 +2,9 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
+using Orang.CommandLine.Annotations;
 using Orang.CommandLine.Help;
 using Orang.Text.RegularExpressions;
 
@@ -111,6 +113,12 @@ internal class ConsoleHelpWriter : HelpWriter
             Write(" [options]");
 
         WriteLine();
+    }
+
+    protected override void WriteOption(OptionItem option)
+    {
+        if (option.Option.PropertyInfo.GetCustomAttribute<HideFromConsoleHelpAttribute>() is null)
+            base.WriteOption(option);
     }
 
     protected override void Write(char value)

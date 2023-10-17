@@ -64,9 +64,14 @@ public abstract class HelpWriter
     {
         foreach (OptionItem option in options)
         {
-            Write(Options.Indent);
-            WriteTextLine(option);
+            WriteOption(option);
         }
+    }
+
+    protected virtual void WriteOption(OptionItem option)
+    {
+        Write(Options.Indent);
+        WriteTextLine(option);
     }
 
     public virtual void WriteStartOptions(CommandHelp commandHelp)

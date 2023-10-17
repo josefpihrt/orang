@@ -766,14 +766,6 @@ internal class ParseContext
             {
                 lineDisplayOptions |= LineDisplayOptions.TrimLine;
             }
-            else if (OptionValues.Display_TrimLine.IsValueOrShortValue(value))
-            {
-                lineDisplayOptions |= LineDisplayOptions.TrimLine;
-            }
-            else if (OptionValues.Display_TrimLine.IsValueOrShortValue(value))
-            {
-                lineDisplayOptions |= LineDisplayOptions.TrimLine;
-            }
             else if (OptionValues.Display_NoAlign.IsValueOrShortValue(value))
             {
                 noAlign = true;

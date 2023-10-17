@@ -323,7 +323,6 @@ internal class ParseContext
     public bool TryParseModifyOptions(
         IEnumerable<string> values,
         string optionName,
-        EnumerableModifier<string>? modifier,
         [NotNullWhen(true)] out ModifyOptions? modifyOptions,
         out bool aggregateOnly)
     {
@@ -449,16 +448,14 @@ internal class ParseContext
         aggregateOnly = (modifyFlags & ModifyFlags.AggregateOnly) != 0;
 
         if (modifyFlags != ModifyFlags.None
-            || functions != ModifyFunctions.None
-            || modifier is not null)
+            || functions != ModifyFunctions.None)
         {
             modifyOptions = new ModifyOptions(
                 functions: functions,
                 aggregate: (modifyFlags & ModifyFlags.Aggregate) != 0 || aggregateOnly,
                 ignoreCase: (modifyFlags & ModifyFlags.IgnoreCase) != 0,
                 cultureInvariant: (modifyFlags & ModifyFlags.CultureInvariant) != 0,
-                sortProperty: sortProperty,
-                modifier: modifier);
+                sortProperty: sortProperty);
         }
         else
         {
@@ -466,57 +463,6 @@ internal class ParseContext
         }
 
         return true;
-    }
-
-    public bool TryParseModifier(
-        IEnumerable<string> values,
-        string optionName,
-        [NotNullWhen(true)] out EnumerableModifier<string>? modifier)
-    {
-        modifier = null;
-
-        if (!values.Any())
-            return false;
-
-        string value = values.First();
-
-        if (!TryParseAsEnumFlags(
-            values.Skip(1),
-            optionName,
-            out ModifierOptions options,
-            ModifierOptions.None,
-            OptionValueProviders.ModifierOptionsProvider))
-        {
-            return false;
-        }
-
-        if ((options & ModifierOptions.FromFile) != 0
-            && !FileSystemUtilities.TryReadAllText(value, out value!, ex => Logger.WriteError(ex)))
-        {
-            return false;
-        }
-
-        var replacementOptions = ReplacementOptions.None;
-
-        if ((options & ModifierOptions.FromDll) != 0)
-        {
-            replacementOptions = ReplacementOptions.FromDll;
-        }
-        else if ((options & ModifierOptions.FromFile) != 0)
-        {
-            replacementOptions = ReplacementOptions.CSharp | ReplacementOptions.FromFile;
-        }
-
-        return TryParseDelegate(
-            optionName: optionName,
-            value: value,
-            returnTypeName: "IEnumerable<string>",
-            parameterTypeName: "IEnumerable<string>",
-            parameterName: "items",
-            returnType: typeof(IEnumerable<string>),
-            parameterType: typeof(IEnumerable<string>),
-            replacementOptions: replacementOptions,
-            out modifier);
     }
 
     public bool TryParseReplaceOptions(

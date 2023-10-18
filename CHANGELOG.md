@@ -19,6 +19,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Deprecate options `--online` and `--filter`.
 - Change traversal to depth-first ([#77](https://github.com/josefpihrt/orang/pull/77)).
 
+### Removed
+
+- Remove deprecated options ([#83](https://github.com/josefpihrt/orang/pull/83)).
+  - Remove option `--display`
+  - Remove option `--evaluator`
+
 ## [0.5.0] - 2023-09-26
 
 ### Added

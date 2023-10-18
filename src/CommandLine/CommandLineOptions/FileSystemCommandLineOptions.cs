@@ -192,27 +192,6 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
 
         options = (FileSystemCommandOptions)baseOptions;
 
-        if (Display.Any())
-        {
-            context.WriteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Display)}' has been deprecated "
-                + "and will be removed in future version. Use following options instead:"
-                + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.AfterContext)}"
-                + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.BeforeContext)}"
-                + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.ContentMode)}"
-                + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.Context)}"
-                + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.Count)}"
-                + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.LineNumber)}"
-                + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.NoContent)}"
-                + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.NoPath)}"
-                + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.PathMode)}"
-                + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.Summary)}"
-#if DEBUG
-                + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.ContentIndent)}"
-                + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.ContentSeparator)}"
-#endif
-                );
-        }
-
         if (!TryParsePaths(out ImmutableArray<PathInfo> paths, context))
             return false;
 

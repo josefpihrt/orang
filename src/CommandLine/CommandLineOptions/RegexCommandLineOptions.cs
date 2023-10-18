@@ -10,7 +10,6 @@ using Orang.Text.RegularExpressions;
 
 namespace Orang.CommandLine;
 
-[OptionValueProvider(nameof(Display), OptionValueProviderNames.Display_MatchAndSplit)]
 internal abstract class RegexCommandLineOptions : CommonRegexCommandLineOptions
 {
     [Value(
@@ -82,39 +81,15 @@ internal abstract class RegexCommandLineOptions : CommonRegexCommandLineOptions
             return false;
         }
 
-        if (Display.Any())
-        {
-            context.WriteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Display)}' has been deprecated "
-                + "and will be removed in future version. Use following options instead:"
-                + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.ContentMode)}"
-                + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.Summary)}"
+        var displayParts = DisplayParts.None;
+        const LineDisplayOptions lineDisplayOptions = LineDisplayOptions.None;
+        ContentDisplayStyle? contentDisplayStyle = null;
 #if DEBUG
-                + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.ContentIndent)}"
-                + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.ContentSeparator)}"
+        string? indent = null;
+        string? separator = null;
+#else
+        const string? indent = null;
 #endif
-                );
-        }
-
-        if (!context.TryParseDisplay(
-            values: Display,
-            optionName: OptionNames.Display,
-            contentDisplayStyle: out ContentDisplayStyle? contentDisplayStyle,
-            pathDisplayStyle: out PathDisplayStyle? _,
-            lineDisplayOptions: out LineDisplayOptions lineDisplayOptions,
-            lineContext: out LineContext _,
-            displayParts: out DisplayParts displayParts,
-            includeCreationTime: out bool includeCreationTime,
-            includeModifiedTime: out bool includeModifiedTime,
-            includeSize: out bool includeSize,
-            indent: out string? indent,
-            separator: out string? separator,
-            noAlign: out bool _,
-            contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider_WithoutLineAndUnmatchedLines,
-            pathDisplayStyleProvider: OptionValueProviders.PathDisplayStyleProvider))
-        {
-            return false;
-        }
-
         if (Summary)
             displayParts |= DisplayParts.Summary;
 
@@ -164,7 +139,11 @@ internal abstract class RegexCommandLineOptions : CommonRegexCommandLineOptions
             lineOptions: lineDisplayOptions,
             displayParts: displayParts,
             indent: indent,
+#if DEBUG
             separator: separator ?? Environment.NewLine);
+#else
+            separator: Environment.NewLine);
+#endif
 
         options.ModifyOptions = modifyOptions;
         options.Input = input;

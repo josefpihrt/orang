@@ -11,9 +11,7 @@ internal static class MetaValues
     public const string ContentDisplay = "<CONTENT_DISPLAY>";
     public const string ContentMode = "<CONTENT_MODE>";
     public const string DirectoryPath = "<DIRECTORY_PATH>";
-    public const string DisplayOptions = "<DISPLAY_OPTIONS>";
     public const string Encoding = "<ENCODING>";
-    public const string Evaluator = "<EVALUATOR>";
     public const string ExtensionFilter = "EXT1[,EXT2] [<EXTENSION_OPTIONS>]";
     public const string ExtensionOptions = "<EXTENSION_OPTIONS>";
     public const string FilePath = "<FILE_PATH>";

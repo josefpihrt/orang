@@ -19,12 +19,6 @@ internal sealed class ReplaceCommandLineOptions : CommonReplaceCommandLineOption
         MetaValue = MetaValues.Regex)]
     public override IEnumerable<string> Content { get; set; } = null!;
 
-    [HideFromHelp]
-    [Option(
-        longName: OptionNames.Evaluator,
-        HelpText = "[deprecated] Use option -r, --replacement instead.",
-        MetaValue = MetaValues.Evaluator)]
-    public string Evaluator { get; set; } = null!;
 #if DEBUG // --find
     [Option(
         longName: "find",
@@ -55,17 +49,6 @@ internal sealed class ReplaceCommandLineOptions : CommonReplaceCommandLineOption
 
         if (!context.TryParseReplacement(Replacement, out string? replacement, out MatchEvaluator? matchEvaluator))
             return false;
-
-        if (matchEvaluator is null
-            && Evaluator is not null)
-        {
-            context.WriteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Evaluator)}' has been deprecated "
-                + "and will be removed in future version. "
-                + $"Use option '{OptionNames.GetHelpText(OptionNames.Replacement)}' instead.");
-
-            if (!DelegateFactory.TryCreateFromAssembly(Evaluator, typeof(string), typeof(Match), context.Logger, out matchEvaluator))
-                return false;
-        }
 
         if (!context.TryParseReplaceOptions(
             Modify,

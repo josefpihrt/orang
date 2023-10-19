@@ -1,4 +1,7 @@
-roslynator generate-doc "../src/Orang.sln" `
+dotnet new tool-manifest --force
+dotnet tool install roslynator.dotnet.cli
+
+dotnet roslynator generate-doc "../src/Orang.sln" `
  --properties "Configuration=Release" `
  --projects "Common" "FileSystem" `
  --heading ".NET API Reference" `
@@ -6,16 +9,7 @@ roslynator generate-doc "../src/Orang.sln" `
  --host docusaurus `
  --group-by-common-namespace `
  --ignored-common-parts content `
- --ignored-root-parts all `
- --max-derived-types 10
-
-roslynator generate-doc-root "../src/Orang.sln" `
- --properties "Configuration=Release" `
- --projects "Common" "FileSystem" `
- -o "build/ref.md" `
- --host docusaurus `
- --heading ".NET API Reference" `
- --ignored-parts content `
- --root-directory-url "ref"
+ --max-derived-types 10 `
+ --root-file-path "build/ref.md"
 
 Write-Host "DONE"

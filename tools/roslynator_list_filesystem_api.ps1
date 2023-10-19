@@ -1,6 +1,7 @@
-#dotnet tool install -g roslynator.dotnet.cli
+dotnet new tool-manifest --force
+dotnet tool install roslynator.dotnet.cli
 
-roslynator list-symbols "../src/FileSystem/FileSystem.csproj" `
+dotnet roslynator list-symbols "../src/FileSystem/FileSystem.csproj" `
  --depth member `
  --visibility public `
  --empty-line-between-members `

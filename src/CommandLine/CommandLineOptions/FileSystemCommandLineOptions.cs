@@ -23,7 +23,7 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
         + "https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.filesystemglobbing.matcher?view=dotnet-plat-ext-7.0#remarks"
         + ").")]
     [Option(
-        longName: "include",
+        longName: OptionNames.Include,
         HelpText = "Space separated list of glob patterns to include files and/or folders.",
         MetaValue = "<GLOB>")]
     public IEnumerable<string> Include { get; set; } = null!;
@@ -32,7 +32,7 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
         + "https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.filesystemglobbing.matcher?view=dotnet-plat-ext-7.0#remarks"
         + ").")]
     [Option(
-        longName: "exclude",
+        longName: OptionNames.Exclude,
         HelpText = "Space separated list of glob patterns to exclude files and/or folders.",
         MetaValue = "<GLOB>")]
     public IEnumerable<string> Exclude { get; set; } = null!;
@@ -218,6 +218,13 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
 
         if (!context.TryParseSortOptions(Sort, OptionNames.Sort, out SortOptions? sortOptions))
             return false;
+
+        if (IncludeDirectory.Any())
+        {
+            context.WriteWarning($"Option '{OptionNames.GetHelpText(OptionNames.IncludeDirectory)}' has been deprecated "
+                + "and will be removed in future versions. "
+                + $"Use options '{OptionNames.GetHelpText(OptionNames.Include)}/{OptionNames.GetHelpText(OptionNames.Exclude)}' instead.");
+        }
 
         if (!context.TryParseFilter(
             IncludeDirectory,

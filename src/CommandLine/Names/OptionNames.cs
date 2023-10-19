@@ -32,6 +32,7 @@ internal static class OptionNames
     public const string Encoding = "encoding";
     public const string EndsWith = "ends-with";
     new public const string Equals = "equals";
+    public const string Exclude = "exclude";
     public const string ExplicitCapture = "explicit-capture";
     public const string Extension = "extension";
     public const string Filter = "filter";
@@ -44,6 +45,7 @@ internal static class OptionNames
     public const string IgnoreCase = "ignore-case";
     public const string IgnoredAttributes = "ignored-attributes";
     public const string IgnorePatternWhitespace = "ignore-pattern-whitespace";
+    public const string Include = "include";
     public const string IncludeDirectory = "include-directory";
     public const string IncludingBom = "including-bom";
     public const string Input = "input";

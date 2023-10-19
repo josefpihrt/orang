@@ -143,7 +143,7 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
     [Option(
         shortName: OptionShortNames.IncludeDirectory,
         longName: OptionNames.IncludeDirectory,
-        HelpText = "Regular expression for a directory name.",
+        HelpText = "[deprecated] Regular expression for a directory name.",
         MetaValue = MetaValues.Regex)]
     public IEnumerable<string> IncludeDirectory { get; set; } = null!;
 

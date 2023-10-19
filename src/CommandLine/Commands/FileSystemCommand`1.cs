@@ -157,6 +157,7 @@ internal abstract class FileSystemCommand<TOptions> : AbstractCommand<TOptions> 
 
         var search = new SearchState(fileMatcher, directoryMatcher)
         {
+            GlobFilter = Options.GlobFilter,
             IncludeDirectory = includeDirectory,
             ExcludeDirectory = excludeDirectory,
             LogProgress = (ProgressReporter is not null) ? p => ProgressReporter.Report(p) : null,

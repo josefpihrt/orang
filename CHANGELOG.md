@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add globbing functionality ([#74](https://github.com/josefpihrt/orang/pull/74)).
+  - Add options `--include`, `--exclude`.
+  - Make option `--include-directory` obsolete.
+
 ### Changed
 
 - Update logo ([#72](https://github.com/josefpihrt/orang/pull/72)).

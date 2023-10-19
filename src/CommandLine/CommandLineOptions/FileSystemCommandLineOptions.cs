@@ -17,7 +17,25 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
 {
     private FileSystemAttributes FileSystemAttributes { get; set; }
 
-    protected PipeMode PipeMode { get; set; } = PipeMode.Paths;
+    protected PipeMode? PipeMode { get; set; }
+
+    [AdditionalDescription(" For further information about the syntax see [reference documentation]("
+        + "https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.filesystemglobbing.matcher?view=dotnet-plat-ext-7.0#remarks"
+        + ").")]
+    [Option(
+        longName: OptionNames.Include,
+        HelpText = "Space separated list of glob patterns to include files and/or folders.",
+        MetaValue = "<GLOB>")]
+    public IEnumerable<string> Include { get; set; } = null!;
+
+    [AdditionalDescription(" For further information about the syntax see [reference documentation]("
+        + "https://learn.microsoft.com/en-us/dotnet/api/microsoft.extensions.filesystemglobbing.matcher?view=dotnet-plat-ext-7.0#remarks"
+        + ").")]
+    [Option(
+        longName: OptionNames.Exclude,
+        HelpText = "Space separated list of glob patterns to exclude files and/or folders.",
+        MetaValue = "<GLOB>")]
+    public IEnumerable<string> Exclude { get; set; } = null!;
 
     [HideFromConsoleHelp]
     [Option(
@@ -121,10 +139,11 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
         MetaValue = MetaValues.ExtensionFilter)]
     public IEnumerable<string> Extension { get; set; } = null!;
 
+    [HideFromConsoleHelp]
     [Option(
         shortName: OptionShortNames.IncludeDirectory,
         longName: OptionNames.IncludeDirectory,
-        HelpText = "Regular expression for a directory name.",
+        HelpText = "[deprecated] Regular expression for a directory name.",
         MetaValue = MetaValues.Regex)]
     public IEnumerable<string> IncludeDirectory { get; set; } = null!;
 
@@ -173,27 +192,6 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
 
         options = (FileSystemCommandOptions)baseOptions;
 
-        if (Display.Any())
-        {
-            context.WriteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Display)}' has been deprecated "
-                + "and will be removed in future version. Use following options instead:"
-                + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.AfterContext)}"
-                + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.BeforeContext)}"
-                + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.ContentMode)}"
-                + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.Context)}"
-                + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.Count)}"
-                + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.LineNumber)}"
-                + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.NoContent)}"
-                + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.NoPath)}"
-                + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.PathMode)}"
-                + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.Summary)}"
-#if DEBUG
-                + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.ContentIndent)}"
-                + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.ContentSeparator)}"
-#endif
-                );
-        }
-
         if (!TryParsePaths(out ImmutableArray<PathInfo> paths, context))
             return false;
 
@@ -220,6 +218,13 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
 
         if (!context.TryParseSortOptions(Sort, OptionNames.Sort, out SortOptions? sortOptions))
             return false;
+
+        if (IncludeDirectory.Any())
+        {
+            context.WriteWarning($"Option '{OptionNames.GetHelpText(OptionNames.IncludeDirectory)}' has been deprecated "
+                + "and will be removed in future versions. "
+                + $"Use options '{OptionNames.GetHelpText(OptionNames.Include)}/{OptionNames.GetHelpText(OptionNames.Exclude)}' instead.");
+        }
 
         if (!context.TryParseFilter(
             IncludeDirectory,
@@ -307,6 +312,8 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
 
         FileSystemAttributes = attributes;
 
+        options.GlobFilter = GlobMatcher.TryCreate(Include, Exclude);
+
         return true;
     }
 
@@ -344,7 +351,7 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
         }
 
         if (Console.IsInputRedirected
-            && PipeMode == PipeMode.Paths)
+            && PipeMode == CommandLine.PipeMode.Paths)
         {
             if (!TryEnsureFullPath(
                 ConsoleHelpers.ReadRedirectedInputAsLines().Where(f => !string.IsNullOrEmpty(f)),

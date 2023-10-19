@@ -18,6 +18,8 @@ internal abstract class FileSystemCommandOptions : CommonRegexCommandOptions
 
     public ImmutableArray<PathInfo> Paths { get; internal set; }
 
+    public GlobMatcher? GlobFilter { get; internal set; }
+
     public Matcher? NameFilter { get; internal set; }
 
     public FileNamePart NamePart { get; internal set; }
@@ -85,5 +87,11 @@ internal abstract class FileSystemCommandOptions : CommonRegexCommandOptions
             includeGroupNumber: groupNumber >= 0,
             includeCaptureNumber: false,
             new OutputCaptions(shortMatch: ""));
+    }
+
+    internal bool IsDefaultPath()
+    {
+        return Paths.Length == 1
+            && Paths[0].Origin == PathOrigin.CurrentDirectory;
     }
 }

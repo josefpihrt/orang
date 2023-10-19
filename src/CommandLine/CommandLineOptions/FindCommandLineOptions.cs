@@ -27,14 +27,7 @@ internal sealed class FindCommandLineOptions : CommonFindCommandLineOptions
         HelpText = "Defines how to use redirected/piped input.",
         MetaValue = MetaValues.PipeMode)]
     public string Pipe { get; set; } = null!;
-#if DEBUG
-    [HideFromConsoleHelp]
-    [Option(
-        longName: OptionNames.Modifier,
-        HelpText = OptionHelpText.Modifier,
-        MetaValue = MetaValues.Modifier)]
-    public IEnumerable<string> Modifier { get; set; } = null!;
-#endif
+
     [Option(
         longName: OptionNames.Modify,
         HelpText = "Functions to modify results.",
@@ -48,22 +41,25 @@ internal sealed class FindCommandLineOptions : CommonFindCommandLineOptions
 
     public bool TryParse(FindCommandOptions options, ParseContext context)
     {
-        if (!context.TryParseAsEnum(
-            Pipe,
-            OptionNames.Pipe,
-            out PipeMode pipeMode,
-            PipeMode.None,
-            OptionValueProviders.PipeMode))
+        PipeMode? pipeMode = null;
+
+        if (!string.IsNullOrEmpty(Pipe))
         {
-            return false;
+            if (!context.TryParseAsEnum(
+                Pipe,
+                OptionNames.Pipe,
+                out PipeMode pipeMode2,
+                CommandLine.PipeMode.None,
+                OptionValueProviders.PipeMode))
+            {
+                return false;
+            }
+
+            pipeMode = pipeMode2;
         }
 
-        if (pipeMode == PipeMode.None)
-        {
-            if (Console.IsInputRedirected)
-                PipeMode = PipeMode.Text;
-        }
-        else
+        if (pipeMode == CommandLine.PipeMode.Paths
+            || pipeMode == CommandLine.PipeMode.Text)
         {
             if (!Console.IsInputRedirected)
             {
@@ -88,7 +84,8 @@ internal sealed class FindCommandLineOptions : CommonFindCommandLineOptions
 
         string? input = null;
 
-        if (pipeMode != PipeMode.Paths
+        if (options.IsDefaultPath()
+            && pipeMode != CommandLine.PipeMode.Paths
             && Console.IsInputRedirected)
         {
             if (options.ContentFilter is null)
@@ -110,18 +107,9 @@ internal sealed class FindCommandLineOptions : CommonFindCommandLineOptions
             }
         }
 
-        EnumerableModifier<string>? modifier = null;
-#if DEBUG // --modifier
-        if (Modifier.Any()
-            && !context.TryParseModifier(Modifier, OptionNames.Modifier, out modifier))
-        {
-            return false;
-        }
-#endif
         if (!context.TryParseModifyOptions(
             Modify,
             OptionNames.Modify,
-            modifier,
             out ModifyOptions? modifyOptions,
             out bool aggregateOnly))
         {

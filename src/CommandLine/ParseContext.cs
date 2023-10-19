@@ -35,7 +35,7 @@ internal class ParseContext
 
     public void WriteWarning(string message)
     {
-        Logger.WriteLine(message);
+        Logger.WriteWarning(message);
     }
 
     public void WriteError(Exception exception)
@@ -73,38 +73,6 @@ internal class ParseContext
             || contentDisplayStyle == ContentDisplayStyle.ValueDetail)
         {
             defaultValue = HighlightOptions.None;
-        }
-
-        if (values.Any())
-        {
-            string[] arr = values.ToArray();
-
-            for (int i = 0; i < arr.Length; i++)
-            {
-                switch (arr[i])
-                {
-                    case "new-line":
-                        {
-                            Logger.WriteWarning($"Value '{arr[i]}' is has been deprecated "
-                                + "and will be removed in future version. "
-                                + $"Use value '{OptionValues.HighlightOptions_Newline.HelpValue}' instead.");
-
-                            arr[i] = OptionValues.HighlightOptions_Newline.Value;
-                            break;
-                        }
-                    case "nl":
-                        {
-                            Logger.WriteWarning($"Value '{arr[i]}' is has been deprecated "
-                                + "and will be removed in future version. "
-                                + $"Use value '{OptionValues.HighlightOptions_Newline.HelpValue}' instead.");
-
-                            arr[i] = OptionValues.HighlightOptions_Newline.Value;
-                            break;
-                        }
-                }
-            }
-
-            values = arr;
         }
 
         return TryParseAsEnumFlags(
@@ -355,7 +323,6 @@ internal class ParseContext
     public bool TryParseModifyOptions(
         IEnumerable<string> values,
         string optionName,
-        EnumerableModifier<string>? modifier,
         [NotNullWhen(true)] out ModifyOptions? modifyOptions,
         out bool aggregateOnly)
     {
@@ -393,18 +360,7 @@ internal class ParseContext
             }
             else
             {
-                string value2 = value;
-
-                if (value2 == "ao")
-                {
-                    Logger.WriteWarning($"Value '{value2}' is has been deprecated "
-                        + "and will be removed in future version. "
-                        + $"Use value '{OptionValues.ModifyFlags_AggregateOnly.HelpValue}' instead.");
-
-                    value2 = OptionValues.ModifyFlags_AggregateOnly.ShortValue;
-                }
-
-                (options ??= new List<string>()).Add(value2);
+                (options ??= new List<string>()).Add(value);
             }
         }
 
@@ -492,16 +448,14 @@ internal class ParseContext
         aggregateOnly = (modifyFlags & ModifyFlags.AggregateOnly) != 0;
 
         if (modifyFlags != ModifyFlags.None
-            || functions != ModifyFunctions.None
-            || modifier is not null)
+            || functions != ModifyFunctions.None)
         {
             modifyOptions = new ModifyOptions(
                 functions: functions,
                 aggregate: (modifyFlags & ModifyFlags.Aggregate) != 0 || aggregateOnly,
                 ignoreCase: (modifyFlags & ModifyFlags.IgnoreCase) != 0,
                 cultureInvariant: (modifyFlags & ModifyFlags.CultureInvariant) != 0,
-                sortProperty: sortProperty,
-                modifier: modifier);
+                sortProperty: sortProperty);
         }
         else
         {
@@ -509,57 +463,6 @@ internal class ParseContext
         }
 
         return true;
-    }
-
-    public bool TryParseModifier(
-        IEnumerable<string> values,
-        string optionName,
-        [NotNullWhen(true)] out EnumerableModifier<string>? modifier)
-    {
-        modifier = null;
-
-        if (!values.Any())
-            return false;
-
-        string value = values.First();
-
-        if (!TryParseAsEnumFlags(
-            values.Skip(1),
-            optionName,
-            out ModifierOptions options,
-            ModifierOptions.None,
-            OptionValueProviders.ModifierOptionsProvider))
-        {
-            return false;
-        }
-
-        if ((options & ModifierOptions.FromFile) != 0
-            && !FileSystemUtilities.TryReadAllText(value, out value!, ex => Logger.WriteError(ex)))
-        {
-            return false;
-        }
-
-        var replacementOptions = ReplacementOptions.None;
-
-        if ((options & ModifierOptions.FromDll) != 0)
-        {
-            replacementOptions = ReplacementOptions.FromDll;
-        }
-        else if ((options & ModifierOptions.FromFile) != 0)
-        {
-            replacementOptions = ReplacementOptions.CSharp | ReplacementOptions.FromFile;
-        }
-
-        return TryParseDelegate(
-            optionName: optionName,
-            value: value,
-            returnTypeName: "IEnumerable<string>",
-            parameterTypeName: "IEnumerable<string>",
-            parameterName: "items",
-            returnType: typeof(IEnumerable<string>),
-            parameterType: typeof(IEnumerable<string>),
-            replacementOptions: replacementOptions,
-            out modifier);
     }
 
     public bool TryParseReplaceOptions(
@@ -609,180 +512,6 @@ internal class ParseContext
                 replacement: replacement,
                 functions: functions,
                 cultureInvariant: (replaceFlags & ReplaceFlags.CultureInvariant) != 0);
-        }
-
-        return true;
-    }
-
-    public bool TryParseDisplay(
-        IEnumerable<string> values,
-        string optionName,
-        out ContentDisplayStyle? contentDisplayStyle,
-        out PathDisplayStyle? pathDisplayStyle,
-        out LineDisplayOptions lineDisplayOptions,
-        out LineContext lineContext,
-        out DisplayParts displayParts,
-        out bool includeCreationTime,
-        out bool includeModifiedTime,
-        out bool includeSize,
-        out string? indent,
-        out string? separator,
-        out bool noAlign,
-        OptionValueProvider? contentDisplayStyleProvider = null,
-        OptionValueProvider? pathDisplayStyleProvider = null)
-    {
-        contentDisplayStyle = null;
-        pathDisplayStyle = null;
-        lineDisplayOptions = LineDisplayOptions.None;
-        lineContext = default;
-        displayParts = DisplayParts.None;
-        includeCreationTime = false;
-        includeModifiedTime = false;
-        includeSize = false;
-        indent = null;
-        separator = null;
-        noAlign = false;
-
-        foreach (string value in values)
-        {
-            int index = value.IndexOf('=');
-
-            if (index >= 0)
-            {
-                string key = value.Substring(0, index);
-                string value2 = value.Substring(index + 1);
-
-                if (key == "t")
-                {
-                    Logger.WriteWarning($"Value '{key}' is has been deprecated "
-                        + "and will be removed in future version. "
-                        + $"Use value '{OptionValues.Display_Context.HelpValue}' instead.");
-
-                    key = OptionValues.Display_Context.ShortKey;
-                }
-                else if (key == "ta")
-                {
-                    Logger.WriteWarning($"Value '{key}' is has been deprecated "
-                        + "and will be removed in future version. "
-                        + $"Use value '{OptionValues.Display_ContextAfter.HelpValue}' instead.");
-
-                    key = OptionValues.Display_ContextAfter.ShortKey;
-                }
-                else if (key == "tb")
-                {
-                    Logger.WriteWarning($"Value '{key}' is has been deprecated "
-                        + "and will be removed in future version. "
-                        + $"Use value '{OptionValues.Display_ContextBefore.HelpValue}' instead.");
-
-                    key = OptionValues.Display_ContextBefore.ShortKey;
-                }
-
-                if (OptionValues.Display_Content.IsKeyOrShortKey(key))
-                {
-                    if (!TryParseAsEnum(
-                        value2,
-                        optionName,
-                        out ContentDisplayStyle contentDisplayStyle2,
-                        provider: contentDisplayStyleProvider))
-                    {
-                        return false;
-                    }
-
-                    contentDisplayStyle = contentDisplayStyle2;
-                }
-                else if (OptionValues.Display_Path.IsKeyOrShortKey(key))
-                {
-                    if (!TryParseAsEnum(
-                        value2,
-                        optionName,
-                        out PathDisplayStyle pathDisplayStyle2,
-                        provider: pathDisplayStyleProvider))
-                    {
-                        return false;
-                    }
-
-                    pathDisplayStyle = pathDisplayStyle2;
-                }
-                else if (OptionValues.Display_Indent.IsKeyOrShortKey(key))
-                {
-                    indent = value2;
-                }
-                else if (OptionValues.Display_Separator.IsKeyOrShortKey(key))
-                {
-                    separator = RegexEscape.ConvertCharacterEscapes(value2);
-                }
-                else if (OptionValues.Display_Context.IsKeyOrShortKey(key))
-                {
-                    if (!TryParseCount(value2, OptionNames.Display, out int count, value))
-                        return false;
-
-                    lineContext = new LineContext(count);
-                }
-                else if (OptionValues.Display_ContextBefore.IsKeyOrShortKey(key))
-                {
-                    if (!TryParseCount(value2, OptionNames.Display, out int before, value))
-                        return false;
-
-                    lineContext = lineContext.WithBefore(before);
-                }
-                else if (OptionValues.Display_ContextAfter.IsKeyOrShortKey(key))
-                {
-                    if (!TryParseCount(value2, OptionNames.Display, out int after, value))
-                        return false;
-
-                    lineContext = lineContext.WithAfter(after);
-                }
-                else
-                {
-                    WriteOptionError(value, optionName, OptionValueProviders.DisplayProvider);
-                    return false;
-                }
-            }
-            else if (OptionValues.Display_Summary.IsValueOrShortValue(value))
-            {
-                displayParts |= DisplayParts.Summary;
-            }
-            else if (OptionValues.Display_Count.IsValueOrShortValue(value))
-            {
-                displayParts |= DisplayParts.Count;
-            }
-            else if (OptionValues.Display_CreationTime.IsValueOrShortValue(value))
-            {
-                includeCreationTime = true;
-            }
-            else if (OptionValues.Display_ModifiedTime.IsValueOrShortValue(value))
-            {
-                includeModifiedTime = false;
-            }
-            else if (OptionValues.Display_Size.IsValueOrShortValue(value))
-            {
-                includeSize = false;
-            }
-            else if (OptionValues.Display_LineNumber.IsValueOrShortValue(value))
-            {
-                lineDisplayOptions |= LineDisplayOptions.IncludeLineNumber;
-            }
-            else if (OptionValues.Display_TrimLine.IsValueOrShortValue(value))
-            {
-                lineDisplayOptions |= LineDisplayOptions.TrimLine;
-            }
-            else if (OptionValues.Display_TrimLine.IsValueOrShortValue(value))
-            {
-                lineDisplayOptions |= LineDisplayOptions.TrimLine;
-            }
-            else if (OptionValues.Display_TrimLine.IsValueOrShortValue(value))
-            {
-                lineDisplayOptions |= LineDisplayOptions.TrimLine;
-            }
-            else if (OptionValues.Display_NoAlign.IsValueOrShortValue(value))
-            {
-                noAlign = true;
-            }
-            else
-            {
-                WriteOptionError(value, optionName, OptionValueProviders.DisplayProvider);
-                return false;
-            }
         }
 
         return true;

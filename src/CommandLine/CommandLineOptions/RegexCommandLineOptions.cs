@@ -10,7 +10,6 @@ using Orang.Text.RegularExpressions;
 
 namespace Orang.CommandLine;
 
-[OptionValueProvider(nameof(Display), OptionValueProviderNames.Display_MatchAndSplit)]
 internal abstract class RegexCommandLineOptions : CommonRegexCommandLineOptions
 {
     [Value(
@@ -25,14 +24,7 @@ internal abstract class RegexCommandLineOptions : CommonRegexCommandLineOptions
         HelpText = "The input string to be searched.",
         MetaValue = MetaValues.Input)]
     public IEnumerable<string> Input { get; set; } = null!;
-#if DEBUG
-    [HideFromConsoleHelp]
-    [Option(
-        longName: OptionNames.Modifier,
-        HelpText = OptionHelpText.Modifier,
-        MetaValue = MetaValues.Modifier)]
-    public IEnumerable<string> Modifier { get; set; } = null!;
-#endif
+
     [Option(
         longName: OptionNames.Modify,
         HelpText = "Functions to modify results.",
@@ -89,39 +81,15 @@ internal abstract class RegexCommandLineOptions : CommonRegexCommandLineOptions
             return false;
         }
 
-        if (Display.Any())
-        {
-            context.WriteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Display)}' has been deprecated "
-                + "and will be removed in future version. Use following options instead:"
-                + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.ContentMode)}"
-                + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.Summary)}"
+        var displayParts = DisplayParts.None;
+        const LineDisplayOptions lineDisplayOptions = LineDisplayOptions.None;
+        ContentDisplayStyle? contentDisplayStyle = null;
 #if DEBUG
-                + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.ContentIndent)}"
-                + $"{Environment.NewLine}  {OptionNames.GetHelpText(OptionNames.ContentSeparator)}"
+        string? indent = null;
+        string? separator = null;
+#else
+        const string? indent = null;
 #endif
-                );
-        }
-
-        if (!context.TryParseDisplay(
-            values: Display,
-            optionName: OptionNames.Display,
-            contentDisplayStyle: out ContentDisplayStyle? contentDisplayStyle,
-            pathDisplayStyle: out PathDisplayStyle? _,
-            lineDisplayOptions: out LineDisplayOptions lineDisplayOptions,
-            lineContext: out LineContext _,
-            displayParts: out DisplayParts displayParts,
-            includeCreationTime: out bool includeCreationTime,
-            includeModifiedTime: out bool includeModifiedTime,
-            includeSize: out bool includeSize,
-            indent: out string? indent,
-            separator: out string? separator,
-            noAlign: out bool _,
-            contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider_WithoutLineAndUnmatchedLines,
-            pathDisplayStyleProvider: OptionValueProviders.PathDisplayStyleProvider))
-        {
-            return false;
-        }
-
         if (Summary)
             displayParts |= DisplayParts.Summary;
 
@@ -147,18 +115,9 @@ internal abstract class RegexCommandLineOptions : CommonRegexCommandLineOptions
         if (ContentSeparator is not null)
             separator = ContentSeparator;
 #endif
-        EnumerableModifier<string>? modifier = null;
-#if DEBUG // --modifier
-        if (Modifier.Any()
-            && !context.TryParseModifier(Modifier, OptionNames.Modifier, out modifier))
-        {
-            return false;
-        }
-#endif
         if (!context.TryParseModifyOptions(
             Modify,
             OptionNames.Modify,
-            modifier,
             out ModifyOptions? modifyOptions,
             out bool aggregateOnly))
         {
@@ -180,7 +139,11 @@ internal abstract class RegexCommandLineOptions : CommonRegexCommandLineOptions
             lineOptions: lineDisplayOptions,
             displayParts: displayParts,
             indent: indent,
+#if DEBUG
             separator: separator ?? Environment.NewLine);
+#else
+            separator: Environment.NewLine);
+#endif
 
         options.ModifyOptions = modifyOptions;
         options.Input = input;

@@ -54,12 +54,15 @@ public class Search
 
         var state = new SearchState(FileMatcher, DirectoryMatcher)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             IncludeDirectory = Options.IncludeDirectoryPredicate,
             ExcludeDirectory = Options.ExcludeDirectoryPredicate,
+#pragma warning restore CS0618 // Type or member is obsolete
             LogProgress = Options.LogProgress,
             RecurseSubdirectories = !Options.TopDirectoryOnly,
             DefaultEncoding = Options.DefaultEncoding,
             IgnoreInaccessible = Options.IgnoreInaccessible,
+            GlobFilter = GlobMatcher.TryCreate(Options.Include, Options.Exclude),
         };
 
         return state.Find(directoryPath, cancellationToken);

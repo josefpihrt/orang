@@ -42,13 +42,16 @@ internal abstract class Command
 
         var state = new SearchState(search.FileMatcher, search.DirectoryMatcher)
         {
+#pragma warning disable CS0618 // Type or member is obsolete
             IncludeDirectory = search.Options.IncludeDirectoryPredicate,
             ExcludeDirectory = search.Options.ExcludeDirectoryPredicate,
+#pragma warning restore CS0618 // Type or member is obsolete
             LogProgress = search.Options.LogProgress,
             RecurseSubdirectories = !search.Options.TopDirectoryOnly,
             DefaultEncoding = search.Options.DefaultEncoding,
             IgnoreInaccessible = search.Options.IgnoreInaccessible,
             Telemetry = Telemetry,
+            GlobFilter = GlobMatcher.TryCreate(search.Options.Include, search.Options.Exclude),
         };
 
         OnSearchStateCreating(state);

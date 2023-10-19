@@ -20,15 +20,6 @@ internal static class OptionValues
     public static readonly SimpleOptionValue ContentDisplayStyle_ValueDetail = SimpleOptionValue.Create(ContentDisplayStyle.ValueDetail, shortValue: "d", description: "Display matched value and include information about each value such as index or length.");
     public static readonly SimpleOptionValue ContentDisplayStyle_Omit = SimpleOptionValue.Create(ContentDisplayStyle.Omit, shortValue: "o", description: "Do not display file's content.");
 
-    public static readonly SimpleOptionValue Display_Count = SimpleOptionValue.Create("Count", description: "Include number of matches in file.");
-    public static readonly SimpleOptionValue Display_CreationTime = SimpleOptionValue.Create("CreationTime", shortValue: "ct", helpValue: "c[reation-]t[ime]", description: "Include file creation time.");
-    public static readonly SimpleOptionValue Display_LineNumber = SimpleOptionValue.Create("LineNumber", description: "Include line number.");
-    public static readonly SimpleOptionValue Display_ModifiedTime = SimpleOptionValue.Create("ModifiedTime", shortValue: "mt", helpValue: "m[odified-]t[ime]", description: "Include file last modified time.");
-    public static readonly SimpleOptionValue Display_NoAlign = SimpleOptionValue.Create("NoAlign", shortValue: "", description: "Do not align columns.");
-    public static readonly SimpleOptionValue Display_Size = SimpleOptionValue.Create("Size", description: "Include file size.");
-    public static readonly SimpleOptionValue Display_Summary = SimpleOptionValue.Create("Summary", shortValue: "su", description: "Include summary.");
-    public static readonly SimpleOptionValue Display_TrimLine = SimpleOptionValue.Create("TrimLine", shortValue: "", description: "Trim leading and trailing white-space from a line.");
-
     public static readonly SimpleOptionValue FileSystemAttributes_Directory = SimpleOptionValue.Create(FileSystemAttributes.Directory);
     public static readonly SimpleOptionValue FileSystemAttributes_File = SimpleOptionValue.Create(FileSystemAttributes.File);
 
@@ -103,14 +94,6 @@ internal static class OptionValues
         shortValue: "",
         description: "<REPLACEMENT> is a path to a method in DLL file. "
             + "The format is 'DllPath,FullTypeName.MethodName'.");
-
-    public static readonly KeyValuePairOptionValue Display_Context = KeyValuePairOptionValue.Create("context", "<NUM>", shortKey: "co", description: "A number of lines to display before and after matching line.");
-    public static readonly KeyValuePairOptionValue Display_ContextBefore = KeyValuePairOptionValue.Create("context-before", "<NUM>", shortKey: "b", description: "A number of lines to display before matching line.");
-    public static readonly KeyValuePairOptionValue Display_ContextAfter = KeyValuePairOptionValue.Create("context-after", "<NUM>", shortKey: "a", description: "A number of lines to display after matching line.");
-    public static readonly KeyValuePairOptionValue Display_Content = KeyValuePairOptionValue.Create("content", MetaValues.ContentDisplay, shortKey: "c");
-    public static readonly KeyValuePairOptionValue Display_Indent = KeyValuePairOptionValue.Create("indent", "<INDENT>", shortKey: "", description: "Indentation for a list of results. Default indentation are 2 spaces.");
-    public static readonly KeyValuePairOptionValue Display_Path = KeyValuePairOptionValue.Create("path", MetaValues.PathDisplay, shortKey: "p");
-    public static readonly KeyValuePairOptionValue Display_Separator = KeyValuePairOptionValue.Create("separator", "<SEPARATOR>", description: "String that separates each value.");
 
     public static readonly KeyValuePairOptionValue Encoding = KeyValuePairOptionValue.Create("encoding", MetaValues.Encoding, shortKey: "e");
 

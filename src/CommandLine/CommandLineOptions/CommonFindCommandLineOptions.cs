@@ -68,26 +68,18 @@ internal abstract class CommonFindCommandLineOptions : FileSystemCommandLineOpti
             return false;
         }
 
-        if (!context.TryParseDisplay(
-            values: Display,
-            optionName: OptionNames.Display,
-            contentDisplayStyle: out ContentDisplayStyle? contentDisplayStyle,
-            pathDisplayStyle: out PathDisplayStyle? pathDisplayStyle,
-            lineDisplayOptions: out LineDisplayOptions lineDisplayOptions,
-            lineContext: out LineContext lineContext,
-            displayParts: out DisplayParts displayParts,
-            includeCreationTime: out bool includeCreationTime,
-            includeModifiedTime: out bool includeModifiedTime,
-            includeSize: out bool includeSize,
-            indent: out string? indent,
-            separator: out string? separator,
-            noAlign: out bool _,
-            contentDisplayStyleProvider: OptionValueProviders.ContentDisplayStyleProvider,
-            pathDisplayStyleProvider: OptionValueProviders.PathDisplayStyleProvider))
-        {
-            return false;
-        }
-
+        var displayParts = DisplayParts.None;
+        var lineDisplayOptions = LineDisplayOptions.None;
+        ContentDisplayStyle? contentDisplayStyle = null;
+        PathDisplayStyle? pathDisplayStyle = null;
+        LineContext lineContext = default;
+#if DEBUG
+        string? indent = null;
+        string? separator = null;
+#else
+        const string? indent = null;
+        const string? separator = null;
+#endif
         if (ContentMode is not null)
         {
             if (context.TryParseAsEnum(
@@ -150,15 +142,6 @@ internal abstract class CommonFindCommandLineOptions : FileSystemCommandLineOpti
         if (NoPath)
             pathDisplayStyle = PathDisplayStyle.Omit;
 #endif
-        if (includeCreationTime)
-            options.FilePropertyOptions = options.FilePropertyOptions.WithIncludeCreationTime(true);
-
-        if (includeModifiedTime)
-            options.FilePropertyOptions = options.FilePropertyOptions.WithIncludeModifiedTime(true);
-
-        if (includeSize)
-            options.FilePropertyOptions = options.FilePropertyOptions.WithIncludeSize(true);
-
         if (pathDisplayStyle == PathDisplayStyle.Relative
             && options.Paths.Length > 1
             && options.SortOptions is not null)
@@ -177,7 +160,7 @@ internal abstract class CommonFindCommandLineOptions : FileSystemCommandLineOpti
 
             string helpValue2 = OptionValueProviders.AskModeProvider.GetValue(nameof(AskMode.Value)).HelpValue;
 
-            context.WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Display)}' cannot have value '{helpValue}' "
+            context.WriteError($"Option '{OptionNames.GetHelpText(OptionNames.ContentMode)}' cannot have value '{helpValue}' "
                 + $"when option '{OptionNames.GetHelpText(OptionNames.Ask)}' has value '{helpValue2}'.");
 
             return false;

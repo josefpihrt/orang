@@ -1,4 +1,4 @@
- #dotnet tool install -g orang.dotnet.cli
+#dotnet tool install -g orang.dotnet.cli
 
 orang delete "../src" -a d -n "bin|obj" e --content-only -t n -y su s
 Write-Host

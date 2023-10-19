@@ -1,6 +1,7 @@
-#dotnet tool install -g orang.dotnet.cli
+dotnet new tool-manifest --force
+dotnet tool install orang.dotnet.cli
 
-orang delete "../src" -a d -n "bin|obj" e --content-only -t n -y su s
+dotnet orang delete "../src" -a d -n "bin|obj" e --content-only -t n -u
 Write-Host
 
 dotnet restore --force "../src/Orang.sln"

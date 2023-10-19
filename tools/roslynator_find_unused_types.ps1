@@ -1,6 +1,7 @@
-#dotnet tool install -g roslynator.dotnet.cli
+dotnet new tool-manifest --force
+dotnet tool install roslynator.dotnet.cli
 
-roslynator find-symbols "../src/Orang.sln" `
+dotnet roslynator find-symbols "../src/Orang.sln" `
  --visibility public internal private `
  --symbol-groups type `
  --without-attributes `

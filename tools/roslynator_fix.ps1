@@ -1,13 +1,7 @@
-#dotnet tool install -g roslynator.dotnet.cli
+dotnet new tool-manifest --force
+dotnet tool install roslynator.dotnet.cli
 
-$roslynatorPath="../../Roslynator/src"
-
-roslynator fix "../src/Orang.sln" `
- --analyzer-assemblies `
-  "$roslynatorPath/Analyzers.CodeFixes/bin/Debug/netstandard2.0/Roslynator.CSharp.Analyzers.dll" `
-  "$roslynatorPath/Analyzers.CodeFixes/bin/Debug/netstandard2.0/Roslynator.CSharp.Analyzers.CodeFixes.dll" `
-  "$roslynatorPath/Formatting.Analyzers.CodeFixes/bin/Debug/netstandard2.0/Roslynator.Formatting.Analyzers.dll" `
-  "$roslynatorPath/Formatting.Analyzers.CodeFixes/bin/Debug/netstandard2.0/Roslynator.Formatting.Analyzers.CodeFixes.dll" `
+dotnet roslynator fix "../src/Orang.sln" `
  --format `
  --verbosity d `
  --file-log "roslynator.log" `

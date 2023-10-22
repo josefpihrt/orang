@@ -114,6 +114,8 @@ internal sealed class FindCommandLineOptions : CommonFindCommandLineOptions
             }
         }
 
+        options.ModifyOptions = ModifyOptions.Default;
+
         if (Modify.Any())
         {
             context.WriteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Modify)}' has been deprecated "
@@ -152,8 +154,8 @@ internal sealed class FindCommandLineOptions : CommonFindCommandLineOptions
             }
 
             if (!context.TryParseFunctions(
-                Modify,
-                OptionNames.Modify,
+                Function,
+                OptionNames.Function,
                 out ModifyFunctions? functions,
                 out ValueSortProperty sortProperty))
             {
@@ -162,7 +164,7 @@ internal sealed class FindCommandLineOptions : CommonFindCommandLineOptions
 
             options.ModifyOptions = new ModifyOptions(
                 functions.Value,
-                aggregate: false,
+                aggregate: true,
                 ignoreCase: (options.ContentFilter.Regex.Options & RegexOptions.IgnoreCase) != 0,
                 cultureInvariant: (options.ContentFilter.Regex.Options & RegexOptions.CultureInvariant) != 0,
                 sortProperty: sortProperty);

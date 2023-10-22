@@ -414,7 +414,10 @@ internal class ParseContext
             functions |= ModifyFunctions.Intersect;
 
         if ((modifyFlags & FunctionFlags.Group) != 0)
+        {
             functions |= ModifyFunctions.Group;
+            functions |= ModifyFunctions.Count;
+        }
 
         if (sortProperty != ValueSortProperty.None
             && (functions & ModifyFunctions.Sort) == 0)

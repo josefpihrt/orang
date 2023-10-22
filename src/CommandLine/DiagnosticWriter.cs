@@ -270,7 +270,7 @@ internal class DiagnosticWriter
             options.SizePredicate,
             options.CreationTimePredicate,
             options.ModifiedTimePredicate);
-        WriteFunctions("function", options.ModifyOptions.Functions);
+        WriteFunctions("function", options.ModifyOptions?.Functions);
         WriteOption("highlight options", options.HighlightOptions);
         WriteInput(options.Input);
         WriteOption("line number", options.Format.Includes(LineDisplayOptions.IncludeLineNumber));
@@ -922,11 +922,12 @@ internal class DiagnosticWriter
         WriteLine();
     }
 
-    private void WriteFunctions(string name, ModifyFunctions functions)
+    private void WriteFunctions(string name, ModifyFunctions? functions)
     {
         WriteName(name);
 
-        if (functions != ModifyFunctions.None)
+        if (functions is not null
+            && functions != ModifyFunctions.None)
         {
             WriteValue(functions.ToString());
         }

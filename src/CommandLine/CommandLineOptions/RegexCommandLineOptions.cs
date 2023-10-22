@@ -133,6 +133,8 @@ internal abstract class RegexCommandLineOptions : CommonRegexCommandLineOptions
             separator = ContentSeparator;
 #endif
 
+        options.ModifyOptions = ModifyOptions.Default;
+
         if (Modify.Any())
         {
             context.WriteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Modify)}' has been deprecated "
@@ -171,8 +173,8 @@ internal abstract class RegexCommandLineOptions : CommonRegexCommandLineOptions
             }
 
             if (!context.TryParseFunctions(
-                Modify,
-                OptionNames.Modify,
+                Function,
+                OptionNames.Function,
                 out ModifyFunctions? functions,
                 out ValueSortProperty sortProperty))
             {
@@ -181,7 +183,7 @@ internal abstract class RegexCommandLineOptions : CommonRegexCommandLineOptions
 
             options.ModifyOptions = new ModifyOptions(
                 functions.Value,
-                aggregate: false,
+                aggregate: true,
                 ignoreCase: (options.Matcher.Regex.Options & RegexOptions.IgnoreCase) != 0,
                 cultureInvariant: (options.Matcher.Regex.Options & RegexOptions.CultureInvariant) != 0,
                 sortProperty: sortProperty);

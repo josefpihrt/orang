@@ -297,6 +297,17 @@ internal static class OptionValueProviders
         OptionValues.TrimStart
     );
 
+    public static OptionValueProvider FunctionFlagsProvider { get; } = new(
+        MetaValues.Function,
+        OptionValues.FunctionFlags_Sort,
+        OptionValues.FunctionFlags_SortDescending,
+        SimpleOptionValue.Create(ModifyFlags.Distinct, shortValue: "", description: "Return distinct values."),
+        OptionValues.ModifyFlags_Except,
+        OptionValues.ModifyFlags_Intersect,
+        OptionValues.ModifyFlags_Group,
+        OptionValues.SortBy
+    );
+
     public static OptionValueProvider HighlightOptionsProvider { get; } = new(
         MetaValues.Highlight,
         OptionValues.HighlightOptions_None,

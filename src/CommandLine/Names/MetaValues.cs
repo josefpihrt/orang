@@ -16,6 +16,7 @@ internal static class MetaValues
     public const string ExtensionOptions = "<EXTENSION_OPTIONS>";
     public const string FilePath = "<FILE_PATH>";
     public const string FileProperties = "<FILE_PROPERTIES>";
+    public const string Function = "<FUNCTION>";
     public const string Highlight = "<HIGHLIGHT>";
     public const string Indent = "<INDENT>";
     public const string Input = "<INPUT> [<INPUT_OPTIONS>]";

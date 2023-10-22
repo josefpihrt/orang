@@ -10,7 +10,10 @@ namespace Orang.CommandLine;
 
 internal abstract class CommonCopyCommandLineOptions : CommonFindCommandLineOptions
 {
-    public override ContentDisplayStyle DefaultContentDisplayStyle => ContentDisplayStyle.Omit;
+    public override ContentDisplayStyle GetDefaultContentDisplayStyle()
+    {
+        return ContentDisplayStyle.Omit;
+    }
 
     [Option(
         longName: OptionNames.Compare,

@@ -270,12 +270,12 @@ internal class DiagnosticWriter
             options.SizePredicate,
             options.CreationTimePredicate,
             options.ModifiedTimePredicate);
+        WriteFunctions("function", options.ModifyOptions.Functions);
         WriteOption("highlight options", options.HighlightOptions);
         WriteInput(options.Input);
         WriteOption("line number", options.Format.Includes(LineDisplayOptions.IncludeLineNumber));
         WriteOption("max matching files", options.MaxMatchingFiles);
         WriteOption("max matches in file", options.MaxMatchesInFile);
-        WriteModify("modify", options.ModifyOptions);
         WriteFilter("name filter", options.NameFilter, options.NamePart);
         WriteOption("path mode", options.Format.PathDisplayStyle);
         WritePaths("paths", options.Paths);
@@ -922,67 +922,18 @@ internal class DiagnosticWriter
         WriteLine();
     }
 
-    private void WriteModify(string name, ModifyOptions options)
+    private void WriteFunctions(string name, ModifyFunctions functions)
     {
         WriteName(name);
 
-        if (options.Aggregate
-            || options.CultureInvariant
-            || options.IgnoreCase
-            || options.Functions != ModifyFunctions.None
-            || options.SortProperty != ValueSortProperty.None)
+        if (functions != ModifyFunctions.None)
         {
-            if (options.Aggregate)
-            {
-                WriteLine();
-                WriteIndent();
-                WriteName("aggregate");
-                WriteValue(options.Aggregate);
-            }
-
-            if (options.CultureInvariant)
-            {
-                WriteLine();
-                WriteIndent();
-                WriteName("culture invariant");
-                WriteValue(options.CultureInvariant);
-            }
-
-            if (options.IgnoreCase)
-            {
-                WriteLine();
-                WriteIndent();
-                WriteName("ignore case");
-                WriteValue(options.IgnoreCase);
-            }
-
-            if (options.SortProperty != ValueSortProperty.None)
-            {
-                WriteLine();
-                WriteIndent();
-                WriteName("sort by");
-                WriteValue(options.SortProperty.ToString());
-            }
-
-            WriteLine();
-            WriteIndent();
-            WriteName("functions");
-
-            if (options.Functions != ModifyFunctions.None)
-            {
-                WriteValue(options.Functions.ToString());
-            }
-            else
-            {
-                WriteNullValue();
-            }
+            WriteValue(functions.ToString());
         }
         else
         {
             WriteNullValue();
         }
-
-        WriteLine();
     }
 
     private void WriteValue(bool value)

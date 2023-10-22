@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using CommandLine;
 using Orang.CommandLine.Annotations;
 using Orang.Text.RegularExpressions;
@@ -19,6 +20,14 @@ internal abstract class RegexCommandLineOptions : CommonRegexCommandLineOptions
     public string Path { get; set; } = null!;
 
     [Option(
+        shortName: OptionShortNames.Content,
+        longName: OptionNames.Content,
+        Required = true,
+        HelpText = "Regular expression for the input string.",
+        MetaValue = MetaValues.Regex)]
+    public IEnumerable<string> Content { get; set; } = null!;
+
+    [Option(
         shortName: OptionShortNames.Input,
         longName: OptionNames.Input,
         HelpText = "The input string to be searched.",
@@ -26,9 +35,17 @@ internal abstract class RegexCommandLineOptions : CommonRegexCommandLineOptions
     public IEnumerable<string> Input { get; set; } = null!;
 
     [Option(
+        longName: OptionNames.Function,
+        HelpText = "Space separated list of functions to modify a list of matches.",
+        MetaValue = MetaValues.Function)]
+    [AdditionalDescription(" All matches from all files are evaluated at once.")]
+    public IEnumerable<string> Function { get; set; } = null!;
+
+    [Option(
         longName: OptionNames.Modify,
-        HelpText = "Functions to modify results.",
+        HelpText = "[deprecated] Modify results according to specified values.",
         MetaValue = MetaValues.ModifyOptions)]
+    [HideFromHelp]
     public IEnumerable<string> Modify { get; set; } = null!;
 
     public bool TryParse(RegexCommandOptions options, ParseContext context)
@@ -115,23 +132,62 @@ internal abstract class RegexCommandLineOptions : CommonRegexCommandLineOptions
         if (ContentSeparator is not null)
             separator = ContentSeparator;
 #endif
-        if (!context.TryParseModifyOptions(
-            Modify,
-            OptionNames.Modify,
-            out ModifyOptions? modifyOptions,
-            out bool aggregateOnly))
+
+        if (Modify.Any())
         {
-            return false;
+            context.WriteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Modify)}' has been deprecated "
+                + "and will be removed in future versions. "
+                + $"Use option '{OptionNames.GetHelpText(OptionNames.Function)}' instead.");
+
+            if (!context.TryParseModifyOptions(
+                Modify,
+                OptionNames.Modify,
+                out ModifyOptions? modifyOptions,
+                out bool aggregateOnly))
+            {
+                return false;
+            }
+
+            options.ModifyOptions = modifyOptions;
+
+            if (aggregateOnly)
+                context.Logger.ConsoleOut.Verbosity = Orang.Verbosity.Minimal;
+
+            if (modifyOptions.HasAnyFunction
+                && contentDisplayStyle == ContentDisplayStyle.ValueDetail)
+            {
+                contentDisplayStyle = ContentDisplayStyle.Value;
+            }
         }
 
-        if (modifyOptions.HasAnyFunction
-            && contentDisplayStyle == ContentDisplayStyle.ValueDetail)
+        if (Function.Any())
         {
-            contentDisplayStyle = ContentDisplayStyle.Value;
-        }
+            if (Modify.Any())
+            {
+                context.WriteError($"Options '{OptionNames.GetHelpText(OptionNames.Modify)}' and "
+                    + $"'{OptionNames.GetHelpText(OptionNames.Function)}' cannot be used both at the same time.");
 
-        if (aggregateOnly)
+                return false;
+            }
+
+            if (!context.TryParseFunctions(
+                Modify,
+                OptionNames.Modify,
+                out ModifyFunctions? functions,
+                out ValueSortProperty sortProperty))
+            {
+                return false;
+            }
+
+            options.ModifyOptions = new ModifyOptions(
+                functions.Value,
+                aggregate: false,
+                ignoreCase: (options.Matcher.Regex.Options & RegexOptions.IgnoreCase) != 0,
+                cultureInvariant: (options.Matcher.Regex.Options & RegexOptions.CultureInvariant) != 0,
+                sortProperty: sortProperty);
+
             context.Logger.ConsoleOut.Verbosity = Orang.Verbosity.Minimal;
+        }
 
         options.Format = new OutputDisplayFormat(
             contentDisplayStyle: contentDisplayStyle ?? ContentDisplayStyle.Value,
@@ -144,8 +200,6 @@ internal abstract class RegexCommandLineOptions : CommonRegexCommandLineOptions
 #else
             separator: Environment.NewLine);
 #endif
-
-        options.ModifyOptions = modifyOptions;
         options.Input = input;
 
         return true;

@@ -7,6 +7,7 @@ using System.Linq;
 using CommandLine;
 using Orang.CommandLine.Annotations;
 using Orang.FileSystem;
+using System.Text.RegularExpressions;
 
 namespace Orang.CommandLine;
 
@@ -14,8 +15,6 @@ namespace Orang.CommandLine;
 [CommandGroup("Main", 0)]
 internal sealed class FindCommandLineOptions : CommonFindCommandLineOptions
 {
-    public override ContentDisplayStyle DefaultContentDisplayStyle => ContentDisplayStyle.Line;
-
     [Option(
         longName: OptionNames.Ask,
         HelpText = "Ask for permission after each file or value.",
@@ -29,9 +28,17 @@ internal sealed class FindCommandLineOptions : CommonFindCommandLineOptions
     public string Pipe { get; set; } = null!;
 
     [Option(
+        longName: OptionNames.Function,
+        HelpText = "Space separated list of functions to modify a list of matches.",
+        MetaValue = MetaValues.Function)]
+    [AdditionalDescription(" All matches from all files are evaluated at once.")]
+    public IEnumerable<string> Function { get; set; } = null!;
+
+    [Option(
         longName: OptionNames.Modify,
-        HelpText = "Functions to modify results.",
+        HelpText = "[deprecated] Modify results according to specified values.",
         MetaValue = MetaValues.ModifyOptions)]
+    [HideFromHelp]
     public IEnumerable<string> Modify { get; set; } = null!;
 
     [Option(
@@ -107,28 +114,67 @@ internal sealed class FindCommandLineOptions : CommonFindCommandLineOptions
             }
         }
 
-        if (!context.TryParseModifyOptions(
-            Modify,
-            OptionNames.Modify,
-            out ModifyOptions? modifyOptions,
-            out bool aggregateOnly))
+        if (Modify.Any())
         {
-            return false;
+            context.WriteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Modify)}' has been deprecated "
+                + "and will be removed in future versions. "
+                + $"Use option '{OptionNames.GetHelpText(OptionNames.Function)}' instead.");
+
+            if (!context.TryParseModifyOptions(
+                Modify,
+                OptionNames.Modify,
+                out ModifyOptions? modifyOptions,
+                out bool aggregateOnly))
+            {
+                return false;
+            }
+
+            options.ModifyOptions = modifyOptions;
+            options.AggregateOnly = aggregateOnly;
+        }
+
+        if (Function.Any())
+        {
+            if (Modify.Any())
+            {
+                context.WriteError($"Options '{OptionNames.GetHelpText(OptionNames.Modify)}' and "
+                    + $"'{OptionNames.GetHelpText(OptionNames.Function)}' cannot be used both at the same time.");
+
+                return false;
+            }
+
+            if (options.ContentFilter is null)
+            {
+                context.WriteError($"Option '{OptionNames.GetHelpText(OptionNames.Content)}' is required when "
+                    + $"option '{OptionNames.GetHelpText(OptionNames.Function)}' is used.");
+
+                return false;
+            }
+
+            if (!context.TryParseFunctions(
+                Modify,
+                OptionNames.Modify,
+                out ModifyFunctions? functions,
+                out ValueSortProperty sortProperty))
+            {
+                return false;
+            }
+
+            options.ModifyOptions = new ModifyOptions(
+                functions.Value,
+                aggregate: false,
+                ignoreCase: (options.ContentFilter.Regex.Options & RegexOptions.IgnoreCase) != 0,
+                cultureInvariant: (options.ContentFilter.Regex.Options & RegexOptions.CultureInvariant) != 0,
+                sortProperty: sortProperty);
+
+            options.AggregateOnly = true;
         }
 
         OutputDisplayFormat format = options.Format;
         ContentDisplayStyle contentDisplayStyle = format.ContentDisplayStyle;
         PathDisplayStyle pathDisplayStyle = format.PathDisplayStyle;
 
-        if (modifyOptions.HasAnyFunction
-            && contentDisplayStyle == ContentDisplayStyle.ValueDetail)
-        {
-            contentDisplayStyle = ContentDisplayStyle.Value;
-        }
-
         options.Input = input;
-        options.ModifyOptions = modifyOptions;
-        options.AggregateOnly = aggregateOnly;
         options.Split = Split;
 
         options.Format = new OutputDisplayFormat(
@@ -139,6 +185,26 @@ internal sealed class FindCommandLineOptions : CommonFindCommandLineOptions
             displayParts: format.DisplayParts,
             indent: format.Indent,
             separator: format.Separator);
+
+        return true;
+    }
+
+    public override ContentDisplayStyle GetDefaultContentDisplayStyle()
+    {
+        return (Function.Any()) ? ContentDisplayStyle.Value : ContentDisplayStyle.Line;
+    }
+
+    public override bool VerifyContentDisplayStyle(ContentDisplayStyle contentDisplayStyle, ParseContext context)
+    {
+        if (Function.Any()
+            && contentDisplayStyle != ContentDisplayStyle.Value)
+        {
+            context.WriteError($"When option '{OptionNames.GetHelpText(OptionNames.Function)}' is used "
+                + $"option '{OptionNames.GetHelpText(OptionNames.ContentMode)}' must be set to "
+                + $"'{OptionValues.ContentDisplayStyle_Value.HelpValue}' (or unspecified).");
+
+            return false;
+        }
 
         return true;
     }

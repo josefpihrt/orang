@@ -11,8 +11,6 @@ namespace Orang.CommandLine;
 [OptionValueProvider(nameof(Highlight), OptionValueProviderNames.FindHighlightOptions)]
 internal abstract class CommonFindCommandLineOptions : FileSystemCommandLineOptions
 {
-    public abstract ContentDisplayStyle DefaultContentDisplayStyle { get; }
-
     [Option(
         shortName: OptionShortNames.Content,
         longName: OptionNames.Content,
@@ -88,6 +86,9 @@ internal abstract class CommonFindCommandLineOptions : FileSystemCommandLineOpti
                 out ContentDisplayStyle contentDisplayStyle2,
                 provider: OptionValueProviders.ContentDisplayStyleProvider))
             {
+                if (!VerifyContentDisplayStyle(contentDisplayStyle2, context))
+                    return false;
+
                 contentDisplayStyle = contentDisplayStyle2;
             }
             else
@@ -178,7 +179,7 @@ internal abstract class CommonFindCommandLineOptions : FileSystemCommandLineOpti
 
         options.Format = new OutputDisplayFormat(
             contentDisplayStyle: contentDisplayStyle
-                ?? ((ReferenceEquals(contentFilter, Matcher.EntireInput)) ? ContentDisplayStyle.AllLines : DefaultContentDisplayStyle),
+                ?? ((ReferenceEquals(contentFilter, Matcher.EntireInput)) ? ContentDisplayStyle.AllLines : GetDefaultContentDisplayStyle()),
             pathDisplayStyle: pathDisplayStyle ?? PathDisplayStyle.Full,
             lineOptions: lineDisplayOptions,
             lineContext: lineContext,
@@ -194,6 +195,13 @@ internal abstract class CommonFindCommandLineOptions : FileSystemCommandLineOpti
 
         options.MaxMatchingFiles = (contentFilter is null && MaxMatchingFiles == 0) ? MaxCount : MaxMatchingFiles;
 
+        return true;
+    }
+
+    public abstract ContentDisplayStyle GetDefaultContentDisplayStyle();
+
+    public virtual bool VerifyContentDisplayStyle(ContentDisplayStyle contentDisplayStyle, ParseContext context)
+    {
         return true;
     }
 }

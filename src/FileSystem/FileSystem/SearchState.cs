@@ -13,7 +13,7 @@ using static Orang.FileSystem.FileSystemUtilities;
 
 namespace Orang.FileSystem;
 
- internal class SearchState
+internal class SearchState
 {
     public SearchState(FileMatcher? matcher, DirectoryMatcher? directoryMatcher)
     {

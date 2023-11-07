@@ -194,11 +194,15 @@ public class MarkdownDocumentationWriter
 
     public virtual void WriteOptionDescription(CommandOption option)
     {
-        string description = option.FullDescription;
-
-        if (!string.IsNullOrEmpty(description))
+        if (!string.IsNullOrEmpty(option.Description)
+            || !string.IsNullOrEmpty(option.AdditionalDescription))
         {
-            _writer.WriteString(description);
+            if (!string.IsNullOrEmpty(option.Description))
+                _writer.WriteString(option.Description);
+
+            if (!string.IsNullOrEmpty(option.AdditionalDescription))
+                _writer.WriteRaw(option.AdditionalDescription);
+
             _writer.WriteLine();
             _writer.WriteLine();
         }

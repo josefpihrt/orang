@@ -85,7 +85,11 @@ internal class SearchState
                 += (object sender, DirectoryChangedEventArgs e) => newDirectoryPath = e.NewName;
         }
 
-        var directory = new Directory(directoryPath, 0, MatchStatus.Success);
+        MatchStatus matchStatus = (IncludeDirectory is not null || ExcludeDirectory is not null)
+            ? MatchStatus.Unknown
+            : MatchStatus.Success;
+
+        var directory = new Directory(directoryPath, 0, matchStatus);
 
         directories.Push(directory);
 
@@ -133,7 +137,7 @@ internal class SearchState
 
             FileMatch? directoryMatch = null;
 
-            MatchStatus matchStatus = (ExcludeDirectory is null && directory.IsSuccess)
+            matchStatus = (ExcludeDirectory is null && directory.IsSuccess)
                 ? MatchStatus.Success
                 : MatchStatus.Unknown;
 
@@ -276,8 +280,6 @@ internal class SearchState
 
     private MatchStatus IncludeOrExcludeDirectory(string path)
     {
-        Debug.Assert(IncludeDirectory is not null || ExcludeDirectory is not null);
-
         if (ExcludeDirectory?.Invoke(path) == true)
             return MatchStatus.FailFromNegative;
 

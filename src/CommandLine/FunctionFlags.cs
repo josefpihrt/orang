@@ -11,7 +11,5 @@ internal enum FunctionFlags
     Distinct = 1,
     Sort = 1 << 1,
     SortDescending = 1 << 2,
-    Except = 1 << 3,
-    Intersect = 1 << 4,
     Group = 1 << 5,
 }

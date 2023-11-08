@@ -374,20 +374,6 @@ internal class ParseContext
             return false;
         }
 
-        FunctionFlags exceptIntersectGroup = modifyFlags & (FunctionFlags.Except | FunctionFlags.Intersect | FunctionFlags.Group);
-
-        if (exceptIntersectGroup != FunctionFlags.None
-            && exceptIntersectGroup != FunctionFlags.Except
-            && exceptIntersectGroup != FunctionFlags.Intersect
-            && exceptIntersectGroup != FunctionFlags.Group)
-        {
-            Logger.WriteError($"Values '{OptionValues.ModifyFlags_Except.HelpValue}', "
-                + $"'{OptionValues.ModifyFlags_Intersect.HelpValue}' and "
-                + $"'{OptionValues.ModifyFlags_Group.HelpValue}' cannot be used at the same time.");
-
-            return false;
-        }
-
         functions = ModifyFunctions.None;
 
         if ((modifyFlags & FunctionFlags.Sort) != 0)
@@ -406,12 +392,6 @@ internal class ParseContext
 
         if ((modifyFlags & FunctionFlags.Distinct) != 0)
             functions |= ModifyFunctions.Distinct;
-
-        if ((modifyFlags & FunctionFlags.Except) != 0)
-            functions |= ModifyFunctions.Except;
-
-        if ((modifyFlags & FunctionFlags.Intersect) != 0)
-            functions |= ModifyFunctions.Intersect;
 
         if ((modifyFlags & FunctionFlags.Group) != 0)
         {

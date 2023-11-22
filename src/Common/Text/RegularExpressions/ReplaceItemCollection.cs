@@ -4,11 +4,3 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace Orang.Text.RegularExpressions;
-
-internal class ReplaceItemCollection : ReadOnlyCollection<ReplaceItem>
-{
-    internal ReplaceItemCollection(IList<ReplaceItem> list)
-        : base(list)
-    {
-    }
-}

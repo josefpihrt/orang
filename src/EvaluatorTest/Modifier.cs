@@ -4,11 +4,3 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace Orang.Runtime;
-
-public static class Modifier
-{
-    public static IEnumerable<string> Modify(IEnumerable<string> values)
-    {
-        return values.Select(f => Helpers.FirstCharToUpper(f));
-    }
-}

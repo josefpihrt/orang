@@ -213,7 +213,7 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
             return false;
         }
 
-        if (!context.TryParseEncoding(Encoding, out Encoding defaultEncoding, Text.EncodingHelpers.UTF8NoBom))
+        if (!ParseContext.TryParseEncoding(Encoding, out Encoding defaultEncoding, Text.EncodingHelpers.UTF8NoBom))
             return false;
 
         if (!context.TryParseSortOptions(Sort, OptionNames.Sort, out SortOptions? sortOptions))

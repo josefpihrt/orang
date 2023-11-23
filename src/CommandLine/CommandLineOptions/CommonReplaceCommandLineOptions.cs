@@ -93,10 +93,12 @@ internal abstract class CommonReplaceCommandLineOptions : FileSystemCommandLineO
             pipeMode = pipeMode2;
         }
 
+        string? redirectedInput = ConsoleHelpers.ReadRedirectedInput();
+
         if (pipeMode == CommandLine.PipeMode.Paths
             || pipeMode == CommandLine.PipeMode.Text)
         {
-            if (!Console.IsInputRedirected)
+            if (redirectedInput is null)
             {
                 context.WriteError("Redirected/piped input is required "
                     + $"when option '{OptionNames.GetHelpText(OptionNames.Pipe)}' is specified.");
@@ -143,7 +145,7 @@ internal abstract class CommonReplaceCommandLineOptions : FileSystemCommandLineO
 
         if (options.IsDefaultPath()
             && pipeMode != CommandLine.PipeMode.Paths
-            && Console.IsInputRedirected)
+            && redirectedInput is not null)
         {
             if (input is not null)
             {
@@ -161,7 +163,7 @@ internal abstract class CommonReplaceCommandLineOptions : FileSystemCommandLineO
                 return false;
             }
 
-            input = ConsoleHelpers.ReadRedirectedInput();
+            input = redirectedInput;
         }
 
         var displayParts = DisplayParts.None;

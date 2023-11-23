@@ -213,7 +213,7 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
             return false;
         }
 
-        if (!context.TryParseEncoding(Encoding, out Encoding defaultEncoding, Text.EncodingHelpers.UTF8NoBom))
+        if (!ParseContext.TryParseEncoding(Encoding, out Encoding defaultEncoding, Text.EncodingHelpers.UTF8NoBom))
             return false;
 
         if (!context.TryParseSortOptions(Sort, OptionNames.Sort, out SortOptions? sortOptions))
@@ -350,11 +350,13 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
             paths = paths.AddRange(pathsFromFile);
         }
 
-        if (Console.IsInputRedirected
+        ImmutableArray<string> redirectedInput = ConsoleHelpers.ReadRedirectedInputAsLines();
+
+        if (!redirectedInput.IsDefault
             && PipeMode == CommandLine.PipeMode.Paths)
         {
             if (!TryEnsureFullPath(
-                ConsoleHelpers.ReadRedirectedInputAsLines().Where(f => !string.IsNullOrEmpty(f)),
+                redirectedInput.Where(f => !string.IsNullOrEmpty(f)),
                 PathOrigin.RedirectedInput,
                 context,
                 out ImmutableArray<PathInfo> pathsFromInput))

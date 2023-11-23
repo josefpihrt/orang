@@ -58,10 +58,12 @@ internal sealed class FindCommandLineOptions : CommonFindCommandLineOptions
             pipeMode = pipeMode2;
         }
 
+        string? redirectedInput = ConsoleHelpers.ReadRedirectedInput();
+
         if (pipeMode == CommandLine.PipeMode.Paths
             || pipeMode == CommandLine.PipeMode.Text)
         {
-            if (!Console.IsInputRedirected)
+            if (redirectedInput is null)
             {
                 context.WriteError("Redirected/piped input is required "
                     + $"when option '{OptionNames.GetHelpText(OptionNames.Pipe)}' is specified.");
@@ -86,7 +88,7 @@ internal sealed class FindCommandLineOptions : CommonFindCommandLineOptions
 
         if (options.IsDefaultPath()
             && pipeMode != CommandLine.PipeMode.Paths
-            && Console.IsInputRedirected)
+            && redirectedInput is not null)
         {
             if (options.ContentFilter is null)
             {
@@ -96,7 +98,7 @@ internal sealed class FindCommandLineOptions : CommonFindCommandLineOptions
                 return false;
             }
 
-            input = ConsoleHelpers.ReadRedirectedInput();
+            input = redirectedInput;
 
             if (options.Paths.Length == 1
                 && options.Paths[0].Origin == PathOrigin.CurrentDirectory

@@ -42,8 +42,6 @@ public class CommandOption
 
     public string? AdditionalDescription { get; }
 
-    public string FullDescription => Description + AdditionalDescription;
-
     public bool IsRequired { get; }
 
     public string? ValueProviderName { get; }

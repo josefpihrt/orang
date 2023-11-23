@@ -1057,7 +1057,7 @@ internal class ParseContext
         }
     }
 
-    public bool TryParseEncoding(string name, out Encoding encoding, Encoding defaultEncoding)
+    public static bool TryParseEncoding(string name, out Encoding encoding, Encoding defaultEncoding)
     {
         if (name is null)
         {

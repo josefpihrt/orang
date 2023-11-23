@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- [CLI] Fix reading of redirected input ([PR](https://github.com/dotnet/roslynator/pull/91))
+
 ## [0.6.0] - 2023-11-07
 
 ## [0.6.0-beta] - 2023-10-19

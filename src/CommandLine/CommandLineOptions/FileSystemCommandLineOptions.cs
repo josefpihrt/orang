@@ -350,11 +350,13 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
             paths = paths.AddRange(pathsFromFile);
         }
 
-        if (Console.IsInputRedirected
+        ImmutableArray<string> redirectedInput = ConsoleHelpers.ReadRedirectedInputAsLines();
+
+        if (!redirectedInput.IsDefault
             && PipeMode == CommandLine.PipeMode.Paths)
         {
             if (!TryEnsureFullPath(
-                ConsoleHelpers.ReadRedirectedInputAsLines().Where(f => !string.IsNullOrEmpty(f)),
+                redirectedInput.Where(f => !string.IsNullOrEmpty(f)),
                 PathOrigin.RedirectedInput,
                 context,
                 out ImmutableArray<PathInfo> pathsFromInput))

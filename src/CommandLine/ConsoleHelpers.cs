@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Orang.CommandLine;
 
@@ -29,26 +30,47 @@ internal static class ConsoleHelpers
             using (Stream stream = Console.OpenStandardInput())
             using (var streamReader = new StreamReader(stream, Console.InputEncoding))
             {
-                return streamReader.ReadToEnd();
+                Task<string> readToEndTask = streamReader.ReadToEndAsync();
+
+                // https://github.com/dotnet/runtime/issues/95079
+                if (!readToEndTask.Wait(TimeSpan.FromMilliseconds(500)))
+                    return null;
+
+                return readToEndTask.Result;
             }
         }
 
         return null;
     }
 
-    public static IEnumerable<string> ReadRedirectedInputAsLines()
+    public static ImmutableArray<string> ReadRedirectedInputAsLines()
     {
         if (Console.IsInputRedirected)
         {
+            ImmutableArray<string>.Builder lines = ImmutableArray.CreateBuilder<string>();
+
             using (Stream stream = Console.OpenStandardInput())
             using (var streamReader = new StreamReader(stream, Console.InputEncoding))
             {
+                Task<string?> readLineTask = streamReader.ReadLineAsync();
+
+                // https://github.com/dotnet/runtime/issues/95079
+                if (!readLineTask.Wait(TimeSpan.FromMilliseconds(500)))
+                    return default;
+
+                if (readLineTask.Result is null)
+                    return ImmutableArray<string>.Empty;
+
                 string? line;
 
                 while ((line = streamReader.ReadLine()) is not null)
-                    yield return line;
+                    lines.Add(line);
             }
+
+            return lines.ToImmutableArray();
         }
+
+        return ImmutableArray<string>.Empty;
     }
 
     public static bool AskToExecute(string text, string? indent = null)

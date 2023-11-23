@@ -2,7 +2,7 @@
   "profiles": {
     "CommandLine": {
       "commandName": "Project",
-      "commandLineArgs": "find -e dll"
+      "commandLineArgs": "help -v d"
     }
   }
 }

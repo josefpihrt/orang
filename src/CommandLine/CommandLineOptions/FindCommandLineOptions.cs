@@ -120,7 +120,7 @@ internal sealed class FindCommandLineOptions : CommonFindCommandLineOptions
 
         if (Modify.Any())
         {
-            context.WriteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Modify)}' has been deprecated "
+            context.WriteDeprecatedWarning($"Option '{OptionNames.GetHelpText(OptionNames.Modify)}' has been deprecated "
                 + "and will be removed in future versions. "
                 + $"Use option '{OptionNames.GetHelpText(OptionNames.Function)}' instead.");
 

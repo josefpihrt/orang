@@ -221,7 +221,7 @@ internal abstract class FileSystemCommandLineOptions : CommonRegexCommandLineOpt
 
         if (IncludeDirectory.Any())
         {
-            context.WriteWarning($"Option '{OptionNames.GetHelpText(OptionNames.IncludeDirectory)}' has been deprecated "
+            context.WriteDeprecatedWarning($"Option '{OptionNames.GetHelpText(OptionNames.IncludeDirectory)}' has been deprecated "
                 + "and will be removed in future versions. "
                 + $"Use options '{OptionNames.GetHelpText(OptionNames.Include)}/{OptionNames.GetHelpText(OptionNames.Exclude)}' instead.");
         }

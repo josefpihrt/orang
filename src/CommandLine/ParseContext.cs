@@ -33,9 +33,9 @@ internal class ParseContext
         Logger = logger;
     }
 
-    public void WriteWarning(string message)
+    public void WriteDeprecatedWarning(string message)
     {
-        Logger.WriteWarning(message);
+        Logger.WriteDeprecatedWarning(message);
     }
 
     public void WriteError(Exception exception)

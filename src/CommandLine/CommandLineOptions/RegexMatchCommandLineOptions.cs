@@ -14,14 +14,6 @@ namespace Orang.CommandLine;
 internal sealed class RegexMatchCommandLineOptions : RegexCommandLineOptions
 {
     [Option(
-        shortName: OptionShortNames.Content,
-        longName: OptionNames.Content,
-        Required = true,
-        HelpText = "Regular expression for the input string.",
-        MetaValue = MetaValues.Regex)]
-    public IEnumerable<string> Content { get; set; } = null!;
-
-    [Option(
         shortName: OptionShortNames.MaxCount,
         longName: OptionNames.MaxCount,
         Default = -1,

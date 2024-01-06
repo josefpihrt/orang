@@ -39,6 +39,7 @@ internal static class OptionNames
     public const string Fixes = "fixes";
     public const string Flat = "flat";
     public const string FromFile = "from-file";
+    public const string Function = "function";
     public const string Help = "help";
     public const string Highlight = "highlight";
     public const string CharGroup = "char-group";

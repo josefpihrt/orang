@@ -42,10 +42,10 @@ internal sealed class HelpCommandLineOptions : AbstractCommandLineOptions
     public bool TryParse(HelpCommandOptions options, ParseContext context)
     {
         if (Filter.Any())
-            context.WriteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Filter)}' has been deprecated.");
+            context.WriteDeprecatedWarning($"Option '{OptionNames.GetHelpText(OptionNames.Filter)}' has been deprecated.");
 
         if (Online)
-            context.WriteWarning($"Option '{OptionNames.GetHelpText(OptionNames.Online)}' has been deprecated.");
+            context.WriteDeprecatedWarning($"Option '{OptionNames.GetHelpText(OptionNames.Online)}' has been deprecated.");
 
         options.Command = Command.ToArray();
         options.Manual = Manual;

@@ -10,6 +10,15 @@ namespace Orang;
 
 internal static class CommandLineExtensions
 {
+    public static void WriteDeprecatedWarning(
+        this Logger logger,
+        string message,
+        ConsoleColors colors = default,
+        Verbosity verbosity = Verbosity.Minimal)
+    {
+        logger.ConsoleOut.ErrorWriter.WriteLine(message, (colors.IsDefault) ? Colors.Message_Warning : colors, verbosity);
+    }
+
     public static void WriteWarning(
         this Logger logger,
         string message,

@@ -14,7 +14,6 @@ internal enum ModifyFlags
     Except = 1 << 3,
     Intersect = 1 << 4,
     Group = 1 << 5,
-    Except_Intersect_Group = Except | Intersect | Group,
     RemoveEmpty = 1 << 6,
     RemoveWhiteSpace = 1 << 7,
     TrimStart = 1 << 8,

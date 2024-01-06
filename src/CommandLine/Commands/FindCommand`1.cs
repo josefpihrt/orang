@@ -27,10 +27,11 @@ internal sealed class FindCommand<TOptions> : CommonFindCommand<TOptions> where 
     {
         get
         {
-            return !Options.OmitPath
-                || (ContentFilter is not null
-                    && !Options.OmitContent
-                    && _logger.ConsoleOut.Verbosity > Verbosity.Minimal);
+            return !Options.AggregateOnly
+                && (!Options.OmitPath
+                    || (ContentFilter is not null
+                        && !Options.OmitContent
+                        && _logger.ConsoleOut.Verbosity > Verbosity.Minimal));
         }
     }
 

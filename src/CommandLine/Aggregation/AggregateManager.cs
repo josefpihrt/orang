@@ -181,8 +181,11 @@ internal sealed class AggregateManager
                     {
                         int groupCount = valuesMap[en.Current].Count;
 
-                        _logger.Write("  ", Colors.Message_OK, Verbosity.Minimal);
-                        _logger.Write(groupCount.ToString("n0"), Colors.Message_OK, Verbosity.Minimal);
+                        if (groupCount > 1)
+                        {
+                            _logger.Write("  ", Colors.Message_OK, Verbosity.Minimal);
+                            _logger.Write(groupCount.ToString("n0"), Colors.Message_OK, Verbosity.Minimal);
+                        }
                     }
 
                     _logger.WriteLine(Verbosity.Minimal);

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2024-01-10
+
 ### Added
 
 - Add option `--function` which replaces `--modify` ([#87](https://github.com/josefpihrt/orang/pull/87)).

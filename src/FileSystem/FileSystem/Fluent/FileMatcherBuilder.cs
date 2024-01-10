@@ -135,7 +135,7 @@ public class FileMatcherBuilder
 
     internal FileMatcher Build()
     {
-        return new FileMatcher()
+        return new()
         {
             Name = _name,
             NamePart = _namePart ?? FileNamePart.Name,

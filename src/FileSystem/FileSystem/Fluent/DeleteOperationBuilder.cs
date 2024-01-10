@@ -43,7 +43,7 @@ public class DeleteOperationBuilder
 
     internal DeleteOptions CreateOptions()
     {
-        return new DeleteOptions()
+        return new()
         {
             ContentOnly = _contentOnly,
             IncludingBom = _includingBom,

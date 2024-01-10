@@ -77,7 +77,7 @@ public class DirectoryMatcherBuilder
 
     internal DirectoryMatcher Build()
     {
-        return new DirectoryMatcher()
+        return new()
         {
             Name = _name,
             NamePart = _namePart ?? FileNamePart.Name,

@@ -49,7 +49,7 @@ internal class FilePropertyOptions
 
     public FilePropertyOptions WithIncludeCreationTime(bool includeCreationTime)
     {
-        return new FilePropertyOptions(
+        return new(
             includeCreationTime: includeCreationTime,
             includeModifiedTime: IncludeModifiedTime,
             includeSize: IncludeSize,
@@ -60,7 +60,7 @@ internal class FilePropertyOptions
 
     public FilePropertyOptions WithIncludeModifiedTime(bool includeModifiedTime)
     {
-        return new FilePropertyOptions(
+        return new(
             includeCreationTime: IncludeCreationTime,
             includeModifiedTime: includeModifiedTime,
             includeSize: IncludeSize,
@@ -71,7 +71,7 @@ internal class FilePropertyOptions
 
     public FilePropertyOptions WithIncludeSize(bool includeSize)
     {
-        return new FilePropertyOptions(
+        return new(
             includeCreationTime: IncludeCreationTime,
             includeModifiedTime: IncludeModifiedTime,
             includeSize: includeSize,

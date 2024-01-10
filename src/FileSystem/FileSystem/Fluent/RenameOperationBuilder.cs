@@ -57,7 +57,7 @@ public class RenameOperationBuilder
 
     internal RenameOptions CreateOptions()
     {
-        return new RenameOptions()
+        return new()
         {
             ReplaceFunctions = _functions,
             CultureInvariant = _cultureInvariant,

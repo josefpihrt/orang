@@ -94,7 +94,7 @@ public class MoveOperationBuilder
 
     internal CopyOptions CreateOptions()
     {
-        return new CopyOptions()
+        return new()
         {
             ConflictResolution = _conflictResolution,
             ComparedProperties = _comparedProperties,

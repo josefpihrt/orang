@@ -69,7 +69,6 @@ internal static class SortHelpers
                 {
                     return (cultureInvariant) ? SearchResultComparer.Name_CultureInvariant : SearchResultComparer.Name;
                 }
-
             case SortProperty.CreationTime:
                 return SearchResultComparer.CreationTime;
             case SortProperty.ModifiedTime:

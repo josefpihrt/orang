@@ -60,7 +60,7 @@ internal class OutputCaptions
         string? shortLength = null,
         string? shortSplit = null)
     {
-        return new OutputCaptions(
+        return new(
             match ?? Match,
             group ?? Group,
             capture ?? Capture,

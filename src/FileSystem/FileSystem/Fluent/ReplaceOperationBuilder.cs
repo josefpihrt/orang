@@ -43,7 +43,7 @@ public class ReplaceOperationBuilder
 
     internal ReplaceOptions CreateOptions()
     {
-        return new ReplaceOptions()
+        return new()
         {
             ReplaceFunctions = _functions,
             CultureInvariant = _cultureInvariant,

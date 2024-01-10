@@ -33,9 +33,9 @@ internal class ParseContext
         Logger = logger;
     }
 
-    public void WriteWarning(string message)
+    public void WriteDeprecatedWarning(string message)
     {
-        Logger.WriteWarning(message);
+        Logger.WriteDeprecatedWarning(message);
     }
 
     public void WriteError(Exception exception)
@@ -320,6 +320,94 @@ internal class ParseContext
         }
     }
 
+    public bool TryParseFunctions(
+        IEnumerable<string> values,
+        string optionName,
+        [NotNullWhen(true)] out ModifyFunctions? functions,
+        [NotNullWhen(true)] out ValueSortProperty sortProperty)
+    {
+        functions = null;
+        sortProperty = ValueSortProperty.None;
+        List<string>? options = null;
+
+        foreach (string value in values)
+        {
+            int index = value.IndexOf('=');
+
+            if (index >= 0)
+            {
+                string key = value.Substring(0, index);
+                string value2 = value.Substring(index + 1);
+
+                if (OptionValues.SortBy.IsKeyOrShortKey(key))
+                {
+                    if (!TryParseAsEnum(
+                        value2,
+                        optionName,
+                        out sortProperty,
+                        provider: OptionValueProviders.ValueSortPropertyProvider))
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    WriteOptionError(value, optionName, OptionValueProviders.FunctionFlagsProvider);
+                    return false;
+                }
+            }
+            else
+            {
+                (options ??= new List<string>()).Add(value);
+            }
+        }
+
+        var modifyFlags = FunctionFlags.None;
+
+        if (options is not null
+            && !TryParseAsEnumFlags(
+                options,
+                optionName,
+                out modifyFlags,
+                provider: OptionValueProviders.FunctionFlagsProvider))
+        {
+            return false;
+        }
+
+        functions = ModifyFunctions.None;
+
+        if ((modifyFlags & FunctionFlags.Sort) != 0)
+            functions |= ModifyFunctions.SortAscending;
+
+        if ((modifyFlags & FunctionFlags.SortDescending) != 0)
+            functions |= ModifyFunctions.SortDescending;
+
+        if ((functions & ModifyFunctions.Sort) == ModifyFunctions.Sort)
+        {
+            Logger.WriteError($"Option '{optionName}' cannot use both '{OptionValues.ModifyOptions_Ascending.HelpValue}' "
+                + $"and '{OptionValues.ModifyOptions_Descending.HelpValue}' values.");
+
+            return false;
+        }
+
+        if ((modifyFlags & FunctionFlags.Distinct) != 0)
+            functions |= ModifyFunctions.Distinct;
+
+        if ((modifyFlags & FunctionFlags.Group) != 0)
+        {
+            functions |= ModifyFunctions.Group;
+            functions |= ModifyFunctions.Count;
+        }
+
+        if (sortProperty != ValueSortProperty.None
+            && (functions & ModifyFunctions.Sort) == 0)
+        {
+            functions |= ModifyFunctions.SortAscending;
+        }
+
+        return true;
+    }
+
     public bool TryParseModifyOptions(
         IEnumerable<string> values,
         string optionName,
@@ -376,12 +464,12 @@ internal class ParseContext
             return false;
         }
 
-        ModifyFlags except_Intersect_Group = modifyFlags & ModifyFlags.Except_Intersect_Group;
+        ModifyFlags exceptIntersectGroup = modifyFlags & (ModifyFlags.Except | ModifyFlags.Intersect | ModifyFlags.Group);
 
-        if (except_Intersect_Group != ModifyFlags.None
-            && except_Intersect_Group != ModifyFlags.Except
-            && except_Intersect_Group != ModifyFlags.Intersect
-            && except_Intersect_Group != ModifyFlags.Group)
+        if (exceptIntersectGroup != ModifyFlags.None
+            && exceptIntersectGroup != ModifyFlags.Except
+            && exceptIntersectGroup != ModifyFlags.Intersect
+            && exceptIntersectGroup != ModifyFlags.Group)
         {
             Logger.WriteError($"Values '{OptionValues.ModifyFlags_Except.HelpValue}', "
                 + $"'{OptionValues.ModifyFlags_Intersect.HelpValue}' and "

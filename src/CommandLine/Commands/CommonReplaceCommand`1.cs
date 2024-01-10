@@ -426,7 +426,7 @@ internal class CommonReplaceCommand<TOptions> : CommonFindCommand<TOptions> wher
 
     protected override ContentWriterOptions CreateContentWriterOptions(string indent)
     {
-        return new ContentWriterOptions(
+        return new(
             format: Options.Format,
             symbols: Symbols,
             highlightOptions: Options.HighlightOptions,

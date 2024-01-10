@@ -131,7 +131,7 @@ internal static class CommandUtility
     {
         if (commandAlias is not null)
         {
-            logger.WriteWarning($"Command '{args[0]}' has been deprecated "
+            logger.WriteDeprecatedWarning($"Command '{args[0]}' has been deprecated "
                 + $"and will be removed in future versions. Use command '{commandAlias}' instead.");
         }
 

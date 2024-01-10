@@ -45,6 +45,9 @@ internal static class OptionValues
     public static readonly SimpleOptionValue ModifyFlags_Group = SimpleOptionValue.Create(ModifyFlags.Group, shortValue: "", description: "Group matching files by matched values.");
     public static readonly SimpleOptionValue ModifyFlags_Count = SimpleOptionValue.Create(ModifyFlags.Count, shortValue: "", description: "Show number of values in a group.");
 
+    public static readonly SimpleOptionValue FunctionFlags_Sort = SimpleOptionValue.Create(FunctionFlags.Sort, shortValue: "", description: "Sort values in an ascending order.");
+    public static readonly SimpleOptionValue FunctionFlags_SortDescending = SimpleOptionValue.Create(FunctionFlags.SortDescending, shortValue: "", description: "Sort values in a descending order.");
+
     public static readonly SimpleOptionValue ModifyOptions_Ascending = SimpleOptionValue.Create(ModifyFlags.Ascending, description: "Sort values in an ascending order.");
     public static readonly SimpleOptionValue ModifyOptions_Descending = SimpleOptionValue.Create(ModifyFlags.Descending, description: "Sort values in a descending order.");
 

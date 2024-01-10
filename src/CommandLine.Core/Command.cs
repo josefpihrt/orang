@@ -45,11 +45,11 @@ public class Command
 
     public Command WithArguments(IEnumerable<CommandArgument> arguments)
     {
-        return new Command(Name, Description, Group, Alias, arguments, Options);
+        return new(Name, Description, Group, Alias, arguments, Options);
     }
 
     public Command WithOptions(IEnumerable<CommandOption> options)
     {
-        return new Command(Name, Description, Group, Alias, Arguments, options);
+        return new(Name, Description, Group, Alias, Arguments, options);
     }
 }
